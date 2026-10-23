@@ -3,7 +3,7 @@ name: dsphere-agent
 description: "Drive the user's DSphere browser through MCP: read pages, act on observed controls, collect datasets with the guided wizard, and run saved workflows. Read the orientation first; load only references needed for the task."
 metadata:
   author: "dsphere"
-  version: "1.8.2"
+  version: "1.8.3"
   specification: "https://agentskills.io/specification"
 ---
 

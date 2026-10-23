@@ -26,7 +26,7 @@ git -C <temporary-directory> show FETCH_HEAD:latest-version.json
 ```
 
 正式公开源也可读取表中的 HTTPS pointer；私有 HTTP 登录页、重定向、403 或 HTML 不算版本数据。
-If direct HTTP access to the guide/pointer fails, read the same repository through existing Git access. Missing access requires the user's action; never switch repositories/channels or collect credentials.
+If direct HTTP access to the guide/pointer fails, read the same repository through existing Git SSH access. Missing access requires the user's action; never switch repositories/channels or collect credentials.
 
 只接受 `version` 与 `tag`。version 必须是合法 SemVer，tag 必须精确等于 `dsphere-agent-v<version>`；不接受任意 tag、未发布版本或其他通道。主动检查必须重新 fetch，不能使用旧缓存。普通浏览器任务不因检查更新被中断，不启动后台静默升级。
 Validate SemVer and the exact tag prefix above. An explicit check fetches fresh metadata; no silent updates during ordinary tasks.
@@ -61,16 +61,3 @@ Verify actual Connector/runtime builds against the bundled manifest and the live
 
 后续主动检查和升级沿用本指南及包内 `references/skill-install-update.*.md`。自动检查缓存最多24小时；跳过某版本后的自动提示静默7天；显式检查始终重新获取。未经确认不覆盖文件、不删除另一通道、不自动发布任何版本。
 Later updates use this same repository pointer and the installed update references. Automatic checks may cache for 24 hours and mute a skipped version for 7 days; explicit checks are fresh. Never change another channel or publish a release as part of installation.
-
-## GitHub distribution / GitHub 分发说明
-
-本指南对应 GitHub 分发。包内旧版更新参考仍含 Gitee 地址；从本指南安装或更新时，始终使用上表的 GitHub 仓库和版本指针，不切换至 Gitee。包内平台注册与 MCP 接入步骤仍适用。
-For installation and updates through this GitHub distribution, the repository and pointer in this guide take precedence over the older Gitee fallback URLs in the packaged update references. Platform registration and MCP setup instructions in the verified package still apply.
-
-After checking out the validated release tag, verify the complete package before installation:
-
-```bash
-node skills/dsphere-agent/scripts/verify-package.mjs skills/dsphere-agent
-```
-
-Require `ok: true`. The guide is maintained on `main`; the release tag and its existing package remain immutable.

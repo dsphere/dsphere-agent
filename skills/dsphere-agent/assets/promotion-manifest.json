@@ -7,8 +7,8 @@
   },
   "files": {
     "SKILL.md": {
-      "canonical": "9199f4a53952ebd4afd54592fad716002410daebd5dd5584bf1917c14291b070",
-      "shipped": "9199f4a53952ebd4afd54592fad716002410daebd5dd5584bf1917c14291b070"
+      "canonical": "f360f1edc951c54bafb3578bd1d093b4a780bd89785f39a22aef0c04773976f2",
+      "shipped": "f360f1edc951c54bafb3578bd1d093b4a780bd89785f39a22aef0c04773976f2"
     },
     "agents/openai.yaml": {
       "canonical": "f6fff9c7b537d15e1ee2a39ce3f50e8a4925539f814637bf26d82b532c189cbf",
@@ -19,24 +19,24 @@
       "shipped": "6736311d03bdcf1ebac2e8a8c1f9001a6141fffd5ec3abe73e178b7676579330"
     },
     "assets/native/macos-arm64/dsphere-native-agent": {
-      "canonical": "cba87a21d2d246a7350499f67fd6b94e84cd5824d5eac3d6987bc82ff1dac6f0",
-      "shipped": "cba87a21d2d246a7350499f67fd6b94e84cd5824d5eac3d6987bc82ff1dac6f0"
+      "canonical": "20d2a78341080ae3e349fede331b91d5790422d9ec88f53a849a227aca509499",
+      "shipped": "20d2a78341080ae3e349fede331b91d5790422d9ec88f53a849a227aca509499"
     },
     "assets/native/macos-x64/dsphere-native-agent": {
-      "canonical": "3ae1bbedc56cef2e9ddf27bb1bcf99ea046cf2f6d1bfa00227a7f08d1da14c74",
-      "shipped": "3ae1bbedc56cef2e9ddf27bb1bcf99ea046cf2f6d1bfa00227a7f08d1da14c74"
+      "canonical": "525869d47bc6224f5a47c44f159b3751a8608082bf6eb57d85703d687312f498",
+      "shipped": "525869d47bc6224f5a47c44f159b3751a8608082bf6eb57d85703d687312f498"
     },
     "assets/native/manifest.json": {
-      "canonical": "022c11bc61e5961ef743ed15d6fb8a12d972be1378d835af34af4463d2736075",
-      "shipped": "022c11bc61e5961ef743ed15d6fb8a12d972be1378d835af34af4463d2736075"
+      "canonical": "1a791629dcd17ab5ac87f0a29558cbe4236c259dab30e94c243cdf07f16b3f44",
+      "shipped": "1a791629dcd17ab5ac87f0a29558cbe4236c259dab30e94c243cdf07f16b3f44"
     },
     "assets/native/windows-x64/dsphere-native-agent.exe": {
-      "canonical": "eb866e03d01a0a09365051cf65894610aedf5cd38575dd1bcaea5e2ff5584cb1",
-      "shipped": "eb866e03d01a0a09365051cf65894610aedf5cd38575dd1bcaea5e2ff5584cb1"
+      "canonical": "6636eb19a7ec87d03be189ebb33b8f5d569d644d22196a0d20f8d17018d40227",
+      "shipped": "6636eb19a7ec87d03be189ebb33b8f5d569d644d22196a0d20f8d17018d40227"
     },
     "assets/native/windows-x86/dsphere-native-agent.exe": {
-      "canonical": "8369951f83da499ca169cbae883bd4229036c58b445c6fbe58fee52b2a345593",
-      "shipped": "8369951f83da499ca169cbae883bd4229036c58b445c6fbe58fee52b2a345593"
+      "canonical": "098d0bee0c434ff0644594ac39443de1c75839aa849c1cee6577176ad7f18b4b",
+      "shipped": "098d0bee0c434ff0644594ac39443de1c75839aa849c1cee6577176ad7f18b4b"
     },
     "references/account-management.md": {
       "canonical": "0802fcedf40dbb1dd1a27878450f2a71b8280e2514b9d41ade497855d1fe80db",
@@ -940,11 +940,11 @@
     },
     "references/skill-install-update.en.md": {
       "canonical": "2f1809eef34acb0a4bb57cb67b180710582eaea3ff9ea3440d423af30db2c250",
-      "shipped": "2f1809eef34acb0a4bb57cb67b180710582eaea3ff9ea3440d423af30db2c250"
+      "shipped": "9862d45fc5738cbd25d6051729527f38cfe52f4517304903ee783bbda9b5fd5f"
     },
     "references/skill-install-update.zh-CN.md": {
       "canonical": "94fd8b4b422109ba3b537d5d7b2f275db54a4fbf7c4f384143d070703a306614",
-      "shipped": "94fd8b4b422109ba3b537d5d7b2f275db54a4fbf7c4f384143d070703a306614"
+      "shipped": "977d22a916ee8651389a9af592e67233a1134a9474574ddae8cbb6dff227174f"
     },
     "references/website-exploration.md": {
       "canonical": "6d965460886614f22562b2439cd9212d0d9760631f53ab2feefe037cdd04a0e8",
