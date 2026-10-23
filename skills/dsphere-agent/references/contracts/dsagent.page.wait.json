@@ -1,0 +1,196 @@
+{
+  "method": "dsagent.page.wait",
+  "version": 1,
+  "title": "Wait for a page condition",
+  "description": "Wait, bounded, for one condition on the page instead of polling dsagent.page.observe: the revision to change (sinceRevision), a target to appear or go (targetId + expectedRevision), text to show, the address to change, the page to settle, a surface to close (surfaceId from pageSurfaces), the…",
+  "guidance": "Wait, bounded, for one condition on the page instead of polling dsagent.page.observe: the revision to change (sinceRevision), a target to appear or go (targetId + expectedRevision), text to show, the address to change, the page to settle, a surface to close (surfaceId from pageSurfaces), the sign-in wall to clear, or a file the page saves to finish downloading. Returns met or timed-out with the latest revision; then observe with baseRevision. Read-only: no idempotency key, nothing is dispatched. Use it after an action whose receipt said pageSettled false, after a navigation the page performs itself, while the person signs in (authentication-cleared), or before acting on a panel that is still opening. A timed-out wait is not a failure of the page: read it and decide. A page the browser is not drawing is refused with PAGE_NOT_RENDERED before waiting: dsagent.page.focus, then wait again.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "pageContextId",
+      "until"
+    ],
+    "description": "The page, the condition and its bound.",
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "minLength": 8,
+        "maxLength": 128,
+        "description": "Opaque page context from dsagent.pages.list, dsagent.page.open, or a receipt's destinationPageContextId."
+      },
+      "until": {
+        "type": "string",
+        "enum": [
+          "revision-changed",
+          "target-present",
+          "target-absent",
+          "text-present",
+          "url-changed",
+          "settled",
+          "surface-closed",
+          "authentication-cleared",
+          "download"
+        ],
+        "description": "revision-changed: the page revision differs from sinceRevision. target-present / target-absent: the target (targetId at expectedRevision, from the latest observation) is visible / gone. text-present: the page shows the text (labels or visible text). url-changed: the address differs from the one at the start of the wait. settled: the page went quiet (no control-relevant mutations, its own requests finished). surface-closed: the surface with surfaceId is no longer open. authentication-cleared: the sign-in or verification wall is gone. download: a file the page started saving since your latest action on it (or since the wait began) finished downloading, or the browser stopped it (download.state says which); use it after a click whose page saves the file later: an export it builds first, a \"your download will start\" countdown, a document the server renders."
+      },
+      "timeoutMs": {
+        "type": "integer",
+        "minimum": 250,
+        "maximum": 25000,
+        "description": "How long to wait at most; 10000 by default."
+      },
+      "sinceRevision": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "With revision-changed: the revision you hold."
+      },
+      "targetId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "With target-present / target-absent: the opaque target."
+      },
+      "expectedRevision": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "With targetId: the revision it was published at."
+      },
+      "text": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 200,
+        "description": "With text-present: the words the page should show, as it prints them."
+      },
+      "surfaceId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "With surface-closed: the surface from pageSurfaces."
+      }
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "pageContextId",
+      "until",
+      "outcome",
+      "waitedMs"
+    ],
+    "description": "Whether the condition was met within the bound, and where the page is now.",
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "minLength": 8,
+        "maxLength": 128,
+        "description": "Opaque page context from dsagent.pages.list, dsagent.page.open, or a receipt's destinationPageContextId."
+      },
+      "until": {
+        "type": "string",
+        "enum": [
+          "revision-changed",
+          "target-present",
+          "target-absent",
+          "text-present",
+          "url-changed",
+          "settled",
+          "surface-closed",
+          "authentication-cleared",
+          "download"
+        ],
+        "description": "The condition waited for."
+      },
+      "outcome": {
+        "type": "string",
+        "enum": [
+          "met",
+          "timed-out"
+        ],
+        "description": "met: the condition held; timed-out: it did not within timeoutMs (read the page and decide; it is not an error)."
+      },
+      "waitedMs": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "How long the wait took."
+      },
+      "revision": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "The page revision when the wait ended (a met wait reads the page again if its condition did not), current enough to act at; pass it as baseRevision to the next observe."
+      },
+      "url": {
+        "type": "string",
+        "maxLength": 2048,
+        "description": "The page address as last read."
+      },
+      "change": {
+        "type": "string",
+        "enum": [
+          "changed",
+          "unchanged"
+        ],
+        "description": "With sinceRevision: whether the latest revision differs from it."
+      },
+      "authentication": {
+        "type": "object",
+        "additionalProperties": true,
+        "description": "With authentication-cleared and timed-out: the wall still standing (status, kind)."
+      },
+      "download": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "state"
+        ],
+        "description": "With download, once the page started one: the file as the browser saved it. A timed-out wait with state in_progress: the file is still arriving; wait again rather than clicking again.",
+        "properties": {
+          "state": {
+            "type": "string",
+            "enum": [
+              "complete",
+              "in_progress",
+              "interrupted"
+            ],
+            "description": "complete: saved in the Downloads folder; in_progress: still arriving; interrupted: the browser stopped it (a server error, a refused or cancelled download): the file was not saved."
+          },
+          "fileName": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "The name it was saved under, with the numbering the browser gives duplicates; never a folder."
+          },
+          "sizeBytes": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Its size in bytes (the bytes announced while it is still arriving)."
+          },
+          "mimeType": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "The type the server sent it as."
+          },
+          "interruptReason": {
+            "type": "string",
+            "maxLength": 64,
+            "description": "With interrupted: why the browser stopped it (SERVER_BAD_CONTENT, NETWORK_FAILED, USER_CANCELED...)."
+          }
+        }
+      }
+    }
+  },
+  "risk": "read-sensitive",
+  "targetKinds": [
+    "page"
+  ],
+  "requiredPermissions": [
+    "page.read"
+  ],
+  "timeoutMs": 30000,
+  "maxInlineResultBytes": 4096,
+  "concurrency": "shared-read",
+  "retry": "pre-dispatch-read-only",
+  "exposure": "exposed"
+}

@@ -1,0 +1,117 @@
+{
+  "method": "dsagent.diagnostics.export",
+  "version": 1,
+  "title": "Export local diagnostic records",
+  "description": "Export current-user retained ActionEpisode, DecisionSpan and TaskRun facts as one browser-downloaded ZIP containing offline HTML per-record details, JSONL and a checksummed manifest. No upload. Extract the ZIP and open index.html. Requires a Native Agent with archive.zip.v1.",
+  "guidance": "Requires an idempotency key; no arbitrary paths, queries or SQL. This is a diagnostic snapshot, not a complete task history.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "Bounded local diagnostic export interval.",
+    "properties": {
+      "rangeDays": {
+        "type": "integer",
+        "enum": [
+          1,
+          7,
+          14
+        ],
+        "description": "Look back 1, 7 or 14 days from snapshot creation."
+      }
+    },
+    "required": [
+      "rangeDays"
+    ]
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "Confirmed local diagnostic package and coverage.",
+    "properties": {
+      "archivePath": {
+        "type": "string",
+        "maxLength": 4096,
+        "description": "Absolute path of the completed ZIP download. Extract it and open index.html."
+      },
+      "fileName": {
+        "type": "string",
+        "maxLength": 256,
+        "description": "Suggested ZIP download file name."
+      },
+      "archiveSize": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Compressed ZIP byte size."
+      },
+      "sha256": {
+        "type": "string",
+        "pattern": "^[a-f0-9]{64}$",
+        "description": "SHA-256 of the complete ZIP bytes."
+      },
+      "downloadId": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Browser download ID, usable to locate the completed local file."
+      },
+      "fileCount": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Number of files including the manifest."
+      },
+      "missingReferences": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Distinct referenced records unavailable in retained storage."
+      },
+      "counts": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "Record counts per kind.",
+        "properties": {
+          "task-run": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Exported TaskRun records."
+          },
+          "decision-span": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Exported DecisionSpan records."
+          },
+          "action-episode": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Exported ActionEpisode records."
+          }
+        },
+        "required": [
+          "task-run",
+          "decision-span",
+          "action-episode"
+        ]
+      }
+    },
+    "required": [
+      "archivePath",
+      "fileName",
+      "archiveSize",
+      "sha256",
+      "downloadId",
+      "fileCount",
+      "missingReferences",
+      "counts"
+    ]
+  },
+  "risk": "reversible-write",
+  "targetKinds": [
+    "browser"
+  ],
+  "requiredPermissions": [
+    "diagnostics.export"
+  ],
+  "timeoutMs": 180000,
+  "maxInlineResultBytes": 8192,
+  "concurrency": "shared-read",
+  "retry": "never",
+  "exposure": "exposed"
+}

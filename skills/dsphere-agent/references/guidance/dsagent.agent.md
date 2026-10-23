@@ -1,0 +1,7 @@
+# Guidance: dsagent.agent
+
+Owner rules for planning with these methods, each paragraph once with the methods it applies to. They are projections of the owner descriptors (the live `guidance` field); the per-method references link here.
+
+- (dsagent.agent.work.finish) User tabs and pages held by a wizard, execution, question or sign-in are preserved. Active work must be resolved first. Without a finish call, ten idle minutes end an unattended ordinary task as interrupted, never as successful.
+
+- (dsagent.agent.work.list) What this browser still holds for you between calls (decision F4, failure-endpoint fallback §11): the guided wizards you started that are still open (dsagent.wizard.*), with how long each has waited for you and when it is released unless you address it (idle for 30 minutes of silence from your connection, or 20 minutes without a call naming it; a sign-in wall ends a wizard after 30 minutes); and the runs you started that wait on something in this browser (a sign-in wall the person must pass, host resource pressure, or your repair of a failed block), with the same pause dsagent.execution.get reports. Also how close the 8-wizard limit is and when the next slot frees by itself. Use it after a restart of your Connector (pass the runToken or wizardToken you kept to the run or wizard you take back), or when dsagent.wizard.start answers WIZARD_LIMIT_REACHED or WIZARD_ALREADY_ACTIVE. Read-only; your own work only, other agents' wizards are counted, never named.

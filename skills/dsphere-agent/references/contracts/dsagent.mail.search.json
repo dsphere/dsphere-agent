@@ -1,0 +1,275 @@
+{
+  "method": "dsagent.mail.search",
+  "version": 1,
+  "title": "Search the person's local email",
+  "description": "Search the mail the person synced into the DSphere Agent Email panel from their own IMAP account (stored locally through the Native Agent).",
+  "guidance": "Matches subjects, sender and recipient names and addresses, message bodies, and attachment names and text; plain words match anywhere, and from:, to:, subject:, body: or attachment: narrow one term (quote phrases: subject:\"quarterly report\"); is:unread, is:read, is:flagged and has:attachment filter; after:YYYY-MM-DD and before:YYYY-MM-DD bound the sent date and newer_than:30d or older_than:2w count back from now (d, w, m, y). Results are newest first with opaque message ids, an excerpt whose matched text is wrapped in ** and attachment names. It searches only what the panel has synced (the newest messages of each synced folder) and never contacts the mail server; indexed and pendingBodies say how much is searchable. It never returns account settings or passwords. When configured is false the person has not set up the Email panel yet.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "A search over the locally synced mail.",
+    "properties": {
+      "query": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 256,
+        "description": "Search words and operators, for example: invoice from:billing@example.com has:attachment newer_than:30d. Optional when a filter field is given."
+      },
+      "from": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 200,
+        "description": "Only mail whose sender name or address contains this text."
+      },
+      "to": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 200,
+        "description": "Only mail whose recipients (To or Cc) have a name or address containing this text."
+      },
+      "after": {
+        "type": "string",
+        "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+        "description": "Only mail sent on or after this day (YYYY-MM-DD, the person's local time)."
+      },
+      "until": {
+        "type": "string",
+        "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+        "description": "Only mail sent on or before this day (YYYY-MM-DD, the person's local time)."
+      },
+      "mailbox": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 1000,
+        "description": "Restrict to one folder, by the mailbox value a previous result returned (INBOX for the inbox). Omit to search every synced folder."
+      },
+      "limit": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 25,
+        "description": "How many results to return; default 10."
+      },
+      "cursor": {
+        "type": "string",
+        "pattern": "^\\d{1,7}$",
+        "description": "nextCursor from the previous page of the same search."
+      }
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "Matching messages, newest first.",
+    "properties": {
+      "configured": {
+        "type": "boolean",
+        "description": "Whether the person has set up an account in the Email panel."
+      },
+      "available": {
+        "type": "boolean",
+        "description": "Whether the local mail store is reachable now (it needs the Native Agent)."
+      },
+      "items": {
+        "type": "array",
+        "maxItems": 25,
+        "description": "Matching messages.",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "One matching message.",
+          "properties": {
+            "id": {
+              "type": "string",
+              "maxLength": 24,
+              "description": "Opaque message id."
+            },
+            "mailbox": {
+              "type": "string",
+              "maxLength": 1000,
+              "description": "Folder the message is in; pass it as mailbox to search that folder only."
+            },
+            "subject": {
+              "type": "string",
+              "maxLength": 300,
+              "description": "Subject."
+            },
+            "from": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "description": "A mail address with its display name.",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "maxLength": 200,
+                      "description": "Display name; empty when the message gave none."
+                    },
+                    "address": {
+                      "type": "string",
+                      "maxLength": 320,
+                      "description": "Email address."
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "address"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Sender, or null when the message has none."
+            },
+            "to": {
+              "type": "array",
+              "maxItems": 10,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "A mail address with its display name.",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "description": "Display name; empty when the message gave none."
+                  },
+                  "address": {
+                    "type": "string",
+                    "maxLength": 320,
+                    "description": "Email address."
+                  }
+                },
+                "required": [
+                  "name",
+                  "address"
+                ]
+              },
+              "description": "Recipients (To), at most ten."
+            },
+            "date": {
+              "type": "string",
+              "maxLength": 40,
+              "description": "Sent date as an ISO 8601 timestamp."
+            },
+            "excerpt": {
+              "type": "string",
+              "maxLength": 364,
+              "description": "Text around the match; matched text is wrapped in **."
+            },
+            "matchedFields": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "subject",
+                  "from",
+                  "to",
+                  "body",
+                  "attachment"
+                ]
+              },
+              "description": "Which parts of the message matched."
+            },
+            "unread": {
+              "type": "boolean",
+              "description": "Whether the message is unread."
+            },
+            "flagged": {
+              "type": "boolean",
+              "description": "Whether the message is flagged."
+            },
+            "attachments": {
+              "type": "array",
+              "maxItems": 10,
+              "description": "Attachments by name, at most ten.",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "One attachment.",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "description": "File name."
+                  },
+                  "mimeType": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "description": "Media type."
+                  },
+                  "size": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Size in bytes."
+                  }
+                },
+                "required": [
+                  "name",
+                  "mimeType",
+                  "size"
+                ]
+              }
+            }
+          },
+          "required": [
+            "id",
+            "mailbox",
+            "subject",
+            "from",
+            "to",
+            "date",
+            "excerpt",
+            "matchedFields",
+            "unread",
+            "flagged",
+            "attachments"
+          ]
+        }
+      },
+      "nextCursor": {
+        "anyOf": [
+          {
+            "type": "string",
+            "pattern": "^\\d{1,7}$"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "description": "Pass as cursor for the next page; null when there are no more."
+      },
+      "indexed": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "How many messages are stored and searchable by their headers."
+      },
+      "pendingBodies": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "How many stored messages still wait for their bodies (their bodies are not searchable yet)."
+      }
+    },
+    "required": [
+      "configured",
+      "available",
+      "items",
+      "nextCursor",
+      "indexed",
+      "pendingBodies"
+    ]
+  },
+  "risk": "read-sensitive",
+  "targetKinds": [
+    "local-mail"
+  ],
+  "requiredPermissions": [
+    "mail.read"
+  ],
+  "timeoutMs": 15000,
+  "maxInlineResultBytes": 65536,
+  "concurrency": "shared-read",
+  "retry": "pre-dispatch-read-only",
+  "exposure": "exposed"
+}

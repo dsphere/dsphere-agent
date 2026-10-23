@@ -1,0 +1,65 @@
+{
+  "method": "dsagent.agent.work.finish",
+  "version": 1,
+  "title": "Finish my ordinary browser task",
+  "description": "Call before your final answer when an ordinary browser task has ended. Name one page belonging to that task and report succeeded, failed or cancelled. Ends only your task and starts the existing 60-second shutdown countdown on its owned tabs, including child tabs. The person can keep them open.",
+  "guidance": "User tabs and pages held by a wizard, execution, question or sign-in are preserved. Active work must be resolved first. Without a finish call, ten idle minutes end an unattended ordinary task as interrupted, never as successful.",
+  "inputSchema": {
+    "description": "The page identifying your task and its verified terminal outcome.",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "pageContextId",
+      "status"
+    ],
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "A page reference belonging to the task you are finishing."
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "succeeded",
+          "failed",
+          "cancelled"
+        ],
+        "description": "The outcome you verified for this task."
+      }
+    }
+  },
+  "outputSchema": {
+    "description": "The recorded terminal outcome of this task.",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "status"
+    ],
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "succeeded",
+          "failed",
+          "cancelled",
+          "interrupted"
+        ],
+        "description": "The terminal status recorded for this task."
+      }
+    }
+  },
+  "risk": "reversible-write",
+  "targetKinds": [
+    "page"
+  ],
+  "requiredPermissions": [
+    "page.close"
+  ],
+  "timeoutMs": 30000,
+  "maxInlineResultBytes": 1024,
+  "concurrency": "exclusive-target",
+  "retry": "never",
+  "exposure": "exposed"
+}

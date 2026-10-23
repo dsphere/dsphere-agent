@@ -1,0 +1,182 @@
+{
+  "method": "dsagent.browser.sessions.list",
+  "version": 1,
+  "title": "List reusable browser sessions",
+  "description": "List the browser sessions a task can open pages in, each with the websites it holds sign-in evidence for: the person's default session, the named sessions (sessionGroup new/previous) and the managed application accounts' own sessions (dsagent.page.open accountId).",
+  "guidance": "Call it before opening a site for a task that names an application account, or whose site needs a sign-in: prefer a session whose site state is signed-in and whose accountLabel, observedAccountLabel or account names match the account the task names, and open the page there (default: omit sessionGroup; named: sessionGroup previous with sessionName; account: accountId). accountLabel is the account the person said they signed in with on DSphere's sign-in sheet; signed-in means the person passed a sign-in wall there and no wall was found since, which is evidence, not proof: a page that shows a wall again is handed to the person as usual. Never start a new session or ask the person to sign in again when a matching signed-in session is listed. previousAccountLabel with accountSwitchedAt means the person later signed in there with another account: when the task needs the previous account, do not use that session for it; tell the person. Read-only; no page is opened.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "Filters for the session catalog.",
+    "properties": {
+      "site": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 300,
+        "description": "Optional website (an http(s) address or a host such as www.example.com): only that site's evidence, and only sessions holding some (the default session is always listed)."
+      },
+      "query": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 200,
+        "description": "Optional case-insensitive text matched against session names, application and account names, the account labels the person gave and the accounts pages showed."
+      }
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "sessions"
+    ],
+    "description": "The reusable browser sessions, the default first, then the most recently signed in.",
+    "properties": {
+      "sessions": {
+        "type": "array",
+        "maxItems": 50,
+        "description": "Browser sessions with their sign-in evidence.",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "session",
+            "openPages",
+            "sites"
+          ],
+          "description": "One browser session.",
+          "properties": {
+            "session": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kind"
+              ],
+              "description": "The browser session the page is in: default (the person's own), named (sessionGroup new/previous; reopen with previous and sessionName), account (a managed application account's own session; open pages in it with dsagent.page.open accountId) or other (a session agents cannot open pages in, such as a workflow run's isolated one).",
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "default",
+                    "named",
+                    "account",
+                    "other"
+                  ],
+                  "description": "The kind of browser session."
+                },
+                "sessionName": {
+                  "type": "string",
+                  "maxLength": 40,
+                  "description": "With named: the session's name, for sessionGroup previous."
+                },
+                "accountId": {
+                  "type": "string",
+                  "maxLength": 128,
+                  "description": "With account: the opaque application account id, for dsagent.page.open accountId."
+                },
+                "appName": {
+                  "type": "string",
+                  "maxLength": 200,
+                  "description": "With account: the application's name."
+                },
+                "accountName": {
+                  "type": "string",
+                  "maxLength": 300,
+                  "description": "With account: the account's label in the person's account catalog."
+                }
+              }
+            },
+            "openPages": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "How many tabs of the session are open now."
+            },
+            "sites": {
+              "type": "array",
+              "maxItems": 20,
+              "description": "Websites the session holds sign-in evidence for, most recent first.",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "site",
+                  "state"
+                ],
+                "description": "The sign-in evidence of one website in the session.",
+                "properties": {
+                  "site": {
+                    "type": "string",
+                    "maxLength": 253,
+                    "description": "The website's registrable domain (sign-ins span its hosts), for example example.com."
+                  },
+                  "state": {
+                    "type": "string",
+                    "enum": [
+                      "signed-in",
+                      "sign-in-required"
+                    ],
+                    "description": "signed-in: the person passed a sign-in wall here and none was found since; sign-in-required: the last word is a sign-in wall."
+                  },
+                  "accountLabel": {
+                    "type": "string",
+                    "maxLength": 80,
+                    "description": "The account the person said they signed in with, when they gave one."
+                  },
+                  "signedInAt": {
+                    "type": "string",
+                    "maxLength": 40,
+                    "description": "When the person last passed a sign-in wall here (ISO 8601)."
+                  },
+                  "wallAt": {
+                    "type": "string",
+                    "maxLength": 40,
+                    "description": "When a sign-in wall was last found here (ISO 8601)."
+                  },
+                  "previousAccountLabel": {
+                    "type": "string",
+                    "maxLength": 80,
+                    "description": "The account named here before, when the person later signed in with another one: the session switched accounts on this site. In the default session that also switched the person's own browsing."
+                  },
+                  "accountSwitchedAt": {
+                    "type": "string",
+                    "maxLength": 40,
+                    "description": "When the session switched from previousAccountLabel to the account it uses now here (ISO 8601)."
+                  },
+                  "switchEvidence": {
+                    "type": "string",
+                    "enum": [
+                      "named",
+                      "observed"
+                    ],
+                    "description": "What told the switch: named (the person named another account on the sign-in sheet; compare accountLabel) or observed (the page showed another signed-in account; compare observedAccountLabel)."
+                  },
+                  "observedAccountLabel": {
+                    "type": "string",
+                    "maxLength": 80,
+                    "description": "The account the page last showed as signed in on this site in this session (dsagent.page.account.detect, or read after a sign-in): what the page shows, evidence rather than proof."
+                  },
+                  "observedAt": {
+                    "type": "string",
+                    "maxLength": 40,
+                    "description": "When the page last showed observedAccountLabel (ISO 8601)."
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "risk": "read-sensitive",
+  "targetKinds": [
+    "browser"
+  ],
+  "requiredPermissions": [
+    "page.read"
+  ],
+  "timeoutMs": 15000,
+  "maxInlineResultBytes": 65536,
+  "concurrency": "shared-read",
+  "retry": "pre-dispatch-read-only",
+  "exposure": "exposed"
+}

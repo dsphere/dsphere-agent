@@ -1,0 +1,170 @@
+{
+  "method": "dsagent.pages.list",
+  "version": 1,
+  "title": "List browser pages",
+  "description": "List bounded, automatable browser pages using opaque page context IDs.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "activeOnly": {
+        "type": "boolean",
+        "description": "When true, return only the active browser page."
+      },
+      "limit": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 50,
+        "description": "Maximum pages to return; defaults to 25."
+      }
+    },
+    "additionalProperties": false,
+    "description": "Filters for the bounded browser page catalog."
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "pages": {
+        "type": "array",
+        "maxItems": 50,
+        "description": "Automatable pages represented by opaque page context IDs.",
+        "items": {
+          "type": "object",
+          "properties": {
+            "pageContextId": {
+              "type": "string",
+              "maxLength": 128,
+              "description": "Opaque page identifier accepted by page observation and action capabilities."
+            },
+            "title": {
+              "type": "string",
+              "maxLength": 300,
+              "description": "Bounded page title."
+            },
+            "url": {
+              "type": "string",
+              "maxLength": 2048,
+              "description": "Sanitized page URL without credentials."
+            },
+            "active": {
+              "type": "boolean",
+              "description": "Whether this is the active browser page."
+            },
+            "owner": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "agent",
+                    "person"
+                  ],
+                  "description": "agent: a page opened for an agent (dsagent.page.open, a guided wizard, a named browser session); person: one of the person's own tabs."
+                },
+                "mine": {
+                  "type": "boolean",
+                  "description": "True for a page opened for you; you may act on it, emulate it and close it. Another agent's page refuses your actions (POLICY_DENIED PAGE_OWNED_BY_OTHER_AGENT) while that agent works; an unattended agent page becomes yours when you act on it."
+                },
+                "agentName": {
+                  "type": "string",
+                  "maxLength": 80,
+                  "description": "The other agent working on this page, when it is theirs and still connected."
+                }
+              },
+              "required": [
+                "kind",
+                "mine"
+              ],
+              "additionalProperties": false,
+              "description": "Whose page it is."
+            },
+            "held": {
+              "type": "string",
+              "enum": [
+                "guided-wizard",
+                "workflow-run",
+                "another-agent"
+              ],
+              "description": "Who holds the page now: a guided wizard, a workflow run, or another agent's lease on the person's page (TARGET_BUSY until it lapses)."
+            },
+            "session": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kind"
+              ],
+              "description": "The browser session the page is in: default (the person's own), named (sessionGroup new/previous; reopen with previous and sessionName), account (a managed application account's own session; open pages in it with dsagent.page.open accountId) or other (a session agents cannot open pages in, such as a workflow run's isolated one).",
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "default",
+                    "named",
+                    "account",
+                    "other"
+                  ],
+                  "description": "The kind of browser session."
+                },
+                "sessionName": {
+                  "type": "string",
+                  "maxLength": 40,
+                  "description": "With named: the session's name, for sessionGroup previous."
+                },
+                "accountId": {
+                  "type": "string",
+                  "maxLength": 128,
+                  "description": "With account: the opaque application account id, for dsagent.page.open accountId."
+                },
+                "appName": {
+                  "type": "string",
+                  "maxLength": 200,
+                  "description": "With account: the application's name."
+                },
+                "accountName": {
+                  "type": "string",
+                  "maxLength": 300,
+                  "description": "With account: the account's label in the person's account catalog."
+                }
+              }
+            },
+            "heldBy": {
+              "type": "string",
+              "maxLength": 80,
+              "description": "The agent holding the lease, with held another-agent."
+            }
+          },
+          "required": [
+            "pageContextId",
+            "title",
+            "url",
+            "active",
+            "owner"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "total": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Total matching page count before the requested limit."
+      }
+    },
+    "required": [
+      "pages",
+      "total"
+    ],
+    "additionalProperties": false,
+    "description": "Bounded catalog of automatable browser pages."
+  },
+  "risk": "read-sensitive",
+  "targetKinds": [
+    "page"
+  ],
+  "requiredPermissions": [
+    "page.read"
+  ],
+  "timeoutMs": 10000,
+  "maxInlineResultBytes": 65536,
+  "concurrency": "shared-read",
+  "retry": "pre-dispatch-read-only",
+  "exposure": "exposed"
+}

@@ -1,0 +1,386 @@
+{
+  "method": "dsagent.execution.handoff.get",
+  "version": 1,
+  "title": "Get a run's repair handoff",
+  "description": "Read the bounded, redacted context of a run paused for your repair (pause.kind agent-repair of dsagent.execution.get / wait; failure-endpoint fallback tier E3): the typed endpoint the block failed on, the block, the element it was recorded on (tag, role, label, intent; never a selector), the loop…",
+  "guidance": "Read the bounded, redacted context of a run paused for your repair (pause.kind agent-repair of dsagent.execution.get / wait; failure-endpoint fallback tier E3): the typed endpoint the block failed on, the block, the element it was recorded on (tag, role, label, intent; never a selector), the loop item, the in-run recovery's decline, the answers accepted and the deadline. With candidates (default true) it also lists the page targets that read like the recorded element, best first, from the page observation owner (opaque targetId and revision as dsagent.page.find issues them): evidence for your own choice, never the Extension's; a retry retarget is still verified against the recorded identity (for a control renamed on purpose, say identityChangeIntended in dsagent.execution.handoff.resume). With vision true (only when you read images) it adds one redacted screenshot of the run page's viewport. Only the agent that started the run may read or answer it (after a restart of your Connector, pass runToken once and the run follows your new connection); the person may answer the same handoff in the SidePanel, and the first answer wins. While the run waits, its pages (pause.pageContextId) are yours to observe and act on with dsagent.page.* (dismiss an overlay, scroll, bring the target into view; never pass a sign-in or verification wall: that is the person's). Then answer with dsagent.execution.handoff.resume or end it with dsagent.execution.handoff.abort. At most 5 handoffs per run and one per block and loop item; an unanswered handoff ends the run failed after 10 minutes. Read-only.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "The handoff to read, and the evidence you want with it.",
+    "properties": {
+      "handoffId": {
+        "type": "string",
+        "maxLength": 64,
+        "description": "The handoff to act on: pause.handoffId of dsagent.execution.get / wait.",
+        "pattern": "^handoff_[a-f0-9]{32}$"
+      },
+      "runToken": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "The run's ownership token, as dsagent.execution.run or dsagent.wizard.run returned it (shown once). Pass it when your browser connection was renewed (a restarted Connector): the run, its open repair handoff and its pages follow you to the new connection. Not needed on the connection that started the run.",
+        "pattern": "^[A-Za-z0-9_-]{16,128}$"
+      },
+      "candidates": {
+        "type": "boolean",
+        "description": "List the run page's targets that read like the recorded element (default true)."
+      },
+      "vision": {
+        "type": "boolean",
+        "description": "Declare that you read images: the result adds one redacted JPEG of the run page's viewport as image content (default false)."
+      }
+    },
+    "required": [
+      "handoffId"
+    ]
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "The open handoff and the page to repair it on.",
+    "properties": {
+      "executionId": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "The paused run."
+      },
+      "handoff": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "The open handoff.",
+        "properties": {
+          "handoffId": {
+            "type": "string",
+            "maxLength": 64,
+            "description": "The handoff."
+          },
+          "endpoint": {
+            "type": "string",
+            "enum": [
+              "target-not-found",
+              "target-ambiguous",
+              "target-stale",
+              "target-out-of-range",
+              "target-covered",
+              "recorded-target-unreached",
+              "list-unbound",
+              "click-not-dispatched",
+              "loop-no-elements",
+              "wait-timeout",
+              "readiness-deadline",
+              "readiness-target-missing",
+              "readiness-wrong-document",
+              "readiness-unresolved",
+              "block-timeout",
+              "navigation-failed",
+              "navigation-not-observed",
+              "new-tab-not-opened",
+              "new-tab-url-rejected",
+              "new-tab-open-failed",
+              "tab-unavailable",
+              "effect-unverified",
+              "detail-visit-unverified",
+              "media-state-unverified",
+              "nested-identity-conflict",
+              "continuation-source-changed",
+              "traversal-budget-exhausted",
+              "record-limit-not-reached",
+              "list-load-incomplete",
+              "records-not-saved",
+              "config-invalid",
+              "input-data-unavailable",
+              "execution-state-invalid",
+              "api-request-failed",
+              "browser-operation-failed",
+              "script-error",
+              "permission-denied",
+              "person-declined",
+              "auth-required",
+              "execution-stopped",
+              "parallel-group-timeout",
+              "workflow-invalid",
+              "engine-error",
+              "dataset-save-unconfirmed",
+              "plan-restricted",
+              "run-ownership-conflict",
+              "recovery-replay-forbidden",
+              "run-tab-group-closed",
+              "recovery-reopen-unavailable",
+              "recovery-attempts-exhausted",
+              "recovery-snapshot-missing",
+              "unclassified"
+            ],
+            "description": "The typed execution endpoint the block failed on."
+          },
+          "endpointDetails": {
+            "type": "object",
+            "description": "Value-free scalars about the endpoint (navigation failureClass, readiness phase and reason, timeout, lookalikes, effect), as terminal runs report them. For block-timeout they say why the block took that long: timeoutMs, attempts and waitingOn (the page command it still waited on). For traversal-budget-exhausted: the dimension, and resumeCursor when a retry continues the read from where it paused."
+          },
+          "nodeId": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "The failed block."
+          },
+          "blockType": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "Its block type."
+          },
+          "blockLabel": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "Its label in the workflow."
+          },
+          "targetDescription": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "The element the block was recorded on, as a person names it; never a selector."
+          },
+          "attempt": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5,
+            "description": "The run's how-many-th handoff."
+          },
+          "deadline": {
+            "type": "string",
+            "maxLength": 40,
+            "description": "ISO time after which the run ends failed on the block's endpoint if you have not answered."
+          },
+          "loopItem": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "The loop item the block failed in, when it ran in a loop.",
+            "properties": {
+              "loopNodeId": {
+                "type": "string",
+                "maxLength": 200,
+                "description": "The loop block whose item failed."
+              },
+              "index": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Zero-based index of the item."
+              }
+            },
+            "required": [
+              "loopNodeId",
+              "index"
+            ]
+          },
+          "recoveryDecline": {
+            "type": "string",
+            "maxLength": 80,
+            "description": "Why the in-run recovery declined before the handoff, when it tried."
+          },
+          "waitingOn": {
+            "type": "string",
+            "enum": [
+              "agent",
+              "person"
+            ],
+            "description": "agent: you (the person may answer in the SidePanel too; the first answer wins). person: your control session ended and stayed away past the grace, so the person answers in the SidePanel until the earlier deadline; you may still answer while it is open."
+          },
+          "openedFor": {
+            "type": "string",
+            "enum": [
+              "agent",
+              "person"
+            ],
+            "description": "Whom the handoff was opened for: agent (the agent that started the run) or person (a run nobody started over MCP or the Chat; only the person answers it, in the SidePanel)."
+          },
+          "restored": {
+            "type": "boolean",
+            "description": "The handoff was open when the Extension restarted and was restored with the same id and deadline; its answers say what the resumed run can still do (no retarget)."
+          },
+          "answers": {
+            "type": "array",
+            "maxItems": 3,
+            "items": {
+              "type": "string",
+              "enum": [
+                "retry",
+                "skip-item",
+                "continue"
+              ],
+              "description": "One answer resume accepts."
+            },
+            "description": "The answers this handoff accepts."
+          },
+          "retargetable": {
+            "type": "boolean",
+            "description": "Whether retry may rebind the block to another element (retarget)."
+          }
+        },
+        "required": [
+          "handoffId",
+          "endpoint",
+          "nodeId",
+          "blockType",
+          "attempt",
+          "deadline",
+          "answers",
+          "retargetable"
+        ]
+      },
+      "pageContextId": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "The run page the block failed on, issued to you: observe it (dsagent.page.observe / find) and act on it while the run waits."
+      },
+      "recordedTarget": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "What the block was recorded on; a retarget must name an element the Extension verifies against it.",
+        "properties": {
+          "tag": {
+            "type": "string",
+            "maxLength": 40,
+            "description": "The recorded element's tag."
+          },
+          "role": {
+            "type": "string",
+            "maxLength": 40,
+            "description": "Its role."
+          },
+          "label": {
+            "type": "string",
+            "maxLength": 120,
+            "description": "Its label, text or hint as recorded, redacted."
+          },
+          "intent": {
+            "type": "string",
+            "maxLength": 40,
+            "description": "The control's recorded purpose, when it has one (for example pagination-next)."
+          },
+          "targetMode": {
+            "type": "string",
+            "enum": [
+              "exact",
+              "collection"
+            ],
+            "description": "exact: one element; collection: the element read in every list item (pick one item's element to retarget)."
+          }
+        },
+        "required": [
+          "tag",
+          "targetMode"
+        ]
+      },
+      "candidates": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "Present when candidates were asked for and the run page and the recorded element have something to search by.",
+        "properties": {
+          "revision": {
+            "type": "string",
+            "maxLength": 128,
+            "description": "The page revision of the first search; each match carries its own."
+          },
+          "query": {
+            "type": "string",
+            "maxLength": 120,
+            "description": "The first search: the recorded label, else the recorded role."
+          },
+          "matches": {
+            "type": "array",
+            "maxItems": 5,
+            "description": "Targets that read like the recorded element, best first.",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "description": "One candidate.",
+              "properties": {
+                "target": {
+                  "type": "object",
+                  "description": "The opaque target as dsagent.page.find lists it (targetId, label, role, actions); never a selector."
+                },
+                "score": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 400,
+                  "description": "Relative match strength within this list only."
+                },
+                "matchedOn": {
+                  "type": "array",
+                  "maxItems": 6,
+                  "items": {
+                    "type": "string",
+                    "description": "One target fact that matched."
+                  },
+                  "description": "Which target facts matched."
+                },
+                "searchedBy": {
+                  "type": "string",
+                  "enum": [
+                    "label",
+                    "role"
+                  ],
+                  "description": "label: it reads like the recorded label (any role); role: it has the recorded role, or the other clickable role (a button that became a link)."
+                },
+                "revision": {
+                  "type": "string",
+                  "maxLength": 128,
+                  "description": "The page revision this targetId belongs to (pass it as expectedRevision / targetRevision)."
+                }
+              },
+              "required": [
+                "target",
+                "score"
+              ]
+            }
+          },
+          "evidenceOnly": {
+            "type": "boolean",
+            "enum": [
+              true
+            ],
+            "description": "Always true: the ranking is evidence; you choose, and the Extension verifies a retarget against the recorded identity."
+          }
+        },
+        "required": [
+          "revision",
+          "query",
+          "matches",
+          "evidenceOnly"
+        ]
+      },
+      "candidatesUnavailable": {
+        "type": "string",
+        "maxLength": 80,
+        "description": "Why no candidates were listed: no-run-page, nothing-recorded, or the page owner's refusal code."
+      },
+      "visual": {
+        "type": "object",
+        "description": "With vision: the screenshot's receipt as dsagent.page.visual.observe gives it (revision, size, redaction); the image itself is the result's image content."
+      },
+      "visualUnavailable": {
+        "type": "string",
+        "maxLength": 80,
+        "description": "Why no screenshot was added: no-run-page, or the page owner's refusal code."
+      }
+    },
+    "required": [
+      "executionId",
+      "handoff"
+    ]
+  },
+  "risk": "read-sensitive",
+  "targetKinds": [
+    "workflow"
+  ],
+  "requiredPermissions": [
+    "workflow.read"
+  ],
+  "timeoutMs": 45000,
+  "maxInlineResultBytes": 49152,
+  "concurrency": "shared-read",
+  "retry": "pre-dispatch-read-only",
+  "exposure": "exposed",
+  "resultContentTypes": [
+    "structured",
+    "image"
+  ],
+  "maxResultContentCount": 1,
+  "maxResultContentBytes": 262144
+}

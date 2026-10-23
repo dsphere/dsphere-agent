@@ -1,0 +1,108 @@
+{
+  "method": "dsagent.app.accounts.list",
+  "version": 1,
+  "title": "List application accounts",
+  "description": "List bounded application-account labels using opaque account IDs.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "workflowId": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "Optional opaque workflow ID used to restrict accounts to one workflow."
+      },
+      "query": {
+        "type": "string",
+        "maxLength": 200,
+        "description": "Optional case-insensitive label search across application and account names."
+      },
+      "page": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 100000,
+        "description": "One-based result page; defaults to 1."
+      },
+      "pageSize": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 100,
+        "description": "Maximum records per page; defaults to 50."
+      }
+    },
+    "additionalProperties": false,
+    "description": "Filters and pagination for the application-account catalog."
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "records": {
+        "type": "array",
+        "maxItems": 100,
+        "description": "Records in the requested page.",
+        "items": {
+          "type": "object",
+          "properties": {
+            "accountId": {
+              "type": "string",
+              "maxLength": 128,
+              "description": "Opaque account identifier accepted by dsagent.execution.run."
+            },
+            "appName": {
+              "type": "string",
+              "maxLength": 300,
+              "description": "Human-readable application label."
+            },
+            "accountName": {
+              "type": "string",
+              "maxLength": 300,
+              "description": "Human-readable account label."
+            }
+          },
+          "required": [
+            "accountId",
+            "appName",
+            "accountName"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "total": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Total matching record count."
+      },
+      "page": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 100000,
+        "description": "One-based page returned."
+      },
+      "pageSize": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 100,
+        "description": "Requested maximum records per page."
+      }
+    },
+    "required": [
+      "records",
+      "total",
+      "page",
+      "pageSize"
+    ],
+    "additionalProperties": false,
+    "description": "Paginated application-account labels and opaque IDs."
+  },
+  "risk": "read-sensitive",
+  "targetKinds": [
+    "workflow"
+  ],
+  "requiredPermissions": [
+    "workflow.read"
+  ],
+  "timeoutMs": 15000,
+  "maxInlineResultBytes": 262144,
+  "concurrency": "shared-read",
+  "retry": "pre-dispatch-read-only",
+  "exposure": "exposed"
+}

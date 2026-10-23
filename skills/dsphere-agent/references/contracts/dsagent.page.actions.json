@@ -1,0 +1,3073 @@
+{
+  "method": "dsagent.page.actions",
+  "version": 1,
+  "title": "Act on browser page targets in sequence",
+  "description": "Execute up to 8 planned atomic actions in order on one page, each validated against the page as the previous one left it; stops at the first failure, navigation or missing target and returns a receipt per executed action plus final.",
+  "guidance": "The sequence stops at the first failure (stopped.reason=failed with the single action's error code), at an action that moved to another page or tab (navigated; continue on the returned pageContextId) or at a target the page no longer lists (target-missing), and returns a receipt per executed action beside final, the last action's receipt and complete bounded current target inventory. The first action keeps the dsagent.page.action contract: a stale expectedRevision is refused before anything is dispatched. Use a sequence only for atomic steps already decided from one observation.\n\nUse only normal user-facing page interactions to complete browser tasks. Never inspect or probe network endpoints, replay requests, infer APIs, or reverse-engineer URL changes. Never construct, edit or vary a URL/query/fragment to perform search, sort, filtering, pagination, record navigation or collection. Open only the user-supplied URL or the named website entry page; thereafter use observed links and controls. Returned URLs are outcome evidence, not permission to navigate programmatically. No DevTools, address-bar tricks, scripts or external HTTP tools to bypass this rule. Network quiescence counts may be used only to wait for the UI. Website exploration capture/report capabilities are opt-in: invoke them only when the user explicitly requests website exploration or an exploration report. Never add exploration capture or export to an ordinary atomic execution loop. Exploration itself follows the same normal-interaction and wizard-only collection rules. Plan the same preparation, interaction and goal verification the page action owners of the Extension apply. Each call still executes exactly one requested action; a successful gesture is not proof of the business goal. Panel opening: hover first on the observed opener, even when its metadata lists only click. Inspect the returned revision and pageSurfaces: compare surface identity/appearance and broughtBy attribution with the pre-action baseline, even when target revision is unchanged. If a relevant menu, listbox, panel or dialog opened, use its observed options and do not click the opener. A tooltip alone does not establish opening. Click the same opener only after evidence confirms no relevant reveal; never batch hover and click unconditionally. If an earlier click left the pointer on a closed opener, one evidence-grounded hover to a neutral target then re-entry may restore the hover transition. Stop if that does not resolve it. Search: enter the query, then use the observed submit control or Enter on the focused search field; verify the query and refreshed results, not just the input value. Read pending results before deciding on any alternative submission. Sort/filter: prefer native controls; open panels with the hover-first procedure, choose observed options matching the requested scope, direction or value, apply only when required, and verify selected state plus the settled result list. Move the pointer to an observed neutral target after selection if its hover panel obscures results; do not toggle the opener or reapply an uncertain effect. Reveal: open the observed disclosure, then verify the requested content or region is visible. Opening a comment panel is preparation; collect its records through dsagent.wizard.*. Nested replies belong to the wizard, not repeated ad hoc extraction. Forms: inspect the actual enabled field and its current state; use native input/select/check actions, skip states already satisfied, verify the resulting value and validation, then submit only with the person's authorization. Do not infer form success from filling fields. Navigation: choose a grounded link, verify the destination identity and destinationPageContextId, and keep account/session continuity. Never continue on an authentication or wrong-application page. Downloads are completed effects and must not be clicked again. Scroll/pagination: scroll the region that owns the requested records, consume new revisions, verify new records or the page indicator and loading completion. Use native pagination when present; stop after two batches without progress, and never treat a scroll receipt alone as end-of-data. Overlays: identify the overlay and its own close control, respect consent and sign-in requirements, then verify disappearance and the underlying target's actionability. Do not click through occlusion or choose an unrelated close icon. Sign-in: authentication.status \"sign-in-required\" on a page result means the sign-in monitor found a sign-in or verification wall; waitingOn says whose. \"agent\" (a CAPTCHA or bot check): pass it yourself with page gestures within the reported attempt budget. \"person\": only dismiss, scroll, Escape and a click on activeSurface.closeTargetId run; others get AUTHENTICATION_REQUIRED; ask the person to sign in or pass the check and wait; never sign in or type credentials. Act only once the result carries no authentication. Recovery for every action: use the latest opaque targets and revision, reobserve after a not-dispatched stale refusal, and repair only from new evidence within a bounded attempt budget. After OUTCOME_UNKNOWN verify read-only; never repeat the possibly completed effect. Keep explicit playback/resume commands distinct from automatic incidental-media preparation.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "taskDescription": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 2000,
+        "description": "The person’s request in detail (what to do, on which site, with which data), as you would tell them; DSphere shows it as the task in the SidePanel Chat and the live execution panel, and its first line, shortened, names the browser tab group the pages you open in the person’s session are gathered in (one group per task: a page.open without it stays in your current task’s group). Required on the first call that starts work in a task (dsagent.page.open, or the first page.action / page.actions on a page you did not open): such a call on a task that has no description yet is refused with INVALID_REQUEST, businessCode task-description-required. Later calls of the same task need not repeat it. Presentation context only, never delegated planning. Do not include credentials."
+      },
+      "pageContextId": {
+        "type": "string",
+        "minLength": 8,
+        "maxLength": 128,
+        "description": "Opaque page context from dsagent.pages.list, dsagent.page.open, or a receipt's destinationPageContextId."
+      },
+      "expectedRevision": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "Observed revision the first action's target was chosen from; later actions are validated against the page the previous action left."
+      },
+      "actions": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 8,
+        "description": "The atomic actions, in order; each names an opaque target of the page as the previous action left it.",
+        "items": {
+          "type": "object",
+          "properties": {
+            "targetId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "description": "Opaque target identifier returned by dsagent.page.observe or by the previous action's targets."
+            },
+            "action": {
+              "type": "string",
+              "enum": [
+                "click",
+                "detect-form-fields",
+                "handle-dialog",
+                "dismiss",
+                "drag",
+                "drag-move",
+                "drag-press",
+                "drag-release",
+                "fill-form",
+                "history-back",
+                "history-forward",
+                "hover",
+                "input",
+                "press-key",
+                "scroll",
+                "select",
+                "set-checkbox",
+                "set-radio",
+                "reload",
+                "upload-file",
+                "load-options",
+                "detect-marquees",
+                "detect-videos",
+                "pause-marquees",
+                "pause-videos",
+                "play-videos",
+                "resume-marquees",
+                "detect-ads",
+                "remove-ads"
+              ],
+              "description": "Atomic action dynamically projected from AutonomousExecutableAction public exposures."
+            },
+            "clickType": {
+              "type": "string",
+              "enum": [
+                "click",
+                "dblclick",
+                "rightclick",
+                "middleclick"
+              ],
+              "description": "Optional click variant; defaults to a single left click. dblclick opens/edits items that need it, rightclick opens the context menu, middleclick asks for a background tab."
+            },
+            "modifiers": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "ctrl": {
+                  "type": "boolean",
+                  "description": "Hold Ctrl (Windows/Linux): toggle-select in lists, or open a link in a background tab."
+                },
+                "shift": {
+                  "type": "boolean",
+                  "description": "Hold Shift: range-select in lists, or open a link in a new window where the page does so."
+                },
+                "alt": {
+                  "type": "boolean",
+                  "description": "Hold Alt/Option: download a link instead of opening it where the page does so."
+                },
+                "meta": {
+                  "type": "boolean",
+                  "description": "Hold Meta/Command (macOS): the Ctrl role on macOS pages."
+                }
+              },
+              "description": "Optional modifier keys held during the click: ctrl/shift for multi-select in lists, ctrl or meta on a link for a background tab, alt where the page downloads instead of opening."
+            },
+            "offset": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "dx",
+                "dy"
+              ],
+              "properties": {
+                "dx": {
+                  "type": "integer",
+                  "minimum": -4000,
+                  "maximum": 4000,
+                  "description": "Horizontal offset from the target centre in CSS pixels, right positive; at most half the target width."
+                },
+                "dy": {
+                  "type": "integer",
+                  "minimum": -4000,
+                  "maximum": 4000,
+                  "description": "Vertical offset from the target centre in CSS pixels, down positive; at most half the target height."
+                }
+              },
+              "description": "Optional point inside the target instead of its centre (click: where to click; drag: where to press before moving; drag-press: where to press and hold): the offset from the centre, within the target's own box (the rect of the observation that published it). For a canvas or a single picture whose parts are not targets (click the characters in order, pick the pictures that show X, drag a piece drawn on the picture): measure the point on the visual.observe image against the target rect. An offset outside the box is refused with INVALID_REQUEST before anything is dispatched; the page sees the point clamped to the live box."
+            },
+            "dialogAction": {
+              "type": "string",
+              "enum": [
+                "accept",
+                "dismiss",
+                "native"
+              ],
+              "description": "How the page's next alert, confirm or prompt is answered: accept (OK, with promptText for a prompt), dismiss (Cancel), or native (the browser shows it to the person, who answers it). Use it on the page target right before the action that raises the dialog (a delete behind a confirm, a leave-page prompt)."
+            },
+            "promptText": {
+              "type": "string",
+              "maxLength": 2000,
+              "description": "With dialogAction accept: the text a prompt is answered with."
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "page",
+                "unload"
+              ],
+              "description": "page (default): alert, confirm and prompt. unload with dialogAction accept: leave the page despite its unsaved-changes prompt."
+            },
+            "scope": {
+              "type": "string",
+              "enum": [
+                "next",
+                "session"
+              ],
+              "description": "next (default): the next dialog only. session: every dialog on the pages this agent session works on, until the session ends."
+            },
+            "dropTargetId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "description": "With drag: the opaque target to drop the dragged target onto (from the same observation). Required unless delta is given."
+            },
+            "delta": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "dx",
+                "dy"
+              ],
+              "properties": {
+                "dx": {
+                  "type": "integer",
+                  "minimum": -4000,
+                  "maximum": 4000,
+                  "description": "Horizontal offset in CSS pixels, right positive."
+                },
+                "dy": {
+                  "type": "integer",
+                  "minimum": -4000,
+                  "maximum": 4000,
+                  "description": "Vertical offset in CSS pixels, down positive."
+                }
+              },
+              "description": "With drag: the pixel offset from the press point (the dragged target's centre, or its offset point) to the release point (a slider knob); required unless dropTargetId is given. With drag-move: where the held pointer goes, as the offset from the drag-press point (required). With drag-release: an optional last move, the same way, before letting go."
+            },
+            "formFields": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 30,
+              "description": "With fill-form: the fields to fill, in order. First call detect-form-fields on the page target and fill by its fieldIds; name a targetId from CURRENT TARGETS only as the fallback, for a field detect-form-fields did not list (a field in a frame, an unlabelled control). text fields take value (date, time and number fields take common wording and get the canonical value: 2026/9/21, 2:30 pm); select fields take value (an option label) or selections (several, for a multiple select); checkbox and radio fields take checked (a radio option is chosen with checked true). Every entry is checked before anything is written: failureCode candidate-not-found (unknown fieldId or target), value-not-found (no such option: details.failureReason lists the options), input-invalid (the wrong kind of value), operation-not-authorized (a password or one-time code: the person enters it), target-not-actionable (disabled or read-only) refuse the call with nothing written. A failure while filling (effect-not-observed, target-scope-changed) stops at that field: details.filledFields names the fields already filled and details.failedField the one that failed. fill-form never submits the form: submit it with a click on its submit button when the task says to.",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "One field and its value: exactly one of fieldId or targetId, and exactly one of value, checked or selections.",
+                "properties": {
+                  "fieldId": {
+                    "type": "string",
+                    "pattern": "^fld-[0-9a-f]{12}$",
+                    "description": "A fieldId detect-form-fields returned (the default)."
+                  },
+                  "targetId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128,
+                    "description": "Fallback only: an exact target ID from CURRENT TARGETS for a field detection did not list."
+                  },
+                  "value": {
+                    "type": "string",
+                    "maxLength": 8000,
+                    "description": "The text for a text field, or the option label for a select."
+                  },
+                  "checked": {
+                    "type": "boolean",
+                    "description": "The final state of a checkbox, or true to choose a radio option."
+                  },
+                  "selections": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 50,
+                    "items": {
+                      "type": "string",
+                      "maxLength": 2000,
+                      "description": "An option label."
+                    },
+                    "description": "Every option a multiple select should end up with."
+                  }
+                }
+              }
+            },
+            "value": {
+              "type": "string",
+              "maxLength": 8000,
+              "description": "Text value to enter into the opaque target. For date/time/number/range/color inputs any common wording is canonicalised (2026/9/21, 2:30 pm, 50%, red)."
+            },
+            "key": {
+              "type": "string",
+              "enum": [
+                "Enter",
+                "Escape",
+                "Tab",
+                "Backspace",
+                "Delete",
+                "Space",
+                "ArrowUp",
+                "ArrowDown",
+                "ArrowLeft",
+                "ArrowRight",
+                "Home",
+                "End",
+                "PageUp",
+                "PageDown",
+                "Control+0",
+                "Control+1",
+                "Control+2",
+                "Control+3",
+                "Control+4",
+                "Control+5",
+                "Control+6",
+                "Control+7",
+                "Control+8",
+                "Control+9",
+                "Meta+0",
+                "Meta+1",
+                "Meta+2",
+                "Meta+3",
+                "Meta+4",
+                "Meta+5",
+                "Meta+6",
+                "Meta+7",
+                "Meta+8",
+                "Meta+9",
+                "Shift+Tab",
+                "Control+a",
+                "Control+c",
+                "Control+v",
+                "Control+x",
+                "Control+z",
+                "Control+Enter",
+                "Shift+Enter",
+                "/",
+                "?"
+              ],
+              "description": "Key or modifier chord to press in the current page target context. Chords use \"+\" (Control+a)."
+            },
+            "repeat": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 20,
+              "description": "Press the same key this many times in a row (ArrowDown ×5 walks a listbox); defaults to 1."
+            },
+            "scrollTo": {
+              "type": "string",
+              "enum": [
+                "top",
+                "bottom",
+                "next-viewport",
+                "previous-viewport"
+              ],
+              "description": "Bounded destination for scrolling the opaque page or element target."
+            },
+            "viewportRatio": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 1,
+              "description": "Optional fraction of one viewport for next-viewport or previous-viewport; defaults to one. Use previous-viewport to move upward without returning to the top."
+            },
+            "axis": {
+              "type": "string",
+              "enum": [
+                "y",
+                "x"
+              ],
+              "description": "Optional scroll axis; y (vertical) by default. Use x for an element target that scrolls sideways (its scrollAxis is x or both: carousel, tab strip, wide table): top/bottom then mean start/end and a viewport step is the element width."
+            },
+            "selection": {
+              "type": "string",
+              "maxLength": 2000,
+              "description": "Exact option value, label or index to select through the shared form owner."
+            },
+            "selectBy": {
+              "type": "string",
+              "enum": [
+                "value",
+                "text",
+                "index"
+              ],
+              "description": "How selection names the option; defaults to value."
+            },
+            "selections": {
+              "type": "array",
+              "maxItems": 50,
+              "items": {
+                "type": "string",
+                "maxLength": 2000
+              },
+              "description": "Optional complete selection for a multiple-select control."
+            },
+            "checked": {
+              "type": "boolean",
+              "description": "Required final checked state; the owner verifies it after execution."
+            },
+            "bypassCache": {
+              "type": "boolean",
+              "description": "Reload past the browser cache; false by default."
+            },
+            "uploadId": {
+              "type": "string",
+              "pattern": "^upl_[0-9a-f]{32}$",
+              "minLength": 36,
+              "maxLength": 36,
+              "description": "With upload-file: the uploadId dsagent_upload_file returned for the local file to upload (stage it with this instance). When the person turned on Settings → File Uploads (off by default), they are asked in the DSphere side panel before the file goes into a site, once per file and site: until they answer the call is refused TARGET_BUSY with businessCode FILE_RELEASE_CONSENT_REQUIRED (nothing was placed; wait, then repeat the call with the same idempotencyKey), and a no is POLICY_DENIED with FILE_RELEASE_DENIED (tell the person; do not retry). Call upload-file on the page target first: the Extension detects the page's upload slots and places the file into the one slot it finds. On a page with several slots, call it on the target of the intended upload control or drop area instead, and it uses the detected slot holding that target. Only when the page target reports failureCode candidate-not-found (no upload slot detected) call it on the page's own upload button as the fallback: the button is clicked with the file chooser intercepted, so no dialog opens. Other failure codes: candidate-ambiguous (several slots: observe, then call it on the control of the intended slot), value-not-found (the upload expired or was staged with another browser: stage it again), destination-http-error (the page sent the file and its server rejected it). operationResult.uploadState is uploaded when the page's upload request completed, placed when the page holds the file but has not sent it yet (it may send it on submit). Never click an upload button yourself to open the native file chooser."
+            },
+            "level": {
+              "type": "string",
+              "enum": [
+                "basic",
+                "standard",
+                "aggressive"
+              ],
+              "description": "Ad rule tier: basic, standard (default), or aggressive."
+            },
+            "persistent": {
+              "type": "boolean",
+              "description": "Keep removing newly inserted ads while this run holds the page; defaults to true."
+            },
+            "waitAfter": {
+              "type": "object",
+              "properties": {
+                "until": {
+                  "type": "string",
+                  "enum": [
+                    "revision-changed",
+                    "target-present",
+                    "target-absent",
+                    "text-present",
+                    "url-changed",
+                    "settled",
+                    "surface-closed",
+                    "authentication-cleared",
+                    "download"
+                  ],
+                  "description": "The dsagent.page.wait condition to wait for after the action, on the page it left: revision-changed (from the receipt revision), target-present / target-absent (targetId), text-present (text), url-changed, settled, surface-closed (surfaceId), authentication-cleared, download (a file the click asked for that the page saves later: an export it builds first, a countdown page, a document the server renders)."
+                },
+                "timeoutMs": {
+                  "type": "integer",
+                  "minimum": 100,
+                  "maximum": 8000,
+                  "description": "At most this long; 3000 by default."
+                },
+                "targetId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "description": "With target-present / target-absent: the opaque target, as the receipt or the latest observation lists it."
+                },
+                "text": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200,
+                  "description": "With text-present: the words the page should show."
+                },
+                "surfaceId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "description": "With surface-closed: the surface from pageSurfaces."
+                }
+              },
+              "required": [
+                "until"
+              ],
+              "additionalProperties": false,
+              "description": "Only on the last step: a dsagent.page.wait folded into the sequence after that step, as dsagent.page.action waitAfter does; its outcome is on that step's receipt and the final inventory is the page after the wait."
+            }
+          },
+          "required": [
+            "targetId",
+            "action"
+          ],
+          "additionalProperties": false,
+          "description": "One atomic action of the sequence."
+        }
+      }
+    },
+    "required": [
+      "pageContextId",
+      "expectedRevision",
+      "actions"
+    ],
+    "additionalProperties": false,
+    "description": "One page context, the revision the sequence starts from, and the ordered actions."
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "The page context the sequence ended on (another one after a navigated stop)."
+      },
+      "previousRevision": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "The revision the sequence started from."
+      },
+      "revision": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "The page revision after the last executed action."
+      },
+      "executed": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 8,
+        "description": "How many actions executed and verified."
+      },
+      "receipts": {
+        "type": "array",
+        "maxItems": 8,
+        "description": "One receipt per executed action, in order.",
+        "items": {
+          "type": "object",
+          "properties": {
+            "index": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Position in actions."
+            },
+            "targetId": {
+              "type": "string",
+              "maxLength": 128,
+              "description": "Opaque target the action acted on."
+            },
+            "action": {
+              "type": "string",
+              "enum": [
+                "click",
+                "detect-form-fields",
+                "handle-dialog",
+                "dismiss",
+                "drag",
+                "drag-move",
+                "drag-press",
+                "drag-release",
+                "fill-form",
+                "history-back",
+                "history-forward",
+                "hover",
+                "input",
+                "press-key",
+                "scroll",
+                "select",
+                "set-checkbox",
+                "set-radio",
+                "reload",
+                "upload-file",
+                "load-options",
+                "detect-marquees",
+                "detect-videos",
+                "pause-marquees",
+                "pause-videos",
+                "play-videos",
+                "resume-marquees",
+                "detect-ads",
+                "remove-ads"
+              ],
+              "description": "Atomic action that executed."
+            },
+            "success": {
+              "type": "boolean",
+              "description": "True: the action executed and its effect was verified."
+            },
+            "rehover": {
+              "type": "object",
+              "properties": {
+                "targetId": {
+                  "type": "string",
+                  "maxLength": 128,
+                  "description": "The target whose earlier hover was refused pointer-already-inside; it acts at the revision of this receipt."
+                },
+                "label": {
+                  "type": "string",
+                  "maxLength": 32,
+                  "description": "Its bounded visible label."
+                },
+                "hint": {
+                  "type": "string",
+                  "maxLength": 128,
+                  "description": "What to do next: hover that target again now."
+                }
+              },
+              "required": [
+                "targetId",
+                "label",
+                "hint"
+              ],
+              "additionalProperties": false,
+              "description": "Present on a hover receipt when an earlier hover on another target of this page was refused pointer-already-inside: this hover moved the pointer away, so hover rehover.targetId again now, at this revision, to send it the enter event it missed (a menu or panel that opens on pointer-enter)."
+            },
+            "detail": {
+              "type": "string",
+              "maxLength": 1000,
+              "description": "Bounded action receipt detail."
+            },
+            "previousRevision": {
+              "type": "string",
+              "maxLength": 128,
+              "description": "Revision verified immediately before the action."
+            },
+            "revision": {
+              "type": "string",
+              "maxLength": 128,
+              "description": "Page revision observed after the action."
+            },
+            "change": {
+              "type": "string",
+              "enum": [
+                "full",
+                "delta",
+                "unchanged"
+              ],
+              "description": "Observed page change mode after the action."
+            },
+            "url": {
+              "type": "string",
+              "maxLength": 2048,
+              "description": "Sanitized page URL observed after the action."
+            },
+            "navigationUrl": {
+              "type": "string",
+              "maxLength": 2048,
+              "description": "Optional sanitized navigation destination reported by the action runtime."
+            },
+            "effect": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "navigated",
+                    "surface-opened",
+                    "surface-closed",
+                    "region-shown",
+                    "region-hidden",
+                    "value-changed",
+                    "state-changed",
+                    "media",
+                    "download",
+                    "none"
+                  ],
+                  "description": "The strongest change the page showed after the action; none when it showed no change."
+                },
+                "confidence": {
+                  "type": "string",
+                  "enum": [
+                    "observed",
+                    "inferred",
+                    "unobserved"
+                  ],
+                  "description": "observed: an owner signal or the page surface monitor credited the change to this action; inferred: only the page's targets or document changed meanwhile; unobserved: no change could be read."
+                },
+                "evidence": {
+                  "type": "array",
+                  "maxItems": 12,
+                  "items": {
+                    "type": "string",
+                    "maxLength": 40
+                  },
+                  "description": "The evidence tokens that fired (owner receipt flags, surface credit), bounded."
+                },
+                "surfaceId": {
+                  "type": "string",
+                  "maxLength": 128,
+                  "description": "The surface this action brought out, as pageSurfaces lists it."
+                },
+                "closeTargetId": {
+                  "type": "string",
+                  "maxLength": 128,
+                  "description": "The control that closes that surface, when the monitor published one."
+                }
+              },
+              "required": [
+                "kind",
+                "confidence",
+                "evidence"
+              ],
+              "additionalProperties": false,
+              "description": "What the page did after the action, in the caller's terms. A kind of none with confidence observed is a read outcome (the page is as it was), never a reason to repeat the action."
+            },
+            "pageUnchanged": {
+              "type": "boolean",
+              "enum": [
+                true
+              ],
+              "description": "Present and true when the click reached the control and the page shows exactly what it showed before (effect.kind none): read it, never repeat the click."
+            },
+            "consumedByDismissal": {
+              "type": "object",
+              "properties": {
+                "surfaceId": {
+                  "type": "string",
+                  "maxLength": 128,
+                  "description": "The surface the click closed."
+                },
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "dialog",
+                    "menu",
+                    "listbox",
+                    "tooltip",
+                    "popover",
+                    "panel"
+                  ],
+                  "description": "Its kind."
+                }
+              },
+              "required": [
+                "surfaceId",
+                "kind"
+              ],
+              "additionalProperties": false,
+              "description": "Present when the page used this click to close a surface open outside the target and canceled it there: the target did not receive it; click it again."
+            },
+            "playbackResumed": {
+              "type": "boolean",
+              "enum": [
+                true
+              ],
+              "description": "Present and true when the click resumed the paused video its control sits on: explicit playback, as play-videos is."
+            },
+            "downloadStarted": {
+              "type": "boolean",
+              "description": "Present and true when the action started a browser download."
+            },
+            "downloadState": {
+              "type": "string",
+              "enum": [
+                "complete",
+                "in_progress"
+              ],
+              "description": "With downloadStarted: whether the download finished."
+            },
+            "downloadFileName": {
+              "type": "string",
+              "maxLength": 200,
+              "description": "With downloadStarted: the name the browser saved the file under in the Downloads folder, with its numbering of duplicates (report.csv, report (2).csv); never a folder. Absent while the browser has not chosen it."
+            },
+            "downloadSizeBytes": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "With downloadStarted: the file size in bytes (the bytes announced while it is still running)."
+            },
+            "downloadMimeType": {
+              "type": "string",
+              "maxLength": 100,
+              "description": "With downloadStarted: the type the server sent the file as (text/csv, application/pdf)."
+            },
+            "waitAfter": {
+              "type": "object",
+              "properties": {
+                "until": {
+                  "type": "string",
+                  "enum": [
+                    "revision-changed",
+                    "target-present",
+                    "target-absent",
+                    "text-present",
+                    "url-changed",
+                    "settled",
+                    "surface-closed",
+                    "authentication-cleared",
+                    "download"
+                  ],
+                  "description": "The condition waited for after the action."
+                },
+                "outcome": {
+                  "type": "string",
+                  "enum": [
+                    "met",
+                    "timed-out"
+                  ],
+                  "description": "met: the condition held within timeoutMs; timed-out: it did not (not an error: the receipt shows the page as it was last read)."
+                },
+                "waitedMs": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "How long the folded wait took."
+                },
+                "change": {
+                  "type": "string",
+                  "enum": [
+                    "changed",
+                    "unchanged"
+                  ],
+                  "description": "changed: the page moved on while waiting and this receipt reports that later page; unchanged: the receipt is the page right after the action."
+                },
+                "download": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "state"
+                  ],
+                  "description": "With until download, once the page started one: the file as the browser saved it (state complete, in_progress or interrupted; fileName, sizeBytes, mimeType; interruptReason when the browser stopped it).",
+                  "properties": {
+                    "state": {
+                      "type": "string",
+                      "enum": [
+                        "complete",
+                        "in_progress",
+                        "interrupted"
+                      ],
+                      "description": "complete: saved; in_progress: still arriving (dsagent.page.wait until download again); interrupted: not saved."
+                    },
+                    "fileName": {
+                      "type": "string",
+                      "maxLength": 200,
+                      "description": "The name it was saved under; never a folder."
+                    },
+                    "sizeBytes": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "description": "Its size in bytes."
+                    },
+                    "mimeType": {
+                      "type": "string",
+                      "maxLength": 100,
+                      "description": "The type the server sent it as."
+                    },
+                    "interruptReason": {
+                      "type": "string",
+                      "maxLength": 64,
+                      "description": "With interrupted: why the browser stopped it."
+                    }
+                  }
+                }
+              },
+              "required": [
+                "until",
+                "outcome",
+                "waitedMs",
+                "change"
+              ],
+              "additionalProperties": false,
+              "description": "On the receipt of the last step when it asked for waitAfter: the folded wait and whether the final inventory was refreshed by it."
+            }
+          },
+          "required": [
+            "index",
+            "targetId",
+            "action",
+            "success",
+            "detail",
+            "previousRevision",
+            "revision",
+            "change",
+            "url"
+          ],
+          "additionalProperties": false,
+          "description": "The receipt of one executed action."
+        }
+      },
+      "stopped": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "enum": [
+              "failed",
+              "navigated",
+              "target-missing",
+              "canceled",
+              "consumed-by-dismissal"
+            ],
+            "description": "Why the sequence ended before its last action. consumed-by-dismissal: the page took that click to close a surface open outside its target (its receipt carries consumedByDismissal); click the target again, then plan the rest."
+          },
+          "index": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "The action the sequence stopped at (executed for navigated and consumed-by-dismissal, not executed otherwise)."
+          },
+          "targetId": {
+            "type": "string",
+            "maxLength": 128,
+            "description": "The target of that action."
+          },
+          "code": {
+            "type": "string",
+            "maxLength": 64,
+            "description": "For failed: the error code the single action would have raised."
+          },
+          "businessCode": {
+            "type": "string",
+            "maxLength": 64,
+            "description": "For failed: the business code, when the single action would have carried one."
+          },
+          "failureCode": {
+            "type": "string",
+            "maxLength": 64,
+            "description": "For failed: what the owner saw, as dsagent.page.action reports it."
+          },
+          "detail": {
+            "type": "string",
+            "maxLength": 1000,
+            "description": "For failed: the bounded public message."
+          },
+          "destinationPageContextId": {
+            "type": "string",
+            "maxLength": 128,
+            "description": "For navigated: the page context the action moved to."
+          }
+        },
+        "required": [
+          "reason",
+          "index"
+        ],
+        "additionalProperties": false,
+        "description": "Present when the sequence ended before its last action."
+      },
+      "warnings": {
+        "type": "array",
+        "maxItems": 2,
+        "description": "REPEATED_RECORDS_USE_WIZARD: switch to the scrape wizard on this page now (dsagent.wizard.start kind=scrape, then wizard.state / wizard.choose). DSphere's typed route advice, never page text: this page shows repeated records (the same fields per item) and this task has read or scrolled it twelve or more times with page reads, which is not how records are collected. The call itself succeeded; the person sees the same notice in the DSphere side panel. Plan on the code, never on the message.",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "code",
+            "message",
+            "nextActions"
+          ],
+          "description": "One typed warning.",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "REPEATED_RECORDS_USE_WIZARD"
+              ],
+              "description": "Stable warning code to plan on."
+            },
+            "message": {
+              "type": "string",
+              "maxLength": 300,
+              "description": "Bounded reason with the counts behind it; never page text."
+            },
+            "nextActions": {
+              "type": "array",
+              "maxItems": 2,
+              "description": "What to call next, in order.",
+              "items": {
+                "type": "string",
+                "maxLength": 200,
+                "description": "One next call, named as the catalog names it."
+              }
+            }
+          }
+        }
+      },
+      "final": {
+        "type": "object",
+        "properties": {
+          "pageSurfaces": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sequence": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Monotonic observation sequence within this document."
+              },
+              "surfaces": {
+                "type": "array",
+                "maxItems": 10,
+                "description": "Currently open panels and their observed opener; a tooltip is not an opened selection panel.",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "surfaceId": {
+                      "type": "string",
+                      "maxLength": 128,
+                      "description": "Opaque owner-published identity; never a selector."
+                    },
+                    "sequence": {
+                      "type": "number",
+                      "minimum": 0,
+                      "description": "Monotonic observation sequence within this document."
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "dialog",
+                        "menu",
+                        "listbox",
+                        "tooltip",
+                        "popover",
+                        "panel"
+                      ],
+                      "description": "Observed surface kind."
+                    },
+                    "label": {
+                      "type": "string",
+                      "maxLength": 160,
+                      "description": "Bounded visible surface label."
+                    },
+                    "appearedAt": {
+                      "type": "number",
+                      "minimum": 0,
+                      "description": "Appearance time in epoch milliseconds."
+                    },
+                    "controlCount": {
+                      "type": "number",
+                      "minimum": 0,
+                      "description": "Observed control count."
+                    },
+                    "targetIds": {
+                      "type": "array",
+                      "maxItems": 80,
+                      "items": {
+                        "type": "string",
+                        "maxLength": 128,
+                        "description": "Opaque owner-published identity; never a selector."
+                      },
+                      "description": "Published targets currently inside this surface."
+                    },
+                    "broughtBy": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "properties": {
+                        "targetId": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "description": "Opaque owner-published identity; never a selector."
+                        },
+                        "via": {
+                          "type": "string",
+                          "enum": [
+                            "containment",
+                            "aria",
+                            "last-event"
+                          ],
+                          "description": "How the monitor attributed the appearance."
+                        },
+                        "actor": {
+                          "type": "string",
+                          "enum": [
+                            "agent",
+                            "person"
+                          ],
+                          "description": "Actor identified by the command window, not event trust."
+                        },
+                        "eventType": {
+                          "type": "string",
+                          "enum": [
+                            "press",
+                            "click",
+                            "double-click",
+                            "context-click",
+                            "hover",
+                            "focus",
+                            "key",
+                            "input",
+                            "drag",
+                            "drop",
+                            "wheel"
+                          ],
+                          "description": "Observed triggering event."
+                        },
+                        "eventAt": {
+                          "type": "number",
+                          "minimum": 0,
+                          "description": "Trigger event time in epoch milliseconds."
+                        }
+                      },
+                      "required": [
+                        "targetId",
+                        "via"
+                      ],
+                      "description": "The control that brought this surface out, when attribution is available."
+                    }
+                  },
+                  "required": [
+                    "surfaceId",
+                    "sequence",
+                    "kind",
+                    "label",
+                    "appearedAt",
+                    "controlCount",
+                    "targetIds"
+                  ],
+                  "description": "A current surface; compare identities and appearance times, not compact target omission."
+                }
+              }
+            },
+            "required": [
+              "sequence",
+              "surfaces"
+            ],
+            "description": "Live surface evidence from the shared global page monitor; refreshed even when target revision is unchanged."
+          },
+          "motion": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "scope": {
+                "type": "string",
+                "enum": [
+                  "current-document"
+                ],
+                "description": "Current document media scope."
+              },
+              "animationCount": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Shared motion owner animationCount."
+              },
+              "marqueeCount": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Shared motion owner marqueeCount."
+              },
+              "carouselCount": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Shared motion owner carouselCount."
+              },
+              "heldCount": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Shared motion owner heldCount."
+              },
+              "unpausableCount": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Shared motion owner unpausableCount."
+              },
+              "runningCount": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Shared motion owner runningCount."
+              },
+              "truncated": {
+                "type": "boolean",
+                "description": "Inventory exceeded its scan bound."
+              }
+            },
+            "required": [
+              "scope",
+              "animationCount",
+              "marqueeCount",
+              "carouselCount",
+              "heldCount",
+              "unpausableCount",
+              "runningCount",
+              "truncated"
+            ],
+            "description": "Current motion state; successful input is not proof that motion stopped."
+          },
+          "framePageSurfaces": {
+            "type": "array",
+            "maxItems": 8,
+            "description": "Admitted child-frame surface monitors; compare sequence and surface IDs only within the same frame.",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "frameId": {
+                  "type": "number",
+                  "minimum": 0,
+                  "description": "Browser frame identity."
+                },
+                "observed": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "sequence": {
+                      "type": "number",
+                      "minimum": 0,
+                      "description": "Monotonic observation sequence within this document."
+                    },
+                    "surfaces": {
+                      "type": "array",
+                      "maxItems": 10,
+                      "description": "Currently open panels and their observed opener; a tooltip is not an opened selection panel.",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "surfaceId": {
+                            "type": "string",
+                            "maxLength": 128,
+                            "description": "Opaque owner-published identity; never a selector."
+                          },
+                          "sequence": {
+                            "type": "number",
+                            "minimum": 0,
+                            "description": "Monotonic observation sequence within this document."
+                          },
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "dialog",
+                              "menu",
+                              "listbox",
+                              "tooltip",
+                              "popover",
+                              "panel"
+                            ],
+                            "description": "Observed surface kind."
+                          },
+                          "label": {
+                            "type": "string",
+                            "maxLength": 160,
+                            "description": "Bounded visible surface label."
+                          },
+                          "appearedAt": {
+                            "type": "number",
+                            "minimum": 0,
+                            "description": "Appearance time in epoch milliseconds."
+                          },
+                          "controlCount": {
+                            "type": "number",
+                            "minimum": 0,
+                            "description": "Observed control count."
+                          },
+                          "targetIds": {
+                            "type": "array",
+                            "maxItems": 80,
+                            "items": {
+                              "type": "string",
+                              "maxLength": 128,
+                              "description": "Opaque owner-published identity; never a selector."
+                            },
+                            "description": "Published targets currently inside this surface."
+                          },
+                          "broughtBy": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                              "targetId": {
+                                "type": "string",
+                                "maxLength": 128,
+                                "description": "Opaque owner-published identity; never a selector."
+                              },
+                              "via": {
+                                "type": "string",
+                                "enum": [
+                                  "containment",
+                                  "aria",
+                                  "last-event"
+                                ],
+                                "description": "How the monitor attributed the appearance."
+                              },
+                              "actor": {
+                                "type": "string",
+                                "enum": [
+                                  "agent",
+                                  "person"
+                                ],
+                                "description": "Actor identified by the command window, not event trust."
+                              },
+                              "eventType": {
+                                "type": "string",
+                                "enum": [
+                                  "press",
+                                  "click",
+                                  "double-click",
+                                  "context-click",
+                                  "hover",
+                                  "focus",
+                                  "key",
+                                  "input",
+                                  "drag",
+                                  "drop",
+                                  "wheel"
+                                ],
+                                "description": "Observed triggering event."
+                              },
+                              "eventAt": {
+                                "type": "number",
+                                "minimum": 0,
+                                "description": "Trigger event time in epoch milliseconds."
+                              }
+                            },
+                            "required": [
+                              "targetId",
+                              "via"
+                            ],
+                            "description": "The control that brought this surface out, when attribution is available."
+                          }
+                        },
+                        "required": [
+                          "surfaceId",
+                          "sequence",
+                          "kind",
+                          "label",
+                          "appearedAt",
+                          "controlCount",
+                          "targetIds"
+                        ],
+                        "description": "A current surface; compare identities and appearance times, not compact target omission."
+                      }
+                    }
+                  },
+                  "required": [
+                    "sequence",
+                    "surfaces"
+                  ],
+                  "description": "Live surface evidence from the shared global page monitor; refreshed even when target revision is unchanged."
+                }
+              },
+              "required": [
+                "frameId",
+                "observed"
+              ],
+              "description": "One admitted frame surface observation."
+            }
+          },
+          "timing": {
+            "type": "object",
+            "properties": {
+              "startedAt": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Extension owner execution start in epoch milliseconds; excludes caller and bridge scheduling."
+              },
+              "durationMs": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Measured owner lifecycle duration including highlight cleanup, excluding the caller gap."
+              },
+              "stages": {
+                "type": "object",
+                "properties": {
+                  "detectMs": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Measured detect phase duration in milliseconds."
+                  },
+                  "dispatchMs": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Measured dispatch phase duration in milliseconds."
+                  },
+                  "settleMs": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Measured settle phase duration in milliseconds."
+                  },
+                  "verifyMs": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Measured verify phase duration in milliseconds."
+                  },
+                  "projectionMs": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Measured projection phase duration in milliseconds."
+                  },
+                  "otherMs": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "Measured other phase duration in milliseconds."
+                  }
+                },
+                "required": [
+                  "detectMs",
+                  "dispatchMs",
+                  "settleMs",
+                  "verifyMs",
+                  "projectionMs",
+                  "otherMs"
+                ],
+                "additionalProperties": false,
+                "description": "Non-overlapping shared owner phase durations. Unmeasured transport time is not attributed here."
+              }
+            },
+            "required": [
+              "startedAt",
+              "durationMs",
+              "stages"
+            ],
+            "additionalProperties": false,
+            "description": "Measured shared owner timing, with no page values or content."
+          },
+          "operationResult": {
+            "description": "Bounded result published by the executed atomic owner; internal receipts and locators remain private.",
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "fields",
+                  "fieldCount",
+                  "truncated"
+                ],
+                "description": "The page's editable form fields as the shared form detector found them (the open dialog's form when one is open); nothing on the page was touched.",
+                "properties": {
+                  "fields": {
+                    "type": "array",
+                    "maxItems": 60,
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "fieldId",
+                        "label",
+                        "type",
+                        "state",
+                        "required",
+                        "formGroupIndex"
+                      ],
+                      "description": "One detected editable field.",
+                      "properties": {
+                        "fieldId": {
+                          "type": "string",
+                          "pattern": "^fld-[0-9a-f]{12}$",
+                          "description": "Opaque ID of the field; pass it to fill-form. It stays the same while the field keeps its place, kind and label."
+                        },
+                        "label": {
+                          "type": "string",
+                          "maxLength": 120,
+                          "description": "The field's label as the page names it."
+                        },
+                        "type": {
+                          "type": "string",
+                          "maxLength": 32,
+                          "description": "The detected control kind (text, email, date, number, textarea, select, custom-select, checkbox, radio, contenteditable, …)."
+                        },
+                        "fillAs": {
+                          "type": "string",
+                          "enum": [
+                            "text",
+                            "select",
+                            "checkbox",
+                            "radio"
+                          ],
+                          "description": "What fill-form takes for it: text and select take value (select also selections), checkbox and radio take checked."
+                        },
+                        "state": {
+                          "type": "string",
+                          "enum": [
+                            "fillable",
+                            "disabled",
+                            "read-only",
+                            "sensitive",
+                            "unsupported"
+                          ],
+                          "description": "fillable; disabled or read-only (the page would refuse a value); sensitive (a password or one-time code: the person enters it); unsupported (a control fill-form cannot fill: use per-target actions on its observed target)."
+                        },
+                        "required": {
+                          "type": "boolean",
+                          "description": "True when the page marks the field required."
+                        },
+                        "value": {
+                          "type": "string",
+                          "maxLength": 500,
+                          "description": "The text the field shows now; absent when empty or sensitive."
+                        },
+                        "checked": {
+                          "type": "boolean",
+                          "description": "A checkbox or radio option's state now."
+                        },
+                        "choiceGroup": {
+                          "type": "string",
+                          "maxLength": 120,
+                          "description": "A radio option's group question (Plan for the options Basic, Pro, Team), when the page names one: choose one option of a group with checked true on that option."
+                        },
+                        "placeholder": {
+                          "type": "string",
+                          "maxLength": 120,
+                          "description": "The field's placeholder hint."
+                        },
+                        "options": {
+                          "type": "array",
+                          "maxItems": 50,
+                          "items": {
+                            "type": "string",
+                            "maxLength": 120,
+                            "description": "An option label."
+                          },
+                          "description": "A native select's option labels, bounded; a list the page draws itself lists its options only when opened (load-options on its target)."
+                        },
+                        "selectedOptions": {
+                          "type": "array",
+                          "maxItems": 50,
+                          "items": {
+                            "type": "string",
+                            "maxLength": 120,
+                            "description": "An option label."
+                          },
+                          "description": "The options a native select shows selected now."
+                        },
+                        "multiple": {
+                          "type": "boolean",
+                          "description": "True for a select that takes several options (fill it with selections)."
+                        },
+                        "formGroup": {
+                          "type": "string",
+                          "maxLength": 120,
+                          "description": "The label of the form or section holding the field."
+                        },
+                        "formGroupIndex": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "description": "Which detected form or section holds the field, in page order."
+                        }
+                      }
+                    },
+                    "description": "Detected fields in page order, bounded."
+                  },
+                  "fieldCount": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "How many editable fields were detected."
+                  },
+                  "truncated": {
+                    "type": "boolean",
+                    "description": "True when more fields were detected than listed."
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "filled",
+                  "requiredEmpty",
+                  "fieldCount"
+                ],
+                "description": "The fields filled, each verified by its form owner, in order; the form was not submitted.",
+                "properties": {
+                  "filled": {
+                    "type": "array",
+                    "maxItems": 30,
+                    "description": "Every requested field, filled and verified, with the value it shows now.",
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "path",
+                        "label",
+                        "fillAs"
+                      ],
+                      "description": "One filled field.",
+                      "properties": {
+                        "fieldId": {
+                          "type": "string",
+                          "maxLength": 16,
+                          "description": "The detected field filled (detected-field path)."
+                        },
+                        "targetId": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "description": "The observed target filled (target-fallback path)."
+                        },
+                        "path": {
+                          "type": "string",
+                          "enum": [
+                            "detected-field",
+                            "target-fallback"
+                          ],
+                          "description": "detected-field: a field detect-form-fields listed; target-fallback: an observed target detection did not list."
+                        },
+                        "label": {
+                          "type": "string",
+                          "maxLength": 120,
+                          "description": "The field's label."
+                        },
+                        "fillAs": {
+                          "type": "string",
+                          "enum": [
+                            "text",
+                            "select",
+                            "checkbox",
+                            "radio"
+                          ],
+                          "description": "How the field was filled."
+                        },
+                        "value": {
+                          "type": "string",
+                          "maxLength": 500,
+                          "description": "The text the field shows now (date, time and number fields show their canonical value)."
+                        },
+                        "checked": {
+                          "type": "boolean",
+                          "description": "The checkbox or radio state now."
+                        },
+                        "selectedOptions": {
+                          "type": "array",
+                          "maxItems": 50,
+                          "items": {
+                            "type": "string",
+                            "maxLength": 120,
+                            "description": "An option label."
+                          },
+                          "description": "The options the select shows selected now."
+                        }
+                      }
+                    }
+                  },
+                  "requiredEmpty": {
+                    "type": "array",
+                    "maxItems": 60,
+                    "items": {
+                      "type": "string",
+                      "maxLength": 16,
+                      "description": "A fieldId."
+                    },
+                    "description": "fieldIds of required detected fields that are still empty (radio groups excluded)."
+                  },
+                  "fieldCount": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "How many editable fields the page has after the fill."
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "uploadState",
+                  "path",
+                  "fileName",
+                  "sizeBytes"
+                ],
+                "description": "Where the staged file went and what the page did with it.",
+                "properties": {
+                  "uploadState": {
+                    "type": "string",
+                    "enum": [
+                      "uploaded",
+                      "placed"
+                    ],
+                    "description": "uploaded: the page's own upload request completed; placed: the page holds the file and has not sent it yet."
+                  },
+                  "path": {
+                    "type": "string",
+                    "enum": [
+                      "detected-slot",
+                      "picker-fallback"
+                    ],
+                    "description": "detected-slot: the file went into a detected upload slot; picker-fallback: the chosen control was clicked with the file chooser intercepted."
+                  },
+                  "fileName": {
+                    "type": "string",
+                    "maxLength": 255,
+                    "description": "The name the file was staged with."
+                  },
+                  "sizeBytes": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "The size of the uploaded file in bytes."
+                  },
+                  "slotIndex": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "With detected-slot: the detected slot's index on the page."
+                  },
+                  "slotLabel": {
+                    "type": "string",
+                    "maxLength": 60,
+                    "description": "With detected-slot: the slot's label, when the page gives one."
+                  },
+                  "slotMethod": {
+                    "type": "string",
+                    "enum": [
+                      "file_picker",
+                      "drag_drop"
+                    ],
+                    "description": "With detected-slot: how the slot takes a file."
+                  },
+                  "networkUpload": {
+                    "type": "string",
+                    "enum": [
+                      "confirmed",
+                      "not-observed",
+                      "rejected"
+                    ],
+                    "description": "What the page's own upload request did within the wait."
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "Options returned by the shared lazy combobox loader.",
+                "properties": {
+                  "options": {
+                    "type": "array",
+                    "maxItems": 100,
+                    "items": {
+                      "type": "string",
+                      "maxLength": 300
+                    },
+                    "description": "Observed option labels, bounded to 100."
+                  },
+                  "reclassifyAs": {
+                    "type": "string",
+                    "enum": [
+                      "text"
+                    ],
+                    "description": "Present when the owner determines this is a text input."
+                  }
+                },
+                "required": [
+                  "options"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "Bounded counts and state from the verified page operation.",
+                "properties": {
+                  "operation": {
+                    "type": "string",
+                    "const": "detect-marquees",
+                    "description": "The page operation whose result is reported."
+                  },
+                  "animationCount": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000,
+                    "description": "Repeating animations."
+                  },
+                  "marqueeCount": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000,
+                    "description": "Marquee and SVG timelines."
+                  },
+                  "carouselCount": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000,
+                    "description": "Carousel containers."
+                  },
+                  "heldCount": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000,
+                    "description": "Motion sources held stopped."
+                  },
+                  "runningCount": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000,
+                    "description": "Motion sources currently running."
+                  },
+                  "unpausableCount": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000,
+                    "description": "Motion sources that cannot be paused."
+                  },
+                  "truncated": {
+                    "type": "boolean",
+                    "description": "Whether the detector reached its scan limit."
+                  }
+                },
+                "required": [
+                  "operation"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "Bounded counts and state from the verified page operation.",
+                "properties": {
+                  "operation": {
+                    "type": "string",
+                    "const": "detect-videos",
+                    "description": "The page operation whose result is reported."
+                  },
+                  "videoCount": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000,
+                    "description": "Number of videos in this document."
+                  },
+                  "playingCount": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000,
+                    "description": "Number of videos currently playing."
+                  },
+                  "truncated": {
+                    "type": "boolean",
+                    "description": "Whether the detector reached its scan limit."
+                  }
+                },
+                "required": [
+                  "operation"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "Bounded counts and state from the verified page operation.",
+                "properties": {
+                  "operation": {
+                    "type": "string",
+                    "const": "pause-marquees",
+                    "description": "The page operation whose result is reported."
+                  },
+                  "animationCount": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000,
+                    "description": "Repeating animations."
+                  },
+                  "marqueeCount": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000,
+                    "description": "Marquee and SVG timelines."
+                  },
+                  "carouselCount": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000,
+                    "description": "Carousel containers."
+                  },
+                  "heldCount": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000,
+                    "description": "Motion sources held stopped."
+                  },
+                  "runningCount": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000,
+                    "description": "Motion sources currently running."
+                  },
+                  "unpausableCount": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000,
+                    "description": "Motion sources that cannot be paused."
+                  },
+                  "pausedCount": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000,
+                    "description": "Number of media elements affected."
+                  },
+                  "truncated": {
+                    "type": "boolean",
+                    "description": "Whether the detector reached its scan limit."
+                  }
+                },
+                "required": [
+                  "operation"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "Bounded counts and state from the verified page operation.",
+                "properties": {
+                  "operation": {
+                    "type": "string",
+                    "const": "pause-videos",
+                    "description": "The page operation whose result is reported."
+                  },
+                  "videoCount": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000,
+                    "description": "Number of videos in this document."
+                  },
+                  "playingCount": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000,
+                    "description": "Number of videos currently playing."
+                  },
+                  "pausedCount": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000,
+                    "description": "Number of media elements affected."
+                  },
+                  "truncated": {
+                    "type": "boolean",
+                    "description": "Whether the detector reached its scan limit."
+                  }
+                },
+                "required": [
+                  "operation"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "Bounded counts and state from the verified page operation.",
+                "properties": {
+                  "operation": {
+                    "type": "string",
+                    "const": "play-videos",
+                    "description": "The page operation whose result is reported."
+                  },
+                  "videoCount": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000,
+                    "description": "Number of videos in this document."
+                  },
+                  "playingCount": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000,
+                    "description": "Number of videos currently playing."
+                  },
+                  "playedCount": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000,
+                    "description": "Number of media elements affected."
+                  },
+                  "truncated": {
+                    "type": "boolean",
+                    "description": "Whether the detector reached its scan limit."
+                  }
+                },
+                "required": [
+                  "operation"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "Bounded counts and state from the verified page operation.",
+                "properties": {
+                  "operation": {
+                    "type": "string",
+                    "const": "resume-marquees",
+                    "description": "The page operation whose result is reported."
+                  },
+                  "animationCount": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000,
+                    "description": "Repeating animations."
+                  },
+                  "marqueeCount": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000,
+                    "description": "Marquee and SVG timelines."
+                  },
+                  "carouselCount": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000,
+                    "description": "Carousel containers."
+                  },
+                  "heldCount": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000,
+                    "description": "Motion sources held stopped."
+                  },
+                  "runningCount": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000,
+                    "description": "Motion sources currently running."
+                  },
+                  "unpausableCount": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000,
+                    "description": "Motion sources that cannot be paused."
+                  },
+                  "resumedCount": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000,
+                    "description": "Number of media elements affected."
+                  },
+                  "truncated": {
+                    "type": "boolean",
+                    "description": "Whether the detector reached its scan limit."
+                  }
+                },
+                "required": [
+                  "operation"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "Bounded counts and state from the verified page operation.",
+                "properties": {
+                  "operation": {
+                    "type": "string",
+                    "const": "detect-ads",
+                    "description": "The page operation whose result is reported."
+                  },
+                  "count": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000,
+                    "description": "Number of detected ad elements."
+                  },
+                  "protectedSkips": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000,
+                    "description": "Protected elements skipped by the detector."
+                  },
+                  "truncated": {
+                    "type": "boolean",
+                    "description": "Whether the scan reached its limit."
+                  }
+                },
+                "required": [
+                  "operation"
+                ]
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "Bounded counts and state from the verified page operation.",
+                "properties": {
+                  "operation": {
+                    "type": "string",
+                    "const": "remove-ads",
+                    "description": "The page operation whose result is reported."
+                  },
+                  "removedCount": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000,
+                    "description": "Number of removed ad elements."
+                  },
+                  "remaining": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000,
+                    "description": "Number of ads still detected."
+                  },
+                  "protectedSkips": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 1000000,
+                    "description": "Protected elements skipped by the detector."
+                  },
+                  "truncated": {
+                    "type": "boolean",
+                    "description": "Whether the scan reached its limit."
+                  },
+                  "persistent": {
+                    "type": "boolean",
+                    "description": "Whether this run holds automatic ad removal."
+                  },
+                  "scrollRestored": {
+                    "type": "boolean",
+                    "description": "Whether the removal unlocked page scrolling."
+                  }
+                },
+                "required": [
+                  "operation"
+                ]
+              }
+            ]
+          },
+          "pageContextId": {
+            "type": "string",
+            "maxLength": 128,
+            "description": "Page context on which the action executed."
+          },
+          "targetId": {
+            "type": "string",
+            "maxLength": 128,
+            "description": "Opaque target selected for the action."
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "click",
+              "detect-form-fields",
+              "handle-dialog",
+              "dismiss",
+              "drag",
+              "drag-move",
+              "drag-press",
+              "drag-release",
+              "fill-form",
+              "history-back",
+              "history-forward",
+              "hover",
+              "input",
+              "press-key",
+              "scroll",
+              "select",
+              "set-checkbox",
+              "set-radio",
+              "reload",
+              "upload-file",
+              "load-options",
+              "detect-marquees",
+              "detect-videos",
+              "pause-marquees",
+              "pause-videos",
+              "play-videos",
+              "resume-marquees",
+              "detect-ads",
+              "remove-ads"
+            ],
+            "description": "Atomic action that executed."
+          },
+          "success": {
+            "type": "boolean",
+            "description": "Whether the Extension action runtime reported success."
+          },
+          "detail": {
+            "type": "string",
+            "maxLength": 1000,
+            "description": "Bounded action receipt detail."
+          },
+          "previousRevision": {
+            "type": "string",
+            "maxLength": 128,
+            "description": "Revision verified immediately before the action."
+          },
+          "revision": {
+            "type": "string",
+            "maxLength": 128,
+            "description": "Page revision observed after the action."
+          },
+          "change": {
+            "type": "string",
+            "enum": [
+              "full",
+              "delta",
+              "unchanged"
+            ],
+            "description": "Observed page change mode after the action."
+          },
+          "url": {
+            "type": "string",
+            "maxLength": 2048,
+            "description": "Sanitized page URL observed after the action."
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 300,
+            "description": "Bounded page title observed after the action."
+          },
+          "semanticText": {
+            "type": "string",
+            "maxLength": 6000,
+            "description": "Already collected bounded visible content after the action; reuse for extraction and deduplication without another read."
+          },
+          "contentVerified": {
+            "type": "boolean",
+            "description": "Optional receipt flag indicating that the expected content effect was verified."
+          },
+          "effect": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "navigated",
+                  "surface-opened",
+                  "surface-closed",
+                  "region-shown",
+                  "region-hidden",
+                  "value-changed",
+                  "state-changed",
+                  "media",
+                  "download",
+                  "none"
+                ],
+                "description": "The strongest change the page showed after the action; none when it showed no change."
+              },
+              "confidence": {
+                "type": "string",
+                "enum": [
+                  "observed",
+                  "inferred",
+                  "unobserved"
+                ],
+                "description": "observed: an owner signal or the page surface monitor credited the change to this action; inferred: only the page's targets or document changed meanwhile; unobserved: no change could be read."
+              },
+              "evidence": {
+                "type": "array",
+                "maxItems": 12,
+                "items": {
+                  "type": "string",
+                  "maxLength": 40
+                },
+                "description": "The evidence tokens that fired (owner receipt flags, surface credit), bounded."
+              },
+              "surfaceId": {
+                "type": "string",
+                "maxLength": 128,
+                "description": "The surface this action brought out, as pageSurfaces lists it."
+              },
+              "closeTargetId": {
+                "type": "string",
+                "maxLength": 128,
+                "description": "The control that closes that surface, when the monitor published one."
+              }
+            },
+            "required": [
+              "kind",
+              "confidence",
+              "evidence"
+            ],
+            "additionalProperties": false,
+            "description": "What the page did after the action, in the caller's terms. A kind of none with confidence observed is a read outcome (the page is as it was), never a reason to repeat the action."
+          },
+          "hover": {
+            "type": "object",
+            "properties": {
+              "entered": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Elements the hover newly entered; 0 means the pointer was already inside the target and no enter event was sent."
+              },
+              "pointerAlreadyInside": {
+                "type": "boolean",
+                "description": "The pointer path already held the target before the move: hover away (another target or the page), then hover again, to re-enter it."
+              },
+              "cssHoverRulesApplied": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "How many of the page's own :hover rules the emulation applied to the entered path."
+              }
+            },
+            "required": [
+              "entered",
+              "pointerAlreadyInside",
+              "cssHoverRulesApplied"
+            ],
+            "additionalProperties": false,
+            "description": "What the pointer did on a hover; present on hover receipts."
+          },
+          "rehover": {
+            "type": "object",
+            "properties": {
+              "targetId": {
+                "type": "string",
+                "maxLength": 128,
+                "description": "The target whose earlier hover was refused pointer-already-inside; it acts at the revision of this receipt."
+              },
+              "label": {
+                "type": "string",
+                "maxLength": 32,
+                "description": "Its bounded visible label."
+              },
+              "hint": {
+                "type": "string",
+                "maxLength": 128,
+                "description": "What to do next: hover that target again now."
+              }
+            },
+            "required": [
+              "targetId",
+              "label",
+              "hint"
+            ],
+            "additionalProperties": false,
+            "description": "Present on a hover receipt when an earlier hover on another target of this page was refused pointer-already-inside: this hover moved the pointer away, so hover rehover.targetId again now, at this revision, to send it the enter event it missed (a menu or panel that opens on pointer-enter)."
+          },
+          "pageUnchanged": {
+            "type": "boolean",
+            "enum": [
+              true
+            ],
+            "description": "Present and true when the click reached the control and the page shows exactly what it showed before (effect.kind none, confidence observed): it may already be in the state the click sets, or it ignored the click; unrelated parts such as a clock may still update. Read the page instead of clicking again."
+          },
+          "consumedByDismissal": {
+            "type": "object",
+            "properties": {
+              "surfaceId": {
+                "type": "string",
+                "maxLength": 128,
+                "description": "The surface the click closed, from pageSurfaces."
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "dialog",
+                  "menu",
+                  "listbox",
+                  "tooltip",
+                  "popover",
+                  "panel"
+                ],
+                "description": "Its kind."
+              }
+            },
+            "required": [
+              "surfaceId",
+              "kind"
+            ],
+            "additionalProperties": false,
+            "description": "Present when the page used this click to close a surface open outside the target (an autocomplete suggestion list, a dropdown) and canceled the click there, as it does for a person's click: the target did not receive the click and is unchanged (effect.kind surface-closed names the surface). The surface is now closed: click the target again."
+          },
+          "omittedRemovedTargets": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Present when the action removed more than 40 targets (a navigation or a closed panel): how many removed ids targets.removedTargetIds leaves out. Whether an id is still on the page, a find or an observe at this revision says."
+          },
+          "omittedTargets": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Present when the action brought up more than 40 targets: how many of them targets.added leaves out (it lists the page target and the on-screen ones first). Find one with dsagent.page.find, or read them all with dsagent.page.observe; its id acts at this revision."
+          },
+          "pageSettled": {
+            "type": "boolean",
+            "enum": [
+              false
+            ],
+            "description": "Present and false when the page was still changing as the bounded wait after the action ended: the text and targets of this receipt may predate the result of the action (a search that loads its data first). Read the page again with dsagent.page.observe and this revision as baseRevision before relying on them; do not repeat the action."
+          },
+          "sourcePageContextId": {
+            "type": "string",
+            "maxLength": 128,
+            "description": "Origin page when an attributed browser-created child tab became the destination."
+          },
+          "destinationPageContextId": {
+            "type": "string",
+            "maxLength": 128,
+            "description": "Observed destination page for subsequent target actions; returned revision and targets belong to this page."
+          },
+          "clickConfidence": {
+            "type": "number",
+            "description": "Optional bounded click confidence reported by the action runtime."
+          },
+          "playbackResumed": {
+            "type": "boolean",
+            "enum": [
+              true
+            ],
+            "description": "Present and true when the click resumed the paused video its control sits on (the play control of a player): explicit playback, as the play-videos action is. The video keeps playing until the next action with a page effect; the task no longer pauses videos that start on their own."
+          },
+          "disclosureChange": {
+            "type": "string",
+            "enum": [
+              "target-removed",
+              "state-changed",
+              "label-changed",
+              "content-expanded",
+              "content-collapsed",
+              "content-changed"
+            ],
+            "description": "Optional target-local evidence that an expand/show-more disclosure changed. content-collapsed: content the control showed inside itself went away (a panel rendered inside its opener closed); content-expanded: such content appeared."
+          },
+          "opensOnPointerEnter": {
+            "type": "boolean",
+            "description": "True when the control opens on pointer-enter and this click showed nothing new (or closed its content): hover it with the hover action instead of clicking it again, since entering opens it and a click can close it."
+          },
+          "navigationUrl": {
+            "type": "string",
+            "maxLength": 2048,
+            "description": "Optional sanitized navigation destination reported by the action runtime."
+          },
+          "matchCount": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Optional number of matching targets reported by the action runtime."
+          },
+          "downloadStarted": {
+            "type": "boolean",
+            "description": "Present and true when the click started a browser download (an export button, a file link). The download is the effect: do not click again to retry it. A page that saves its file seconds later (an export it builds first, a \"your download will start\" countdown, a document the server renders) shows no downloadStarted here: ask for waitAfter {until: download} on the click, or call dsagent.page.wait until download, before deciding the click did nothing."
+          },
+          "downloadState": {
+            "type": "string",
+            "enum": [
+              "complete",
+              "in_progress"
+            ],
+            "description": "With downloadStarted: complete when the download finished within about 15 s, in_progress when it was still running."
+          },
+          "downloadFileName": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "With downloadStarted: the name the browser saved the file under in the Downloads folder, with its numbering of duplicates (report.csv, report (2).csv); never a folder. Absent while the browser has not chosen it."
+          },
+          "downloadSizeBytes": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "With downloadStarted: the file size in bytes (the bytes announced while it is still running)."
+          },
+          "downloadMimeType": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "With downloadStarted: the type the server sent the file as (text/csv, application/pdf)."
+          },
+          "waitAfter": {
+            "type": "object",
+            "properties": {
+              "until": {
+                "type": "string",
+                "enum": [
+                  "revision-changed",
+                  "target-present",
+                  "target-absent",
+                  "text-present",
+                  "url-changed",
+                  "settled",
+                  "surface-closed",
+                  "authentication-cleared",
+                  "download"
+                ],
+                "description": "The condition waited for after the action."
+              },
+              "outcome": {
+                "type": "string",
+                "enum": [
+                  "met",
+                  "timed-out"
+                ],
+                "description": "met: the condition held within timeoutMs; timed-out: it did not (not an error: the receipt shows the page as it was last read)."
+              },
+              "waitedMs": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "How long the folded wait took."
+              },
+              "change": {
+                "type": "string",
+                "enum": [
+                  "changed",
+                  "unchanged"
+                ],
+                "description": "changed: the page moved on while waiting and this receipt reports that later page; unchanged: the receipt is the page right after the action."
+              },
+              "download": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "state"
+                ],
+                "description": "With until download, once the page started one: the file as the browser saved it (state complete, in_progress or interrupted; fileName, sizeBytes, mimeType; interruptReason when the browser stopped it).",
+                "properties": {
+                  "state": {
+                    "type": "string",
+                    "enum": [
+                      "complete",
+                      "in_progress",
+                      "interrupted"
+                    ],
+                    "description": "complete: saved; in_progress: still arriving (dsagent.page.wait until download again); interrupted: not saved."
+                  },
+                  "fileName": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "description": "The name it was saved under; never a folder."
+                  },
+                  "sizeBytes": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Its size in bytes."
+                  },
+                  "mimeType": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "description": "The type the server sent it as."
+                  },
+                  "interruptReason": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "description": "With interrupted: why the browser stopped it."
+                  }
+                }
+              }
+            },
+            "required": [
+              "until",
+              "outcome",
+              "waitedMs",
+              "change"
+            ],
+            "additionalProperties": false,
+            "description": "Present when the call asked for waitAfter: the folded wait and whether the receipt was refreshed by it."
+          },
+          "wizardStep": {
+            "type": "string",
+            "enum": [
+              "not-recorded"
+            ],
+            "description": "A scrape wizard holds this page and reads it as it is: this action (closing a dialog, choosing a date) is not a step of the workflow it saves, so a run will not repeat it. To save such preparation, record it: dsagent.wizard.start kind=record, perform the steps, then recording-control scrape-here."
+          },
+          "targets": {
+            "type": "object",
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "full",
+                  "delta",
+                  "unchanged"
+                ],
+                "description": "Target collection change mode after the action."
+              },
+              "added": {
+                "type": "array",
+                "maxItems": 260,
+                "description": "Targets added or returned in a full observation after the action.",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "placeholder": {
+                      "type": "string",
+                      "maxLength": 160,
+                      "description": "Optional input hint, never the entered value or proof of its content."
+                    },
+                    "labelSource": {
+                      "type": "string",
+                      "enum": [
+                        "accessible-name",
+                        "placeholder",
+                        "rendered-text"
+                      ],
+                      "description": "Origin of the displayed target label; a placeholder is not the entered value."
+                    },
+                    "fieldLabel": {
+                      "type": "string",
+                      "maxLength": 80,
+                      "description": "The label the page prints for a field (its label or the heading of its field block), without a required mark; present when it says more than label, which may be only a placeholder. A required mark adds required to state."
+                    },
+                    "fieldMessage": {
+                      "type": "string",
+                      "maxLength": 160,
+                      "description": "What the page says about the field value: its error message or the text it shows under the field. Never the entered value."
+                    },
+                    "fieldPurpose": {
+                      "type": "string",
+                      "enum": [
+                        "search"
+                      ],
+                      "description": "search: the page declares this text field as its search box (input type search, role searchbox, a search landmark, enterkeyhint search, or its own name, id or class); its label may be only a suggested query that changes. A find for the search box (search, 搜索) returns it."
+                    },
+                    "labelContext": {
+                      "type": "object",
+                      "properties": {
+                        "text": {
+                          "type": "string",
+                          "maxLength": 160,
+                          "description": "Bounded local record, group or table column context for distinguishing repeated labels; never an input value."
+                        },
+                        "source": {
+                          "type": "string",
+                          "enum": [
+                            "record",
+                            "group",
+                            "column"
+                          ],
+                          "description": "Structural owner from which the context was observed: a record (row or card), a named group, or a table column whose header cell holds the control (the text is the header of that column)."
+                        },
+                        "scopeId": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "description": "Opaque local context identity; not an actionable target or authorization."
+                        }
+                      },
+                      "required": [
+                        "text",
+                        "source",
+                        "scopeId"
+                      ],
+                      "additionalProperties": false,
+                      "description": "Optional disambiguating evidence. The target label, opaque identity and revision remain authoritative."
+                    },
+                    "id": {
+                      "type": "string",
+                      "maxLength": 128,
+                      "description": "Opaque target identifier valid only for the associated page revision."
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "page",
+                        "interactive",
+                        "extractable",
+                        "scrollable"
+                      ],
+                      "description": "Semantic target category."
+                    },
+                    "role": {
+                      "type": "string",
+                      "maxLength": 80,
+                      "description": "Bounded accessibility or semantic role."
+                    },
+                    "picture": {
+                      "type": "object",
+                      "properties": {
+                        "width": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "description": "Rendered width in CSS pixels."
+                        },
+                        "height": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "description": "Rendered height in CSS pixels."
+                        }
+                      },
+                      "required": [
+                        "width",
+                        "height"
+                      ],
+                      "additionalProperties": false,
+                      "description": "Present for a picture the page shows (dsagent.page.find with includeImages): its rendered size. The target is what a click on the picture's centre lands on."
+                    },
+                    "ariaRole": {
+                      "type": "string",
+                      "maxLength": 40,
+                      "description": "Optional ARIA role, explicit or implied by the element (link for a link, textbox for a text input), present only when it differs from role; dsagent.page.find matches either."
+                    },
+                    "scrollAxis": {
+                      "type": "string",
+                      "enum": [
+                        "x",
+                        "both"
+                      ],
+                      "description": "Optional: the target scrolls sideways (carousel, tab strip, wide table); both means it also scrolls vertically. Scroll it with axis x."
+                    },
+                    "label": {
+                      "type": "string",
+                      "maxLength": 300,
+                      "description": "Bounded visible or accessible target label."
+                    },
+                    "hooks": {
+                      "type": "array",
+                      "maxItems": 4,
+                      "items": {
+                        "type": "string",
+                        "maxLength": 80,
+                        "description": "One declared hook: a test name (video-comment-more) or name=value (data-e2e=danmaku-container)."
+                      },
+                      "description": "Optional, only on a target whose label is empty: the QA hooks the page declares on the control or its close ancestors. Untrusted page vocabulary to tell unnamed icons apart; never a name to quote and never a selector. Use dsagent.page.visual.observe when they do not settle what the control does."
+                    },
+                    "state": {
+                      "type": "string",
+                      "maxLength": 160,
+                      "description": "Optional bounded state tokens, comma separated, such as checked, selected, expanded=true, pressed or unpressed, mixed, current, disabled, required, invalid, readonly, busy, haspopup=menu, valuenow=<n>, sort=<direction>, filled or empty."
+                    },
+                    "capabilities": {
+                      "type": "array",
+                      "maxItems": 29,
+                      "uniqueItems": true,
+                      "description": "Public atomic actions accepted for this opaque target by dsagent.page.action; empty for a text target found by dsagent.page.find.",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "click",
+                          "detect-form-fields",
+                          "handle-dialog",
+                          "dismiss",
+                          "drag",
+                          "drag-move",
+                          "drag-press",
+                          "drag-release",
+                          "fill-form",
+                          "history-back",
+                          "history-forward",
+                          "hover",
+                          "input",
+                          "press-key",
+                          "scroll",
+                          "select",
+                          "set-checkbox",
+                          "set-radio",
+                          "reload",
+                          "upload-file",
+                          "load-options",
+                          "detect-marquees",
+                          "detect-videos",
+                          "pause-marquees",
+                          "pause-videos",
+                          "play-videos",
+                          "resume-marquees",
+                          "detect-ads",
+                          "remove-ads"
+                        ]
+                      }
+                    },
+                    "inViewport": {
+                      "type": "boolean",
+                      "description": "Optional: whether part of the target is inside the current viewport at this revision."
+                    },
+                    "occluded": {
+                      "type": "boolean",
+                      "description": "Optional: whether another element covers the target centre (overlay, sticky header); scroll or dismiss before acting."
+                    },
+                    "navigationUrl": {
+                      "type": "string",
+                      "maxLength": 300,
+                      "description": "Optional: the sanitized HTTP(S) destination of a link target, as evidence of where it leads; navigate by clicking it, never by constructing the URL."
+                    },
+                    "scrollMetrics": {
+                      "type": "object",
+                      "properties": {
+                        "scrollTop": {
+                          "type": "number",
+                          "minimum": 0,
+                          "description": "The scrollable target's own scroll position in CSS pixels."
+                        },
+                        "scrollHeight": {
+                          "type": "number",
+                          "minimum": 0,
+                          "description": "Its full content height."
+                        },
+                        "clientHeight": {
+                          "type": "number",
+                          "minimum": 0,
+                          "description": "Its visible height."
+                        },
+                        "clippedBelow": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "description": "Controls in it below its visible bottom: 0 with scrollTop near the end means the list is exhausted."
+                        },
+                        "clippedAbove": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "description": "Controls in it above its visible top."
+                        }
+                      },
+                      "required": [
+                        "scrollTop",
+                        "scrollHeight",
+                        "clientHeight",
+                        "clippedBelow"
+                      ],
+                      "additionalProperties": false,
+                      "description": "Optional, on a scrollable target: where it is scrolled and what it clips."
+                    },
+                    "scrollRootId": {
+                      "type": "string",
+                      "maxLength": 128,
+                      "description": "Optional: the published scrollable target whose box clips this control; scroll that target, not the page, to reveal it."
+                    },
+                    "contentKey": {
+                      "type": "string",
+                      "maxLength": 128,
+                      "description": "Optional: the record this control belongs to, identified by its content (attr:, link: or text:), stable across re-renders and pages where the structural id is not."
+                    },
+                    "frameId": {
+                      "type": "string",
+                      "maxLength": 16,
+                      "description": "Optional: the child frame that owns this target; absent for the main document."
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "kind",
+                    "role",
+                    "label",
+                    "capabilities"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "changed": {
+                "type": "array",
+                "maxItems": 260,
+                "description": "Targets changed after the action.",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "placeholder": {
+                      "type": "string",
+                      "maxLength": 160,
+                      "description": "Optional input hint, never the entered value or proof of its content."
+                    },
+                    "labelSource": {
+                      "type": "string",
+                      "enum": [
+                        "accessible-name",
+                        "placeholder",
+                        "rendered-text"
+                      ],
+                      "description": "Origin of the displayed target label; a placeholder is not the entered value."
+                    },
+                    "fieldLabel": {
+                      "type": "string",
+                      "maxLength": 80,
+                      "description": "The label the page prints for a field (its label or the heading of its field block), without a required mark; present when it says more than label, which may be only a placeholder. A required mark adds required to state."
+                    },
+                    "fieldMessage": {
+                      "type": "string",
+                      "maxLength": 160,
+                      "description": "What the page says about the field value: its error message or the text it shows under the field. Never the entered value."
+                    },
+                    "fieldPurpose": {
+                      "type": "string",
+                      "enum": [
+                        "search"
+                      ],
+                      "description": "search: the page declares this text field as its search box (input type search, role searchbox, a search landmark, enterkeyhint search, or its own name, id or class); its label may be only a suggested query that changes. A find for the search box (search, 搜索) returns it."
+                    },
+                    "labelContext": {
+                      "type": "object",
+                      "properties": {
+                        "text": {
+                          "type": "string",
+                          "maxLength": 160,
+                          "description": "Bounded local record, group or table column context for distinguishing repeated labels; never an input value."
+                        },
+                        "source": {
+                          "type": "string",
+                          "enum": [
+                            "record",
+                            "group",
+                            "column"
+                          ],
+                          "description": "Structural owner from which the context was observed: a record (row or card), a named group, or a table column whose header cell holds the control (the text is the header of that column)."
+                        },
+                        "scopeId": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "description": "Opaque local context identity; not an actionable target or authorization."
+                        }
+                      },
+                      "required": [
+                        "text",
+                        "source",
+                        "scopeId"
+                      ],
+                      "additionalProperties": false,
+                      "description": "Optional disambiguating evidence. The target label, opaque identity and revision remain authoritative."
+                    },
+                    "id": {
+                      "type": "string",
+                      "maxLength": 128,
+                      "description": "Opaque target identifier valid only for the associated page revision."
+                    },
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "page",
+                        "interactive",
+                        "extractable",
+                        "scrollable"
+                      ],
+                      "description": "Semantic target category."
+                    },
+                    "role": {
+                      "type": "string",
+                      "maxLength": 80,
+                      "description": "Bounded accessibility or semantic role."
+                    },
+                    "picture": {
+                      "type": "object",
+                      "properties": {
+                        "width": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "description": "Rendered width in CSS pixels."
+                        },
+                        "height": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "description": "Rendered height in CSS pixels."
+                        }
+                      },
+                      "required": [
+                        "width",
+                        "height"
+                      ],
+                      "additionalProperties": false,
+                      "description": "Present for a picture the page shows (dsagent.page.find with includeImages): its rendered size. The target is what a click on the picture's centre lands on."
+                    },
+                    "ariaRole": {
+                      "type": "string",
+                      "maxLength": 40,
+                      "description": "Optional ARIA role, explicit or implied by the element (link for a link, textbox for a text input), present only when it differs from role; dsagent.page.find matches either."
+                    },
+                    "scrollAxis": {
+                      "type": "string",
+                      "enum": [
+                        "x",
+                        "both"
+                      ],
+                      "description": "Optional: the target scrolls sideways (carousel, tab strip, wide table); both means it also scrolls vertically. Scroll it with axis x."
+                    },
+                    "label": {
+                      "type": "string",
+                      "maxLength": 300,
+                      "description": "Bounded visible or accessible target label."
+                    },
+                    "hooks": {
+                      "type": "array",
+                      "maxItems": 4,
+                      "items": {
+                        "type": "string",
+                        "maxLength": 80,
+                        "description": "One declared hook: a test name (video-comment-more) or name=value (data-e2e=danmaku-container)."
+                      },
+                      "description": "Optional, only on a target whose label is empty: the QA hooks the page declares on the control or its close ancestors. Untrusted page vocabulary to tell unnamed icons apart; never a name to quote and never a selector. Use dsagent.page.visual.observe when they do not settle what the control does."
+                    },
+                    "state": {
+                      "type": "string",
+                      "maxLength": 160,
+                      "description": "Optional bounded state tokens, comma separated, such as checked, selected, expanded=true, pressed or unpressed, mixed, current, disabled, required, invalid, readonly, busy, haspopup=menu, valuenow=<n>, sort=<direction>, filled or empty."
+                    },
+                    "capabilities": {
+                      "type": "array",
+                      "maxItems": 29,
+                      "uniqueItems": true,
+                      "description": "Public atomic actions accepted for this opaque target by dsagent.page.action; empty for a text target found by dsagent.page.find.",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "click",
+                          "detect-form-fields",
+                          "handle-dialog",
+                          "dismiss",
+                          "drag",
+                          "drag-move",
+                          "drag-press",
+                          "drag-release",
+                          "fill-form",
+                          "history-back",
+                          "history-forward",
+                          "hover",
+                          "input",
+                          "press-key",
+                          "scroll",
+                          "select",
+                          "set-checkbox",
+                          "set-radio",
+                          "reload",
+                          "upload-file",
+                          "load-options",
+                          "detect-marquees",
+                          "detect-videos",
+                          "pause-marquees",
+                          "pause-videos",
+                          "play-videos",
+                          "resume-marquees",
+                          "detect-ads",
+                          "remove-ads"
+                        ]
+                      }
+                    },
+                    "inViewport": {
+                      "type": "boolean",
+                      "description": "Optional: whether part of the target is inside the current viewport at this revision."
+                    },
+                    "occluded": {
+                      "type": "boolean",
+                      "description": "Optional: whether another element covers the target centre (overlay, sticky header); scroll or dismiss before acting."
+                    },
+                    "navigationUrl": {
+                      "type": "string",
+                      "maxLength": 300,
+                      "description": "Optional: the sanitized HTTP(S) destination of a link target, as evidence of where it leads; navigate by clicking it, never by constructing the URL."
+                    },
+                    "scrollMetrics": {
+                      "type": "object",
+                      "properties": {
+                        "scrollTop": {
+                          "type": "number",
+                          "minimum": 0,
+                          "description": "The scrollable target's own scroll position in CSS pixels."
+                        },
+                        "scrollHeight": {
+                          "type": "number",
+                          "minimum": 0,
+                          "description": "Its full content height."
+                        },
+                        "clientHeight": {
+                          "type": "number",
+                          "minimum": 0,
+                          "description": "Its visible height."
+                        },
+                        "clippedBelow": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "description": "Controls in it below its visible bottom: 0 with scrollTop near the end means the list is exhausted."
+                        },
+                        "clippedAbove": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "description": "Controls in it above its visible top."
+                        }
+                      },
+                      "required": [
+                        "scrollTop",
+                        "scrollHeight",
+                        "clientHeight",
+                        "clippedBelow"
+                      ],
+                      "additionalProperties": false,
+                      "description": "Optional, on a scrollable target: where it is scrolled and what it clips."
+                    },
+                    "scrollRootId": {
+                      "type": "string",
+                      "maxLength": 128,
+                      "description": "Optional: the published scrollable target whose box clips this control; scroll that target, not the page, to reveal it."
+                    },
+                    "contentKey": {
+                      "type": "string",
+                      "maxLength": 128,
+                      "description": "Optional: the record this control belongs to, identified by its content (attr:, link: or text:), stable across re-renders and pages where the structural id is not."
+                    },
+                    "frameId": {
+                      "type": "string",
+                      "maxLength": 16,
+                      "description": "Optional: the child frame that owns this target; absent for the main document."
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "kind",
+                    "role",
+                    "label",
+                    "capabilities"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "removedTargetIds": {
+                "type": "array",
+                "maxItems": 260,
+                "description": "Opaque target IDs removed after the action.",
+                "items": {
+                  "type": "string",
+                  "maxLength": 128
+                }
+              }
+            },
+            "required": [
+              "mode",
+              "added",
+              "changed",
+              "removedTargetIds"
+            ],
+            "additionalProperties": false,
+            "description": "Opaque semantic target snapshot or delta observed after the action."
+          }
+        },
+        "required": [
+          "pageContextId",
+          "targetId",
+          "action",
+          "success",
+          "detail",
+          "previousRevision",
+          "revision",
+          "change",
+          "url",
+          "title",
+          "targets"
+        ],
+        "additionalProperties": false,
+        "description": "Verified action receipt and bounded post-action page delta."
+      },
+      "authentication": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "sign-in-required",
+              "no-wall"
+            ],
+            "description": "no-wall: the monitor checked this page and found no sign-in or verification wall, so do not tell the person the site needs a sign-in. sign-in-required: the page asks the person to sign in or pass a verification (the browser's sign-in monitor, the one workflow runs use, decided it)."
+          },
+          "type": {
+            "type": "string",
+            "maxLength": 40,
+            "description": "The kind of wall the monitor recognised: a challenge (CAPTCHA, SLIDER_CAPTCHA, IMAGE_CAPTCHA, RECAPTCHA, HCAPTCHA, TURNSTILE, GEETEST, ARKOSE, CLOUDFLARE, BOT_PROTECTION) or a sign-in kind (LOGIN_FORM, PHONE_LOGIN, SSO, OTP…)."
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "The monitor's confidence."
+          },
+          "waitingOn": {
+            "type": "string",
+            "enum": [
+              "agent",
+              "person"
+            ],
+            "description": "Who the wall waits on. agent: a challenge you hold and pass yourself with page actions (see the field description). person: a sign-in wall, or a challenge you failed; DSphere handed it to the person. DSphere has shown the person its sign-in sheet for this page (and a desktop notification when its side panel is closed). Tell your user that the page needs them to sign in or pass the check in the browser and click Resume in the DSphere side panel; do not use dsagent.page.ask for it. Wait, then read this page again (dsagent.page.observe); continue the task where it stopped once authentication is absent. Do not end the task, retry the effect before then, or sign in, enter credentials or solve the challenge yourself."
+          },
+          "attemptsLeft": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 12,
+            "description": "With waitingOn agent: effect calls (dsagent.page.action / .actions) you may still spend on this challenge before it is the person's."
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "additionalProperties": false,
+        "description": "The sign-in monitor's verdict on the page: status no-wall when it checked and found none (absent when it could not check); status sign-in-required, with type and confidence, when the page is a sign-in or verification (CAPTCHA) wall. With waitingOn \"agent\" the wall is a human-verification challenge (a CAPTCHA or bot check) that you pass yourself, with the page gestures a person uses: dsagent.page.visual.observe shows the puzzle; dsagent.page.observe / dsagent.page.find list its controls (a checkbox or a picture tile: click; a slider knob: drag with delta or dropTargetId; a code field: type; a refresh or confirm control: click); then read the page again. Once the challenge has survived one of your answers, DSphere sends your drags and plain clicks on it as real browser input (the receipt says so); nothing changes in how you call them. authentication absent or no-wall means it is passed; continue the task. You have attemptsLeft effect calls on this challenge (12 at first) and 5 minutes; when they are spent, or you call dsagent.page.notify on this page because you cannot pass it, DSphere hands the challenge to the person and waitingOn becomes \"person\". Never enter credentials, sign in or ask the person before that. The person may turn this off (DSphere Settings → Verification Challenges; dsagent.settings.get section agent-challenge-walls, which you cannot change): then every wall is the person's from the start. With waitingOn \"person\" effects other than a click on the active surface's own close control (activeSurface.closeTargetId), dismiss, scroll and Escape are refused with TARGET_BUSY / AUTHENTICATION_REQUIRED until the wall is gone. You may still close a sign-in popup the way a guest does, which signs nothing in: click its own close control (activeSurface.closeTargetId of your latest page read), dismiss, scroll or press Escape; then read the page again. DSphere has shown the person its sign-in sheet for this page (and a desktop notification when its side panel is closed). Tell your user that the page needs them to sign in or pass the check in the browser and click Resume in the DSphere side panel; do not use dsagent.page.ask for it. Wait, then read this page again (dsagent.page.observe); continue the task where it stopped once authentication is absent. Do not end the task, retry the effect before then, or sign in, enter credentials or solve the challenge yourself."
+      }
+    },
+    "required": [
+      "pageContextId",
+      "previousRevision",
+      "revision",
+      "executed",
+      "receipts"
+    ],
+    "additionalProperties": false,
+    "description": "Receipts of the executed actions and the complete bounded final target inventory."
+  },
+  "risk": "external-effect",
+  "targetKinds": [
+    "page-target"
+  ],
+  "requiredPermissions": [
+    "page.control"
+  ],
+  "timeoutMs": 120000,
+  "maxInlineResultBytes": 131072,
+  "concurrency": "exclusive-target",
+  "retry": "never",
+  "exposure": "exposed"
+}

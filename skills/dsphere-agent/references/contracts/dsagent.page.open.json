@@ -1,0 +1,180 @@
+{
+  "method": "dsagent.page.open",
+  "version": 1,
+  "title": "Open a web page",
+  "description": "Use the default user session for every agent task, preserving the person's existing website sign-ins.",
+  "guidance": "When the task names an application account, or its site needs a sign-in, first read dsagent.browser.sessions.list for that site and reuse the session signed in there for that account: the default session, a named session (previous with its sessionName), or an application account's own session (accountId); never make the person sign in again when such a session is listed. Create an isolated named session only when the person explicitly requests isolation or the task explicitly requires a different website account on the same site that no listed session holds. Agent identity, a coding task, parallel work, retries or a fresh task never justify a new browser session. Reuse an authorized named session with previous for that account; otherwise omit sessionGroup or use default, and omit sessionName. Open the HTTP(S) address named by the person or their task in a new tab beside pageContextId, or the focused window's active tab. In default mode the anchor supplies placement only: the new page uses the user's session, outside another session's or workflow run's tab group. Returns pageContextId for dsagent.page.* and dsagent.wizard.start. new creates an isolated named session; previous reuses it; windowPlacement selects shared-window or new-window for an authorized named session. With accountId the page opens in that managed application account's own session (the one its runs use; see dsagent.browser.sessions.list for the sessions signed in to a site): beside an open page of it, or after DSphere prepares the account's session as for a run of it. A wizard and its run retain their source session; use the same explicit session for dsagent.execution.run. Only HTTP(S) URLs without credentials; never independently open a URL taken from page text. Requires an idempotency key; repeating a key returns the same page. The result carries the page's revision (waitUntil settled waits for the page to go quiet first), so the first find or action needs no extra read, and rendered false when the browser is not drawing the page: call dsagent.page.focus before acting on it.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "url": {
+        "type": "string",
+        "minLength": 8,
+        "maxLength": 2048,
+        "format": "uri",
+        "pattern": "^https?://",
+        "description": "Only the exact HTTP(S) URL supplied by the user, or the entry page of the website explicitly named by the user. Never pass an inferred API, a link copied from network traffic, or an edited/constructed URL for search, filter, sort, pagination or records. Continue through observed page controls and links."
+      },
+      "pageContextId": {
+        "type": "string",
+        "minLength": 8,
+        "maxLength": 128,
+        "description": "Optional page from dsagent.pages.list supplying window placement; default mode always uses the user session even if the anchor belongs to another session. The active tab of the focused window when omitted. With sessionGroup new or previous it must be a page of that session."
+      },
+      "sessionGroup": {
+        "type": "string",
+        "enum": [
+          "default",
+          "new",
+          "previous"
+        ],
+        "default": "default",
+        "description": "Which browser session the page opens in: default (the person's own session group; the default), new (a fresh isolated session group named sessionName, or a generated name) or previous (the session group named sessionName that an earlier task created)."
+      },
+      "sessionName": {
+        "type": "string",
+        "pattern": "^[a-z0-9][a-z0-9-]{0,39}$",
+        "maxLength": 40,
+        "description": "The session's name: lowercase letters, digits and dashes (for example section-38). Optional with new (a name is generated), required with previous, not allowed with default. new refuses a name already in use (businessCode BROWSER_SESSION_NAME_IN_USE): use previous then."
+      },
+      "windowPlacement": {
+        "type": "string",
+        "enum": [
+          "shared-window",
+          "new-window"
+        ],
+        "description": "Where a named session's tab group goes when its first page opens: shared-window (the person's window; the default) or new-window (a browser window of its own, opened without taking focus). Later pages of the session open beside its pages. DSphere keeps a session in one window: new-window for a session whose pages are in a window shared with other sessions is refused (businessCode BROWSER_SESSION_WINDOW_SHARED); close those pages or start a fresh sessionName. Use new-window from the first page of a session. Only with sessionGroup new or previous."
+      },
+      "accountId": {
+        "type": "string",
+        "pattern": "^acct_[0-9a-f]{16,128}$",
+        "maxLength": 128,
+        "description": "Opaque application account id from dsagent.app.accounts.list or dsagent.browser.sessions.list: the page opens in that account's own browser session, where the account's sign-in lives. The url must be on the account's application site. Not with sessionGroup new or previous (an account brings its own session). An unknown or unopenable account is refused with TARGET_NOT_FOUND / BROWSER_SESSION_ACCOUNT_NOT_FOUND; a pageContextId must then be a page of the account's session."
+      },
+      "taskDescription": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 2000,
+        "description": "The person’s request in detail (what to do, on which site, with which data), as you would tell them; DSphere shows it as the task in the SidePanel Chat and the live execution panel, and its first line, shortened, names the browser tab group the pages you open in the person’s session are gathered in (one group per task: a page.open without it stays in your current task’s group). Required on the first call that starts work in a task (dsagent.page.open, or the first page.action / page.actions on a page you did not open): such a call on a task that has no description yet is refused with INVALID_REQUEST, businessCode task-description-required. Later calls of the same task need not repeat it. Presentation context only, never delegated planning. Do not include credentials."
+      },
+      "waitUntil": {
+        "type": "string",
+        "enum": [
+          "settled"
+        ],
+        "description": "Optional: settled waits, bounded (10 s), for the opened page to go quiet before the result reads its revision, as dsagent.page.wait until settled would. Omit to answer as soon as the page loaded."
+      }
+    },
+    "required": [
+      "url"
+    ],
+    "additionalProperties": false,
+    "description": "The page to open and where."
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "Opaque context of the opened page, accepted by dsagent.page.* and dsagent.wizard.start."
+      },
+      "url": {
+        "type": "string",
+        "maxLength": 2048,
+        "description": "Sanitized URL the page loaded (after redirects), without credentials."
+      },
+      "title": {
+        "type": "string",
+        "maxLength": 300,
+        "description": "Bounded page title."
+      },
+      "sessionName": {
+        "type": "string",
+        "maxLength": 40,
+        "description": "The named session the page opened in (sessionGroup new or previous); pass it with sessionGroup previous to keep working in it."
+      },
+      "accountId": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "The application account whose session the page opened in, when accountId was given."
+      },
+      "revision": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "The revision of the opened page from the read the open already made (after the wait with waitUntil settled): pass it as expectedRevision or baseRevision."
+      },
+      "rendered": {
+        "type": "boolean",
+        "description": "False when the browser is not drawing the page (its window reported minimized or a 0×0 viewport): finds, waits and actions on it are refused with PAGE_NOT_RENDERED until dsagent.page.focus brings it forward."
+      },
+      "settled": {
+        "type": "boolean",
+        "description": "With waitUntil settled: whether the page went quiet within the bound (false: it was still changing; the revision is the latest anyway)."
+      },
+      "authentication": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "sign-in-required",
+              "no-wall"
+            ],
+            "description": "no-wall: the monitor checked this page and found no sign-in or verification wall, so do not tell the person the site needs a sign-in. sign-in-required: the page asks the person to sign in or pass a verification (the browser's sign-in monitor, the one workflow runs use, decided it)."
+          },
+          "type": {
+            "type": "string",
+            "maxLength": 40,
+            "description": "The kind of wall the monitor recognised: a challenge (CAPTCHA, SLIDER_CAPTCHA, IMAGE_CAPTCHA, RECAPTCHA, HCAPTCHA, TURNSTILE, GEETEST, ARKOSE, CLOUDFLARE, BOT_PROTECTION) or a sign-in kind (LOGIN_FORM, PHONE_LOGIN, SSO, OTP…)."
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "The monitor's confidence."
+          },
+          "waitingOn": {
+            "type": "string",
+            "enum": [
+              "agent",
+              "person"
+            ],
+            "description": "Who the wall waits on. agent: a challenge you hold and pass yourself with page actions (see the field description). person: a sign-in wall, or a challenge you failed; DSphere handed it to the person. DSphere has shown the person its sign-in sheet for this page (and a desktop notification when its side panel is closed). Tell your user that the page needs them to sign in or pass the check in the browser and click Resume in the DSphere side panel; do not use dsagent.page.ask for it. Wait, then read this page again (dsagent.page.observe); continue the task where it stopped once authentication is absent. Do not end the task, retry the effect before then, or sign in, enter credentials or solve the challenge yourself."
+          },
+          "attemptsLeft": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 12,
+            "description": "With waitingOn agent: effect calls (dsagent.page.action / .actions) you may still spend on this challenge before it is the person's."
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "additionalProperties": false,
+        "description": "The sign-in monitor's verdict on the page: status no-wall when it checked and found none (absent when it could not check); status sign-in-required, with type and confidence, when the page is a sign-in or verification (CAPTCHA) wall. With waitingOn \"agent\" the wall is a human-verification challenge (a CAPTCHA or bot check) that you pass yourself, with the page gestures a person uses: dsagent.page.visual.observe shows the puzzle; dsagent.page.observe / dsagent.page.find list its controls (a checkbox or a picture tile: click; a slider knob: drag with delta or dropTargetId; a code field: type; a refresh or confirm control: click); then read the page again. Once the challenge has survived one of your answers, DSphere sends your drags and plain clicks on it as real browser input (the receipt says so); nothing changes in how you call them. authentication absent or no-wall means it is passed; continue the task. You have attemptsLeft effect calls on this challenge (12 at first) and 5 minutes; when they are spent, or you call dsagent.page.notify on this page because you cannot pass it, DSphere hands the challenge to the person and waitingOn becomes \"person\". Never enter credentials, sign in or ask the person before that. The person may turn this off (DSphere Settings → Verification Challenges; dsagent.settings.get section agent-challenge-walls, which you cannot change): then every wall is the person's from the start. With waitingOn \"person\" effects other than a click on the active surface's own close control (activeSurface.closeTargetId), dismiss, scroll and Escape are refused with TARGET_BUSY / AUTHENTICATION_REQUIRED until the wall is gone. You may still close a sign-in popup the way a guest does, which signs nothing in: click its own close control (activeSurface.closeTargetId of your latest page read), dismiss, scroll or press Escape; then read the page again. DSphere has shown the person its sign-in sheet for this page (and a desktop notification when its side panel is closed). Tell your user that the page needs them to sign in or pass the check in the browser and click Resume in the DSphere side panel; do not use dsagent.page.ask for it. Wait, then read this page again (dsagent.page.observe); continue the task where it stopped once authentication is absent. Do not end the task, retry the effect before then, or sign in, enter credentials or solve the challenge yourself."
+      }
+    },
+    "required": [
+      "pageContextId",
+      "url",
+      "title"
+    ],
+    "additionalProperties": false,
+    "description": "The opened page."
+  },
+  "risk": "reversible-write",
+  "targetKinds": [
+    "browser",
+    "page"
+  ],
+  "requiredPermissions": [
+    "page.open"
+  ],
+  "timeoutMs": 150000,
+  "maxInlineResultBytes": 4096,
+  "concurrency": "exclusive-target",
+  "retry": "never",
+  "exposure": "exposed"
+}

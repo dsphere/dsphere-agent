@@ -1,0 +1,229 @@
+{
+  "method": "dsagent.website.explore.export",
+  "version": 1,
+  "risk": "reversible-write",
+  "targetKinds": [
+    "page"
+  ],
+  "requiredPermissions": [
+    "page.read"
+  ],
+  "timeoutMs": 60000,
+  "maxInlineResultBytes": 8192,
+  "concurrency": "exclusive-browser",
+  "retry": "never",
+  "exposure": "exposed",
+  "title": "Export targeted website exploration report",
+  "description": "ONLY for an explicit user request to explore a website or produce its report. Compose captured evidence and caller-authored findings into a detailed, self-contained Markdown report in the user export directory for future reuse and third-party agent handoff. Does not navigate or execute actions.",
+  "guidance": "Observed/caller-verified/untested/blocked remain distinct. All referenced evidence must belong to this caller and be unexpired. Identical report content reuses the verified file. No arbitrary file paths, URLs, scripts or automatic integration with ordinary browser tasks.",
+  "inputSchema": {
+    "type": "object",
+    "description": "Compose a targeted user-requested report using captured evidence and explicitly attributed caller findings.",
+    "properties": {
+      "title": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 200,
+        "description": "Report title."
+      },
+      "objective": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 2000,
+        "description": "User request, website scope, relevant account state and exploration boundaries."
+      },
+      "evidenceIds": {
+        "type": "array",
+        "description": "Capture evidence IDs belonging to this caller.",
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 80,
+          "description": "Opaque evidence identity."
+        },
+        "minItems": 1,
+        "maxItems": 24,
+        "uniqueItems": true
+      },
+      "findings": {
+        "type": "array",
+        "description": "Targeted capabilities, data schemas, procedures and conditional cases. A control being present alone does not prove functionality.",
+        "items": {
+          "type": "object",
+          "description": "One attributed exploration finding.",
+          "properties": {
+            "title": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200,
+              "description": "Finding title."
+            },
+            "category": {
+              "type": "string",
+              "enum": [
+                "navigation",
+                "search",
+                "filter",
+                "sort",
+                "content",
+                "data",
+                "authentication",
+                "form",
+                "social",
+                "media",
+                "limitation"
+              ],
+              "description": "Website capability or limitation category."
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "observed",
+                "caller-verified",
+                "not-tested",
+                "blocked"
+              ],
+              "description": "Presence only, verification claimed by caller, untested, or blocked. No independent engine certification is implied."
+            },
+            "evidenceIds": {
+              "type": "array",
+              "description": "Capture evidence IDs belonging to this caller.",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80,
+                "description": "Opaque evidence identity."
+              },
+              "minItems": 0,
+              "maxItems": 24,
+              "uniqueItems": true
+            },
+            "description": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 3000,
+              "description": "Finding, prerequisites, data fields and evidence interpretation. Exclude secrets and unrelated personal data."
+            },
+            "procedure": {
+              "type": "array",
+              "description": "Reusable human-readable steps. Use control meaning, never selectors or stale target IDs.",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 600,
+                "description": "One step."
+              },
+              "minItems": 0,
+              "maxItems": 12,
+              "uniqueItems": true
+            },
+            "expectedResult": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1000,
+              "description": "Verifiable acceptance condition, including end conditions and data ownership for collection."
+            }
+          },
+          "required": [
+            "title",
+            "category",
+            "status",
+            "evidenceIds",
+            "description",
+            "procedure",
+            "expectedResult"
+          ],
+          "additionalProperties": false
+        },
+        "minItems": 1,
+        "maxItems": 48,
+        "uniqueItems": true
+      },
+      "nextSteps": {
+        "type": "array",
+        "description": "Remaining work and handoff procedure for another agent.",
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000,
+          "description": "Next step."
+        },
+        "minItems": 1,
+        "maxItems": 20,
+        "uniqueItems": true
+      },
+      "limitations": {
+        "type": "array",
+        "description": "Unverified areas, evidence age, account restrictions and incomplete coverage.",
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000,
+          "description": "Limitation."
+        },
+        "minItems": 1,
+        "maxItems": 20,
+        "uniqueItems": true
+      }
+    },
+    "required": [
+      "title",
+      "objective",
+      "evidenceIds",
+      "findings",
+      "nextSteps",
+      "limitations"
+    ],
+    "additionalProperties": false
+  },
+  "outputSchema": {
+    "type": "object",
+    "description": "Confirmed portable report file, suitable for sharing by the user.",
+    "properties": {
+      "path": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 4096,
+        "description": "Confirmed Markdown file in the configured export directory, or the browser download directory."
+      },
+      "sizeBytes": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Verified file size in bytes."
+      },
+      "mediaType": {
+        "type": "string",
+        "enum": [
+          "text/markdown"
+        ],
+        "description": "Portable Markdown document."
+      },
+      "sha256": {
+        "type": "string",
+        "pattern": "^[a-f0-9]{64}$",
+        "description": "Report content SHA-256."
+      },
+      "evidenceCount": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 24,
+        "description": "Included page captures."
+      },
+      "findingCount": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 48,
+        "description": "Included caller findings."
+      }
+    },
+    "required": [
+      "path",
+      "sizeBytes",
+      "mediaType",
+      "sha256",
+      "evidenceCount",
+      "findingCount"
+    ],
+    "additionalProperties": false
+  }
+}

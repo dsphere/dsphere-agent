@@ -1,0 +1,4 @@
+interface:
+  display_name: "DSphere Agent"
+  short_description: "通过 dsphere-agent MCP 操作 DSphere 浏览器的 Skill：由你用原子页面动作自主规划，数据采集与工作流录制走引导式向导"
+  default_prompt: "使用 $dsphere-agent。浏览器任务由你自己规划：用 `dsagent` 的 dsagent.page.observe 观察页面，用 dsagent.page.action / dsagent.page.actions 逐步执行并核验；需要采集数据集时用 dsagent.wizard.start（kind=scrape）根据任务和页面证据自主选择采集向导选项，不逐项询问，需要录制可复用工作流时用 kind=record；确认、凭据和登录由我本人处理。"

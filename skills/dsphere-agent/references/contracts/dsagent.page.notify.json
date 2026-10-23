@@ -1,0 +1,76 @@
+{
+  "method": "dsagent.page.notify",
+  "version": 1,
+  "title": "Ask the person to come to a page",
+  "description": "Show the person a desktop notification asking them to come to this page, also while the DSphere side panel is closed (for example when a dsagent.page.ask question waits for them, or the task needs them on the page). Clicking it brings the page forward and opens the side panel.",
+  "guidance": "Do not use it for a sign-in or verification wall the person is waiting on (authentication.waitingOn person): DSphere notifies the person itself. On a verification challenge you hold (authentication.waitingOn agent) that you cannot pass, call it: the challenge is handed to the person (challengeHandedToPerson true; DSphere shows its sign-in sheet and its own notification) and waitingOn becomes person. The message is short plain text in the user's language, without links or credentials; at most one notice per page every 30 seconds. It does not wait for the person and is not consent to any action.",
+  "inputSchema": {
+    "type": "object",
+    "description": "The page and the short message for the person.",
+    "additionalProperties": false,
+    "required": [
+      "pageContextId",
+      "message"
+    ],
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "minLength": 8,
+        "maxLength": 128,
+        "description": "The task page context returned by page.open; the notification brings this page forward when clicked."
+      },
+      "message": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 200,
+        "description": "What the person is asked to do on the page, in their language; plain text, no links."
+      }
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "description": "Whether the notification was shown.",
+    "additionalProperties": false,
+    "required": [
+      "pageContextId",
+      "shown"
+    ],
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "minLength": 8,
+        "maxLength": 128,
+        "description": "The task page context returned by page.open; the notification brings this page forward when clicked."
+      },
+      "shown": {
+        "type": "boolean",
+        "description": "True when the notification was shown; false when one for this page was shown less than 30 seconds ago."
+      },
+      "retryAfterMs": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 30000,
+        "description": "When not shown: how long until a notice for this page may be shown again."
+      },
+      "challengeHandedToPerson": {
+        "type": "boolean",
+        "enum": [
+          true
+        ],
+        "description": "Present and true when a verification challenge you held on this page was handed to the person by this call: read the page again only once they passed it (authentication absent); do not act on the challenge any more."
+      }
+    }
+  },
+  "risk": "reversible-write",
+  "targetKinds": [
+    "page"
+  ],
+  "requiredPermissions": [
+    "page.control"
+  ],
+  "timeoutMs": 10000,
+  "maxInlineResultBytes": 1024,
+  "concurrency": "exclusive-target",
+  "retry": "never",
+  "exposure": "exposed"
+}

@@ -1,0 +1,71 @@
+{
+  "method": "dsagent.execution.artifact.export",
+  "version": 1,
+  "title": "Export execution artifact",
+  "description": "Write an artifact to a local file in the export directory, for a client that can read files on the browser machine (after RESULT_LIMIT_EXCEEDED from a records read, or a binary artifact). A remote or sandboxed client pages a dataset with dsagent.artifact.read format jsonl or csv instead.",
+  "guidance": "Reuse executionId from the error details and the original artifactId, write the artifact to the Extension-managed directory, then analyze the returned local path without inlining the full content.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "executionId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "Opaque execution identifier that owns the artifact."
+      },
+      "artifactId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 256,
+        "description": "Opaque artifact identifier returned by dsagent.artifacts.list or the read-limit error details."
+      }
+    },
+    "required": [
+      "executionId",
+      "artifactId"
+    ],
+    "description": "Input for exporting one authorized artifact to the Extension-managed local directory."
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "path": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 4096,
+        "description": "Absolute local path of the exported artifact inside the configured managed directory."
+      },
+      "mediaType": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 200,
+        "description": "Media type of the exported file."
+      },
+      "sizeBytes": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Exact exported file size in bytes."
+      }
+    },
+    "required": [
+      "path",
+      "mediaType",
+      "sizeBytes"
+    ],
+    "description": "Local file reference produced by a successful artifact export."
+  },
+  "risk": "reversible-write",
+  "targetKinds": [
+    "workflow"
+  ],
+  "requiredPermissions": [
+    "workflow.execute"
+  ],
+  "timeoutMs": 60000,
+  "maxInlineResultBytes": 16384,
+  "concurrency": "shared-read",
+  "retry": "never",
+  "exposure": "exposed"
+}

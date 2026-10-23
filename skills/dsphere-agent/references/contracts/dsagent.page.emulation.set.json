@@ -1,0 +1,103 @@
+{
+  "method": "dsagent.page.emulation.set",
+  "version": 1,
+  "title": "Set script device preset",
+  "description": "Install an android, iphone, ipad or desktop script device preset on an agent-owned page and re-apply it after main-document navigation. Pair with dsagent.page.viewport.set for responsive layout testing.",
+  "guidance": "This changes script-visible navigator properties only: network headers, browser engine, native touch and actual device pixel ratio remain unchanged. State lasts until clear, tab closure or Extension restart. Applied reports current-document verification; false means it is installed for later navigation but not verified now. No arbitrary user-agent string, script, geolocation or browser protocol command is accepted. Requires an idempotency key.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "The page and bounded device preset.",
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "minLength": 8,
+        "maxLength": 128,
+        "description": "Opaque context of an agent-owned page."
+      },
+      "preset": {
+        "type": "string",
+        "enum": [
+          "android",
+          "iphone",
+          "ipad",
+          "desktop"
+        ],
+        "description": "Named script-visible device profile; no native device emulation is implied."
+      }
+    },
+    "required": [
+      "pageContextId",
+      "preset"
+    ]
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "Current-document verification and explicit device-emulation limits.",
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "minLength": 8,
+        "maxLength": 128,
+        "description": "Opaque context of an agent-owned page."
+      },
+      "preset": {
+        "type": "string",
+        "enum": [
+          "android",
+          "iphone",
+          "ipad",
+          "desktop"
+        ],
+        "description": "The requested script device preset."
+      },
+      "applied": {
+        "type": "boolean",
+        "description": "Whether the requested navigator values were verified in the current document."
+      },
+      "scope": {
+        "type": "string",
+        "enum": [
+          "script-only"
+        ],
+        "description": "Bounded emulation scope."
+      },
+      "limitations": {
+        "type": "array",
+        "minItems": 4,
+        "maxItems": 4,
+        "description": "Limits of normal browser API device presets.",
+        "items": {
+          "type": "string",
+          "enum": [
+            "script-user-agent-only",
+            "network-headers-unchanged",
+            "native-touch-unchanged",
+            "device-pixel-ratio-unchanged"
+          ],
+          "description": "One unchanged browser or network behavior."
+        }
+      }
+    },
+    "required": [
+      "pageContextId",
+      "preset",
+      "applied",
+      "scope",
+      "limitations"
+    ]
+  },
+  "risk": "reversible-write",
+  "targetKinds": [
+    "page"
+  ],
+  "requiredPermissions": [
+    "page.presentation.write"
+  ],
+  "timeoutMs": 15000,
+  "maxInlineResultBytes": 2048,
+  "concurrency": "exclusive-target",
+  "retry": "never",
+  "exposure": "exposed"
+}

@@ -1,0 +1,155 @@
+{
+  "method": "dsagent.bookmarks.import",
+  "version": 1,
+  "title": "Import other browsers' bookmarks",
+  "description": "Import the bookmarks of the chosen profiles into the DSphere browser, exactly as the SidePanel Chat skill \"Sync bookmarks\" does.",
+  "guidance": "Each source's bookmark bar merges into the DSphere bookmark bar and its other folders into Other bookmarks; a folder with the same name under the same parent is reused, and a URL the DSphere browser already has is skipped, so repeating an import only adds new bookmarks. Nothing is removed, and nothing is written to the other browsers. Ask the person which profiles to import first: list them with dsagent.bookmarks.sources and pass the chosen ready source IDs. One import runs at a time (BUSY otherwise); a source that cannot be read reports its failure while the others still import. Requires an idempotency key; repeating a key with the same request replays its result.",
+  "inputSchema": {
+    "type": "object",
+    "description": "The profiles to import.",
+    "additionalProperties": false,
+    "required": [
+      "sourceIds"
+    ],
+    "properties": {
+      "sourceIds": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 32,
+        "uniqueItems": true,
+        "description": "Source IDs from dsagent.bookmarks.sources, imported in this order.",
+        "items": {
+          "type": "string",
+          "pattern": "^(chrome|edge|safari)-[0-9a-f]{16}$",
+          "description": "An opaque source ID from dsagent.bookmarks.sources: the browser name, a dash and 16 hex digits. It never contains a path."
+        }
+      }
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "description": "What the import added to the DSphere browser, in total and per source.",
+    "additionalProperties": false,
+    "required": [
+      "sources",
+      "added",
+      "foldersCreated",
+      "duplicates",
+      "unsupported"
+    ],
+    "properties": {
+      "sources": {
+        "type": "array",
+        "description": "One entry per imported source, in the order requested.",
+        "items": {
+          "type": "object",
+          "description": "What one source contributed.",
+          "additionalProperties": false,
+          "required": [
+            "sourceId",
+            "browser",
+            "profile",
+            "added",
+            "foldersCreated",
+            "duplicates",
+            "unsupported",
+            "truncated"
+          ],
+          "properties": {
+            "sourceId": {
+              "type": "string",
+              "pattern": "^(chrome|edge|safari)-[0-9a-f]{16}$",
+              "description": "An opaque source ID from dsagent.bookmarks.sources: the browser name, a dash and 16 hex digits. It never contains a path."
+            },
+            "browser": {
+              "type": "string",
+              "enum": [
+                "chrome",
+                "edge",
+                "safari"
+              ],
+              "description": "The source browser."
+            },
+            "profile": {
+              "type": "string",
+              "description": "The source profile name."
+            },
+            "added": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Bookmarks created in the DSphere browser."
+            },
+            "foldersCreated": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Folders created to hold them."
+            },
+            "duplicates": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Bookmarks skipped because the DSphere browser already had their URL."
+            },
+            "unsupported": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Bookmarks skipped because their URL cannot be bookmarked (javascript:, browser-internal pages)."
+            },
+            "truncated": {
+              "type": "boolean",
+              "description": "True when the source had more bookmarks than one read returns, so only the first part was imported."
+            },
+            "failure": {
+              "type": "string",
+              "enum": [
+                "INVALID_REQUEST",
+                "NATIVE_UNAVAILABLE",
+                "NATIVE_UPGRADE_REQUIRED",
+                "SOURCE_NOT_FOUND",
+                "ACCESS_DENIED",
+                "UNREADABLE",
+                "BOOKMARKS_UNAVAILABLE",
+                "BUSY"
+              ],
+              "description": "Set when this source could not be imported; the other sources still were. ACCESS_DENIED means the person must grant access; UNREADABLE that the file is missing or malformed."
+            }
+          }
+        }
+      },
+      "added": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Bookmarks created across all sources."
+      },
+      "foldersCreated": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Folders created across all sources."
+      },
+      "duplicates": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Bookmarks skipped as already present, across all sources."
+      },
+      "unsupported": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Bookmarks skipped as not bookmarkable, across all sources."
+      }
+    }
+  },
+  "risk": "reversible-write",
+  "targetKinds": [
+    "browser"
+  ],
+  "requiredPermissions": [
+    "bookmarks.write"
+  ],
+  "timeoutMs": 120000,
+  "maxInlineResultBytes": 65536,
+  "concurrency": "exclusive-browser",
+  "retry": "never",
+  "exposure": "exposed",
+  "requiredAgentCapabilities": [
+    "bookmarks.read.v1"
+  ]
+}

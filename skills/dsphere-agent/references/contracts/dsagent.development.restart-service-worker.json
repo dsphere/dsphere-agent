@@ -1,0 +1,112 @@
+{
+  "method": "dsagent.development.restart-service-worker",
+  "version": 1,
+  "title": "Restart the Extension service worker",
+  "description": "Development only: let this Extension's service worker end the way the browser ends an idle one, without reloading the Extension, so restart recovery can be verified.",
+  "guidance": "chrome.storage.session, tabs, open scrape and recording sessions and persisted wizard records survive; in-memory state and the browser-hosted Native Agent runtime do not. Unlike dsagent.development.reload-extension (a cold start that clears chrome.storage.session), this is the restart the browser itself performs. Advertised only by development builds, runs only for an unpacked install, and keeps the running bundle: expectedEngineRevision must equal the running engineRevision. After status=restarting the worker closes its Native connection and goes idle; the browser stops it after about 30 s without events, and a new worker starts on the next browser event or on the wake-up alarm 2 minutes later (a worker still running then was kept busy, and the Extension is reloaded instead). Expect EXTENSION_OFFLINE meanwhile and leave the browser alone, then call again with restartedFrom set to the workerId of this reply until the status is restarted (a hot restart: chrome.storage.session kept the restart marker) or reloaded (the browser did not end the worker, so the Extension was reloaded instead: a cold start, not a hot restart). Guided wizards do not block it (they resume from their records); workflow executions and SidePanel Chat autonomous runs do unless force is true. Requires an idempotency key.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "The running build and, to confirm a restart, the worker it started from.",
+    "properties": {
+      "expectedEngineRevision": {
+        "type": "string",
+        "pattern": "^[a-f0-9]{64}$",
+        "description": "engineRevision of the running build (dist/browser-engine-identity.json of the loaded build); the restart keeps that bundle."
+      },
+      "restartedFrom": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9-]{8,64}$",
+        "description": "workerId from an earlier status=restarting reply: the call only reports whether a new worker answers and never restarts again."
+      },
+      "force": {
+        "type": "boolean",
+        "description": "Restart even while workflow executions or SidePanel Chat autonomous runs are active; they continue only through their own recovery. Defaults to false."
+      }
+    },
+    "required": [
+      "expectedEngineRevision"
+    ]
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "Restart decision, or the restart confirmation, for the running service worker.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "restarting",
+          "restarted",
+          "reloaded",
+          "pending"
+        ],
+        "description": "restarting: this reply is sent first and the worker is ended after restartDelayMs; restarted: a new worker answers and chrome.storage.session kept the restart marker of the worker named by restartedFrom (a hot restart); reloaded: a new worker answers but the marker is gone (the Extension was reloaded: a cold start); pending: the worker named by restartedFrom still answers."
+      },
+      "workerId": {
+        "type": "string",
+        "description": "Identity of the service-worker instance that answered; a new worker has a new id."
+      },
+      "workerStartedAt": {
+        "type": "string",
+        "description": "When the answering worker started (ISO 8601)."
+      },
+      "runningEngineRevision": {
+        "type": "string",
+        "description": "engineRevision of the bundle answering this call."
+      },
+      "restartDelayMs": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Milliseconds between this reply and the worker being ended; 0 unless status is restarting."
+      },
+      "activeWork": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "Work that was running when the call was answered.",
+        "properties": {
+          "workflowExecutions": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Running workflow executions."
+          },
+          "autonomousGoals": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "SidePanel Chat autonomous goals with an in-flight run."
+          },
+          "guidedWizards": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Guided wizards (dsagent.wizard.*) still guiding a session; they resume after the restart."
+          }
+        },
+        "required": [
+          "workflowExecutions",
+          "autonomousGoals",
+          "guidedWizards"
+        ]
+      }
+    },
+    "required": [
+      "status",
+      "workerId",
+      "workerStartedAt",
+      "runningEngineRevision",
+      "restartDelayMs",
+      "activeWork"
+    ]
+  },
+  "risk": "reversible-write",
+  "targetKinds": [
+    "browser"
+  ],
+  "requiredPermissions": [
+    "development.reload"
+  ],
+  "timeoutMs": 10000,
+  "maxInlineResultBytes": 2048,
+  "concurrency": "exclusive-browser",
+  "retry": "never",
+  "exposure": "exposed"
+}

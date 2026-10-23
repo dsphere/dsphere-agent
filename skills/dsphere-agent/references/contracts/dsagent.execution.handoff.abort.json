@@ -1,0 +1,61 @@
+{
+  "method": "dsagent.execution.handoff.abort",
+  "version": 1,
+  "title": "Abort a run's repair handoff",
+  "description": "End a run paused for your repair without resuming it: the run ends failed on the failed block's typed endpoint, keeping the rows it saved and reporting its coverage (dsagent.execution.get / wait). Use it when the block cannot be repaired on the page. Requires an idempotency key.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "The handoff to end.",
+    "properties": {
+      "handoffId": {
+        "type": "string",
+        "maxLength": 64,
+        "description": "The handoff to act on: pause.handoffId of dsagent.execution.get / wait.",
+        "pattern": "^handoff_[a-f0-9]{32}$"
+      },
+      "runToken": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "The run's ownership token, as dsagent.execution.run or dsagent.wizard.run returned it (shown once). Pass it when your browser connection was renewed (a restarted Connector): the run, its open repair handoff and its pages follow you to the new connection. Not needed on the connection that started the run.",
+        "pattern": "^[A-Za-z0-9_-]{16,128}$"
+      }
+    },
+    "required": [
+      "handoffId"
+    ]
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "The ended handoff.",
+    "properties": {
+      "executionId": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "The run, now ending failed; read its outcome with dsagent.execution.wait."
+      },
+      "handoffId": {
+        "type": "string",
+        "maxLength": 64,
+        "description": "The ended handoff."
+      }
+    },
+    "required": [
+      "executionId",
+      "handoffId"
+    ]
+  },
+  "risk": "reversible-write",
+  "targetKinds": [
+    "workflow"
+  ],
+  "requiredPermissions": [
+    "workflow.execute"
+  ],
+  "timeoutMs": 10000,
+  "maxInlineResultBytes": 1024,
+  "concurrency": "exclusive-browser",
+  "retry": "never",
+  "exposure": "exposed"
+}

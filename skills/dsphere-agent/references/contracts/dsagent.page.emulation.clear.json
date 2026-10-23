@@ -1,0 +1,63 @@
+{
+  "method": "dsagent.page.emulation.clear",
+  "version": 1,
+  "title": "Clear script device preset",
+  "description": "Stop re-applying the script device preset after navigation. The current document keeps its script overrides until it navigates or reloads; this call never reloads automatically. Requires an idempotency key.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "The page whose future script overrides to stop.",
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "minLength": 8,
+        "maxLength": 128,
+        "description": "Opaque context of an agent-owned page."
+      }
+    },
+    "required": [
+      "pageContextId"
+    ]
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "Cleanup receipt; a navigation is still needed to reset current globals.",
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "minLength": 8,
+        "maxLength": 128,
+        "description": "Opaque context of an agent-owned page."
+      },
+      "cleared": {
+        "type": "boolean",
+        "description": "Whether a registered future-navigation preset was removed."
+      },
+      "currentDocumentRequiresReload": {
+        "type": "boolean",
+        "enum": [
+          true
+        ],
+        "description": "Current script globals reset only when the page navigates or reloads; the call does not reload."
+      }
+    },
+    "required": [
+      "pageContextId",
+      "cleared",
+      "currentDocumentRequiresReload"
+    ]
+  },
+  "risk": "reversible-write",
+  "targetKinds": [
+    "page"
+  ],
+  "requiredPermissions": [
+    "page.presentation.write"
+  ],
+  "timeoutMs": 15000,
+  "maxInlineResultBytes": 2048,
+  "concurrency": "exclusive-target",
+  "retry": "never",
+  "exposure": "exposed"
+}

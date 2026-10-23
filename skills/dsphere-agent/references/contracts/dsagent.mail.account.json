@@ -1,0 +1,75 @@
+{
+  "method": "dsagent.mail.account",
+  "version": 1,
+  "title": "Look up the person's configured email address",
+  "description": "The email address and display name of the account the person set up in the DSphere Agent Email panel, and whether mail can be sent from it (canSend: an SMTP login is set up) and reached now (available: the Native Agent is connected and supports mail).",
+  "guidance": "Use it to address mail to the person, for example a question or a confirmation sent with dsagent.mail.send whose reply you then find with dsagent.mail.search. When configured is false there is no account and email is null; only the person sets one up, in Email → Settings. It never returns servers, user names or passwords.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "No arguments.",
+    "properties": {}
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "The configured account.",
+    "properties": {
+      "configured": {
+        "type": "boolean",
+        "description": "Whether the person has set up an account in the Email panel."
+      },
+      "available": {
+        "type": "boolean",
+        "description": "Whether the Native Agent mail transport is reachable now."
+      },
+      "canSend": {
+        "type": "boolean",
+        "description": "Whether the account has an SMTP login, so dsagent.mail.send can send from it."
+      },
+      "email": {
+        "anyOf": [
+          {
+            "type": "string",
+            "maxLength": 320
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "description": "The account's email address, or null when none is set up."
+      },
+      "displayName": {
+        "anyOf": [
+          {
+            "type": "string",
+            "maxLength": 320
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "description": "The name mail is sent under, or null when none is set up."
+      }
+    },
+    "required": [
+      "configured",
+      "available",
+      "canSend",
+      "email",
+      "displayName"
+    ]
+  },
+  "risk": "read-sensitive",
+  "targetKinds": [
+    "local-mail"
+  ],
+  "requiredPermissions": [
+    "mail.read"
+  ],
+  "timeoutMs": 10000,
+  "maxInlineResultBytes": 4096,
+  "concurrency": "shared-read",
+  "retry": "pre-dispatch-read-only",
+  "exposure": "exposed"
+}

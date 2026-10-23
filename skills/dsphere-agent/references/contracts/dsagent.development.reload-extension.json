@@ -1,0 +1,133 @@
+{
+  "method": "dsagent.development.reload-extension",
+  "version": 1,
+  "title": "Reload the unpacked development Extension",
+  "description": "Development only: reload this unpacked Extension from its dist folder so a freshly built bundle replaces the running one. Advertised only by development builds and executes only for an unpacked (developer-mode) install.",
+  "guidance": "Pass the engineRevision printed in dist/browser-engine-identity.json after the build: the call is a no-op when that revision already runs, refuses when the folder holds a different revision (build still writing or another build), and refuses while workflow executions or SidePanel Chat autonomous runs are active unless force is true. After status=reloading the reply is sent first, the Extension reloads after reloadDelayMs and the browser-hosted Native Agent restarts: expect EXTENSION_OFFLINE for a few seconds, then call again with the same expectedEngineRevision until status=already-current. Requires an idempotency key.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "Which build must be running after the call.",
+    "properties": {
+      "expectedEngineRevision": {
+        "type": "string",
+        "pattern": "^[a-f0-9]{64}$",
+        "description": "engineRevision from dist/browser-engine-identity.json of the build that must be loaded."
+      },
+      "force": {
+        "type": "boolean",
+        "description": "Reload even while workflow executions or SidePanel Chat autonomous runs are active; their in-memory progress is lost. Defaults to false."
+      }
+    },
+    "required": [
+      "expectedEngineRevision"
+    ]
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "Reload decision for the running Extension.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "reloading",
+          "already-current"
+        ],
+        "description": "reloading: this reply is sent first and the Extension reloads from disk after reloadDelayMs; already-current: the expected build is already running and nothing was reloaded."
+      },
+      "runningEngineRevision": {
+        "type": "string",
+        "description": "engineRevision of the bundle answering this call."
+      },
+      "targetEngineRevision": {
+        "type": "string",
+        "description": "engineRevision found in the dist folder; equals expectedEngineRevision when a reload was accepted."
+      },
+      "extensionVersion": {
+        "type": "string",
+        "description": "Manifest version of the bundle answering this call."
+      },
+      "buildMode": {
+        "type": "string",
+        "description": "Build mode recorded in the dist folder identity, for example pltest1; unknown when the identity file could not be read."
+      },
+      "reloadDelayMs": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Milliseconds between this reply and chrome.runtime.reload(); 0 when status is already-current."
+      },
+      "offlineAhead": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "B24, with status=reloading only: the Extension and its browser-hosted Native Agent go offline right after this reply, on purpose. The Connector reads this envelope-level hint and answers the calls that fail meanwhile with businessCode EXTENSION_RELOADING and details.retryAfterMs instead of a bare offline: wait, back off, then dsagent_list_instances; nothing is lost.",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "enum": [
+              "extension-reload"
+            ],
+            "description": "Why the browser goes offline: a reload of the Extension from disk."
+          },
+          "expectedBackMs": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "How long the Extension expects to be offline, from this reply, before its runtime is back and dsagent_list_instances lists it again."
+          }
+        },
+        "required": [
+          "reason",
+          "expectedBackMs"
+        ]
+      },
+      "activeWork": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "Work that was running when the call was answered; non-zero with status=reloading only when force was true.",
+        "properties": {
+          "workflowExecutions": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Running workflow executions."
+          },
+          "autonomousGoals": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "SidePanel Chat autonomous goals with an in-flight run."
+          },
+          "guidedWizards": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Guided wizards (dsagent.wizard.*) still guiding a session, possibly from another agent session."
+          }
+        },
+        "required": [
+          "workflowExecutions",
+          "autonomousGoals",
+          "guidedWizards"
+        ]
+      }
+    },
+    "required": [
+      "status",
+      "runningEngineRevision",
+      "targetEngineRevision",
+      "extensionVersion",
+      "buildMode",
+      "reloadDelayMs",
+      "activeWork"
+    ]
+  },
+  "risk": "reversible-write",
+  "targetKinds": [
+    "browser"
+  ],
+  "requiredPermissions": [
+    "development.reload"
+  ],
+  "timeoutMs": 10000,
+  "maxInlineResultBytes": 2048,
+  "concurrency": "exclusive-browser",
+  "retry": "never",
+  "exposure": "exposed"
+}

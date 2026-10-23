@@ -1,0 +1,297 @@
+{
+  "method": "dsagent.dataset.save-agent-read",
+  "version": 1,
+  "title": "Save an agent-read dataset",
+  "description": "The last detection tier (failure-endpoint fallback D4): save records you read yourself from the page with dsagent.page.observe / dsagent.page.find / dsagent.page.markdown as a dataset, after the scrape wizard on that page ended on a typed detection failure.",
+  "guidance": "Use it only when auto detection, detect-with-ai and pick-sample-record have all failed: cite the wizard (wizardId, wizardToken), the typed endpoint it ended on (endpoint = dsagent.wizard.state lastEndpoint.endpoint, e.g. structure-none or ai-found-nothing, admitted only when lastEndpoint.agentReadAdmissible is true) and pageContextId of the page you read (the page of that wizard, or a sample page it opened). When dsagent.wizard.start refused the page itself (details.endpoint page-not-scrapable or session-start-refused with details.agentReadAdmissible true), cite its details.refusalId as wizardId and that endpoint instead: the refusal is the typed detection failure for that page. Never for a sign-in or verification wall: that waits for the person. Records are flat objects of page values (string, number, boolean or null); the Extension normalises field names, drops credential and payment fields, redacts credential-shaped values and enforces the size limits. The dataset is labelled source agent-read, replayable false, with its coverage (recordsSaved counted by the Extension; expectedRecords, pagesVisited and stoppedBecause as you state them): report it as agent-read, never as a workflow result. It creates or updates no workflow and cannot be run again. One save holds at most 500 records; save more to the same capture with captureId and the captureToken the first save returned. Read the dataset back with dsagent.artifacts.list (executionId = captureId) and dsagent.artifact.read, or export it with dsagent.execution.data.export. Requires an idempotency key; repeating a key with the same input returns the same result.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "A first save cites the wizard failure and the page; an append cites the capture instead.",
+    "properties": {
+      "wizardId": {
+        "type": "string",
+        "description": "First save: the scrape wizard (dsagent.wizard.start) that ended on a typed detection failure; or, when dsagent.wizard.start itself refused the page (a browser, file, PDF or non-HTTP page: TARGET_NOT_FOUND / OUTCOME_UNKNOWN with details.refusalId and details.endpoint page-not-scrapable or session-start-refused), that refusalId.",
+        "pattern": "^wiz_[a-f0-9]{32}$",
+        "maxLength": 36
+      },
+      "wizardToken": {
+        "type": "string",
+        "description": "First save: the wizard token dsagent.wizard.start returned; it proves the wizard is yours after a connection renewal.",
+        "pattern": "^[A-Za-z0-9]{16,128}$",
+        "minLength": 16,
+        "maxLength": 128
+      },
+      "endpoint": {
+        "type": "string",
+        "description": "First save: the typed detection endpoint the wizard ended on, exactly as dsagent.wizard.state reports it (lastEndpoint.endpoint); its lastEndpoint.agentReadAdmissible must be true.",
+        "pattern": "^[A-Za-z0-9_:.-]{3,80}$",
+        "maxLength": 80
+      },
+      "pageContextId": {
+        "type": "string",
+        "description": "First save: the page the records were read on (the wizard's page or a sample page it opened), from dsagent.page.observe.",
+        "pattern": "^[A-Za-z0-9_.:-]{8,128}$",
+        "maxLength": 128
+      },
+      "captureId": {
+        "type": "string",
+        "description": "Append: the captureId an earlier save returned.",
+        "pattern": "^agent-read:[A-Za-z0-9-]{8,64}$",
+        "maxLength": 80
+      },
+      "captureToken": {
+        "type": "string",
+        "description": "Append: the captureToken the capture's first save returned.",
+        "pattern": "^[A-Za-z0-9-]{16,64}$",
+        "minLength": 16,
+        "maxLength": 64
+      },
+      "name": {
+        "type": "string",
+        "description": "First save: the dataset name the person sees (normalised, at most 120 characters); a dated default when omitted.",
+        "minLength": 1,
+        "maxLength": 200
+      },
+      "fields": {
+        "type": "array",
+        "maxItems": 64,
+        "description": "Optional field order: these names first, then other record keys as first seen.",
+        "items": {
+          "type": "string",
+          "description": "One field name.",
+          "minLength": 1,
+          "maxLength": 200
+        }
+      },
+      "records": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 500,
+        "description": "The records read from the page, one object per record, field name to value; only values the page shows.",
+        "items": {
+          "type": "object",
+          "description": "One record: field name to a page value.",
+          "additionalProperties": {
+            "type": [
+              "string",
+              "number",
+              "boolean",
+              "null"
+            ],
+            "maxLength": 4000,
+            "description": "A value exactly as the page shows it."
+          }
+        }
+      },
+      "coverage": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "What was read: an honest statement, shown with the dataset.",
+        "properties": {
+          "expectedRecords": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "How many records the page says exist (its result count), when it says so."
+          },
+          "pagesVisited": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000,
+            "description": "Pages (list pages, scroll loads, detail pages) the records were read from, as the agent stated."
+          },
+          "stoppedBecause": {
+            "type": "string",
+            "enum": [
+              "end-of-data",
+              "requested-count-reached",
+              "page-limit",
+              "time-limit",
+              "page-blocked",
+              "agent-limit",
+              "reading"
+            ],
+            "description": "Why reading stopped: end-of-data, requested-count-reached, page-limit, time-limit, page-blocked, agent-limit; reading = more saves to this capture follow."
+          }
+        },
+        "required": [
+          "pagesVisited",
+          "stoppedBecause"
+        ]
+      }
+    },
+    "required": [
+      "records",
+      "coverage"
+    ]
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "The saved capture and its label.",
+    "properties": {
+      "captureId": {
+        "type": "string",
+        "description": "The capture: pass it as executionId to dsagent.artifacts.list or dsagent.execution.data.export, and with captureToken to append.",
+        "maxLength": 80
+      },
+      "captureToken": {
+        "type": "string",
+        "description": "Returned by the first save only: keep it to append to this capture.",
+        "maxLength": 64
+      },
+      "datasetName": {
+        "type": "string",
+        "description": "The dataset name the person sees.",
+        "maxLength": 200
+      },
+      "columns": {
+        "type": "array",
+        "maxItems": 64,
+        "description": "The normalised field names of this save, in order.",
+        "items": {
+          "type": "string",
+          "description": "One field name.",
+          "maxLength": 200
+        }
+      },
+      "recordsInThisSave": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Records this call wrote."
+      },
+      "droppedFields": {
+        "type": "array",
+        "maxItems": 64,
+        "description": "Fields left out because their name says they hold a credential or payment secret.",
+        "items": {
+          "type": "string",
+          "description": "One dropped field name.",
+          "maxLength": 200
+        }
+      },
+      "redactedValues": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Values whose credential-shaped parts were replaced by [redacted]."
+      },
+      "provenance": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "The label every listing shows.",
+        "properties": {
+          "source": {
+            "type": "string",
+            "enum": [
+              "agent-read"
+            ],
+            "description": "The records were read by the agent, not by a workflow."
+          },
+          "replayable": {
+            "type": "boolean",
+            "enum": [
+              false
+            ],
+            "description": "Always false: no workflow can collect this dataset again."
+          },
+          "coverage": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "The dataset's coverage.",
+            "properties": {
+              "recordsSaved": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Records the dataset holds now, counted by the Extension after the write committed (identical records count once)."
+              },
+              "expectedRecords": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "How many records the page says exist (its result count), when it says so."
+              },
+              "pagesVisited": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 10000,
+                "description": "Pages (list pages, scroll loads, detail pages) the records were read from, as the agent stated."
+              },
+              "stoppedBecause": {
+                "type": "string",
+                "enum": [
+                  "end-of-data",
+                  "requested-count-reached",
+                  "page-limit",
+                  "time-limit",
+                  "page-blocked",
+                  "agent-limit",
+                  "reading"
+                ],
+                "description": "Why reading stopped: end-of-data, requested-count-reached, page-limit, time-limit, page-blocked, agent-limit; reading = more saves to this capture follow."
+              }
+            },
+            "required": [
+              "recordsSaved",
+              "pagesVisited",
+              "stoppedBecause"
+            ]
+          },
+          "admittedBy": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "The detection failure that admitted the capture.",
+            "properties": {
+              "wizardId": {
+                "type": "string",
+                "description": "The wizard that failed, or the refused wizard start (its refusalId).",
+                "maxLength": 36
+              },
+              "endpoint": {
+                "type": "string",
+                "description": "Its typed detection failure.",
+                "maxLength": 80
+              }
+            },
+            "required": [
+              "wizardId",
+              "endpoint"
+            ]
+          },
+          "savedAt": {
+            "type": "string",
+            "description": "When the label was last written (ISO 8601).",
+            "maxLength": 40
+          }
+        },
+        "required": [
+          "source",
+          "replayable",
+          "coverage",
+          "admittedBy",
+          "savedAt"
+        ]
+      }
+    },
+    "required": [
+      "captureId",
+      "datasetName",
+      "columns",
+      "recordsInThisSave",
+      "droppedFields",
+      "redactedValues",
+      "provenance"
+    ]
+  },
+  "risk": "reversible-write",
+  "targetKinds": [
+    "browser",
+    "wizard"
+  ],
+  "requiredPermissions": [
+    "wizard.guide"
+  ],
+  "timeoutMs": 60000,
+  "maxInlineResultBytes": 16384,
+  "concurrency": "exclusive-target",
+  "retry": "never",
+  "exposure": "exposed"
+}

@@ -1,0 +1,229 @@
+{
+  "method": "dsagent.page.window.set-size",
+  "version": 1,
+  "title": "Set window size",
+  "description": "Set the window size of an agent-owned page using normal browser APIs. Window resizing affects all tabs sharing that window and restores a maximized window to normal; active wizards or workflow runs in that window are refused.",
+  "guidance": "Viewport sizing measures and compensates for browser chrome and the side panel. Browser minimums and screen limits may prevent the requested size: applied is true only when the measured result matches within two pixels. No pixel-ratio, native touch or network user-agent emulation is performed. Observe again after resizing. Requires an idempotency key.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "minLength": 8,
+        "maxLength": 128,
+        "description": "Opaque context of a page opened for this agent or in its named browser session."
+      },
+      "width": {
+        "type": "integer",
+        "minimum": 200,
+        "maximum": 8192,
+        "description": "Requested width; required unless a preset supplies it."
+      },
+      "height": {
+        "type": "integer",
+        "minimum": 200,
+        "maximum": 8192,
+        "description": "Requested height; required unless a preset supplies it."
+      },
+      "preset": {
+        "type": "string",
+        "enum": [
+          "mobile",
+          "tablet",
+          "laptop",
+          "desktop"
+        ],
+        "description": "Optional mobile, tablet, laptop or desktop dimensions; explicit width/height override the preset."
+      }
+    },
+    "required": [
+      "pageContextId"
+    ],
+    "description": "The page and requested geometry."
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "minLength": 8,
+        "maxLength": 128,
+        "description": "Opaque context of a page opened for this agent or in its named browser session."
+      },
+      "target": {
+        "type": "string",
+        "enum": [
+          "window"
+        ],
+        "description": "Which geometry was requested."
+      },
+      "requested": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "width": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Measured width in pixels."
+          },
+          "height": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Measured height in pixels."
+          }
+        },
+        "required": [
+          "width",
+          "height"
+        ],
+        "description": "Requested dimensions."
+      },
+      "before": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "window": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "width": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Measured width in pixels."
+              },
+              "height": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Measured height in pixels."
+              }
+            },
+            "required": [
+              "width",
+              "height"
+            ],
+            "description": "Outer browser window geometry in browser screen pixels."
+          },
+          "viewport": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "width": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Measured width in pixels."
+              },
+              "height": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Measured height in pixels."
+              }
+            },
+            "required": [
+              "width",
+              "height"
+            ],
+            "description": "Page layout viewport geometry in CSS pixels, excluding browser chrome and the side panel."
+          },
+          "devicePixelRatio": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Actual device pixel ratio; normal sizing does not override it."
+          }
+        },
+        "required": [
+          "window",
+          "viewport",
+          "devicePixelRatio"
+        ],
+        "description": "Measured browser and page geometry."
+      },
+      "after": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "window": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "width": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Measured width in pixels."
+              },
+              "height": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Measured height in pixels."
+              }
+            },
+            "required": [
+              "width",
+              "height"
+            ],
+            "description": "Outer browser window geometry in browser screen pixels."
+          },
+          "viewport": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "width": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Measured width in pixels."
+              },
+              "height": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Measured height in pixels."
+              }
+            },
+            "required": [
+              "width",
+              "height"
+            ],
+            "description": "Page layout viewport geometry in CSS pixels, excluding browser chrome and the side panel."
+          },
+          "devicePixelRatio": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Actual device pixel ratio; normal sizing does not override it."
+          }
+        },
+        "required": [
+          "window",
+          "viewport",
+          "devicePixelRatio"
+        ],
+        "description": "Measured browser and page geometry."
+      },
+      "applied": {
+        "type": "boolean",
+        "description": "True only when actual target dimensions match within two pixels; false reports browser constraints honestly."
+      }
+    },
+    "required": [
+      "pageContextId",
+      "target",
+      "requested",
+      "before",
+      "after",
+      "applied"
+    ],
+    "description": "Verified sizing receipt, including constrained results."
+  },
+  "risk": "reversible-write",
+  "targetKinds": [
+    "page",
+    "browser"
+  ],
+  "requiredPermissions": [
+    "page.presentation.write"
+  ],
+  "timeoutMs": 15000,
+  "maxInlineResultBytes": 4096,
+  "concurrency": "exclusive-browser",
+  "retry": "never",
+  "exposure": "exposed"
+}

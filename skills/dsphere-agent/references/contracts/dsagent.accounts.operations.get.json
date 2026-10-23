@@ -1,0 +1,1304 @@
+{
+  "method": "dsagent.accounts.operations.get",
+  "version": 1,
+  "title": "Get Account Operation",
+  "description": "Read this caller's local operation record; never dispatch or retry it.",
+  "inputSchema": {
+    "type": "object",
+    "description": "Read this caller's local operation record; never dispatch or retry it.",
+    "properties": {
+      "operationId": {
+        "type": "string",
+        "description": "Operation reference returned by an account write.",
+        "minLength": 1,
+        "maxLength": 100
+      }
+    },
+    "required": [
+      "operationId"
+    ],
+    "additionalProperties": false
+  },
+  "outputSchema": {
+    "type": "object",
+    "description": "Account operation result. status/stage are for internal reconciliation, not user-facing open-success/failure badges. Report the separate autofill receipt; a page being open never proves fill or sign-in.",
+    "properties": {
+      "autofill": {
+        "type": "object",
+        "description": "Separate Biz autofill receipt. Query accounts.operations.get with operationId while running; unknown must not be replayed. succeeded proves fill owner completion, never website sign-in.",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Observed autofill state.",
+            "maxLength": 40,
+            "enum": [
+              "running",
+              "succeeded",
+              "failed",
+              "skipped",
+              "unknown"
+            ]
+          },
+          "updatedAt": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Receipt observation time in milliseconds."
+          },
+          "reason": {
+            "type": "string",
+            "description": "Safe reason code; never credentials or page field values.",
+            "maxLength": 120
+          }
+        },
+        "required": [
+          "status",
+          "updatedAt"
+        ],
+        "additionalProperties": false
+      },
+      "operationId": {
+        "type": "string",
+        "description": "Local operation reference; not a Pangu request receipt.",
+        "maxLength": 100
+      },
+      "status": {
+        "type": "string",
+        "description": "Observed operation status.",
+        "maxLength": 40,
+        "enum": [
+          "not-dispatched",
+          "waiting-user",
+          "running",
+          "succeeded",
+          "partial",
+          "failed",
+          "cancelled",
+          "outcome-unknown",
+          "record-unavailable",
+          "available"
+        ]
+      },
+      "stage": {
+        "type": "string",
+        "description": "Completed or current account business stage.",
+        "maxLength": 100
+      },
+      "accountId": {
+        "type": "string",
+        "description": "Account reference when known.",
+        "maxLength": 100
+      },
+      "pageContextId": {
+        "type": "string",
+        "description": "Actual opened/focused page reference when known.",
+        "maxLength": 100
+      },
+      "warnings": {
+        "type": "array",
+        "description": "Bounded warnings, including synchronization and unknown outcomes.",
+        "items": {
+          "type": "string",
+          "description": "One safe product warning.",
+          "maxLength": 500
+        },
+        "maxItems": 20
+      },
+      "data": {
+        "type": "object",
+        "description": "Only the selected account operation's public product fields.",
+        "properties": {
+          "configuration": {
+            "type": "object",
+            "description": "Permission-derived account form. Work/Sidepanel render these fields; configurationText describes the same values to AI.",
+            "additionalProperties": false,
+            "required": [
+              "fields",
+              "blockedReasons"
+            ],
+            "properties": {
+              "fields": {
+                "type": "array",
+                "description": "Permitted creation fields, including supported fingerprint metrics and their exact choices.",
+                "maxItems": 20,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "key",
+                    "label",
+                    "description",
+                    "control",
+                    "required"
+                  ],
+                  "properties": {
+                    "key": {
+                      "type": "string",
+                      "maxLength": 100,
+                      "description": "Canonical creation field key used when submitting the selected value."
+                    },
+                    "label": {
+                      "type": "object",
+                      "description": "Localized product text in Chinese and English.",
+                      "additionalProperties": false,
+                      "required": [
+                        "zh",
+                        "en"
+                      ],
+                      "properties": {
+                        "zh": {
+                          "type": "string",
+                          "maxLength": 200,
+                          "description": "Chinese product text."
+                        },
+                        "en": {
+                          "type": "string",
+                          "maxLength": 200,
+                          "description": "English product text."
+                        }
+                      }
+                    },
+                    "description": {
+                      "type": "string",
+                      "maxLength": 1000,
+                      "description": "Field meaning, permission conditions and selection guidance for the agent."
+                    },
+                    "control": {
+                      "type": "string",
+                      "description": "Product control type; private values are entered separately in the trusted credential window.",
+                      "enum": [
+                        "text",
+                        "select",
+                        "multiselect",
+                        "boolean",
+                        "private",
+                        "group",
+                        "override"
+                      ]
+                    },
+                    "required": {
+                      "type": "boolean",
+                      "description": "Whether this field requires a value under the current application policy."
+                    },
+                    "allowCustom": {
+                      "type": "boolean",
+                      "description": "Whether values outside the listed choices may be entered."
+                    },
+                    "allowEmpty": {
+                      "type": "boolean",
+                      "description": "Whether an explicitly empty value is permitted."
+                    },
+                    "help": {
+                      "type": "object",
+                      "description": "Localized help for choosing or entering the field value.",
+                      "additionalProperties": false,
+                      "required": [
+                        "zh",
+                        "en"
+                      ],
+                      "properties": {
+                        "zh": {
+                          "type": "string",
+                          "maxLength": 200,
+                          "description": "Chinese product text."
+                        },
+                        "en": {
+                          "type": "string",
+                          "maxLength": 200,
+                          "description": "English product text."
+                        }
+                      }
+                    },
+                    "emptyLabel": {
+                      "type": "object",
+                      "description": "Localized label explaining the empty-value choice.",
+                      "additionalProperties": false,
+                      "required": [
+                        "zh",
+                        "en"
+                      ],
+                      "properties": {
+                        "zh": {
+                          "type": "string",
+                          "maxLength": 200,
+                          "description": "Chinese product text."
+                        },
+                        "en": {
+                          "type": "string",
+                          "maxLength": 200,
+                          "description": "English product text."
+                        }
+                      }
+                    },
+                    "format": {
+                      "type": "string",
+                      "description": "Additional validation format for a custom timezone or screen resolution.",
+                      "enum": [
+                        "timezone",
+                        "resolution"
+                      ]
+                    },
+                    "defaultDescription": {
+                      "type": "string",
+                      "maxLength": 1000,
+                      "description": "Meaning of the default behavior when the field is left unchanged."
+                    },
+                    "searchKey": {
+                      "type": "string",
+                      "maxLength": 100,
+                      "description": "Supported product search key for loading further permitted choices."
+                    },
+                    "maxLength": {
+                      "type": "integer",
+                      "description": "Maximum number of characters permitted for a text value.",
+                      "minimum": 1,
+                      "maximum": 20000
+                    },
+                    "defaultValue": {
+                      "description": "Initial non-secret value selected by current application policy.",
+                      "anyOf": [
+                        {
+                          "type": "string",
+                          "maxLength": 20000,
+                          "description": "Default text or option value."
+                        },
+                        {
+                          "type": "boolean"
+                        },
+                        {
+                          "type": "array",
+                          "items": {
+                            "type": "string",
+                            "maxLength": 100,
+                            "description": "Default selected option value."
+                          },
+                          "maxItems": 100
+                        }
+                      ]
+                    },
+                    "options": {
+                      "type": "array",
+                      "description": "Choices currently permitted by application, license and resource permissions.",
+                      "maxItems": 200,
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "value",
+                          "label"
+                        ],
+                        "properties": {
+                          "value": {
+                            "type": "string",
+                            "maxLength": 200,
+                            "description": "Exact option value accepted on submission."
+                          },
+                          "label": {
+                            "type": "object",
+                            "description": "Localized product text in Chinese and English.",
+                            "additionalProperties": false,
+                            "required": [
+                              "zh",
+                              "en"
+                            ],
+                            "properties": {
+                              "zh": {
+                                "type": "string",
+                                "maxLength": 200,
+                                "description": "Chinese product text."
+                              },
+                              "en": {
+                                "type": "string",
+                                "maxLength": 200,
+                                "description": "English product text."
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "children": {
+                      "type": "array",
+                      "description": "Individual configurable metrics inside a grouped field.",
+                      "maxItems": 30,
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "key",
+                          "label",
+                          "description",
+                          "control",
+                          "required"
+                        ],
+                        "properties": {
+                          "key": {
+                            "type": "string",
+                            "maxLength": 100,
+                            "description": "Canonical creation field key used when submitting the selected value."
+                          },
+                          "label": {
+                            "type": "object",
+                            "description": "Localized product text in Chinese and English.",
+                            "additionalProperties": false,
+                            "required": [
+                              "zh",
+                              "en"
+                            ],
+                            "properties": {
+                              "zh": {
+                                "type": "string",
+                                "maxLength": 200,
+                                "description": "Chinese product text."
+                              },
+                              "en": {
+                                "type": "string",
+                                "maxLength": 200,
+                                "description": "English product text."
+                              }
+                            }
+                          },
+                          "description": {
+                            "type": "string",
+                            "maxLength": 1000,
+                            "description": "Field meaning, permission conditions and selection guidance for the agent."
+                          },
+                          "control": {
+                            "type": "string",
+                            "description": "Product control type; private values are entered separately in the trusted credential window.",
+                            "enum": [
+                              "text",
+                              "select",
+                              "multiselect",
+                              "boolean",
+                              "private",
+                              "group",
+                              "override"
+                            ]
+                          },
+                          "required": {
+                            "type": "boolean",
+                            "description": "Whether this field requires a value under the current application policy."
+                          },
+                          "allowCustom": {
+                            "type": "boolean",
+                            "description": "Whether values outside the listed choices may be entered."
+                          },
+                          "allowEmpty": {
+                            "type": "boolean",
+                            "description": "Whether an explicitly empty value is permitted."
+                          },
+                          "help": {
+                            "type": "object",
+                            "description": "Localized help for choosing or entering the field value.",
+                            "additionalProperties": false,
+                            "required": [
+                              "zh",
+                              "en"
+                            ],
+                            "properties": {
+                              "zh": {
+                                "type": "string",
+                                "maxLength": 200,
+                                "description": "Chinese product text."
+                              },
+                              "en": {
+                                "type": "string",
+                                "maxLength": 200,
+                                "description": "English product text."
+                              }
+                            }
+                          },
+                          "emptyLabel": {
+                            "type": "object",
+                            "description": "Localized label explaining the empty-value choice.",
+                            "additionalProperties": false,
+                            "required": [
+                              "zh",
+                              "en"
+                            ],
+                            "properties": {
+                              "zh": {
+                                "type": "string",
+                                "maxLength": 200,
+                                "description": "Chinese product text."
+                              },
+                              "en": {
+                                "type": "string",
+                                "maxLength": 200,
+                                "description": "English product text."
+                              }
+                            }
+                          },
+                          "format": {
+                            "type": "string",
+                            "description": "Additional validation format for a custom timezone or screen resolution.",
+                            "enum": [
+                              "timezone",
+                              "resolution"
+                            ]
+                          },
+                          "defaultDescription": {
+                            "type": "string",
+                            "maxLength": 1000,
+                            "description": "Meaning of the default behavior when the field is left unchanged."
+                          },
+                          "searchKey": {
+                            "type": "string",
+                            "maxLength": 100,
+                            "description": "Supported product search key for loading further permitted choices."
+                          },
+                          "maxLength": {
+                            "type": "integer",
+                            "description": "Maximum number of characters permitted for a text value.",
+                            "minimum": 1,
+                            "maximum": 20000
+                          },
+                          "defaultValue": {
+                            "description": "Initial non-secret value selected by current application policy.",
+                            "anyOf": [
+                              {
+                                "type": "string",
+                                "maxLength": 20000,
+                                "description": "Default text or option value."
+                              },
+                              {
+                                "type": "boolean"
+                              },
+                              {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "maxLength": 100,
+                                  "description": "Default selected option value."
+                                },
+                                "maxItems": 100
+                              }
+                            ]
+                          },
+                          "options": {
+                            "type": "array",
+                            "description": "Choices currently permitted by application, license and resource permissions.",
+                            "maxItems": 200,
+                            "items": {
+                              "type": "object",
+                              "additionalProperties": false,
+                              "required": [
+                                "value",
+                                "label"
+                              ],
+                              "properties": {
+                                "value": {
+                                  "type": "string",
+                                  "maxLength": 200,
+                                  "description": "Exact option value accepted on submission."
+                                },
+                                "label": {
+                                  "type": "object",
+                                  "description": "Localized product text in Chinese and English.",
+                                  "additionalProperties": false,
+                                  "required": [
+                                    "zh",
+                                    "en"
+                                  ],
+                                  "properties": {
+                                    "zh": {
+                                      "type": "string",
+                                      "maxLength": 200,
+                                      "description": "Chinese product text."
+                                    },
+                                    "en": {
+                                      "type": "string",
+                                      "maxLength": 200,
+                                      "description": "English product text."
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "blockedReasons": {
+                "type": "array",
+                "description": "Reasons the current application configuration cannot be submitted.",
+                "maxItems": 5,
+                "items": {
+                  "type": "string",
+                  "maxLength": 500,
+                  "description": "One current configuration blocker."
+                }
+              },
+              "notice": {
+                "type": "string",
+                "maxLength": 1000,
+                "description": "Additional non-secret creation guidance for the product form and agent."
+              }
+            }
+          },
+          "configurationText": {
+            "type": "string",
+            "description": "Every permitted creation field, choices, defaults, required conditions and supported fingerprint metric. Same source as the product UI.",
+            "maxLength": 24000
+          },
+          "configurationSummary": {
+            "type": "string",
+            "description": "Non-secret configuration selected by the person in the trusted product form.",
+            "maxLength": 4000
+          },
+          "records": {
+            "type": "array",
+            "description": "Visible account summaries in this bounded page.",
+            "items": {
+              "type": "object",
+              "description": "Visible account summary; no password, cookie or internal tags.",
+              "properties": {
+                "accountId": {
+                  "type": "string",
+                  "description": "Account reference.",
+                  "maxLength": 100
+                },
+                "appId": {
+                  "type": "string",
+                  "description": "Application reference.",
+                  "maxLength": 100
+                },
+                "appName": {
+                  "type": "string",
+                  "description": "Application name.",
+                  "maxLength": 200
+                },
+                "accountName": {
+                  "type": "string",
+                  "description": "Account name.",
+                  "maxLength": 200
+                },
+                "accountType": {
+                  "type": "string",
+                  "description": "Source account type.",
+                  "maxLength": 100
+                },
+                "enabled": {
+                  "type": "boolean",
+                  "description": "Whether the account is enabled."
+                },
+                "allowedActions": {
+                  "type": "array",
+                  "description": "Operations allowed by the current source, permissions and state.",
+                  "items": {
+                    "type": "string",
+                    "description": "Allowed account operation.",
+                    "maxLength": 100,
+                    "enum": [
+                      "options.get",
+                      "list",
+                      "get",
+                      "create",
+                      "update",
+                      "delete",
+                      "set-enabled",
+                      "open",
+                      "close",
+                      "focus",
+                      "fingerprint.get",
+                      "fingerprint.update",
+                      "fingerprint.regenerate",
+                      "operations.get",
+                      "pages.list"
+                    ]
+                  },
+                  "maxItems": 14
+                },
+                "unavailableReason": {
+                  "type": "string",
+                  "description": "Why some operations are unavailable.",
+                  "maxLength": 300
+                }
+              },
+              "required": [
+                "accountId",
+                "appId",
+                "appName",
+                "accountName",
+                "accountType",
+                "enabled",
+                "allowedActions"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 100
+          },
+          "account": {
+            "type": "object",
+            "description": "Visible account summary; no password, cookie or internal tags.",
+            "properties": {
+              "accountId": {
+                "type": "string",
+                "description": "Account reference.",
+                "maxLength": 100
+              },
+              "appId": {
+                "type": "string",
+                "description": "Application reference.",
+                "maxLength": 100
+              },
+              "appName": {
+                "type": "string",
+                "description": "Application name.",
+                "maxLength": 200
+              },
+              "accountName": {
+                "type": "string",
+                "description": "Account name.",
+                "maxLength": 200
+              },
+              "accountType": {
+                "type": "string",
+                "description": "Source account type.",
+                "maxLength": 100
+              },
+              "enabled": {
+                "type": "boolean",
+                "description": "Whether the account is enabled."
+              },
+              "allowedActions": {
+                "type": "array",
+                "description": "Operations allowed by the current source, permissions and state.",
+                "items": {
+                  "type": "string",
+                  "description": "Allowed account operation.",
+                  "maxLength": 100,
+                  "enum": [
+                    "options.get",
+                    "list",
+                    "get",
+                    "create",
+                    "update",
+                    "delete",
+                    "set-enabled",
+                    "open",
+                    "close",
+                    "focus",
+                    "fingerprint.get",
+                    "fingerprint.update",
+                    "fingerprint.regenerate",
+                    "operations.get",
+                    "pages.list"
+                  ]
+                },
+                "maxItems": 14
+              },
+              "unavailableReason": {
+                "type": "string",
+                "description": "Why some operations are unavailable.",
+                "maxLength": 300
+              }
+            },
+            "required": [
+              "accountId",
+              "appId",
+              "appName",
+              "accountName",
+              "accountType",
+              "enabled",
+              "allowedActions"
+            ],
+            "additionalProperties": false
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of matches within this Work-visible snapshot."
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Current page."
+          },
+          "pageSize": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Current page size."
+          },
+          "paginationScope": {
+            "type": "string",
+            "description": "The result is bounded by the current Work-visible snapshot.",
+            "maxLength": 2000,
+            "enum": [
+              "work-visible-snapshot"
+            ]
+          },
+          "readAt": {
+            "type": "string",
+            "description": "Time this state was read.",
+            "maxLength": 40
+          },
+          "remark": {
+            "type": "string",
+            "description": "Account remark.",
+            "maxLength": 2000
+          },
+          "loginType": {
+            "type": "string",
+            "description": "Current login method.",
+            "maxLength": 100
+          },
+          "syncEnabled": {
+            "type": "boolean",
+            "description": "Current synchronization setting."
+          },
+          "sessionKeepAlive": {
+            "type": "boolean",
+            "description": "Current session retention setting."
+          },
+          "apps": {
+            "type": "array",
+            "description": "Visible existing applications.",
+            "items": {
+              "type": "object",
+              "description": "Application option.",
+              "properties": {
+                "appId": {
+                  "type": "string",
+                  "description": "Application reference.",
+                  "maxLength": 100
+                },
+                "appName": {
+                  "type": "string",
+                  "description": "Application name.",
+                  "maxLength": 200
+                },
+                "canCreate": {
+                  "type": "boolean",
+                  "description": "Whether creating an account is allowed."
+                }
+              },
+              "required": [
+                "appId",
+                "appName",
+                "canCreate"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 100
+          },
+          "nextCursor": {
+            "anyOf": [
+              {
+                "type": "string",
+                "description": "Cursor for the next page.",
+                "maxLength": 100
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Next options cursor or null."
+          },
+          "loginTypes": {
+            "type": "array",
+            "description": "Existing supported login methods.",
+            "items": {
+              "type": "object",
+              "description": "Login method.",
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "description": "Login method.",
+                  "maxLength": 100
+                },
+                "description": {
+                  "type": "string",
+                  "description": "Login method label.",
+                  "maxLength": 200
+                }
+              },
+              "required": [
+                "type",
+                "description"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 20
+          },
+          "resources": {
+            "type": "object",
+            "description": "Current permitted connection resources; never credentials.",
+            "properties": {
+              "proxies": {
+                "type": "array",
+                "description": "Available proxy choices.",
+                "items": {
+                  "type": "object",
+                  "description": "Proxy option.",
+                  "properties": {
+                    "ref": {
+                      "type": "string",
+                      "description": "Proxy reference.",
+                      "maxLength": 100
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Proxy label.",
+                      "maxLength": 200
+                    },
+                    "local": {
+                      "type": "boolean",
+                      "description": "Whether this is the permitted local network choice."
+                    }
+                  },
+                  "required": [
+                    "ref",
+                    "name"
+                  ],
+                  "additionalProperties": false
+                },
+                "maxItems": 100
+              },
+              "devices": {
+                "type": "array",
+                "description": "Available device choices.",
+                "items": {
+                  "type": "object",
+                  "description": "Device option.",
+                  "properties": {
+                    "ref": {
+                      "type": "string",
+                      "description": "Device reference.",
+                      "maxLength": 100
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "Device label.",
+                      "maxLength": 200
+                    },
+                    "local": {
+                      "type": "boolean",
+                      "description": "Whether this is the permitted local network choice."
+                    }
+                  },
+                  "required": [
+                    "ref",
+                    "name"
+                  ],
+                  "additionalProperties": false
+                },
+                "maxItems": 100
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          },
+          "defaults": {
+            "type": "object",
+            "description": "Recommended defaults; ask the person to accept them before create.",
+            "properties": {
+              "loginType": {
+                "type": "string",
+                "description": "Default login method.",
+                "maxLength": 100
+              },
+              "syncEnabled": {
+                "type": "boolean",
+                "description": "Default synchronization state."
+              },
+              "sessionKeepAlive": {
+                "type": "boolean",
+                "description": "Default session retention state."
+              },
+              "fingerprintPolicy": {
+                "type": "string",
+                "description": "Default fingerprint policy.",
+                "maxLength": 20
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          },
+          "creationFields": {
+            "type": "array",
+            "description": "Only fields currently visible under application, organization and license rules.",
+            "items": {
+              "type": "object",
+              "description": "Creation field.",
+              "properties": {
+                "key": {
+                  "type": "string",
+                  "description": "Create input key, or credential for trusted private input.",
+                  "maxLength": 100
+                },
+                "required": {
+                  "type": "boolean",
+                  "description": "Whether an explicit choice is required."
+                },
+                "input": {
+                  "type": "string",
+                  "description": "How the value is collected.",
+                  "maxLength": 20,
+                  "enum": [
+                    "chat",
+                    "private"
+                  ]
+                },
+                "description": {
+                  "type": "string",
+                  "description": "Field meaning and conditions.",
+                  "maxLength": 500
+                }
+              },
+              "required": [
+                "key",
+                "required",
+                "input",
+                "description"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 20
+          },
+          "assignment": {
+            "type": "object",
+            "description": "User choices from the current organization; no raw employee ids.",
+            "properties": {
+              "choices": {
+                "type": "array",
+                "description": "Current user and bounded name search results. Department assignment is unavailable.",
+                "items": {
+                  "type": "object",
+                  "description": "Account user.",
+                  "properties": {
+                    "ref": {
+                      "type": "string",
+                      "description": "Opaque user reference.",
+                      "maxLength": 100
+                    },
+                    "name": {
+                      "type": "string",
+                      "description": "User label.",
+                      "maxLength": 200
+                    }
+                  },
+                  "required": [
+                    "ref",
+                    "name"
+                  ],
+                  "additionalProperties": false
+                },
+                "maxItems": 101
+              },
+              "defaultRefs": {
+                "type": "array",
+                "description": "Recommended user references; require user acceptance.",
+                "items": {
+                  "type": "string",
+                  "description": "Opaque user reference.",
+                  "maxLength": 100
+                },
+                "maxItems": 100
+              },
+              "query": {
+                "type": "string",
+                "description": "Retain this search query with assigneeRefs when creating.",
+                "maxLength": 200
+              },
+              "searchSupported": {
+                "type": "boolean",
+                "description": "Whether user name search is available."
+              },
+              "truncated": {
+                "type": "boolean",
+                "description": "Narrow the name search when true."
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          },
+          "missingFields": {
+            "type": "array",
+            "description": "Unanswered required chat inputs; ask before submitting a corrected new operation.",
+            "items": {
+              "type": "string",
+              "description": "Create input key.",
+              "maxLength": 100
+            },
+            "maxItems": 20
+          },
+          "blockedReasons": {
+            "type": "array",
+            "description": "Unavailable required choices; do not attempt creation until resolved.",
+            "items": {
+              "type": "string",
+              "description": "Reason.",
+              "maxLength": 500
+            },
+            "maxItems": 5
+          },
+          "syncSupported": {
+            "type": "boolean",
+            "description": "Whether the current application allows synchronization."
+          },
+          "keepAliveSupported": {
+            "type": "boolean",
+            "description": "Whether the application supports session retention."
+          },
+          "supportsFingerprint": {
+            "type": "boolean",
+            "description": "Whether the application supports fingerprint configuration."
+          },
+          "supported": {
+            "type": "boolean",
+            "description": "Whether the requested fingerprint operation is supported."
+          },
+          "currentPersonAssignedByServer": {
+            "type": "boolean",
+            "description": "Whether the server includes the acting person in assignment."
+          },
+          "fingerprints": {
+            "type": "array",
+            "description": "Permitted fingerprint fields for at most two browser kernels.",
+            "items": {
+              "type": "object",
+              "description": "One browser kernel fingerprint.",
+              "properties": {
+                "kernel": {
+                  "type": "string",
+                  "description": "Browser kernel.",
+                  "maxLength": 40
+                },
+                "user_agent": {
+                  "type": "string",
+                  "description": "User agent.",
+                  "maxLength": 2000
+                },
+                "fingerprint": {
+                  "type": "object",
+                  "description": "Permitted fingerprint fields.",
+                  "properties": {
+                    "language": {
+                      "type": "string",
+                      "description": "Browser languages, using the current Work format.",
+                      "maxLength": 200
+                    },
+                    "time_zone": {
+                      "type": "string",
+                      "description": "Timezone in the current Work format.",
+                      "maxLength": 100
+                    },
+                    "dnt": {
+                      "type": "string",
+                      "description": "Work Do Not Track setting.",
+                      "maxLength": 10
+                    },
+                    "battery": {
+                      "type": "string",
+                      "description": "Battery fingerprint setting; empty retains the disabled state.",
+                      "maxLength": 20
+                    },
+                    "font": {
+                      "type": "string",
+                      "description": "Font fingerprint value.",
+                      "maxLength": 20000
+                    },
+                    "bluetooth": {
+                      "type": "string",
+                      "description": "Bluetooth fingerprint value.",
+                      "maxLength": 20
+                    },
+                    "audio_context": {
+                      "type": "string",
+                      "description": "Audio fingerprint noise.",
+                      "maxLength": 20
+                    },
+                    "client_rects": {
+                      "type": "string",
+                      "description": "Client rectangles fingerprint noise.",
+                      "maxLength": 20
+                    },
+                    "media_device": {
+                      "type": "string",
+                      "description": "Media device fingerprint value.",
+                      "maxLength": 4000
+                    },
+                    "canvas": {
+                      "type": "string",
+                      "description": "Canvas fingerprint value.",
+                      "maxLength": 200
+                    },
+                    "webgl_image": {
+                      "type": "string",
+                      "description": "WebGL image fingerprint noise.",
+                      "maxLength": 30
+                    },
+                    "memory": {
+                      "type": "string",
+                      "description": "Device memory setting.",
+                      "maxLength": 20
+                    },
+                    "hardwareConcurrency": {
+                      "type": "string",
+                      "description": "Logical CPU count setting.",
+                      "maxLength": 20
+                    },
+                    "speech_voices": {
+                      "type": "string",
+                      "description": "Speech voices fingerprint value.",
+                      "maxLength": 20000
+                    },
+                    "screen_resolution_input": {
+                      "type": "string",
+                      "description": "Screen resolution in widthxheight format.",
+                      "maxLength": 40
+                    },
+                    "os": {
+                      "type": "string",
+                      "description": "Operating system.",
+                      "maxLength": 100
+                    },
+                    "os_version": {
+                      "type": "string",
+                      "description": "OS version.",
+                      "maxLength": 100
+                    },
+                    "user_agent": {
+                      "type": "string",
+                      "description": "Kernel user agent.",
+                      "maxLength": 2000
+                    },
+                    "version": {
+                      "type": "string",
+                      "description": "Kernel version.",
+                      "maxLength": 100
+                    },
+                    "userAgentDisplay": {
+                      "type": "string",
+                      "description": "User agent display.",
+                      "maxLength": 2000
+                    }
+                  },
+                  "required": [],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "kernel",
+                "user_agent",
+                "fingerprint"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 2
+          },
+          "interactionId": {
+            "type": "string",
+            "description": "Trusted user interaction reference; never a secret.",
+            "maxLength": 100
+          },
+          "enabled": {
+            "type": "boolean",
+            "description": "Observed enabled state."
+          },
+          "dispatched": {
+            "type": "boolean",
+            "description": "Whether a business request was dispatched."
+          },
+          "created": {
+            "type": "boolean",
+            "description": "Whether a new account was confirmed created."
+          },
+          "saved": {
+            "type": "boolean",
+            "description": "Whether configuration was confirmed saved."
+          },
+          "sessionGroupId": {
+            "type": "string",
+            "description": "Browser session group identity; read-only metadata.",
+            "maxLength": 1000
+          },
+          "pages": {
+            "type": "array",
+            "description": "Current pages bound to this account. Numeric browser IDs are diagnostic metadata; use pageContextId for page actions.",
+            "items": {
+              "type": "object",
+              "description": "Account page.",
+              "properties": {
+                "pageContextId": {
+                  "type": "string",
+                  "description": "Page reference.",
+                  "maxLength": 100
+                },
+                "title": {
+                  "type": "string",
+                  "description": "Page title.",
+                  "maxLength": 200
+                },
+                "tabId": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Browser tab ID."
+                },
+                "windowId": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Browser window ID."
+                },
+                "groupId": {
+                  "type": "integer",
+                  "minimum": -1,
+                  "description": "Browser tab-group ID, or -1 when ungrouped."
+                },
+                "sessionGroupId": {
+                  "type": "string",
+                  "description": "Browser session group identity.",
+                  "maxLength": 1000
+                },
+                "url": {
+                  "type": "string",
+                  "description": "HTTP(S) URL without credentials, query or fragment.",
+                  "maxLength": 2000
+                },
+                "active": {
+                  "type": "boolean",
+                  "description": "Whether this tab is active."
+                },
+                "status": {
+                  "type": "string",
+                  "description": "Browser loading status.",
+                  "maxLength": 40
+                }
+              },
+              "required": [
+                "pageContextId",
+                "title"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 100
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    "required": [
+      "status",
+      "stage",
+      "warnings"
+    ],
+    "additionalProperties": false
+  },
+  "risk": "read-sensitive",
+  "targetKinds": [
+    "managed-account"
+  ],
+  "requiredPermissions": [
+    "accounts.read"
+  ],
+  "timeoutMs": 30000,
+  "maxInlineResultBytes": 65536,
+  "concurrency": "shared-read",
+  "retry": "pre-dispatch-read-only",
+  "exposure": "exposed"
+}

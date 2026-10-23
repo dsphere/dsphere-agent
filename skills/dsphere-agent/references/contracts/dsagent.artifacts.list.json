@@ -1,0 +1,245 @@
+{
+  "method": "dsagent.artifacts.list",
+  "version": 1,
+  "title": "List artifacts",
+  "description": "List logical execution result and generated binary artifacts; an agent-read capture lists its dataset with its provenance label.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "executionId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "Opaque workflow execution identifier returned by dsagent.execution.run or dsagent.wizard.run, or the captureId dsagent.dataset.save-agent-read returned."
+      },
+      "includeCompleteness": {
+        "type": "boolean",
+        "description": "true: also count the empty cells per column of each single-table dataset (emptyCells), which reads its first records (up to 2000) and costs time on a large dataset; omitted, the list carries no emptyCells."
+      }
+    },
+    "required": [
+      "executionId"
+    ],
+    "description": "Input for listing artifacts owned by one workflow execution."
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "executionId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "Workflow execution that owns the returned artifacts."
+      },
+      "artifacts": {
+        "type": "array",
+        "maxItems": 1000,
+        "description": "Bounded artifact summaries; pass an artifactId to dsagent.artifact.read or dsagent.execution.artifact.export.",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "artifactId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256,
+              "description": "Opaque artifact identifier valid for artifact read or export."
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500,
+              "description": "Optional human-readable artifact name."
+            },
+            "mediaType": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200,
+              "description": "Artifact media type."
+            },
+            "kind": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 100,
+              "description": "Logical artifact kind such as execution_result or page_screenshot."
+            },
+            "size": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Artifact size in bytes when known."
+            },
+            "rowCount": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Structured record count when known."
+            },
+            "chunkCount": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Stored chunk count when known."
+            },
+            "columns": {
+              "type": "array",
+              "maxItems": 1000,
+              "description": "Structured column names when known.",
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 500,
+                "description": "One structured column name."
+              }
+            },
+            "tables": {
+              "type": "array",
+              "maxItems": 1000,
+              "description": "Bounded table metadata when the artifact contains multiple tables.",
+              "items": {}
+            },
+            "provenance": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "source": {
+                  "type": "string",
+                  "enum": [
+                    "agent-read"
+                  ],
+                  "description": "The records were read by an agent from the page (the last detection tier), not collected by a workflow: report them as agent-read."
+                },
+                "replayable": {
+                  "type": "boolean",
+                  "enum": [
+                    false
+                  ],
+                  "description": "Always false: no workflow can collect this dataset again."
+                },
+                "coverage": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "recordsSaved": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "description": "Records the dataset holds."
+                    },
+                    "expectedRecords": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "description": "How many records the page said exist, when it said so."
+                    },
+                    "pagesVisited": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "description": "Pages the records were read from, as the agent stated."
+                    },
+                    "stoppedBecause": {
+                      "type": "string",
+                      "maxLength": 40,
+                      "description": "Why reading stopped, as the agent stated."
+                    }
+                  },
+                  "required": [
+                    "recordsSaved",
+                    "pagesVisited",
+                    "stoppedBecause"
+                  ],
+                  "description": "What the agent read."
+                },
+                "admittedBy": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "wizardId": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 36,
+                      "description": "The wizard whose detection failed."
+                    },
+                    "endpoint": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 80,
+                      "description": "Its typed detection failure."
+                    }
+                  },
+                  "required": [
+                    "wizardId",
+                    "endpoint"
+                  ],
+                  "description": "The detection failure that admitted the save."
+                },
+                "savedAt": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 40,
+                  "description": "When the label was last written (ISO 8601)."
+                }
+              },
+              "required": [
+                "source",
+                "replayable",
+                "coverage",
+                "admittedBy",
+                "savedAt"
+              ],
+              "description": "Present on an agent-read dataset only: its label."
+            },
+            "emptyCells": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "checkedRows": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Records counted (the first ones, up to 2000)."
+                },
+                "truncated": {
+                  "type": "boolean",
+                  "description": "True when the dataset holds more records than were counted."
+                },
+                "byColumn": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "integer",
+                    "minimum": 1
+                  },
+                  "description": "Empty cells per column, only for columns with any. An empty cell may be a true absence on that record's page (another page template): report it, do not invent a value."
+                }
+              },
+              "required": [
+                "checkedRows",
+                "truncated",
+                "byColumn"
+              ],
+              "description": "For a single-table dataset, with includeCompleteness true: how many records left each field empty."
+            }
+          },
+          "required": [
+            "artifactId",
+            "mediaType",
+            "kind"
+          ]
+        }
+      }
+    },
+    "required": [
+      "executionId",
+      "artifacts"
+    ],
+    "description": "Artifact summaries for one workflow execution."
+  },
+  "risk": "read-sensitive",
+  "targetKinds": [
+    "workflow"
+  ],
+  "requiredPermissions": [
+    "workflow.read"
+  ],
+  "timeoutMs": 10000,
+  "maxInlineResultBytes": 262144,
+  "concurrency": "shared-read",
+  "retry": "pre-dispatch-read-only",
+  "exposure": "exposed"
+}

@@ -1,0 +1,101 @@
+{
+  "method": "dsagent.page.presentation.get",
+  "version": 1,
+  "title": "Read browser and viewport size",
+  "description": "Read actual window, viewport and device pixel ratio of an agent-owned page. No device emulation is implied.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "minLength": 8,
+        "maxLength": 128,
+        "description": "Opaque context of a page opened for this agent or in its named browser session."
+      }
+    },
+    "required": [
+      "pageContextId"
+    ],
+    "description": "The page whose geometry to read."
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "minLength": 8,
+        "maxLength": 128,
+        "description": "Opaque context of a page opened for this agent or in its named browser session."
+      },
+      "window": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "width": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Measured width in pixels."
+          },
+          "height": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Measured height in pixels."
+          }
+        },
+        "required": [
+          "width",
+          "height"
+        ],
+        "description": "Outer browser window geometry in browser screen pixels."
+      },
+      "viewport": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "width": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Measured width in pixels."
+          },
+          "height": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Measured height in pixels."
+          }
+        },
+        "required": [
+          "width",
+          "height"
+        ],
+        "description": "Page layout viewport geometry in CSS pixels, excluding browser chrome and the side panel."
+      },
+      "devicePixelRatio": {
+        "type": "number",
+        "minimum": 0,
+        "description": "Actual device pixel ratio; normal sizing does not override it."
+      }
+    },
+    "required": [
+      "pageContextId",
+      "window",
+      "viewport",
+      "devicePixelRatio"
+    ],
+    "description": "Actual page and browser geometry."
+  },
+  "risk": "read-sensitive",
+  "targetKinds": [
+    "page",
+    "browser"
+  ],
+  "requiredPermissions": [
+    "page.read"
+  ],
+  "timeoutMs": 15000,
+  "maxInlineResultBytes": 4096,
+  "concurrency": "shared-read",
+  "retry": "pre-dispatch-read-only",
+  "exposure": "exposed"
+}

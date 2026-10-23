@@ -1,0 +1,236 @@
+{
+  "method": "dsagent.workflow.definition.get",
+  "version": 1,
+  "title": "Get workflow definition",
+  "description": "Read one page of a saved workflow definition: its blocks in order (type, label, configuration such as recorded selectors, field roles, value shapes, variable names, record limits) and the edges touching them. Use it to explain what a run did or why a field read nothing.",
+  "guidance": "Read-only; credentials, physical file paths, session-group bindings and URL user-info are replaced by [redacted], and long values are cut. Page with nodeOffset / nextNodeOffset; filter by nodeType (for example get-text). A workflow saved by a scrape wizard with a collect hint also carries detectionProvenance (whether the hint-steered detection, tier D2, produced its source).",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "workflowId": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "Opaque workflow identifier returned by dsagent.workflows.list or dsagent.wizard.save."
+      },
+      "nodeOffset": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 100000,
+        "description": "Zero-based position of the first block of the page among the matching blocks; defaults to 0. Pass nextNodeOffset to continue."
+      },
+      "nodeLimit": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 50,
+        "description": "Most blocks returned in this page; defaults to 20. A page also stops before its size exceeds the result budget."
+      },
+      "nodeType": {
+        "type": "string",
+        "maxLength": 100,
+        "description": "Optional block type to keep, for example get-text, attribute-value, event-click or save-to-local-db."
+      }
+    },
+    "required": [
+      "workflowId"
+    ],
+    "additionalProperties": false,
+    "description": "Workflow and page of its definition to read."
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "workflowId": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "Workflow whose definition was read."
+      },
+      "name": {
+        "type": "string",
+        "maxLength": 500,
+        "description": "Workflow display name."
+      },
+      "definitionVersion": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Definition version the page was read from, when the backend reports one."
+      },
+      "nodeCount": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Blocks in the whole definition."
+      },
+      "edgeCount": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Edges in the whole definition."
+      },
+      "matchedNodeCount": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Blocks matching nodeType (all blocks when no filter was given)."
+      },
+      "nodes": {
+        "type": "array",
+        "maxItems": 50,
+        "description": "Blocks of this page in definition order.",
+        "items": {
+          "type": "object",
+          "properties": {
+            "nodeId": {
+              "type": "string",
+              "maxLength": 200,
+              "description": "Block identifier inside this workflow definition; edges refer to it."
+            },
+            "index": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Position of the block in the whole definition."
+            },
+            "type": {
+              "type": "string",
+              "maxLength": 100,
+              "description": "Block type, for example go-to, get-text, attribute-value, event-click, scrape-record-limit."
+            },
+            "label": {
+              "type": "string",
+              "maxLength": 2001,
+              "description": "Block label shown in the designer."
+            },
+            "config": {
+              "type": "object",
+              "description": "Block configuration as saved, redacted and bounded: credentials, physical paths and session-group bindings read [redacted]; strings over 2000 characters, arrays over 100 items and nesting deeper than 8 levels are cut."
+            },
+            "truncated": {
+              "type": "boolean",
+              "description": "Some configuration value was cut to the bounds."
+            }
+          },
+          "required": [
+            "nodeId",
+            "index",
+            "type",
+            "config"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "edges": {
+        "type": "array",
+        "maxItems": 400,
+        "description": "Edges that start or end at a block of this page.",
+        "items": {
+          "type": "object",
+          "properties": {
+            "source": {
+              "type": "string",
+              "maxLength": 200,
+              "description": "Block the edge leaves."
+            },
+            "target": {
+              "type": "string",
+              "maxLength": 200,
+              "description": "Block the edge enters."
+            },
+            "sourceHandle": {
+              "type": "string",
+              "maxLength": 200,
+              "description": "Output handle of the source block, when it has several (for example a loop body or fallback)."
+            },
+            "targetHandle": {
+              "type": "string",
+              "maxLength": 200,
+              "description": "Input handle of the target block, when named."
+            }
+          },
+          "required": [
+            "source",
+            "target"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "hasMore": {
+        "type": "boolean",
+        "description": "More matching blocks follow this page."
+      },
+      "nextNodeOffset": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "nodeOffset for the next page, present when hasMore is true."
+      },
+      "redactedValueCount": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "How many values on this page were replaced by [redacted]."
+      },
+      "detectionProvenance": {
+        "type": "object",
+        "properties": {
+          "collectHint": {
+            "type": "object",
+            "properties": {
+              "used": {
+                "type": "boolean",
+                "enum": [
+                  true
+                ],
+                "description": "A collect hint was set in the scrape wizard that saved this workflow."
+              },
+              "steered": {
+                "type": "boolean",
+                "description": "A detect-with-ai for that hint ranked the detected sources."
+              },
+              "sourceSteered": {
+                "type": "boolean",
+                "description": "The source this workflow collects is one the AI model ranked or found for the hint."
+              }
+            },
+            "required": [
+              "used",
+              "steered",
+              "sourceSteered"
+            ],
+            "additionalProperties": false,
+            "description": "The collect hint of the scrape wizard that saved this workflow."
+          },
+          "detectionTier": {
+            "type": "string",
+            "enum": [
+              "D2"
+            ],
+            "description": "Present when the hint-steered detection (failure-endpoint fallback tier D2) produced the collected source; a run of this workflow that passes is recorded with \"tier D2\"."
+          }
+        },
+        "required": [
+          "collectHint"
+        ],
+        "additionalProperties": false,
+        "description": "How the collected source was detected; present only for a workflow saved by a scrape wizard with a collect hint (dsagent.wizard.start collectHint or values.collectHint). Same on every page."
+      }
+    },
+    "required": [
+      "workflowId",
+      "nodeCount",
+      "edgeCount",
+      "matchedNodeCount",
+      "nodes",
+      "edges",
+      "hasMore",
+      "redactedValueCount"
+    ],
+    "additionalProperties": false,
+    "description": "One redacted, bounded page of a workflow definition."
+  },
+  "risk": "read-sensitive",
+  "targetKinds": [
+    "workflow"
+  ],
+  "requiredPermissions": [
+    "workflow.read"
+  ],
+  "timeoutMs": 10000,
+  "maxInlineResultBytes": 262144,
+  "concurrency": "shared-read",
+  "retry": "pre-dispatch-read-only",
+  "exposure": "exposed"
+}

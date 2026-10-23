@@ -1,0 +1,153 @@
+{
+  "method": "dsagent.execution.run",
+  "version": 1,
+  "title": "Run workflow",
+  "description": "Create and dispatch one workflow execution.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "workflowId": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "Opaque workflow identifier returned by dsagent.workflows.list."
+      },
+      "taskDescription": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 2000,
+        "description": "The person’s request in detail (what to do, on which site, with which data), as you would tell them; DSphere shows it as the task in the SidePanel Chat. Required when the run starts work on a task that has no description yet (refused with INVALID_REQUEST, businessCode task-description-required, otherwise); later calls of the same task need not repeat it. Presentation context only, never delegated planning. Do not include credentials."
+      },
+      "variables": {
+        "type": "object",
+        "description": "Optional bounded workflow variable object accepted by the workflow runtime."
+      },
+      "fieldValues": {
+        "type": "array",
+        "maxItems": 100,
+        "description": "Optional run-time field substitutions obtained from dsagent.workflow.inputs.get.",
+        "items": {
+          "type": "object",
+          "properties": {
+            "fieldId": {
+              "type": "string",
+              "maxLength": 256,
+              "description": "Opaque editable field identifier returned by dsagent.workflow.inputs.get."
+            },
+            "value": {
+              "type": "string",
+              "maxLength": 8192,
+              "description": "Replacement text value for the selected editable field."
+            }
+          },
+          "required": [
+            "fieldId",
+            "value"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "accountMode": {
+        "type": "string",
+        "enum": [
+          "default",
+          "specified"
+        ],
+        "description": "Use default account selection or require the opaque accountId supplied by the caller."
+      },
+      "accountId": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "Opaque account identifier from dsagent.app.accounts.list; required only for specified mode."
+      },
+      "sessionGroup": {
+        "type": "string",
+        "enum": [
+          "default",
+          "new",
+          "previous"
+        ],
+        "default": "default",
+        "description": "Use the default user session for every agent task, preserving the person's existing website sign-ins. When the task names an application account, or its site needs a sign-in, first read dsagent.browser.sessions.list for that site and reuse the session signed in there for that account: the default session, a named session (previous with its sessionName), or an application account's own session (accountId); never make the person sign in again when such a session is listed. Create an isolated named session only when the person explicitly requests isolation or the task explicitly requires a different website account on the same site that no listed session holds. Agent identity, a coding task, parallel work, retries or a fresh task never justify a new browser session. Reuse an authorized named session with previous for that account; otherwise omit sessionGroup or use default, and omit sessionName. Which browser session the run uses: default (the person's own session group; the default), new (a fresh isolated session group named sessionName, or a generated name) or previous (the session group named sessionName that an earlier task created, so sites signed in there stay signed in). The run starts from one of the session's pages, or a blank first tab of its tab group. Only with accountMode default."
+      },
+      "sessionName": {
+        "type": "string",
+        "pattern": "^[a-z0-9][a-z0-9-]{0,39}$",
+        "maxLength": 40,
+        "description": "The session's name (lowercase letters, digits, dashes): optional with new, required with previous, not allowed with default. Reuse a named session only for an authorized isolation or different-account task."
+      },
+      "agentRepairHandoff": {
+        "type": "boolean",
+        "default": true,
+        "description": "Whether a block that fails after the run's own retries and in-run recovery pauses the run for you to repair (lifecycle paused, pause.kind agent-repair; answer with dsagent.execution.handoff.resume or dsagent.execution.handoff.abort) instead of failing the run at once. Defaults to true; false fails the run on the block as before."
+      },
+      "windowPlacement": {
+        "type": "string",
+        "enum": [
+          "shared-window",
+          "new-window"
+        ],
+        "description": "Where a named session's tab group goes when it has no open page yet: shared-window (the person's window; the default) or new-window (a browser window of its own). DSphere keeps a session in one window: new-window for a session whose pages are in a window shared with other sessions is refused (businessCode BROWSER_SESSION_WINDOW_SHARED). Only with sessionGroup new or previous."
+      }
+    },
+    "required": [
+      "workflowId"
+    ],
+    "additionalProperties": false,
+    "description": "Workflow launch request. Use an idempotency key and inspect workflow inputs before supplying fieldValues."
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "executionId": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "Opaque created execution identifier."
+      },
+      "workflowId": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "Workflow that was dispatched."
+      },
+      "status": {
+        "type": "string",
+        "maxLength": 100,
+        "description": "Initial execution status reported by the runtime."
+      },
+      "dispatch": {
+        "type": "string",
+        "maxLength": 100,
+        "description": "Dispatch result such as started, already_running, or backend_pending."
+      },
+      "sessionName": {
+        "type": "string",
+        "maxLength": 40,
+        "description": "The named browser session the run started in (sessionGroup new or previous)."
+      },
+      "runToken": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "The run's ownership token, shown only here: keep it. On the browser connection that started the run nothing needs it; after a restart of your Connector (a new connection) pass it once to dsagent.execution.get / wait or dsagent.execution.handoff.*, and the run, its open repair handoff and its pages follow you."
+      }
+    },
+    "required": [
+      "executionId",
+      "workflowId",
+      "status",
+      "dispatch"
+    ],
+    "additionalProperties": false,
+    "description": "Created workflow execution and dispatch status."
+  },
+  "risk": "external-effect",
+  "targetKinds": [
+    "workflow"
+  ],
+  "requiredPermissions": [
+    "workflow.execute"
+  ],
+  "timeoutMs": 30000,
+  "maxInlineResultBytes": 262144,
+  "concurrency": "exclusive-browser",
+  "retry": "never",
+  "exposure": "exposed"
+}

@@ -1,0 +1,200 @@
+{
+  "method": "dsagent.accounts.focus",
+  "version": 1,
+  "title": "Focus Account",
+  "description": "Focus an existing page of the account without opening a new environment.",
+  "inputSchema": {
+    "type": "object",
+    "description": "Focus an existing page of the account without opening a new environment.",
+    "properties": {
+      "accountId": {
+        "type": "string",
+        "description": "Opaque account reference returned by accounts.list or accounts.get.",
+        "minLength": 1,
+        "maxLength": 100
+      },
+      "pageContextId": {
+        "type": "string",
+        "description": "Optional existing page reference.",
+        "minLength": 1,
+        "maxLength": 100
+      }
+    },
+    "required": [
+      "accountId"
+    ],
+    "additionalProperties": false
+  },
+  "outputSchema": {
+    "type": "object",
+    "description": "Account operation result. status/stage are for internal reconciliation, not user-facing open-success/failure badges. Report the separate autofill receipt; a page being open never proves fill or sign-in.",
+    "properties": {
+      "autofill": {
+        "type": "object",
+        "description": "Separate Biz autofill receipt. Query accounts.operations.get with operationId while running; unknown must not be replayed. succeeded proves fill owner completion, never website sign-in.",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Observed autofill state.",
+            "maxLength": 40,
+            "enum": [
+              "running",
+              "succeeded",
+              "failed",
+              "skipped",
+              "unknown"
+            ]
+          },
+          "updatedAt": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Receipt observation time in milliseconds."
+          },
+          "reason": {
+            "type": "string",
+            "description": "Safe reason code; never credentials or page field values.",
+            "maxLength": 120
+          }
+        },
+        "required": [
+          "status",
+          "updatedAt"
+        ],
+        "additionalProperties": false
+      },
+      "operationId": {
+        "type": "string",
+        "description": "Local operation reference; not a Pangu request receipt.",
+        "maxLength": 100
+      },
+      "status": {
+        "type": "string",
+        "description": "Observed operation status.",
+        "maxLength": 40,
+        "enum": [
+          "not-dispatched",
+          "waiting-user",
+          "running",
+          "succeeded",
+          "partial",
+          "failed",
+          "cancelled",
+          "outcome-unknown",
+          "record-unavailable",
+          "available"
+        ]
+      },
+      "stage": {
+        "type": "string",
+        "description": "Completed or current account business stage.",
+        "maxLength": 100
+      },
+      "accountId": {
+        "type": "string",
+        "description": "Account reference when known.",
+        "maxLength": 100
+      },
+      "pageContextId": {
+        "type": "string",
+        "description": "Actual opened/focused page reference when known.",
+        "maxLength": 100
+      },
+      "warnings": {
+        "type": "array",
+        "description": "Bounded warnings, including synchronization and unknown outcomes.",
+        "items": {
+          "type": "string",
+          "description": "One safe product warning.",
+          "maxLength": 500
+        },
+        "maxItems": 20
+      },
+      "data": {
+        "type": "object",
+        "description": "Only the selected account operation's public product fields.",
+        "properties": {
+          "pages": {
+            "type": "array",
+            "description": "Current pages bound to this account. Numeric browser IDs are diagnostic metadata; use pageContextId for page actions.",
+            "items": {
+              "type": "object",
+              "description": "Account page.",
+              "properties": {
+                "pageContextId": {
+                  "type": "string",
+                  "description": "Page reference.",
+                  "maxLength": 100
+                },
+                "title": {
+                  "type": "string",
+                  "description": "Page title.",
+                  "maxLength": 200
+                },
+                "tabId": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Browser tab ID."
+                },
+                "windowId": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Browser window ID."
+                },
+                "groupId": {
+                  "type": "integer",
+                  "minimum": -1,
+                  "description": "Browser tab-group ID, or -1 when ungrouped."
+                },
+                "sessionGroupId": {
+                  "type": "string",
+                  "description": "Browser session group identity.",
+                  "maxLength": 1000
+                },
+                "url": {
+                  "type": "string",
+                  "description": "HTTP(S) URL without credentials, query or fragment.",
+                  "maxLength": 2000
+                },
+                "active": {
+                  "type": "boolean",
+                  "description": "Whether this tab is active."
+                },
+                "status": {
+                  "type": "string",
+                  "description": "Browser loading status.",
+                  "maxLength": 40
+                }
+              },
+              "required": [
+                "pageContextId",
+                "title"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 100
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    "required": [
+      "status",
+      "stage",
+      "warnings"
+    ],
+    "additionalProperties": false
+  },
+  "risk": "reversible-write",
+  "targetKinds": [
+    "managed-account"
+  ],
+  "requiredPermissions": [
+    "accounts.write"
+  ],
+  "timeoutMs": 300000,
+  "maxInlineResultBytes": 65536,
+  "concurrency": "exclusive-target",
+  "retry": "never",
+  "exposure": "exposed"
+}

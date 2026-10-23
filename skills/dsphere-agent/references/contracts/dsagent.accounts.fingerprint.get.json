@@ -1,0 +1,278 @@
+{
+  "method": "dsagent.accounts.fingerprint.get",
+  "version": 1,
+  "title": "Get Account Fingerprint",
+  "description": "Read the permitted fingerprint configuration without cookie or secret fields.",
+  "inputSchema": {
+    "type": "object",
+    "description": "Read the permitted fingerprint configuration without cookie or secret fields.",
+    "properties": {
+      "accountId": {
+        "type": "string",
+        "description": "Opaque account reference returned by accounts.list or accounts.get.",
+        "minLength": 1,
+        "maxLength": 100
+      }
+    },
+    "required": [
+      "accountId"
+    ],
+    "additionalProperties": false
+  },
+  "outputSchema": {
+    "type": "object",
+    "description": "Account operation result. status/stage are for internal reconciliation, not user-facing open-success/failure badges. Report the separate autofill receipt; a page being open never proves fill or sign-in.",
+    "properties": {
+      "autofill": {
+        "type": "object",
+        "description": "Separate Biz autofill receipt. Query accounts.operations.get with operationId while running; unknown must not be replayed. succeeded proves fill owner completion, never website sign-in.",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Observed autofill state.",
+            "maxLength": 40,
+            "enum": [
+              "running",
+              "succeeded",
+              "failed",
+              "skipped",
+              "unknown"
+            ]
+          },
+          "updatedAt": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Receipt observation time in milliseconds."
+          },
+          "reason": {
+            "type": "string",
+            "description": "Safe reason code; never credentials or page field values.",
+            "maxLength": 120
+          }
+        },
+        "required": [
+          "status",
+          "updatedAt"
+        ],
+        "additionalProperties": false
+      },
+      "operationId": {
+        "type": "string",
+        "description": "Local operation reference; not a Pangu request receipt.",
+        "maxLength": 100
+      },
+      "status": {
+        "type": "string",
+        "description": "Observed operation status.",
+        "maxLength": 40,
+        "enum": [
+          "not-dispatched",
+          "waiting-user",
+          "running",
+          "succeeded",
+          "partial",
+          "failed",
+          "cancelled",
+          "outcome-unknown",
+          "record-unavailable",
+          "available"
+        ]
+      },
+      "stage": {
+        "type": "string",
+        "description": "Completed or current account business stage.",
+        "maxLength": 100
+      },
+      "accountId": {
+        "type": "string",
+        "description": "Account reference when known.",
+        "maxLength": 100
+      },
+      "pageContextId": {
+        "type": "string",
+        "description": "Actual opened/focused page reference when known.",
+        "maxLength": 100
+      },
+      "warnings": {
+        "type": "array",
+        "description": "Bounded warnings, including synchronization and unknown outcomes.",
+        "items": {
+          "type": "string",
+          "description": "One safe product warning.",
+          "maxLength": 500
+        },
+        "maxItems": 20
+      },
+      "data": {
+        "type": "object",
+        "description": "Only the selected account operation's public product fields.",
+        "properties": {
+          "readAt": {
+            "type": "string",
+            "description": "Time this state was read.",
+            "maxLength": 40
+          },
+          "supported": {
+            "type": "boolean",
+            "description": "Whether the requested fingerprint operation is supported."
+          },
+          "fingerprints": {
+            "type": "array",
+            "description": "Permitted fingerprint fields for at most two browser kernels.",
+            "items": {
+              "type": "object",
+              "description": "One browser kernel fingerprint.",
+              "properties": {
+                "kernel": {
+                  "type": "string",
+                  "description": "Browser kernel.",
+                  "maxLength": 40
+                },
+                "user_agent": {
+                  "type": "string",
+                  "description": "User agent.",
+                  "maxLength": 2000
+                },
+                "fingerprint": {
+                  "type": "object",
+                  "description": "Permitted fingerprint fields.",
+                  "properties": {
+                    "language": {
+                      "type": "string",
+                      "description": "Browser languages, using the current Work format.",
+                      "maxLength": 200
+                    },
+                    "time_zone": {
+                      "type": "string",
+                      "description": "Timezone in the current Work format.",
+                      "maxLength": 100
+                    },
+                    "dnt": {
+                      "type": "string",
+                      "description": "Work Do Not Track setting.",
+                      "maxLength": 10
+                    },
+                    "battery": {
+                      "type": "string",
+                      "description": "Battery fingerprint setting; empty retains the disabled state.",
+                      "maxLength": 20
+                    },
+                    "font": {
+                      "type": "string",
+                      "description": "Font fingerprint value.",
+                      "maxLength": 20000
+                    },
+                    "bluetooth": {
+                      "type": "string",
+                      "description": "Bluetooth fingerprint value.",
+                      "maxLength": 20
+                    },
+                    "audio_context": {
+                      "type": "string",
+                      "description": "Audio fingerprint noise.",
+                      "maxLength": 20
+                    },
+                    "client_rects": {
+                      "type": "string",
+                      "description": "Client rectangles fingerprint noise.",
+                      "maxLength": 20
+                    },
+                    "media_device": {
+                      "type": "string",
+                      "description": "Media device fingerprint value.",
+                      "maxLength": 4000
+                    },
+                    "canvas": {
+                      "type": "string",
+                      "description": "Canvas fingerprint value.",
+                      "maxLength": 200
+                    },
+                    "webgl_image": {
+                      "type": "string",
+                      "description": "WebGL image fingerprint noise.",
+                      "maxLength": 30
+                    },
+                    "memory": {
+                      "type": "string",
+                      "description": "Device memory setting.",
+                      "maxLength": 20
+                    },
+                    "hardwareConcurrency": {
+                      "type": "string",
+                      "description": "Logical CPU count setting.",
+                      "maxLength": 20
+                    },
+                    "speech_voices": {
+                      "type": "string",
+                      "description": "Speech voices fingerprint value.",
+                      "maxLength": 20000
+                    },
+                    "screen_resolution_input": {
+                      "type": "string",
+                      "description": "Screen resolution in widthxheight format.",
+                      "maxLength": 40
+                    },
+                    "os": {
+                      "type": "string",
+                      "description": "Operating system.",
+                      "maxLength": 100
+                    },
+                    "os_version": {
+                      "type": "string",
+                      "description": "OS version.",
+                      "maxLength": 100
+                    },
+                    "user_agent": {
+                      "type": "string",
+                      "description": "Kernel user agent.",
+                      "maxLength": 2000
+                    },
+                    "version": {
+                      "type": "string",
+                      "description": "Kernel version.",
+                      "maxLength": 100
+                    },
+                    "userAgentDisplay": {
+                      "type": "string",
+                      "description": "User agent display.",
+                      "maxLength": 2000
+                    }
+                  },
+                  "required": [],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "kernel",
+                "user_agent",
+                "fingerprint"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 2
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    "required": [
+      "status",
+      "stage",
+      "warnings"
+    ],
+    "additionalProperties": false
+  },
+  "risk": "read-sensitive",
+  "targetKinds": [
+    "managed-account"
+  ],
+  "requiredPermissions": [
+    "accounts.read"
+  ],
+  "timeoutMs": 30000,
+  "maxInlineResultBytes": 65536,
+  "concurrency": "shared-read",
+  "retry": "pre-dispatch-read-only",
+  "exposure": "exposed"
+}

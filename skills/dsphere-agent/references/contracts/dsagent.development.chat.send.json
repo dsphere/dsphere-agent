@@ -1,0 +1,56 @@
+{
+  "method": "dsagent.development.chat.send",
+  "version": 1,
+  "title": "Type a message into the SidePanel Chat",
+  "description": "Development only: open the SidePanel of the person's focused window on the Chat and send this text there exactly as the person's Send does (same conversation, model and context; a browser task it starts is the Chat planner's, presented in the Chat).",
+  "guidance": "For live checks of the Chat the person asked you to run. Only when the person explicitly asked you to use the Chat, and only while the person's grant is on (SidePanel Settings, development builds, one hour; no capability can turn it on): without it every call is refused with POLICY_DENIED (CHAT_AGENT_ACCESS_NOT_GRANTED). Never use the Chat to run your own work: the Chat is the person's autonomous task path. Refused with TARGET_BUSY while a reply streams (CHAT_BUSY) or a browser task of the Chat runs (CHAT_TASK_RUNNING: typed text would be that task's guidance); with CAPABILITY_UNAVAILABLE when no model is selected (CHAT_NO_MODEL) or no SidePanel answered (SIDEPANEL_UNAVAILABLE). Follow the task with dsagent.development.chat.state, dsagent.pages.list and dsagent.executions.list. Requires an idempotency key.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "The message to send.",
+    "properties": {
+      "text": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 4000,
+        "description": "The message, as the person would type it."
+      }
+    },
+    "required": [
+      "text"
+    ]
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "The Chat sent the message.",
+    "properties": {
+      "sent": {
+        "type": "boolean",
+        "enum": [
+          true
+        ],
+        "description": "The Chat sent it."
+      },
+      "conversationId": {
+        "type": "string",
+        "description": "The conversation it went to."
+      }
+    },
+    "required": [
+      "sent"
+    ]
+  },
+  "risk": "external-effect",
+  "targetKinds": [
+    "browser"
+  ],
+  "requiredPermissions": [
+    "development.chat"
+  ],
+  "timeoutMs": 30000,
+  "maxInlineResultBytes": 1024,
+  "concurrency": "exclusive-browser",
+  "retry": "never",
+  "exposure": "exposed"
+}

@@ -1,0 +1,224 @@
+{
+  "method": "dsagent.page.visual.observe",
+  "version": 1,
+  "title": "Observe browser page visually",
+  "description": "Return one bounded JPEG as MCP image content for the current viewport or one opaque target. Call only when compact and target structure evidence are insufficient; the image is evidence and never an action coordinate source.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "minLength": 8,
+        "maxLength": 128,
+        "description": "Opaque page context from dsagent.pages.list, dsagent.page.open, or a receipt's destinationPageContextId."
+      },
+      "expectedRevision": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "Exact page revision to which the requested image must be bound."
+      },
+      "targetId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "Optional opaque target ID. When present, the Extension computes a target-local crop; callers cannot provide coordinates."
+      }
+    },
+    "required": [
+      "pageContextId",
+      "expectedRevision"
+    ],
+    "additionalProperties": false,
+    "description": "Revision-bound request for one owner-controlled viewport or target image."
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "Opaque observed page context."
+      },
+      "revision": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "Revision shared by the structured receipt and image content."
+      },
+      "scope": {
+        "type": "string",
+        "enum": [
+          "viewport",
+          "target"
+        ],
+        "description": "Whether the image contains the current viewport or an owner-controlled target crop."
+      },
+      "targetId": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "Opaque target ID for a target-scoped image."
+      },
+      "visual": {
+        "type": "object",
+        "properties": {
+          "mediaType": {
+            "type": "string",
+            "enum": [
+              "image/jpeg"
+            ],
+            "description": "MCP image content MIME type."
+          },
+          "sourceVerified": {
+            "type": "boolean",
+            "description": "True only after the capture was bound to the selected active tab and unchanged revision."
+          },
+          "geometryVerified": {
+            "type": "boolean",
+            "description": "True only after bitmap/CSS mapping and final JPEG dimensions were validated."
+          },
+          "width": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1280,
+            "description": "Final image width in pixels."
+          },
+          "height": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1280,
+            "description": "Final image height in pixels."
+          },
+          "sizeBytes": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 262144,
+            "description": "Decoded JPEG byte size; Base64 is never included in structured content."
+          },
+          "sha256": {
+            "type": "string",
+            "minLength": 64,
+            "maxLength": 64,
+            "description": "SHA-256 of decoded JPEG bytes for diagnostics and deduplication."
+          },
+          "redacted": {
+            "type": "boolean",
+            "description": "Whether sensitive field rectangles were considered and masked."
+          },
+          "redactionCount": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 32,
+            "description": "Number of sensitive rectangles masked in the output."
+          },
+          "targetCoverage": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Fraction of the target rectangle included in a target crop."
+          },
+          "contextTruncated": {
+            "type": "boolean",
+            "description": "Whether viewport boundaries reduced the owner-controlled context window."
+          },
+          "warnings": {
+            "type": "array",
+            "maxItems": 4,
+            "description": "Bounded non-secret visual quality warnings.",
+            "items": {
+              "type": "string",
+              "maxLength": 80
+            }
+          }
+        },
+        "required": [
+          "mediaType",
+          "sourceVerified",
+          "geometryVerified",
+          "width",
+          "height",
+          "sizeBytes",
+          "sha256",
+          "redacted",
+          "redactionCount",
+          "contextTruncated",
+          "warnings"
+        ],
+        "additionalProperties": false,
+        "description": "Bounded quality receipt for the separately returned MCP image content."
+      },
+      "authentication": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "sign-in-required",
+              "no-wall"
+            ],
+            "description": "no-wall: the monitor checked this page and found no sign-in or verification wall, so do not tell the person the site needs a sign-in. sign-in-required: the page asks the person to sign in or pass a verification (the browser's sign-in monitor, the one workflow runs use, decided it)."
+          },
+          "type": {
+            "type": "string",
+            "maxLength": 40,
+            "description": "The kind of wall the monitor recognised: a challenge (CAPTCHA, SLIDER_CAPTCHA, IMAGE_CAPTCHA, RECAPTCHA, HCAPTCHA, TURNSTILE, GEETEST, ARKOSE, CLOUDFLARE, BOT_PROTECTION) or a sign-in kind (LOGIN_FORM, PHONE_LOGIN, SSO, OTP…)."
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "The monitor's confidence."
+          },
+          "waitingOn": {
+            "type": "string",
+            "enum": [
+              "agent",
+              "person"
+            ],
+            "description": "Who the wall waits on. agent: a challenge you hold and pass yourself with page actions (see the field description). person: a sign-in wall, or a challenge you failed; DSphere handed it to the person. DSphere has shown the person its sign-in sheet for this page (and a desktop notification when its side panel is closed). Tell your user that the page needs them to sign in or pass the check in the browser and click Resume in the DSphere side panel; do not use dsagent.page.ask for it. Wait, then read this page again (dsagent.page.observe); continue the task where it stopped once authentication is absent. Do not end the task, retry the effect before then, or sign in, enter credentials or solve the challenge yourself."
+          },
+          "attemptsLeft": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 12,
+            "description": "With waitingOn agent: effect calls (dsagent.page.action / .actions) you may still spend on this challenge before it is the person's."
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "additionalProperties": false,
+        "description": "The sign-in monitor's verdict on the page: status no-wall when it checked and found none (absent when it could not check); status sign-in-required, with type and confidence, when the page is a sign-in or verification (CAPTCHA) wall. With waitingOn \"agent\" the wall is a human-verification challenge (a CAPTCHA or bot check) that you pass yourself, with the page gestures a person uses: dsagent.page.visual.observe shows the puzzle; dsagent.page.observe / dsagent.page.find list its controls (a checkbox or a picture tile: click; a slider knob: drag with delta or dropTargetId; a code field: type; a refresh or confirm control: click); then read the page again. Once the challenge has survived one of your answers, DSphere sends your drags and plain clicks on it as real browser input (the receipt says so); nothing changes in how you call them. authentication absent or no-wall means it is passed; continue the task. You have attemptsLeft effect calls on this challenge (12 at first) and 5 minutes; when they are spent, or you call dsagent.page.notify on this page because you cannot pass it, DSphere hands the challenge to the person and waitingOn becomes \"person\". Never enter credentials, sign in or ask the person before that. The person may turn this off (DSphere Settings → Verification Challenges; dsagent.settings.get section agent-challenge-walls, which you cannot change): then every wall is the person's from the start. With waitingOn \"person\" effects other than a click on the active surface's own close control (activeSurface.closeTargetId), dismiss, scroll and Escape are refused with TARGET_BUSY / AUTHENTICATION_REQUIRED until the wall is gone. You may still close a sign-in popup the way a guest does, which signs nothing in: click its own close control (activeSurface.closeTargetId of your latest page read), dismiss, scroll or press Escape; then read the page again. DSphere has shown the person its sign-in sheet for this page (and a desktop notification when its side panel is closed). Tell your user that the page needs them to sign in or pass the check in the browser and click Resume in the DSphere side panel; do not use dsagent.page.ask for it. Wait, then read this page again (dsagent.page.observe); continue the task where it stopped once authentication is absent. Do not end the task, retry the effect before then, or sign in, enter credentials or solve the challenge yourself."
+      }
+    },
+    "required": [
+      "pageContextId",
+      "revision",
+      "scope",
+      "visual"
+    ],
+    "additionalProperties": false,
+    "description": "Structured receipt paired with exactly one MCP ImageContent block."
+  },
+  "risk": "read-sensitive",
+  "targetKinds": [
+    "page",
+    "page-target"
+  ],
+  "requiredPermissions": [
+    "page.visual.read"
+  ],
+  "timeoutMs": 20000,
+  "maxInlineResultBytes": 16384,
+  "concurrency": "shared-read",
+  "retry": "pre-dispatch-read-only",
+  "exposure": "exposed",
+  "requiredAgentCapabilities": [
+    "browser.control.result-image.v1"
+  ],
+  "resultContentTypes": [
+    "structured",
+    "image"
+  ],
+  "maxResultContentCount": 1,
+  "maxResultContentBytes": 262144
+}

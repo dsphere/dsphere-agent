@@ -1,0 +1,2201 @@
+{
+  "method": "dsagent.settings.get",
+  "version": 1,
+  "title": "Read Extension settings",
+  "description": "Read the settings a person can change in the SidePanel and Options page, with their current values.",
+  "guidance": "Without workflowId: the Extension settings (export-directory, dom-training-export, trace-logs, intent-interpreter, ad-blocker-default, fallback-model, execution-memory, site-memory, site-notes, resource-pressure, professional-mode, identity-providers, run-window-focus, agent-challenge-walls, browser-monitor, file-release-consent, notification-channels, schedules, llm-models, chat-model, mail, dashboard-url). With workflowId from dsagent.workflows.list: that workflow's card settings (workflow-favorite, workflow-run-environment, workflow-name, workflow-sheet-binding, workflow-record-limits, workflow-monitors). Each section lists the operations dsagent.settings.update accepts and the parts only the person may change; a section the person lacks the SidePanel permission for, or whose owner is unreachable, reports unavailable instead of a value. API keys, secrets and account tags are never returned.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "Which settings to read: the Extension settings, or the card settings of one saved workflow when workflowId is given.",
+    "properties": {
+      "workflowId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "Opaque workflow id from dsagent.workflows.list; required for workflow-* sections and refused for the others."
+      },
+      "sections": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "export-directory",
+            "dom-training-export",
+            "trace-logs",
+            "intent-interpreter",
+            "ad-blocker-default",
+            "fallback-model",
+            "execution-memory",
+            "site-memory",
+            "site-notes",
+            "resource-pressure",
+            "professional-mode",
+            "identity-providers",
+            "run-window-focus",
+            "agent-challenge-walls",
+            "browser-monitor",
+            "file-release-consent",
+            "notification-channels",
+            "schedules",
+            "llm-models",
+            "chat-model",
+            "mail",
+            "dashboard-url",
+            "workflow-favorite",
+            "workflow-run-environment",
+            "workflow-name",
+            "workflow-sheet-binding",
+            "workflow-record-limits",
+            "workflow-monitors"
+          ],
+          "description": "One section id."
+        },
+        "minItems": 1,
+        "maxItems": 28,
+        "uniqueItems": true,
+        "description": "Only these sections, all of the same scope; every section of the scope when absent."
+      }
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "The requested settings with their current values.",
+    "properties": {
+      "scope": {
+        "type": "string",
+        "enum": [
+          "extension",
+          "workflow"
+        ],
+        "description": "extension for the Extension settings, workflow for one workflow's card settings."
+      },
+      "workflowId": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "The workflow whose card settings were read."
+      },
+      "sections": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "One section: its current value, or why it could not be read.",
+          "properties": {
+            "section": {
+              "type": "string",
+              "enum": [
+                "export-directory",
+                "dom-training-export",
+                "trace-logs",
+                "intent-interpreter",
+                "ad-blocker-default",
+                "fallback-model",
+                "execution-memory",
+                "site-memory",
+                "site-notes",
+                "resource-pressure",
+                "professional-mode",
+                "identity-providers",
+                "run-window-focus",
+                "agent-challenge-walls",
+                "browser-monitor",
+                "file-release-consent",
+                "notification-channels",
+                "schedules",
+                "llm-models",
+                "chat-model",
+                "mail",
+                "dashboard-url",
+                "workflow-favorite",
+                "workflow-run-environment",
+                "workflow-name",
+                "workflow-sheet-binding",
+                "workflow-record-limits",
+                "workflow-monitors"
+              ],
+              "description": "Section id; pass it to dsagent.settings.update."
+            },
+            "title": {
+              "type": "string",
+              "maxLength": 200,
+              "description": "Name of the setting as the SidePanel groups it."
+            },
+            "description": {
+              "type": "string",
+              "maxLength": 2000,
+              "description": "What the setting controls and where the person changes it."
+            },
+            "value": {
+              "description": "Current value; its shape per section is the value schema of the oneOf branch whose section matches."
+            },
+            "operations": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "set",
+                  "reset",
+                  "create",
+                  "update",
+                  "delete",
+                  "test"
+                ],
+                "description": "One operation dsagent.settings.update accepts for this section."
+              },
+              "maxItems": 6,
+              "uniqueItems": true,
+              "description": "Operations dsagent.settings.update accepts for this section."
+            },
+            "personOnly": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "One person-only part.",
+                "properties": {
+                  "part": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "description": "The field or operation the person must change themselves."
+                  },
+                  "reason": {
+                    "type": "string",
+                    "maxLength": 500,
+                    "description": "Why an agent may not change it."
+                  }
+                },
+                "required": [
+                  "part",
+                  "reason"
+                ]
+              },
+              "maxItems": 20,
+              "description": "Parts of this section only the person may change in the SidePanel, with the rule that keeps them so; an update that touches them fails with PERSON_ONLY_SETTING."
+            },
+            "unavailable": {
+              "type": "object",
+              "additionalProperties": false,
+              "description": "Present instead of value when the section could not be read.",
+              "properties": {
+                "code": {
+                  "type": "string",
+                  "maxLength": 64,
+                  "description": "Stable reason code, for example PERMISSION_DENIED or UNAVAILABLE."
+                },
+                "message": {
+                  "type": "string",
+                  "maxLength": 500,
+                  "description": "Safe explanation."
+                }
+              },
+              "required": [
+                "code",
+                "message"
+              ]
+            }
+          },
+          "required": [
+            "section",
+            "title",
+            "description",
+            "operations"
+          ],
+          "oneOf": [
+            {
+              "type": "object",
+              "description": "Value shape of section export-directory.",
+              "properties": {
+                "section": {
+                  "const": "export-directory",
+                  "description": "Section export-directory."
+                },
+                "value": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "description": "The export directory.",
+                  "properties": {
+                    "directory": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "maxLength": 4096,
+                      "description": "The folder the person chose, or null when exports go to the browser default downloads folder."
+                    },
+                    "defaultDirectory": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "maxLength": 4096,
+                      "description": "The browser default downloads folder used while no folder is chosen, or null when a folder is chosen or the default cannot be resolved."
+                    }
+                  },
+                  "required": [
+                    "directory",
+                    "defaultDirectory"
+                  ]
+                }
+              },
+              "required": [
+                "section"
+              ]
+            },
+            {
+              "type": "object",
+              "description": "Value shape of section dom-training-export.",
+              "properties": {
+                "section": {
+                  "const": "dom-training-export",
+                  "description": "Section dom-training-export."
+                },
+                "value": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "description": "The DOM training export switch.",
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean",
+                      "description": "Whether the scrape wizard exports DOM snapshots for training after it creates a workflow (default false)."
+                    }
+                  },
+                  "required": [
+                    "enabled"
+                  ]
+                }
+              },
+              "required": [
+                "section"
+              ]
+            },
+            {
+              "type": "object",
+              "description": "Value shape of section trace-logs.",
+              "properties": {
+                "section": {
+                  "const": "trace-logs",
+                  "description": "Section trace-logs."
+                },
+                "value": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "description": "The trace logs switch.",
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean",
+                      "description": "Whether trace logs are written (default false): website DOM snapshots and separate scrape wizard and workflow execution logs, saved to the export directory."
+                    }
+                  },
+                  "required": [
+                    "enabled"
+                  ]
+                }
+              },
+              "required": [
+                "section"
+              ]
+            },
+            {
+              "type": "object",
+              "description": "Value shape of section intent-interpreter.",
+              "properties": {
+                "section": {
+                  "const": "intent-interpreter",
+                  "description": "Section intent-interpreter."
+                },
+                "value": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "description": "The Model Repair switch.",
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean",
+                      "description": "Whether the model repairs failed workflow steps (default true). When true, an eligible failed step is sent with bounded, redacted page text to the model selected in Chat (a platform model or the person's own), and platform access and usage limits apply; when false, failed steps are not repaired by the model. Tasks are interpreted by the model either way."
+                    }
+                  },
+                  "required": [
+                    "enabled"
+                  ]
+                }
+              },
+              "required": [
+                "section"
+              ]
+            },
+            {
+              "type": "object",
+              "description": "Value shape of section ad-blocker-default.",
+              "properties": {
+                "section": {
+                  "const": "ad-blocker-default",
+                  "description": "Section ad-blocker-default."
+                },
+                "value": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "description": "The default ad blocker.",
+                  "properties": {
+                    "level": {
+                      "type": "string",
+                      "enum": [
+                        "none",
+                        "basic",
+                        "standard",
+                        "aggressive"
+                      ],
+                      "description": "The ad blocker level new scrape sessions and autonomous tasks start with (default none): none leaves ads on the page unless a session turns the blocker on; basic removes well-known ad networks and ad iframes; standard also removes overlays, sticky banners and Chinese ad networks; aggressive also removes elements labelled as ads or sponsored."
+                    },
+                    "persistent": {
+                      "type": "boolean",
+                      "description": "Keep ads removed: re-remove ads that come back while the page updates (default true). Applies when level is not none."
+                    }
+                  },
+                  "required": [
+                    "level",
+                    "persistent"
+                  ]
+                }
+              },
+              "required": [
+                "section"
+              ]
+            },
+            {
+              "type": "object",
+              "description": "Value shape of section fallback-model.",
+              "properties": {
+                "section": {
+                  "const": "fallback-model",
+                  "description": "Section fallback-model."
+                },
+                "value": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "description": "The fallback model and the models the Settings page offers.",
+                  "properties": {
+                    "fallbackModelConfigId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "minLength": 1,
+                      "maxLength": 200,
+                      "description": "The id of the fallback model, one of options[].id; null for no fallback (the default), which keeps failing on the selected model."
+                    },
+                    "available": {
+                      "type": "boolean",
+                      "description": "False when fallbackModelConfigId is set but is not among options (deleted, disabled, or the platform model is off); the Settings page then shows it as unavailable. True when no fallback is set."
+                    },
+                    "options": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "description": "One model.",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 200,
+                            "description": "The model id to pass as fallbackModelConfigId."
+                          },
+                          "name": {
+                            "type": "string",
+                            "maxLength": 200,
+                            "description": "The model name as the Settings page shows it."
+                          },
+                          "provider": {
+                            "type": "string",
+                            "maxLength": 40,
+                            "description": "The model provider, such as openai, anthropic or custom."
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "provider"
+                        ]
+                      },
+                      "maxItems": 100,
+                      "description": "The models the person can choose from: the platform models, then the enabled models configured under LLM Config."
+                    }
+                  },
+                  "required": [
+                    "fallbackModelConfigId",
+                    "available",
+                    "options"
+                  ]
+                }
+              },
+              "required": [
+                "section"
+              ]
+            },
+            {
+              "type": "object",
+              "description": "Value shape of section execution-memory.",
+              "properties": {
+                "section": {
+                  "const": "execution-memory",
+                  "description": "Section execution-memory."
+                },
+                "value": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "description": "The execution memory mode.",
+                  "properties": {
+                    "mode": {
+                      "type": "string",
+                      "enum": [
+                        "disabled",
+                        "shadow",
+                        "site-recall"
+                      ],
+                      "description": "The effective mode: the person's choice, else the build's own mode. How the agent uses what earlier tasks verified on each site: disabled remembers and recalls nothing; shadow records memories and logs every recall but a run never acts on them; site-recall recalls verified memories and acts on them, while the run still verifies every step on the page."
+                    },
+                    "buildMode": {
+                      "type": "string",
+                      "enum": [
+                        "disabled",
+                        "shadow",
+                        "site-recall"
+                      ],
+                      "description": "The mode this Extension build applies until a mode is chosen; read-only."
+                    }
+                  },
+                  "required": [
+                    "mode",
+                    "buildMode"
+                  ]
+                }
+              },
+              "required": [
+                "section"
+              ]
+            },
+            {
+              "type": "object",
+              "description": "Value shape of section site-memory.",
+              "properties": {
+                "section": {
+                  "const": "site-memory",
+                  "description": "Section site-memory."
+                },
+                "value": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "description": "What the agent remembers, per site, most recently remembered first.",
+                  "properties": {
+                    "available": {
+                      "type": "boolean",
+                      "description": "False when the memory store is not connected (Native Agent offline, identity unresolved or memory disabled); nothing is listed then."
+                    },
+                    "truncated": {
+                      "type": "boolean",
+                      "description": "True when more than 50 sites have memories; only the most recently used are listed."
+                    },
+                    "hosts": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "description": "One site.",
+                        "properties": {
+                          "host": {
+                            "type": "string",
+                            "maxLength": 253,
+                            "description": "The site's host name."
+                          },
+                          "itemId": {
+                            "type": "string",
+                            "maxLength": 253,
+                            "description": "Pass as itemId to delete to forget everything remembered about this site; it is the host name."
+                          },
+                          "items": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "additionalProperties": false,
+                              "description": "One remembered entry; which fields are present depends on kind.",
+                              "properties": {
+                                "itemId": {
+                                  "type": "string",
+                                  "maxLength": 256,
+                                  "description": "Pass as itemId to delete to forget this entry: \"<kind>:<id>\"."
+                                },
+                                "kind": {
+                                  "type": "string",
+                                  "enum": [
+                                    "vocabulary",
+                                    "step-recipe",
+                                    "run-fact",
+                                    "interpretation"
+                                  ],
+                                  "description": "vocabulary: what the site calls a thing a task names; step-recipe: a move that worked; run-fact: facts an earlier completed task confirmed; interpretation: how a task was read before."
+                                },
+                                "verifiedAt": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 9007199254740991,
+                                  "description": "When the entry was last verified, in milliseconds since the Unix epoch."
+                                },
+                                "action": {
+                                  "type": "string",
+                                  "maxLength": 600,
+                                  "description": "vocabulary and step-recipe: the task action the entry serves, such as click or search."
+                                },
+                                "expression": {
+                                  "type": "string",
+                                  "maxLength": 600,
+                                  "description": "vocabulary and step-recipe: the words the task used."
+                                },
+                                "label": {
+                                  "type": "string",
+                                  "maxLength": 600,
+                                  "description": "vocabulary: the label the control has on the site."
+                                },
+                                "role": {
+                                  "type": "string",
+                                  "maxLength": 600,
+                                  "description": "vocabulary: the role of that control, such as button or link."
+                                },
+                                "move": {
+                                  "type": "object",
+                                  "additionalProperties": false,
+                                  "description": "step-recipe: the move that worked.",
+                                  "properties": {
+                                    "kind": {
+                                      "type": "string",
+                                      "enum": [
+                                        "click",
+                                        "hover",
+                                        "navigate",
+                                        "scroll"
+                                      ],
+                                      "description": "click or hover a control, navigate within the site, or scroll."
+                                    },
+                                    "label": {
+                                      "type": "string",
+                                      "maxLength": 600,
+                                      "description": "click and hover: the control's label."
+                                    },
+                                    "role": {
+                                      "type": "string",
+                                      "maxLength": 600,
+                                      "description": "click and hover: the control's role."
+                                    },
+                                    "path": {
+                                      "type": "string",
+                                      "maxLength": 600,
+                                      "description": "navigate: the same-site path opened, when the move changed the path."
+                                    },
+                                    "search": {
+                                      "type": "string",
+                                      "maxLength": 600,
+                                      "description": "navigate: the query string set, when the move set one."
+                                    },
+                                    "direction": {
+                                      "type": "string",
+                                      "enum": [
+                                        "down",
+                                        "up"
+                                      ],
+                                      "description": "scroll: the direction."
+                                    }
+                                  },
+                                  "required": [
+                                    "kind"
+                                  ]
+                                },
+                                "successes": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 9007199254740991,
+                                  "description": "vocabulary and step-recipe: how often the entry worked."
+                                },
+                                "failures": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "maximum": 9007199254740991,
+                                  "description": "vocabulary and step-recipe: how often the entry failed."
+                                },
+                                "quarantined": {
+                                  "type": "boolean",
+                                  "description": "vocabulary and step-recipe: true when the entry is paused after repeated failures."
+                                },
+                                "objective": {
+                                  "type": "string",
+                                  "maxLength": 600,
+                                  "description": "run-fact and interpretation: the task the entry came from."
+                                },
+                                "facts": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "additionalProperties": false,
+                                    "description": "One confirmed fact.",
+                                    "properties": {
+                                      "label": {
+                                        "type": "string",
+                                        "maxLength": 600,
+                                        "description": "What the fact is about."
+                                      },
+                                      "value": {
+                                        "type": "string",
+                                        "maxLength": 600,
+                                        "description": "The confirmed value."
+                                      }
+                                    },
+                                    "required": [
+                                      "label",
+                                      "value"
+                                    ]
+                                  },
+                                  "maxItems": 20,
+                                  "description": "run-fact: the confirmed facts."
+                                },
+                                "operations": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string",
+                                    "maxLength": 600,
+                                    "description": "One operation word."
+                                  },
+                                  "maxItems": 40,
+                                  "description": "interpretation: the steps the task was read as, in operation words."
+                                }
+                              },
+                              "required": [
+                                "itemId",
+                                "kind",
+                                "verifiedAt"
+                              ]
+                            },
+                            "maxItems": 40,
+                            "description": "The site's entries, most recently verified first; at most 40, and only as many as fit a 32 KiB listing across all sites."
+                          },
+                          "omitted": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991,
+                            "description": "How many of the site's entries this listing leaves out to stay small; the person sees them on the Site Memory page, and delete with the host name forgets them too."
+                          }
+                        },
+                        "required": [
+                          "host",
+                          "itemId",
+                          "items",
+                          "omitted"
+                        ]
+                      },
+                      "maxItems": 50,
+                      "description": "Sites with remembered entries."
+                    }
+                  },
+                  "required": [
+                    "available",
+                    "truncated",
+                    "hosts"
+                  ]
+                }
+              },
+              "required": [
+                "section"
+              ]
+            },
+            {
+              "type": "object",
+              "description": "Value shape of section site-notes.",
+              "properties": {
+                "section": {
+                  "const": "site-notes",
+                  "description": "Section site-notes."
+                },
+                "value": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "description": "The site notes.",
+                  "properties": {
+                    "notes": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "description": "One site's note.",
+                        "properties": {
+                          "host": {
+                            "type": "string",
+                            "maxLength": 253,
+                            "description": "The site the note is kept under; pass it as itemId to change or remove the note."
+                          },
+                          "note": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 400,
+                            "description": "The person's guidance for the site, in their own words; every task on the site (or a subdomain without its own note) reads it. At most 400 characters; stored as trimmed single-spaced lines."
+                          }
+                        },
+                        "required": [
+                          "host",
+                          "note"
+                        ]
+                      },
+                      "maxItems": 200,
+                      "description": "One entry per site with a note; at most 200."
+                    }
+                  },
+                  "required": [
+                    "notes"
+                  ]
+                }
+              },
+              "required": [
+                "section"
+              ]
+            },
+            {
+              "type": "object",
+              "description": "Value shape of section resource-pressure.",
+              "properties": {
+                "section": {
+                  "const": "resource-pressure",
+                  "description": "Section resource-pressure."
+                },
+                "value": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "description": "The resource protection settings.",
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean",
+                      "description": "Pause running workflows while the computer is under memory or CPU pressure (default false)."
+                    },
+                    "pauseMemoryPercent": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 100,
+                      "description": "Memory use that pauses running workflows, default 85 (1-100)."
+                    },
+                    "pauseCpuPercent": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 100,
+                      "description": "CPU use that pauses running workflows, default 90 (1-100)."
+                    },
+                    "resumeMemoryPercent": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 100,
+                      "description": "Memory use below which paused workflows resume, default 70; a value at or above pauseMemoryPercent is lowered to one below it (1-100)."
+                    },
+                    "resumeCpuPercent": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 100,
+                      "description": "CPU use below which paused workflows resume, default 75; a value at or above pauseCpuPercent is lowered to one below it (1-100)."
+                    }
+                  },
+                  "required": [
+                    "enabled",
+                    "pauseMemoryPercent",
+                    "pauseCpuPercent",
+                    "resumeMemoryPercent",
+                    "resumeCpuPercent"
+                  ]
+                }
+              },
+              "required": [
+                "section"
+              ]
+            },
+            {
+              "type": "object",
+              "description": "Value shape of section professional-mode.",
+              "properties": {
+                "section": {
+                  "const": "professional-mode",
+                  "description": "Section professional-mode."
+                },
+                "value": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "description": "The Professional Mode switch.",
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean",
+                      "description": "Whether workflow cards show the advanced workflow actions, such as Debug (default false)."
+                    }
+                  },
+                  "required": [
+                    "enabled"
+                  ]
+                }
+              },
+              "required": [
+                "section"
+              ]
+            },
+            {
+              "type": "object",
+              "description": "Value shape of section identity-providers.",
+              "properties": {
+                "section": {
+                  "const": "identity-providers",
+                  "description": "Section identity-providers."
+                },
+                "value": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "description": "The identity-provider hosts.",
+                  "properties": {
+                    "hosts": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 253,
+                        "pattern": "^[A-Za-z0-9.-]+$",
+                        "description": "One hostname (or IPv4 address) only: no scheme, port, path or query."
+                      },
+                      "maxItems": 50,
+                      "description": "Sign-in hostnames of the person's own organization, such as sso.example.com; at most 50. Stored lower-case without duplicates."
+                    }
+                  },
+                  "required": [
+                    "hosts"
+                  ]
+                }
+              },
+              "required": [
+                "section"
+              ]
+            },
+            {
+              "type": "object",
+              "description": "Value shape of section run-window-focus.",
+              "properties": {
+                "section": {
+                  "const": "run-window-focus",
+                  "description": "Section run-window-focus."
+                },
+                "value": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "description": "The run window focus switch.",
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean",
+                      "description": "Whether a workflow run brings its browser window to the front when its page is hidden (window minimized or covered) before it clicks or types on the page; a hidden page does not render and ignores the run's actions (default true)."
+                    }
+                  },
+                  "required": [
+                    "enabled"
+                  ]
+                }
+              },
+              "required": [
+                "section"
+              ]
+            },
+            {
+              "type": "object",
+              "description": "Value shape of section agent-challenge-walls.",
+              "properties": {
+                "section": {
+                  "const": "agent-challenge-walls",
+                  "description": "Section agent-challenge-walls."
+                },
+                "value": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "description": "The challenge-solving switch.",
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean",
+                      "description": "Whether a connected agent (an MCP client of dsphere-agent) may pass a human-verification challenge (a CAPTCHA, a slider, a bot check) on its own page with ordinary page actions (dsagent.page.action click / drag / type…), within a budget, before DSphere hands the challenge to the person; off, every such wall is the person's from the start and your effects on it are refused with AUTHENTICATION_REQUIRED (default true). The SidePanel Chat never solves a challenge either way."
+                    }
+                  },
+                  "required": [
+                    "enabled"
+                  ]
+                }
+              },
+              "required": [
+                "section"
+              ]
+            },
+            {
+              "type": "object",
+              "description": "Value shape of section browser-monitor.",
+              "properties": {
+                "section": {
+                  "const": "browser-monitor",
+                  "description": "Section browser-monitor."
+                },
+                "value": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "description": "The browser task monitor switch.",
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean",
+                      "description": "Whether a connected agent (an MCP client of dsphere-agent) may watch every task in the browser, whoever started it (dsagent.monitor.snapshot and the monitor event topic), and assist on a page whose work is held up (dsagent.monitor.assist); off, both are refused with MONITOR_OFF and every assist ends (default true)."
+                    }
+                  },
+                  "required": [
+                    "enabled"
+                  ]
+                }
+              },
+              "required": [
+                "section"
+              ]
+            },
+            {
+              "type": "object",
+              "description": "Value shape of section file-release-consent.",
+              "properties": {
+                "section": {
+                  "const": "file-release-consent",
+                  "description": "Section file-release-consent."
+                },
+                "value": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "description": "The file release question switch.",
+                  "properties": {
+                    "required": {
+                      "type": "boolean",
+                      "description": "Whether a browser task (the SidePanel Chat or a connected agent) must ask the person in the DSphere side panel before a file staged with dsagent_upload_file leaves the computer, uploaded into a page (dsagent.page.action upload-file) or attached to an email (dsagent.mail.send). On, the call is refused TARGET_BUSY / FILE_RELEASE_CONSENT_REQUIRED until the person answers, and their webhook bots are told; off, files go without a question (default false)."
+                    }
+                  },
+                  "required": [
+                    "required"
+                  ]
+                }
+              },
+              "required": [
+                "section"
+              ]
+            },
+            {
+              "type": "object",
+              "description": "Value shape of section notification-channels.",
+              "properties": {
+                "section": {
+                  "const": "notification-channels",
+                  "description": "Section notification-channels."
+                },
+                "value": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "description": "The person's group bots.",
+                  "properties": {
+                    "channels": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "description": "One group bot, without its credentials.",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "maxLength": 19,
+                            "description": "Group bot id; pass it as itemId."
+                          },
+                          "channelType": {
+                            "type": "string",
+                            "enum": [
+                              "FEISHU_BOT",
+                              "WECOM_BOT"
+                            ],
+                            "description": "Platform: FEISHU_BOT (Feishu / Lark group bot) or WECOM_BOT (WeCom group bot). Fixed once the bot is added."
+                          },
+                          "webhookMasked": {
+                            "type": "string",
+                            "maxLength": 200,
+                            "description": "The webhook URL with its token masked; the full URL is never returned."
+                          },
+                          "hasSecret": {
+                            "type": "boolean",
+                            "description": "Whether a Feishu signing secret is stored; the secret is never returned."
+                          },
+                          "name": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 30,
+                            "pattern": "\\S",
+                            "description": "The bot's name as the person sees it, 1-30 characters."
+                          },
+                          "enabled": {
+                            "type": "boolean",
+                            "description": "Whether the bot sends anything; off keeps its configuration and cancels messages still waiting to be sent."
+                          },
+                          "triggerLevel": {
+                            "type": "string",
+                            "enum": [
+                              "FAILED_ONLY",
+                              "ALL_FINISHED"
+                            ],
+                            "description": "Results category: FAILED_ONLY sends failed and partly completed runs and tasks that need the person; ALL_FINISHED sends every finished run and task (succeeded, partial, failed, stopped)."
+                          },
+                          "notifyNotRun": {
+                            "type": "boolean",
+                            "description": "Did not run category: scheduled runs that never started, runs the plan restricted, and failed monitor checks (default true)."
+                          },
+                          "notifyProgress": {
+                            "type": "boolean",
+                            "description": "Progress category: a run or task started, or resumed after a pause (default false)."
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "enabled",
+                              "disabled",
+                              "unverified",
+                              "broken"
+                            ],
+                            "description": "enabled (on and verified by a test), disabled (off), unverified (on, never tested since its webhook changed), broken (a test or delivery found the configuration wrong; messages are paused until a successful test)."
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "channelType",
+                          "webhookMasked",
+                          "hasSecret",
+                          "name",
+                          "enabled",
+                          "triggerLevel",
+                          "notifyNotRun",
+                          "notifyProgress",
+                          "status"
+                        ]
+                      },
+                      "maxItems": 2,
+                      "description": "Group bots, at most 2."
+                    },
+                    "limitPerPlatform": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 10,
+                      "description": "How many bots each platform may have."
+                    }
+                  },
+                  "required": [
+                    "channels",
+                    "limitPerPlatform"
+                  ]
+                }
+              },
+              "required": [
+                "section"
+              ]
+            },
+            {
+              "type": "object",
+              "description": "Value shape of section schedules.",
+              "properties": {
+                "section": {
+                  "const": "schedules",
+                  "description": "Section schedules."
+                },
+                "value": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "description": "The person's schedules.",
+                  "properties": {
+                    "schedules": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "description": "One schedule; only the timing field of its scheduleType is present.",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "maxLength": 32,
+                            "description": "Schedule id; pass it as itemId."
+                          },
+                          "workflowId": {
+                            "type": "string",
+                            "maxLength": 128,
+                            "description": "The workflow the schedule runs."
+                          },
+                          "workflowName": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "maxLength": 200,
+                            "description": "The workflow's name, or null when it could not be read."
+                          },
+                          "enabled": {
+                            "type": "boolean",
+                            "description": "Whether the schedule runs; false when paused."
+                          },
+                          "scheduleType": {
+                            "type": "string",
+                            "enum": [
+                              "daily",
+                              "interval",
+                              "date",
+                              "cron"
+                            ],
+                            "description": "How the schedule repeats: daily at a time, every N minutes, once at a date and time, or by a cron expression."
+                          },
+                          "dailyTime": {
+                            "type": "string",
+                            "maxLength": 5,
+                            "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$",
+                            "description": "For daily: the local time of day, HH:mm (default 09:00)."
+                          },
+                          "intervalMinutes": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 10080,
+                            "description": "For interval: minutes between runs, 1-10080."
+                          },
+                          "dateTime": {
+                            "type": "string",
+                            "maxLength": 16,
+                            "description": "For date: the one run's date and time as saved."
+                          },
+                          "cronExpression": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 120,
+                            "pattern": "\\S",
+                            "description": "For cron: a Quartz cron expression with seconds, for example 0 0 9 * * ?."
+                          },
+                          "nextRun": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "maxLength": 64,
+                            "description": "When the schedule runs next, as the server reports it."
+                          },
+                          "lastRun": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "maxLength": 64,
+                            "description": "When the schedule last ran, as the server reports it."
+                          },
+                          "environment": {
+                            "type": "string",
+                            "enum": [
+                              "current",
+                              "accounts"
+                            ],
+                            "description": "current: the run uses the current browser environment; accounts: it runs in the listed application accounts."
+                          },
+                          "accounts": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "additionalProperties": false,
+                              "description": "One application account.",
+                              "properties": {
+                                "accountId": {
+                                  "type": "string",
+                                  "maxLength": 128,
+                                  "description": "Opaque account id from dsagent.app.accounts.list."
+                                },
+                                "appName": {
+                                  "type": "string",
+                                  "maxLength": 200,
+                                  "description": "Application name."
+                                },
+                                "accountName": {
+                                  "type": "string",
+                                  "maxLength": 200,
+                                  "description": "Account name."
+                                }
+                              },
+                              "required": [
+                                "accountId",
+                                "appName",
+                                "accountName"
+                              ]
+                            },
+                            "maxItems": 50,
+                            "description": "Application accounts the schedule runs in, as dsagent.app.accounts.list names them."
+                          },
+                          "unresolvedAccountCount": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 10000,
+                            "description": "Stored accounts that match no account dsagent.app.accounts.list offers for the workflow now (removed, not openable, or the account list could not be read); they stay saved unless accountIds is changed."
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "workflowId",
+                          "workflowName",
+                          "enabled",
+                          "scheduleType",
+                          "nextRun",
+                          "lastRun",
+                          "environment",
+                          "accounts",
+                          "unresolvedAccountCount"
+                        ]
+                      },
+                      "maxItems": 200,
+                      "description": "Schedules as the panel lists them, at most 200."
+                    },
+                    "total": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 100000,
+                      "description": "How many schedules the person has; more than schedules lists when the list was cut."
+                    }
+                  },
+                  "required": [
+                    "schedules",
+                    "total"
+                  ]
+                }
+              },
+              "required": [
+                "section"
+              ]
+            },
+            {
+              "type": "object",
+              "description": "Value shape of section llm-models.",
+              "properties": {
+                "section": {
+                  "const": "llm-models",
+                  "description": "Section llm-models."
+                },
+                "value": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "description": "The configured models.",
+                  "properties": {
+                    "models": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "description": "One configured model.",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "maxLength": 256,
+                            "description": "Model id; pass it as itemId."
+                          },
+                          "name": {
+                            "type": "string",
+                            "maxLength": 200,
+                            "description": "Display name."
+                          },
+                          "provider": {
+                            "type": "string",
+                            "enum": [
+                              "openai",
+                              "anthropic",
+                              "deepseek",
+                              "gemini",
+                              "kimi",
+                              "doubao",
+                              "minimax",
+                              "moonshot",
+                              "qwen",
+                              "zhipu",
+                              "custom"
+                            ],
+                            "description": "Provider the model is reached through."
+                          },
+                          "model": {
+                            "type": "string",
+                            "maxLength": 200,
+                            "description": "Model id sent to the provider."
+                          },
+                          "baseUrl": {
+                            "type": [
+                              "string",
+                              "null"
+                            ],
+                            "maxLength": 2048,
+                            "description": "Endpoint the requests go to, without credentials or query; null when it is not an http(s) URL."
+                          },
+                          "enabled": {
+                            "type": "boolean",
+                            "description": "Whether the model is switched on."
+                          },
+                          "supportsVision": {
+                            "type": "boolean",
+                            "description": "Whether the model accepts images."
+                          },
+                          "managed": {
+                            "type": "boolean",
+                            "description": "Whether this is a platform-managed entry, which agents may not change."
+                          },
+                          "hasApiKey": {
+                            "type": "boolean",
+                            "description": "Whether an API key is stored; the key itself is never returned."
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "provider",
+                          "model",
+                          "baseUrl",
+                          "enabled",
+                          "supportsVision",
+                          "managed",
+                          "hasApiKey"
+                        ]
+                      },
+                      "maxItems": 100,
+                      "description": "Configured models in the order the panel lists them."
+                    }
+                  },
+                  "required": [
+                    "models"
+                  ]
+                }
+              },
+              "required": [
+                "section"
+              ]
+            },
+            {
+              "type": "object",
+              "description": "Value shape of section chat-model.",
+              "properties": {
+                "section": {
+                  "const": "chat-model",
+                  "description": "Section chat-model."
+                },
+                "value": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "description": "The chat model selection and what the picker offers.",
+                  "properties": {
+                    "selectedModelId": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "maxLength": 512,
+                      "description": "Id of the selected model, or null when none is selected. It can name a model that is no longer offered (switched off or removed); the picker then selects the first option when the chat opens."
+                    },
+                    "options": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "description": "One model the picker offers.",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "maxLength": 512,
+                            "description": "Model id; pass it as selectedModelId."
+                          },
+                          "name": {
+                            "type": "string",
+                            "maxLength": 200,
+                            "description": "Name the picker shows."
+                          },
+                          "provider": {
+                            "type": "string",
+                            "enum": [
+                              "openai",
+                              "anthropic",
+                              "deepseek",
+                              "gemini",
+                              "kimi",
+                              "doubao",
+                              "minimax",
+                              "moonshot",
+                              "qwen",
+                              "zhipu",
+                              "custom"
+                            ],
+                            "description": "Provider the model is reached through."
+                          },
+                          "source": {
+                            "type": "string",
+                            "enum": [
+                              "platform",
+                              "custom"
+                            ],
+                            "description": "platform for a model the person's plan includes (billed in platform points), custom for one the person configured with their own API key."
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "provider",
+                          "source"
+                        ]
+                      },
+                      "maxItems": 100,
+                      "description": "Models the picker offers, platform models first."
+                    }
+                  },
+                  "required": [
+                    "selectedModelId",
+                    "options"
+                  ]
+                }
+              },
+              "required": [
+                "section"
+              ]
+            },
+            {
+              "type": "object",
+              "description": "Value shape of section mail.",
+              "properties": {
+                "section": {
+                  "const": "mail",
+                  "description": "Section mail."
+                },
+                "value": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "description": "The Email settings.",
+                  "properties": {
+                    "configured": {
+                      "type": "boolean",
+                      "description": "Whether an account is set up."
+                    },
+                    "email": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "maxLength": 320,
+                      "description": "The account's email address."
+                    },
+                    "displayName": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "maxLength": 200,
+                      "description": "The name shown for the account."
+                    },
+                    "imap": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "additionalProperties": false,
+                      "description": "The IMAP (incoming mail) login, without its password.",
+                      "properties": {
+                        "host": {
+                          "type": "string",
+                          "maxLength": 253,
+                          "description": "Server host name or IP."
+                        },
+                        "port": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 65535,
+                          "description": "Server port."
+                        },
+                        "security": {
+                          "type": "string",
+                          "enum": [
+                            "tls",
+                            "starttls",
+                            "none"
+                          ],
+                          "description": "tls (implicit TLS), starttls, or none (only for a mail bridge on this computer)."
+                        },
+                        "username": {
+                          "type": "string",
+                          "maxLength": 320,
+                          "description": "Login name."
+                        },
+                        "hasPassword": {
+                          "type": "boolean",
+                          "description": "Whether a password is stored; the password itself is never returned."
+                        }
+                      },
+                      "required": [
+                        "host",
+                        "port",
+                        "security",
+                        "username",
+                        "hasPassword"
+                      ]
+                    },
+                    "smtp": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "additionalProperties": false,
+                      "description": "The optional SMTP login, without its password.",
+                      "properties": {
+                        "host": {
+                          "type": "string",
+                          "maxLength": 253,
+                          "description": "Server host name or IP."
+                        },
+                        "port": {
+                          "type": "integer",
+                          "minimum": 1,
+                          "maximum": 65535,
+                          "description": "Server port."
+                        },
+                        "security": {
+                          "type": "string",
+                          "enum": [
+                            "tls",
+                            "starttls",
+                            "none"
+                          ],
+                          "description": "tls (implicit TLS), starttls, or none (only for a mail bridge on this computer)."
+                        },
+                        "username": {
+                          "type": "string",
+                          "maxLength": 320,
+                          "description": "Login name."
+                        },
+                        "hasPassword": {
+                          "type": "boolean",
+                          "description": "Whether a password is stored; the password itself is never returned."
+                        }
+                      },
+                      "required": [
+                        "host",
+                        "port",
+                        "security",
+                        "username",
+                        "hasPassword"
+                      ]
+                    },
+                    "autoSyncMinutes": {
+                      "type": "integer",
+                      "enum": [
+                        0,
+                        5,
+                        15,
+                        30,
+                        60
+                      ],
+                      "description": "How often the inbox syncs in the background, in minutes; 0 syncs only when the Email panel opens or is refreshed. Default 15."
+                    },
+                    "syncWindow": {
+                      "type": "integer",
+                      "minimum": 50,
+                      "maximum": 2000,
+                      "description": "How many of the newest messages per folder are kept locally and searchable; 50-2000, default 200."
+                    },
+                    "loadRemoteImages": {
+                      "type": "boolean",
+                      "description": "Whether remote images in HTML mail load without the person asking (default false: they are blocked until the person shows them)."
+                    },
+                    "markReadOnOpen": {
+                      "type": "boolean",
+                      "description": "Whether opening a message in the Email panel marks it read on the mail server (default true)."
+                    }
+                  },
+                  "required": [
+                    "configured",
+                    "email",
+                    "displayName",
+                    "imap",
+                    "smtp",
+                    "autoSyncMinutes",
+                    "syncWindow",
+                    "loadRemoteImages",
+                    "markReadOnOpen"
+                  ]
+                }
+              },
+              "required": [
+                "section"
+              ]
+            },
+            {
+              "type": "object",
+              "description": "Value shape of section dashboard-url.",
+              "properties": {
+                "section": {
+                  "const": "dashboard-url",
+                  "description": "Section dashboard-url."
+                },
+                "value": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "description": "The dashboard URL setting.",
+                  "properties": {
+                    "url": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "maxLength": 2048,
+                      "description": "The dashboard URL saved on the Options page, or null when none is saved and the default applies."
+                    },
+                    "defaultUrl": {
+                      "type": "string",
+                      "maxLength": 2048,
+                      "description": "The dashboard URL this build uses when none is saved."
+                    }
+                  },
+                  "required": [
+                    "url",
+                    "defaultUrl"
+                  ]
+                }
+              },
+              "required": [
+                "section"
+              ]
+            },
+            {
+              "type": "object",
+              "description": "Value shape of section workflow-favorite.",
+              "properties": {
+                "section": {
+                  "const": "workflow-favorite",
+                  "description": "Section workflow-favorite."
+                },
+                "value": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "description": "Whether the workflow is starred.",
+                  "properties": {
+                    "starred": {
+                      "type": "boolean",
+                      "description": "Whether the workflow is starred; starred workflows are pinned to the top of the workflow list, most recently starred first."
+                    }
+                  },
+                  "required": [
+                    "starred"
+                  ]
+                }
+              },
+              "required": [
+                "section"
+              ]
+            },
+            {
+              "type": "object",
+              "description": "Value shape of section workflow-run-environment.",
+              "properties": {
+                "section": {
+                  "const": "workflow-run-environment",
+                  "description": "Section workflow-run-environment."
+                },
+                "value": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "description": "The saved run environment of the workflow.",
+                  "properties": {
+                    "env": {
+                      "type": "string",
+                      "enum": [
+                        "current",
+                        "accounts"
+                      ],
+                      "description": "current: run in the browser session the person is using; accounts: run once in the session of each selected application account."
+                    },
+                    "accounts": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "description": "One selected account.",
+                        "properties": {
+                          "accountId": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 128,
+                            "description": "Opaque account id from dsagent.app.accounts.list called with this workflowId (the accounts the run-environment sheet offers for the workflow's site)."
+                          },
+                          "appName": {
+                            "type": "string",
+                            "maxLength": 300,
+                            "description": "Application label."
+                          },
+                          "accountName": {
+                            "type": "string",
+                            "maxLength": 300,
+                            "description": "Account label."
+                          }
+                        },
+                        "required": [
+                          "accountId",
+                          "appName",
+                          "accountName"
+                        ]
+                      },
+                      "maxItems": 200,
+                      "description": "Selected application accounts the Extension can open for this workflow; empty for current."
+                    },
+                    "unavailableAccounts": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 100000,
+                      "description": "Saved accounts that no longer match an account the Extension can open for this workflow (removed, disabled or for another site); a set replaces them."
+                    }
+                  },
+                  "required": [
+                    "env",
+                    "accounts",
+                    "unavailableAccounts"
+                  ]
+                }
+              },
+              "required": [
+                "section"
+              ]
+            },
+            {
+              "type": "object",
+              "description": "Value shape of section workflow-name.",
+              "properties": {
+                "section": {
+                  "const": "workflow-name",
+                  "description": "Section workflow-name."
+                },
+                "value": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "description": "The workflow name.",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "maxLength": 128,
+                      "description": "Current workflow name."
+                    }
+                  },
+                  "required": [
+                    "name"
+                  ]
+                }
+              },
+              "required": [
+                "section"
+              ]
+            },
+            {
+              "type": "object",
+              "description": "Value shape of section workflow-sheet-binding.",
+              "properties": {
+                "section": {
+                  "const": "workflow-sheet-binding",
+                  "description": "Section workflow-sheet-binding."
+                },
+                "value": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "description": "The data sheet binding of the workflow and the choices the binding sheet offers.",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "local",
+                        "needs-repair",
+                        "server",
+                        "unbound"
+                      ],
+                      "description": "What the card shows: local (a local sheet fills the fields), needs-repair (a mapped column no longer exists), server (the server binding is used), unbound."
+                    },
+                    "serverBindingAvailable": {
+                      "type": "boolean",
+                      "description": "Whether the workflow has a binding saved on the server that set with source server can use."
+                    },
+                    "binding": {
+                      "type": [
+                        "object",
+                        "null"
+                      ],
+                      "additionalProperties": false,
+                      "description": "The saved local binding; null when there is none.",
+                      "properties": {
+                        "sheetId": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "description": "Local data sheet id as this section lists it in sheets."
+                        },
+                        "sheetName": {
+                          "type": "string",
+                          "maxLength": 200,
+                          "description": "Sheet name when the binding was saved."
+                        },
+                        "active": {
+                          "type": "boolean",
+                          "description": "Whether runs use this local binding; false when the server binding is used instead."
+                        },
+                        "mappings": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "description": "One field mapping.",
+                            "properties": {
+                              "fieldId": {
+                                "type": "string",
+                                "maxLength": 256,
+                                "description": "Opaque workflow input field id as this section lists it in fields (the same id dsagent.workflow.inputs.get publishes)."
+                              },
+                              "columnId": {
+                                "type": "string",
+                                "maxLength": 128,
+                                "description": "Column id of the sheet as this section lists it in sheets[].columns."
+                              },
+                              "columnName": {
+                                "type": "string",
+                                "maxLength": 200,
+                                "description": "Column name when the binding was saved."
+                              }
+                            },
+                            "required": [
+                              "fieldId",
+                              "columnId",
+                              "columnName"
+                            ]
+                          },
+                          "maxItems": 100,
+                          "description": "Which column fills which field."
+                        }
+                      },
+                      "required": [
+                        "sheetId",
+                        "sheetName",
+                        "active",
+                        "mappings"
+                      ]
+                    },
+                    "fields": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "description": "One input field.",
+                        "properties": {
+                          "fieldId": {
+                            "type": "string",
+                            "maxLength": 256,
+                            "description": "Opaque workflow input field id as this section lists it in fields (the same id dsagent.workflow.inputs.get publishes)."
+                          },
+                          "label": {
+                            "type": "string",
+                            "maxLength": 200,
+                            "description": "Field name as the binding sheet shows it."
+                          },
+                          "fieldType": {
+                            "type": "string",
+                            "enum": [
+                              "text-field",
+                              "select",
+                              "upload-file"
+                            ],
+                            "description": "Kind of input the field fills."
+                          }
+                        },
+                        "required": [
+                          "fieldId",
+                          "label",
+                          "fieldType"
+                        ]
+                      },
+                      "maxItems": 100,
+                      "description": "Input fields of the workflow a sheet column can fill; when empty no binding can be saved."
+                    },
+                    "sheets": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "description": "One local data sheet.",
+                        "properties": {
+                          "sheetId": {
+                            "type": "string",
+                            "maxLength": 128,
+                            "description": "Local data sheet id as this section lists it in sheets."
+                          },
+                          "name": {
+                            "type": "string",
+                            "maxLength": 200,
+                            "description": "Sheet name."
+                          },
+                          "rowCount": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 9007199254740991,
+                            "description": "Rows in the sheet (one run per row)."
+                          },
+                          "columns": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "additionalProperties": false,
+                              "description": "One column.",
+                              "properties": {
+                                "columnId": {
+                                  "type": "string",
+                                  "maxLength": 128,
+                                  "description": "Column id of the sheet as this section lists it in sheets[].columns."
+                                },
+                                "name": {
+                                  "type": "string",
+                                  "maxLength": 200,
+                                  "description": "Column name."
+                                }
+                              },
+                              "required": [
+                                "columnId",
+                                "name"
+                              ]
+                            },
+                            "maxItems": 100,
+                            "description": "Columns that can fill a field; at most 100."
+                          },
+                          "columnsOmitted": {
+                            "type": "boolean",
+                            "description": "Present and true when the listing ran out of room for this sheet's columns; bind the sheet from the SidePanel or free up sheets listed before it."
+                          }
+                        },
+                        "required": [
+                          "sheetId",
+                          "name",
+                          "rowCount",
+                          "columns"
+                        ]
+                      },
+                      "maxItems": 50,
+                      "description": "Local data sheets that can be bound, the bound one first; at most 50."
+                    },
+                    "totalSheets": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991,
+                      "description": "How many local data sheets can be bound, including those beyond the listed ones."
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "serverBindingAvailable",
+                    "binding",
+                    "fields",
+                    "sheets",
+                    "totalSheets"
+                  ]
+                }
+              },
+              "required": [
+                "section"
+              ]
+            },
+            {
+              "type": "object",
+              "description": "Value shape of section workflow-record-limits.",
+              "properties": {
+                "section": {
+                  "const": "workflow-record-limits",
+                  "description": "Section workflow-record-limits."
+                },
+                "value": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "description": "The record limits of the workflow.",
+                  "properties": {
+                    "applicable": {
+                      "type": "boolean",
+                      "description": "Whether the workflow has record limits to configure (it scrapes fields with a list record limit); when false the limits are null and set is refused."
+                    },
+                    "listLimit": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "minimum": 0,
+                      "maximum": 10000,
+                      "description": "Records collected over the whole run (list items); 0 collects all records, 1-10000 caps them."
+                    },
+                    "detailLimit": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "minimum": 0,
+                      "maximum": 10000,
+                      "description": "Records collected on each detail page the run opens; null when the workflow opens no detail pages; 0 collects all records, 1-10000 caps them."
+                    },
+                    "maxNestedExpansionsPerParent": {
+                      "type": [
+                        "integer",
+                        "null"
+                      ],
+                      "minimum": 0,
+                      "maximum": 10000,
+                      "description": "Nested items expanded under each parent block; null when the workflow has no nested blocks; 0 expands all, 1-10000 caps them."
+                    }
+                  },
+                  "required": [
+                    "applicable",
+                    "listLimit",
+                    "detailLimit",
+                    "maxNestedExpansionsPerParent"
+                  ]
+                }
+              },
+              "required": [
+                "section"
+              ]
+            },
+            {
+              "type": "object",
+              "description": "Value shape of section workflow-monitors.",
+              "properties": {
+                "section": {
+                  "const": "workflow-monitors",
+                  "description": "Section workflow-monitors."
+                },
+                "value": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "description": "The monitors of the workflow.",
+                  "properties": {
+                    "monitorable": {
+                      "type": "boolean",
+                      "description": "Whether this workflow can have monitors (collection workflows only); create fails otherwise."
+                    },
+                    "targetType": {
+                      "type": [
+                        "string",
+                        "null"
+                      ],
+                      "enum": [
+                        "data-table",
+                        "form-fields",
+                        null
+                      ],
+                      "description": "What a new monitor of this workflow watches, detected from the workflow: data-table (rows of a list) or form-fields (fields of one record); null when not monitorable."
+                    },
+                    "fieldKeys": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "maxLength": 200,
+                        "description": "One field name."
+                      },
+                      "maxItems": 200,
+                      "description": "Field names a form-fields monitor can watch (the columns of the workflow's local sheet, else its extracted field names)."
+                    },
+                    "monitors": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "description": "One monitor.",
+                        "properties": {
+                          "monitorId": {
+                            "type": "string",
+                            "maxLength": 256,
+                            "description": "Monitor id; pass it as itemId to update or delete this monitor."
+                          },
+                          "name": {
+                            "type": "string",
+                            "maxLength": 200,
+                            "description": "Monitor name."
+                          },
+                          "description": {
+                            "type": "string",
+                            "maxLength": 2000,
+                            "description": "Monitor description; empty when none."
+                          },
+                          "targetType": {
+                            "type": "string",
+                            "enum": [
+                              "data-table",
+                              "form-fields"
+                            ],
+                            "description": "data-table: watches rows added or deleted; form-fields: watches changes of the chosen fields. Fixed when the monitor is created."
+                          },
+                          "pollIntervalMs": {
+                            "type": "integer",
+                            "minimum": 60000,
+                            "maximum": 604800000,
+                            "description": "How often the monitor compares, in milliseconds."
+                          },
+                          "isActive": {
+                            "type": "boolean",
+                            "description": "Whether the monitor is running (false when paused)."
+                          },
+                          "notifyOnGrowth": {
+                            "type": "boolean",
+                            "description": "data-table only: notify when rows are added."
+                          },
+                          "notifyOnDeletion": {
+                            "type": "boolean",
+                            "description": "data-table only: notify when rows are deleted."
+                          },
+                          "fieldKeys": {
+                            "type": "array",
+                            "items": {
+                              "type": "string",
+                              "maxLength": 200,
+                              "description": "One watched field."
+                            },
+                            "maxItems": 200,
+                            "description": "form-fields only: the watched fields."
+                          }
+                        },
+                        "required": [
+                          "monitorId",
+                          "name",
+                          "description",
+                          "targetType",
+                          "pollIntervalMs",
+                          "isActive"
+                        ]
+                      },
+                      "maxItems": 50,
+                      "description": "The workflow's monitors; at most 50."
+                    }
+                  },
+                  "required": [
+                    "monitorable",
+                    "targetType",
+                    "fieldKeys",
+                    "monitors"
+                  ]
+                }
+              },
+              "required": [
+                "section"
+              ]
+            }
+          ]
+        },
+        "maxItems": 28,
+        "description": "Sections in the order the person meets them in the SidePanel."
+      }
+    },
+    "required": [
+      "scope",
+      "sections"
+    ]
+  },
+  "risk": "read-sensitive",
+  "targetKinds": [
+    "browser",
+    "workflow"
+  ],
+  "requiredPermissions": [
+    "settings.read"
+  ],
+  "timeoutMs": 30000,
+  "maxInlineResultBytes": 131072,
+  "concurrency": "shared-read",
+  "retry": "pre-dispatch-read-only",
+  "exposure": "exposed"
+}

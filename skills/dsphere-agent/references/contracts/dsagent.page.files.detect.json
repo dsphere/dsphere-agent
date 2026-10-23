@@ -1,0 +1,178 @@
+{
+  "method": "dsagent.page.files.detect",
+  "version": 1,
+  "title": "Detect page files and images",
+  "description": "Scan a page, its embedded frames included, for the files it links (pdf, excel, csv, zip, video) and the images it shows, as the SidePanel Files panel does. group images or files narrows the list; kind narrows it to one type.",
+  "guidance": "Each entry has a fileId for dsagent.page.files.locate and dsagent.page.files.download, valid until the next detect of the page. Lazy pictures appear once the page loaded them: scroll the page (dsagent.page.action scroll) and detect again. Tiny icons and tracking pixels are left out. Read-only: nothing on the page changes.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "pageContextId"
+    ],
+    "description": "The page to scan and how much of the list to return.",
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "minLength": 8,
+        "maxLength": 128,
+        "description": "Opaque page context from dsagent.pages.list or dsagent.page.open."
+      },
+      "group": {
+        "type": "string",
+        "enum": [
+          "all",
+          "images",
+          "files"
+        ],
+        "description": "images: pictures only; files: linked files only; all (default): both."
+      },
+      "kind": {
+        "type": "string",
+        "enum": [
+          "pdf",
+          "excel",
+          "csv",
+          "zip",
+          "video",
+          "image"
+        ],
+        "description": "Only this file type."
+      },
+      "offset": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Entries to skip, for the next page of a long list."
+      },
+      "limit": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 200,
+        "description": "Entries to return; 100 by default."
+      }
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "pageContextId",
+      "counts",
+      "total",
+      "files"
+    ],
+    "description": "The files and images found.",
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "minLength": 8,
+        "maxLength": 128,
+        "description": "Opaque page context from dsagent.pages.list or dsagent.page.open."
+      },
+      "counts": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "images",
+          "files"
+        ],
+        "description": "How many of each group the whole page has, before group, kind and paging.",
+        "properties": {
+          "images": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Pictures found."
+          },
+          "files": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Linked files found."
+          }
+        }
+      },
+      "total": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Entries matching group and kind, before paging."
+      },
+      "files": {
+        "type": "array",
+        "maxItems": 200,
+        "description": "The matching entries in page order, from offset.",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "fileId",
+            "fileName",
+            "kind",
+            "source",
+            "url"
+          ],
+          "description": "One file or image the page links or shows.",
+          "properties": {
+            "fileId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "description": "A fileId from the latest dsagent.page.files.detect of this page."
+            },
+            "fileName": {
+              "type": "string",
+              "maxLength": 200,
+              "description": "The file name from the address path."
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "pdf",
+                "excel",
+                "csv",
+                "zip",
+                "video",
+                "image"
+              ],
+              "description": "The file type, from the address extension; image for pictures, the others are files."
+            },
+            "source": {
+              "type": "string",
+              "enum": [
+                "anchor",
+                "img",
+                "video",
+                "audio"
+              ],
+              "description": "The element the page shows it in: a link, a picture, a video or an audio element."
+            },
+            "url": {
+              "type": "string",
+              "maxLength": 2048,
+              "description": "The file address as the page names it, cut to 2048 characters."
+            },
+            "inFrame": {
+              "type": "boolean",
+              "description": "Found inside an embedded frame rather than the page itself."
+            }
+          }
+        }
+      },
+      "nextOffset": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "The offset of the next entries when more match."
+      }
+    }
+  },
+  "risk": "read-sensitive",
+  "targetKinds": [
+    "page"
+  ],
+  "requiredPermissions": [
+    "page.read"
+  ],
+  "timeoutMs": 20000,
+  "maxInlineResultBytes": 98304,
+  "concurrency": "shared-read",
+  "retry": "pre-dispatch-read-only",
+  "exposure": "exposed"
+}

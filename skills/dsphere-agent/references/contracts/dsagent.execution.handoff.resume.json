@@ -1,0 +1,159 @@
+{
+  "method": "dsagent.execution.handoff.resume",
+  "version": 1,
+  "title": "Resume a run after your repair",
+  "description": "Answer a run's repair handoff and resume it. retry: run the failed block once more (after you repaired the page, for example dismissed a dialog covering the target).",
+  "guidance": "With retarget, retry rebinds the block to the element you choose by its page target (targetId and targetRevision of a dsagent.page.observe / find of pageContextId): the Extension derives the address and verifies the element against the block's recorded identity, and the run uses it for the rest of this run only (never the saved workflow); a refused retarget (RETARGET_REFUSED) leaves the handoff open. retarget.remember true confirms it may be filed in healing memory for later runs once the retried block completes; otherwise it stays a proposal. When the control was renamed on purpose (its label or identity changed, so the retarget is refused with reason identity-unverified), retarget again with identityChangeIntended true: the Extension still derives and checks the address from your target, accepts the changed identity for this run only and records it (in the run log, in identityChange of this answer and in the answer record of the handoff); it never rewrites the saved workflow. skip-item: leave the loop item (only inside a loop item): it is not collected, so the run writes no row for it and takes back any row the item already saved; coverage counts it in itemsSkipped. continue: go on to the next blocks because the block's effect did happen (you checked the page; for an unverified click or upload the Runner never repeats it by itself); the run records that it continued past an unverified block. A block that fails again after retry ends the run (one handoff per block and loop item). Requires an idempotency key.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "Your answer to the handoff.",
+    "properties": {
+      "handoffId": {
+        "type": "string",
+        "maxLength": 64,
+        "description": "The handoff to act on: pause.handoffId of dsagent.execution.get / wait.",
+        "pattern": "^handoff_[a-f0-9]{32}$"
+      },
+      "runToken": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "The run's ownership token, as dsagent.execution.run or dsagent.wizard.run returned it (shown once). Pass it when your browser connection was renewed (a restarted Connector): the run, its open repair handoff and its pages follow you to the new connection. Not needed on the connection that started the run.",
+        "pattern": "^[A-Za-z0-9_-]{16,128}$"
+      },
+      "answer": {
+        "type": "string",
+        "enum": [
+          "retry",
+          "skip-item",
+          "continue"
+        ],
+        "description": "retry, skip-item or continue; one of the handoff's answers."
+      },
+      "retarget": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "retry only, for a retargetable handoff: the element the block should act on or read instead.",
+        "properties": {
+          "pageContextId": {
+            "type": "string",
+            "maxLength": 128,
+            "description": "The run page the target is on: pause.pageContextId.",
+            "pattern": "^[A-Za-z0-9_.:-]{8,128}$"
+          },
+          "targetId": {
+            "type": "string",
+            "maxLength": 128,
+            "description": "The page target to rebind the block to, from dsagent.page.observe / find of that page.",
+            "pattern": "^[A-Za-z0-9_.:-]{1,128}$"
+          },
+          "targetRevision": {
+            "type": "string",
+            "maxLength": 128,
+            "description": "The revision of the observation the targetId came from.",
+            "pattern": "^[A-Za-z0-9_.:-]{1,128}$"
+          },
+          "remember": {
+            "type": "boolean",
+            "description": "Confirm the retarget for later runs (healing memory), filed once the retried block completes; default false (a proposal of this run only)."
+          },
+          "identityChangeIntended": {
+            "type": "boolean",
+            "description": "You checked the page and the control was renamed or changed on purpose: accept your element even though it does not match the recorded identity. The address is still derived and checked by the Extension; the mismatch is recorded and applies to this run only. Default false (the identity must verify)."
+          }
+        },
+        "required": [
+          "pageContextId",
+          "targetId",
+          "targetRevision"
+        ]
+      }
+    },
+    "required": [
+      "handoffId",
+      "answer"
+    ]
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "The answer the run resumed with.",
+    "properties": {
+      "executionId": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "The resumed run; follow it with dsagent.execution.wait."
+      },
+      "handoffId": {
+        "type": "string",
+        "maxLength": 64,
+        "description": "The answered handoff."
+      },
+      "answer": {
+        "type": "string",
+        "enum": [
+          "retry",
+          "skip-item",
+          "continue"
+        ],
+        "description": "The answer applied."
+      },
+      "retargeted": {
+        "type": "boolean",
+        "description": "retry rebinds the block to your verified element for the rest of this run."
+      },
+      "healing": {
+        "type": "string",
+        "enum": [
+          "proposed",
+          "confirmed"
+        ],
+        "description": "A retarget for later runs: proposed (this run only) or confirmed (filed once the retried block completes)."
+      },
+      "identityChange": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "Present when identityChangeIntended accepted an element whose identity did not verify: the recorded verdict.",
+        "properties": {
+          "similarity": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Similarity of your element to the recorded one, 0 to 1."
+          },
+          "label": {
+            "type": "string",
+            "enum": [
+              "match",
+              "mismatch",
+              "unverifiable"
+            ],
+            "description": "Whether your element carries the recorded identifying label."
+          }
+        },
+        "required": [
+          "similarity",
+          "label"
+        ]
+      }
+    },
+    "required": [
+      "executionId",
+      "handoffId",
+      "answer",
+      "retargeted"
+    ]
+  },
+  "risk": "external-effect",
+  "targetKinds": [
+    "workflow"
+  ],
+  "requiredPermissions": [
+    "workflow.execute"
+  ],
+  "timeoutMs": 20000,
+  "maxInlineResultBytes": 4096,
+  "concurrency": "exclusive-browser",
+  "retry": "never",
+  "exposure": "exposed"
+}

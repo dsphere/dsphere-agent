@@ -1,0 +1,144 @@
+{
+  "method": "dsagent.executions.list",
+  "version": 1,
+  "title": "List executions",
+  "description": "List bounded execution summaries visible to the current extension identity.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "workflowId": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "Optional opaque workflow ID used to filter execution history."
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "",
+          "pending",
+          "running",
+          "completed",
+          "failed",
+          "cancelled",
+          "success",
+          "stopped",
+          "restricted",
+          "partial"
+        ],
+        "description": "Optional exact execution status filter; omit instead of sending an empty value. partial: ended through the agent repair handoff (abort, deadline, spent budget, handoff turned off) after saving rows."
+      },
+      "page": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 100000,
+        "description": "One-based result page; defaults to 1."
+      },
+      "pageSize": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 100,
+        "description": "Maximum records per page; defaults to 50."
+      }
+    },
+    "additionalProperties": false,
+    "description": "Filters and pagination for workflow execution history."
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "records": {
+        "type": "array",
+        "maxItems": 100,
+        "description": "Bounded execution summaries.",
+        "items": {
+          "type": "object",
+          "properties": {
+            "executionId": {
+              "type": "string",
+              "maxLength": 128,
+              "description": "Opaque workflow execution identifier."
+            },
+            "workflowId": {
+              "type": "string",
+              "maxLength": 128,
+              "description": "Opaque workflow identifier."
+            },
+            "workflowName": {
+              "type": "string",
+              "maxLength": 500,
+              "description": "Optional workflow display name."
+            },
+            "status": {
+              "type": "string",
+              "maxLength": 100,
+              "description": "Current execution lifecycle status. partial: ended through the agent repair handoff after saving rows (terminal)."
+            },
+            "startedAt": {
+              "type": "string",
+              "maxLength": 100,
+              "description": "Optional execution start timestamp."
+            },
+            "finishedAt": {
+              "type": "string",
+              "maxLength": 100,
+              "description": "Optional execution finish timestamp."
+            },
+            "durationMs": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Optional execution duration in milliseconds."
+            },
+            "error": {
+              "type": "string",
+              "maxLength": 500,
+              "description": "Optional bounded execution error summary."
+            }
+          },
+          "required": [
+            "executionId",
+            "workflowId",
+            "status"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "total": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Total matching execution count."
+      },
+      "page": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 100000,
+        "description": "One-based page returned."
+      },
+      "pageSize": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 100,
+        "description": "Requested maximum records per page."
+      }
+    },
+    "required": [
+      "records",
+      "total",
+      "page",
+      "pageSize"
+    ],
+    "additionalProperties": false,
+    "description": "Paginated workflow execution summaries."
+  },
+  "risk": "read-sensitive",
+  "targetKinds": [
+    "workflow"
+  ],
+  "requiredPermissions": [
+    "workflow.read"
+  ],
+  "timeoutMs": 10000,
+  "maxInlineResultBytes": 262144,
+  "concurrency": "shared-read",
+  "retry": "pre-dispatch-read-only",
+  "exposure": "exposed"
+}

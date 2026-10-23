@@ -1,0 +1,139 @@
+{
+  "method": "dsagent.accounts.delete",
+  "version": 1,
+  "title": "Delete Account",
+  "description": "Delete the selected account and clear its environment directly on explicit user request, without a confirmation dialog. Use a unique accountId from list. Do not add chat confirmation or a detail table. Report success briefly; reconcile unknown outcomes read-only. Never replay deletion.",
+  "inputSchema": {
+    "type": "object",
+    "description": "Delete the selected account and clear its environment directly on explicit user request, without a confirmation dialog. Use a unique accountId from list. Do not add chat confirmation or a detail table. Report success briefly; reconcile unknown outcomes read-only. Never replay deletion.",
+    "properties": {
+      "accountId": {
+        "type": "string",
+        "description": "Opaque account reference returned by accounts.list or accounts.get.",
+        "minLength": 1,
+        "maxLength": 100
+      }
+    },
+    "required": [
+      "accountId"
+    ],
+    "additionalProperties": false
+  },
+  "outputSchema": {
+    "type": "object",
+    "description": "Account operation result. status/stage are for internal reconciliation, not user-facing open-success/failure badges. Report the separate autofill receipt; a page being open never proves fill or sign-in.",
+    "properties": {
+      "autofill": {
+        "type": "object",
+        "description": "Separate Biz autofill receipt. Query accounts.operations.get with operationId while running; unknown must not be replayed. succeeded proves fill owner completion, never website sign-in.",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Observed autofill state.",
+            "maxLength": 40,
+            "enum": [
+              "running",
+              "succeeded",
+              "failed",
+              "skipped",
+              "unknown"
+            ]
+          },
+          "updatedAt": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Receipt observation time in milliseconds."
+          },
+          "reason": {
+            "type": "string",
+            "description": "Safe reason code; never credentials or page field values.",
+            "maxLength": 120
+          }
+        },
+        "required": [
+          "status",
+          "updatedAt"
+        ],
+        "additionalProperties": false
+      },
+      "operationId": {
+        "type": "string",
+        "description": "Local operation reference; not a Pangu request receipt.",
+        "maxLength": 100
+      },
+      "status": {
+        "type": "string",
+        "description": "Observed operation status.",
+        "maxLength": 40,
+        "enum": [
+          "not-dispatched",
+          "waiting-user",
+          "running",
+          "succeeded",
+          "partial",
+          "failed",
+          "cancelled",
+          "outcome-unknown",
+          "record-unavailable",
+          "available"
+        ]
+      },
+      "stage": {
+        "type": "string",
+        "description": "Completed or current account business stage.",
+        "maxLength": 100
+      },
+      "accountId": {
+        "type": "string",
+        "description": "Account reference when known.",
+        "maxLength": 100
+      },
+      "pageContextId": {
+        "type": "string",
+        "description": "Actual opened/focused page reference when known.",
+        "maxLength": 100
+      },
+      "warnings": {
+        "type": "array",
+        "description": "Bounded warnings, including synchronization and unknown outcomes.",
+        "items": {
+          "type": "string",
+          "description": "One safe product warning.",
+          "maxLength": 500
+        },
+        "maxItems": 20
+      },
+      "data": {
+        "type": "object",
+        "description": "Only the selected account operation's public product fields.",
+        "properties": {
+          "saved": {
+            "type": "boolean",
+            "description": "Whether server deletion was confirmed. True also when environment cleanup is pending; never delete again."
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    "required": [
+      "status",
+      "stage",
+      "warnings"
+    ],
+    "additionalProperties": false
+  },
+  "guidance": "For an explicit deletion request, use the unique accountId returned by list and call delete directly. No get, fingerprint read or settings-page visit is needed; ask a brief target-selection question only when the target is ambiguous.\n\nAn explicit user deletion request authorizes direct deletion for both built-in and external Agents. The extension does not show a deletion confirmation dialog. Do not ask for another confirmation, print an account-detail table or add a long warning. Current permissions, target occupancy and cancellation checks still apply.\n\nOn succeeded, report the deletion in one short sentence and stop; no extra read-back is needed. On partial with data.saved=true, report that the account was deleted and local environment cleanup is pending; never delete again. Only an unknown outcome needs operations.get and a current-state read; never replay deletion.",
+  "risk": "external-effect",
+  "targetKinds": [
+    "managed-account"
+  ],
+  "requiredPermissions": [
+    "accounts.write"
+  ],
+  "timeoutMs": 300000,
+  "maxInlineResultBytes": 65536,
+  "concurrency": "exclusive-target",
+  "retry": "never",
+  "exposure": "exposed"
+}

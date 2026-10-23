@@ -1,0 +1,5 @@
+# Guidance: dsagent.artifact
+
+Owner rules for planning with these methods, each paragraph once with the methods it applies to. They are projections of the owner descriptors (the live `guidance` field); the per-method references link here.
+
+- (dsagent.artifact.read) format records (the default) is the mandatory file-first structured read: JSON/NDJSON uses a fixed 4096-byte initial probe, returns records only when the complete result fits, otherwise fails with RESULT_LIMIT_EXCEEDED and export details instead of returning nextCursor (then page it with format jsonl or csv, or export it with dsagent.execution.artifact.export when you can read files on the browser machine; for records the caller cannot supply a byte budget). format jsonl or csv pages a structured dataset to its end for a caller that cannot read exported files (a sandboxed or remote agent): each page holds whole records within pageBytes (at most 65536) as JSON Lines or CSV lines with the columns once in header, and nextCursor continues until eof; a record larger than the page is named, never split. Binary artifacts retain fixed bounded Base64 cursor reads for compatibility and can also be exported.

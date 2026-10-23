@@ -1,0 +1,1946 @@
+{
+  "method": "dsagent.page.observe",
+  "version": 1,
+  "title": "Observe browser page",
+  "description": "Read bounded live evidence for the browser steps you plan. Consume the targets and revision already returned by page.action before reading again. For a needed refresh, pass that revision as baseRevision; unchanged means retain the prior targets and semantic text.",
+  "guidance": "Use dom only for a specific structural gap, never as a complete dataset; when the structure you need lies beyond the document beginning (results under a long header), pass the targetId of a target in that region (from page.find or observe) with its revision; to collect a dataset, use the scrape wizard (dsagent.wizard.start kind=scrape).",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "minLength": 8,
+        "maxLength": 128,
+        "description": "Opaque page context from dsagent.pages.list, dsagent.page.open, or a receipt's destinationPageContextId."
+      },
+      "observationMode": {
+        "type": "string",
+        "enum": [
+          "compact",
+          "dom"
+        ],
+        "description": "Use compact for semantic targets; use dom only when bounded sanitized HTML evidence is needed. dom alone reads the document from its beginning (a long header can fill the bound before the results); with targetId it reads the region around that target."
+      },
+      "targetId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "Optional, only with observationMode dom: an opaque target from dsagent.page.observe or dsagent.page.find (a result card, a sort control, a filter row). dom then holds the sanitized markup of the largest container around that target that fits the bound, with class tokens and data-* attribute names as in the document read. Requires expectedRevision."
+      },
+      "expectedRevision": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "The revision the targetId was published at; required with targetId. A changed or unknown target is refused (STALE_OBSERVATION)."
+      },
+      "baseRevision": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "Optional prior revision used to request a delta; stale bases automatically produce a full observation."
+      },
+      "diagnostics": {
+        "type": "array",
+        "maxItems": 4,
+        "uniqueItems": true,
+        "items": {
+          "type": "string",
+          "enum": [
+            "omitted-candidates"
+          ]
+        },
+        "description": "omitted-candidates adds up to 40 control candidates this read left out and why (cap: beyond the target bound, scroll or find by label to reach them; hidden: in the viewport but not rendered or reachable; offscreen: outside the reach), tag and bounded text only. Ask for it when a control you can see is not among the targets."
+      },
+      "detail": {
+        "type": "string",
+        "enum": [
+          "compact",
+          "full"
+        ],
+        "description": "full adds the page's hidden same-origin navigation links (hiddenLinks, up to 20) and its data tables (tables, up to 4, 12 columns, 8 rendered rows each) under the result byte budget; what does not fit is dropped whole and named in truncation.detailDropped. Default compact."
+      }
+    },
+    "required": [
+      "pageContextId"
+    ],
+    "additionalProperties": false,
+    "description": "Opaque page context and observation mode for a bounded live page read."
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "Opaque observed page context."
+      },
+      "revision": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "Current immutable page revision required by dsagent.page.action."
+      },
+      "baseRevision": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "Base revision used to produce a delta when available."
+      },
+      "change": {
+        "type": "string",
+        "enum": [
+          "full",
+          "delta",
+          "unchanged"
+        ],
+        "description": "Whether the observation is a full snapshot, delta, or unchanged result."
+      },
+      "url": {
+        "type": "string",
+        "maxLength": 2048,
+        "description": "Sanitized current page URL."
+      },
+      "title": {
+        "type": "string",
+        "maxLength": 300,
+        "description": "Bounded current page title."
+      },
+      "semanticText": {
+        "type": "string",
+        "maxLength": 6000,
+        "description": "Bounded visible semantic summary for planning."
+      },
+      "semanticTextKind": {
+        "type": "string",
+        "enum": [
+          "page-prose",
+          "control-labels",
+          "surface"
+        ],
+        "description": "What semanticText is: the page's prose, the labels of the published controls (a live read: not the page text, read dsagent.page.markdown for prose), or the active surface's text."
+      },
+      "activeSurface": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "dialog",
+              "panel"
+            ],
+            "description": "The surface that bounds the targets."
+          },
+          "label": {
+            "type": "string",
+            "maxLength": 160,
+            "description": "Its bounded label."
+          },
+          "closeTargetId": {
+            "type": "string",
+            "maxLength": 128,
+            "description": "The published target that closes the surface (its close control), when the shared close discovery finds one: click it to leave the surface; absent when none was found."
+          }
+        },
+        "required": [
+          "kind",
+          "label"
+        ],
+        "additionalProperties": false,
+        "description": "Present when a dialog or panel bounds the targets: the page behind it is counted in backgroundControlCount, not listed."
+      },
+      "omittedCandidates": {
+        "type": "array",
+        "maxItems": 40,
+        "description": "With diagnostics omitted-candidates: control candidates this read left out, bounded, with the reason.",
+        "items": {
+          "type": "object",
+          "properties": {
+            "reason": {
+              "type": "string",
+              "enum": [
+                "cap",
+                "hidden",
+                "offscreen"
+              ],
+              "description": "cap: a visible candidate beyond the target bound; hidden: in the viewport but not rendered or reachable; offscreen: outside the reach."
+            },
+            "hiddenBy": {
+              "type": "string",
+              "enum": [
+                "excluded",
+                "detached",
+                "css-hidden",
+                "no-box",
+                "hidden-attribute",
+                "aria-hidden",
+                "display-none",
+                "transparent",
+                "content-hidden",
+                "clipped"
+              ],
+              "description": "With reason hidden: the rendering test that refused it (excluded: inert, a closed dialog or an agent overlay; aria-hidden: under an aria-hidden container and not topmost at its centre; clipped: an ancestor overflow cuts it away; css-hidden, display-none, transparent, content-hidden, hidden-attribute, no-box). Absent when only the reach left it out."
+            },
+            "tag": {
+              "type": "string",
+              "maxLength": 16,
+              "description": "The element's tag."
+            },
+            "text": {
+              "type": "string",
+              "maxLength": 40,
+              "description": "Its bounded text or label; never a value."
+            },
+            "inViewport": {
+              "type": "boolean",
+              "description": "Whether its box intersects the viewport."
+            }
+          },
+          "required": [
+            "reason",
+            "tag",
+            "text",
+            "inViewport"
+          ],
+          "additionalProperties": false,
+          "description": "One omitted candidate."
+        }
+      },
+      "backgroundControlCount": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "With activeSurface: declared controls behind the surface, counted, not listed; close the surface to reach them."
+      },
+      "visibleRecordCount": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Records the page shows (list items, rows, repeated cards), counted from rendered text whether or not they hold a control."
+      },
+      "pageMessages": {
+        "type": "array",
+        "maxItems": 4,
+        "items": {
+          "type": "string",
+          "maxLength": 160
+        },
+        "description": "What the page says in its alert, status and live regions, bounded."
+      },
+      "documentStatus": {
+        "type": "integer",
+        "minimum": 100,
+        "maximum": 599,
+        "description": "HTTP status of the loaded document (404, 429, 503 ...) from its navigation entry; absent when the browser gives none."
+      },
+      "dialogs": {
+        "type": "array",
+        "maxItems": 8,
+        "description": "The page's recent alert, confirm, prompt and print dialogs and how each was answered, value-free, oldest first.",
+        "items": {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "alert",
+                "confirm",
+                "prompt",
+                "print"
+              ],
+              "description": "Dialog kind."
+            },
+            "decision": {
+              "type": "string",
+              "enum": [
+                "native",
+                "accepted",
+                "dismissed"
+              ],
+              "description": "native: shown to the person; otherwise answered by the run's dialog policy."
+            },
+            "policySource": {
+              "type": "string",
+              "enum": [
+                "none",
+                "run",
+                "armed"
+              ],
+              "description": "Which policy answered it."
+            },
+            "at": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Epoch milliseconds."
+            }
+          },
+          "required": [
+            "kind",
+            "decision",
+            "policySource",
+            "at"
+          ],
+          "additionalProperties": false,
+          "description": "One dialog."
+        }
+      },
+      "console": {
+        "type": "object",
+        "properties": {
+          "errors": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "console.error calls in the recent window."
+          },
+          "uncaught": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Uncaught page script errors in the recent window."
+          },
+          "rejections": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Unhandled promise rejections in the recent window."
+          }
+        },
+        "required": [
+          "errors",
+          "uncaught",
+          "rejections"
+        ],
+        "additionalProperties": false,
+        "description": "Page script error counts, diagnostic only; absent when the page cannot report them."
+      },
+      "truncation": {
+        "type": "object",
+        "properties": {
+          "targets": {
+            "type": "object",
+            "properties": {
+              "published": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Interactive targets published."
+              },
+              "omitted": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Visible interactive candidates the cap left out; scroll or find by label to reach them."
+              },
+              "candidates": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Interactive candidates visible within reach."
+              },
+              "reach": {
+                "type": "string",
+                "enum": [
+                  "viewport",
+                  "document"
+                ],
+                "description": "viewport: controls near the viewport (about one screen around it); document: the whole page (a find)."
+              }
+            },
+            "required": [
+              "published",
+              "omitted",
+              "candidates",
+              "reach"
+            ],
+            "additionalProperties": false,
+            "description": "The interactive target bound."
+          },
+          "extractable": {
+            "type": "object",
+            "properties": {
+              "published": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Text targets published."
+              },
+              "omitted": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Visible text candidates the cap left out."
+              },
+              "candidates": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Text candidates visible within reach."
+              }
+            },
+            "required": [
+              "published",
+              "omitted",
+              "candidates"
+            ],
+            "additionalProperties": false,
+            "description": "The text target bound."
+          },
+          "semanticText": {
+            "type": "object",
+            "properties": {
+              "chars": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Characters of semanticText as returned."
+              },
+              "truncated": {
+                "type": "boolean",
+                "description": "The text bound cut it; dsagent.page.markdown reads the prose in full."
+              }
+            },
+            "required": [
+              "chars",
+              "truncated"
+            ],
+            "additionalProperties": false,
+            "description": "The semantic text bound."
+          },
+          "frames": {
+            "type": "object",
+            "properties": {
+              "admitted": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Child frames the page admitted to the read."
+              },
+              "answered": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Child frames that answered in time."
+              },
+              "dropped": {
+                "type": "array",
+                "maxItems": 8,
+                "items": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Frame ids of admitted frames that timed out or failed: their controls are missing from targets."
+              },
+              "textCutFrames": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Answered frames whose text was cut by the per-frame bound."
+              }
+            },
+            "required": [
+              "admitted",
+              "answered",
+              "dropped",
+              "textCutFrames"
+            ],
+            "additionalProperties": false,
+            "description": "Child frame coverage of this read."
+          },
+          "detailDropped": {
+            "type": "array",
+            "maxItems": 2,
+            "items": {
+              "type": "string",
+              "enum": [
+                "tables",
+                "hiddenLinks"
+              ]
+            },
+            "description": "With detail full: the detail sections dropped whole because the result exceeded its byte budget."
+          }
+        },
+        "required": [
+          "targets",
+          "extractable",
+          "semanticText"
+        ],
+        "additionalProperties": false,
+        "description": "What the bounds cut from this observation, reported beside the evidence."
+      },
+      "hiddenLinks": {
+        "type": "array",
+        "maxItems": 20,
+        "description": "With detail full: same-origin navigation links the page holds but does not show (a collapsed sidebar, a closed menu), bounded.",
+        "items": {
+          "type": "object",
+          "properties": {
+            "label": {
+              "type": "string",
+              "maxLength": 80,
+              "description": "The link's name."
+            },
+            "url": {
+              "type": "string",
+              "maxLength": 300,
+              "description": "Its sanitized destination."
+            }
+          },
+          "required": [
+            "label",
+            "url"
+          ],
+          "additionalProperties": false,
+          "description": "One hidden link."
+        }
+      },
+      "tables": {
+        "type": "array",
+        "maxItems": 4,
+        "description": "With detail full: the page's data tables, largest first, bounded: columns, rendered rows and what sideways scrolling clips.",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string",
+              "maxLength": 16,
+              "description": "Snapshot-local table id."
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "native",
+                "aria"
+              ],
+              "description": "A native table or an ARIA grid/table."
+            },
+            "label": {
+              "type": "string",
+              "maxLength": 80,
+              "description": "Caption or accessible name, when the table has one."
+            },
+            "columns": {
+              "type": "array",
+              "maxItems": 12,
+              "items": {
+                "type": "object",
+                "properties": {
+                  "index": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "1-based column position."
+                  },
+                  "header": {
+                    "type": "string",
+                    "maxLength": 80,
+                    "description": "The header cell's own text."
+                  },
+                  "visibility": {
+                    "type": "string",
+                    "maxLength": 40,
+                    "description": "Whether the column is shown or clipped by the sideways scroller."
+                  },
+                  "sortState": {
+                    "type": "string",
+                    "enum": [
+                      "ascending",
+                      "descending"
+                    ],
+                    "description": "aria-sort of the header, when declared."
+                  },
+                  "controlIds": {
+                    "type": "array",
+                    "maxItems": 4,
+                    "items": {
+                      "type": "string",
+                      "maxLength": 128
+                    },
+                    "description": "Published controls in the header cell (sort, filter, menu)."
+                  }
+                },
+                "required": [
+                  "index",
+                  "header",
+                  "visibility"
+                ],
+                "additionalProperties": false,
+                "description": "One column."
+              },
+              "description": "The first 12 columns."
+            },
+            "columnCount": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Every column the table has, clipped ones included."
+            },
+            "rowCount": {
+              "type": "object",
+              "properties": {
+                "rendered": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Rows in the DOM now."
+                },
+                "total": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Rows the table declares (aria-rowcount), when it does."
+                }
+              },
+              "required": [
+                "rendered"
+              ],
+              "additionalProperties": false,
+              "description": "Row counts."
+            },
+            "rows": {
+              "type": "array",
+              "maxItems": 8,
+              "items": {
+                "type": "object",
+                "properties": {
+                  "cells": {
+                    "type": "array",
+                    "maxItems": 12,
+                    "items": {
+                      "type": "string",
+                      "maxLength": 80
+                    },
+                    "description": "Cell texts by column position."
+                  },
+                  "inViewport": {
+                    "type": "boolean",
+                    "description": "Whether the row is on screen."
+                  }
+                },
+                "required": [
+                  "cells",
+                  "inViewport"
+                ],
+                "additionalProperties": false,
+                "description": "One rendered row."
+              },
+              "description": "The first 8 rendered rows."
+            },
+            "clippedColumns": {
+              "type": "object",
+              "properties": {
+                "left": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Columns clipped on the left."
+                },
+                "right": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Columns clipped on the right."
+                }
+              },
+              "required": [
+                "left",
+                "right"
+              ],
+              "additionalProperties": false,
+              "description": "Columns beyond the sideways scroller."
+            }
+          },
+          "required": [
+            "id",
+            "kind",
+            "columns",
+            "columnCount",
+            "rowCount",
+            "rows",
+            "clippedColumns"
+          ],
+          "additionalProperties": false,
+          "description": "One data table."
+        }
+      },
+      "pageSurfaces": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "sequence": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Monotonic observation sequence within this document."
+          },
+          "surfaces": {
+            "type": "array",
+            "maxItems": 10,
+            "description": "Currently open panels and their observed opener; a tooltip is not an opened selection panel.",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "surfaceId": {
+                  "type": "string",
+                  "maxLength": 128,
+                  "description": "Opaque owner-published identity; never a selector."
+                },
+                "sequence": {
+                  "type": "number",
+                  "minimum": 0,
+                  "description": "Monotonic observation sequence within this document."
+                },
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "dialog",
+                    "menu",
+                    "listbox",
+                    "tooltip",
+                    "popover",
+                    "panel"
+                  ],
+                  "description": "Observed surface kind."
+                },
+                "label": {
+                  "type": "string",
+                  "maxLength": 160,
+                  "description": "Bounded visible surface label."
+                },
+                "appearedAt": {
+                  "type": "number",
+                  "minimum": 0,
+                  "description": "Appearance time in epoch milliseconds."
+                },
+                "controlCount": {
+                  "type": "number",
+                  "minimum": 0,
+                  "description": "Observed control count."
+                },
+                "targetIds": {
+                  "type": "array",
+                  "maxItems": 80,
+                  "items": {
+                    "type": "string",
+                    "maxLength": 128,
+                    "description": "Opaque owner-published identity; never a selector."
+                  },
+                  "description": "Published targets currently inside this surface."
+                },
+                "broughtBy": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "targetId": {
+                      "type": "string",
+                      "maxLength": 128,
+                      "description": "Opaque owner-published identity; never a selector."
+                    },
+                    "via": {
+                      "type": "string",
+                      "enum": [
+                        "containment",
+                        "aria",
+                        "last-event"
+                      ],
+                      "description": "How the monitor attributed the appearance."
+                    },
+                    "actor": {
+                      "type": "string",
+                      "enum": [
+                        "agent",
+                        "person"
+                      ],
+                      "description": "Actor identified by the command window, not event trust."
+                    },
+                    "eventType": {
+                      "type": "string",
+                      "enum": [
+                        "press",
+                        "click",
+                        "double-click",
+                        "context-click",
+                        "hover",
+                        "focus",
+                        "key",
+                        "input",
+                        "drag",
+                        "drop",
+                        "wheel"
+                      ],
+                      "description": "Observed triggering event."
+                    },
+                    "eventAt": {
+                      "type": "number",
+                      "minimum": 0,
+                      "description": "Trigger event time in epoch milliseconds."
+                    }
+                  },
+                  "required": [
+                    "targetId",
+                    "via"
+                  ],
+                  "description": "The control that brought this surface out, when attribution is available."
+                }
+              },
+              "required": [
+                "surfaceId",
+                "sequence",
+                "kind",
+                "label",
+                "appearedAt",
+                "controlCount",
+                "targetIds"
+              ],
+              "description": "A current surface; compare identities and appearance times, not compact target omission."
+            }
+          }
+        },
+        "required": [
+          "sequence",
+          "surfaces"
+        ],
+        "description": "Live surface evidence from the shared global page monitor; refreshed even when target revision is unchanged."
+      },
+      "motion": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "scope": {
+            "type": "string",
+            "enum": [
+              "current-document"
+            ],
+            "description": "Current document media scope."
+          },
+          "animationCount": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Shared motion owner animationCount."
+          },
+          "marqueeCount": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Shared motion owner marqueeCount."
+          },
+          "carouselCount": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Shared motion owner carouselCount."
+          },
+          "heldCount": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Shared motion owner heldCount."
+          },
+          "unpausableCount": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Shared motion owner unpausableCount."
+          },
+          "runningCount": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Shared motion owner runningCount."
+          },
+          "truncated": {
+            "type": "boolean",
+            "description": "Inventory exceeded its scan bound."
+          }
+        },
+        "required": [
+          "scope",
+          "animationCount",
+          "marqueeCount",
+          "carouselCount",
+          "heldCount",
+          "unpausableCount",
+          "runningCount",
+          "truncated"
+        ],
+        "description": "Current motion state; successful input is not proof that motion stopped."
+      },
+      "framePageSurfaces": {
+        "type": "array",
+        "maxItems": 8,
+        "description": "Admitted child-frame surface monitors; compare sequence and surface IDs only within the same frame.",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "frameId": {
+              "type": "number",
+              "minimum": 0,
+              "description": "Browser frame identity."
+            },
+            "observed": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "sequence": {
+                  "type": "number",
+                  "minimum": 0,
+                  "description": "Monotonic observation sequence within this document."
+                },
+                "surfaces": {
+                  "type": "array",
+                  "maxItems": 10,
+                  "description": "Currently open panels and their observed opener; a tooltip is not an opened selection panel.",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "surfaceId": {
+                        "type": "string",
+                        "maxLength": 128,
+                        "description": "Opaque owner-published identity; never a selector."
+                      },
+                      "sequence": {
+                        "type": "number",
+                        "minimum": 0,
+                        "description": "Monotonic observation sequence within this document."
+                      },
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "dialog",
+                          "menu",
+                          "listbox",
+                          "tooltip",
+                          "popover",
+                          "panel"
+                        ],
+                        "description": "Observed surface kind."
+                      },
+                      "label": {
+                        "type": "string",
+                        "maxLength": 160,
+                        "description": "Bounded visible surface label."
+                      },
+                      "appearedAt": {
+                        "type": "number",
+                        "minimum": 0,
+                        "description": "Appearance time in epoch milliseconds."
+                      },
+                      "controlCount": {
+                        "type": "number",
+                        "minimum": 0,
+                        "description": "Observed control count."
+                      },
+                      "targetIds": {
+                        "type": "array",
+                        "maxItems": 80,
+                        "items": {
+                          "type": "string",
+                          "maxLength": 128,
+                          "description": "Opaque owner-published identity; never a selector."
+                        },
+                        "description": "Published targets currently inside this surface."
+                      },
+                      "broughtBy": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "properties": {
+                          "targetId": {
+                            "type": "string",
+                            "maxLength": 128,
+                            "description": "Opaque owner-published identity; never a selector."
+                          },
+                          "via": {
+                            "type": "string",
+                            "enum": [
+                              "containment",
+                              "aria",
+                              "last-event"
+                            ],
+                            "description": "How the monitor attributed the appearance."
+                          },
+                          "actor": {
+                            "type": "string",
+                            "enum": [
+                              "agent",
+                              "person"
+                            ],
+                            "description": "Actor identified by the command window, not event trust."
+                          },
+                          "eventType": {
+                            "type": "string",
+                            "enum": [
+                              "press",
+                              "click",
+                              "double-click",
+                              "context-click",
+                              "hover",
+                              "focus",
+                              "key",
+                              "input",
+                              "drag",
+                              "drop",
+                              "wheel"
+                            ],
+                            "description": "Observed triggering event."
+                          },
+                          "eventAt": {
+                            "type": "number",
+                            "minimum": 0,
+                            "description": "Trigger event time in epoch milliseconds."
+                          }
+                        },
+                        "required": [
+                          "targetId",
+                          "via"
+                        ],
+                        "description": "The control that brought this surface out, when attribution is available."
+                      }
+                    },
+                    "required": [
+                      "surfaceId",
+                      "sequence",
+                      "kind",
+                      "label",
+                      "appearedAt",
+                      "controlCount",
+                      "targetIds"
+                    ],
+                    "description": "A current surface; compare identities and appearance times, not compact target omission."
+                  }
+                }
+              },
+              "required": [
+                "sequence",
+                "surfaces"
+              ],
+              "description": "Live surface evidence from the shared global page monitor; refreshed even when target revision is unchanged."
+            }
+          },
+          "required": [
+            "frameId",
+            "observed"
+          ],
+          "description": "One admitted frame surface observation."
+        }
+      },
+      "mediaPlayback": {
+        "type": "object",
+        "properties": {
+          "scope": {
+            "type": "string",
+            "enum": [
+              "current-document"
+            ],
+            "description": "Current document and its open shadow roots; frame contents require their own frame context."
+          },
+          "videoCount": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 65,
+            "description": "Detected video count, capped at 65 to signal overflow."
+          },
+          "playingCount": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 64,
+            "description": "Videos currently not paused or ended within the bounded scan."
+          },
+          "truncated": {
+            "type": "boolean",
+            "description": "The video limit was exceeded; stopped playback cannot be inferred."
+          }
+        },
+        "required": [
+          "scope",
+          "videoCount",
+          "playingCount",
+          "truncated"
+        ],
+        "additionalProperties": false,
+        "description": "Read-only playback state without media URLs or advancing playback timestamps."
+      },
+      "pageMetrics": {
+        "type": "object",
+        "properties": {
+          "viewportWidth": {
+            "type": "number",
+            "description": "Viewport width in CSS pixels."
+          },
+          "viewportHeight": {
+            "type": "number",
+            "description": "Viewport height in CSS pixels."
+          },
+          "scrollX": {
+            "type": "number",
+            "description": "Horizontal scroll offset in CSS pixels."
+          },
+          "scrollY": {
+            "type": "number",
+            "description": "Vertical scroll offset in CSS pixels."
+          },
+          "pixelsAbove": {
+            "type": "number",
+            "description": "Estimated scrollable pixels above the viewport."
+          },
+          "pixelsBelow": {
+            "type": "number",
+            "description": "Estimated scrollable pixels below the viewport."
+          }
+        },
+        "required": [
+          "viewportWidth",
+          "viewportHeight",
+          "scrollX",
+          "scrollY",
+          "pixelsAbove",
+          "pixelsBelow"
+        ],
+        "additionalProperties": false,
+        "description": "Viewport and scroll metrics used for bounded navigation planning."
+      },
+      "targets": {
+        "type": "object",
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "full",
+              "delta",
+              "unchanged"
+            ],
+            "description": "Target collection change mode."
+          },
+          "added": {
+            "type": "array",
+            "maxItems": 260,
+            "description": "Targets added or included in a full observation.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "placeholder": {
+                  "type": "string",
+                  "maxLength": 160,
+                  "description": "Optional input hint, never the entered value or proof of its content."
+                },
+                "labelSource": {
+                  "type": "string",
+                  "enum": [
+                    "accessible-name",
+                    "placeholder",
+                    "rendered-text"
+                  ],
+                  "description": "Origin of the displayed target label; a placeholder is not the entered value."
+                },
+                "fieldLabel": {
+                  "type": "string",
+                  "maxLength": 80,
+                  "description": "The label the page prints for a field (its label or the heading of its field block), without a required mark; present when it says more than label, which may be only a placeholder. A required mark adds required to state."
+                },
+                "fieldMessage": {
+                  "type": "string",
+                  "maxLength": 160,
+                  "description": "What the page says about the field value: its error message or the text it shows under the field. Never the entered value."
+                },
+                "fieldPurpose": {
+                  "type": "string",
+                  "enum": [
+                    "search"
+                  ],
+                  "description": "search: the page declares this text field as its search box (input type search, role searchbox, a search landmark, enterkeyhint search, or its own name, id or class); its label may be only a suggested query that changes. A find for the search box (search, 搜索) returns it."
+                },
+                "labelContext": {
+                  "type": "object",
+                  "properties": {
+                    "text": {
+                      "type": "string",
+                      "maxLength": 160,
+                      "description": "Bounded local record, group or table column context for distinguishing repeated labels; never an input value."
+                    },
+                    "source": {
+                      "type": "string",
+                      "enum": [
+                        "record",
+                        "group",
+                        "column"
+                      ],
+                      "description": "Structural owner from which the context was observed: a record (row or card), a named group, or a table column whose header cell holds the control (the text is the header of that column)."
+                    },
+                    "scopeId": {
+                      "type": "string",
+                      "maxLength": 128,
+                      "description": "Opaque local context identity; not an actionable target or authorization."
+                    }
+                  },
+                  "required": [
+                    "text",
+                    "source",
+                    "scopeId"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Optional disambiguating evidence. The target label, opaque identity and revision remain authoritative."
+                },
+                "id": {
+                  "type": "string",
+                  "maxLength": 128,
+                  "description": "Opaque target identifier valid only for the associated page revision."
+                },
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "page",
+                    "interactive",
+                    "extractable",
+                    "scrollable"
+                  ],
+                  "description": "Semantic target category."
+                },
+                "role": {
+                  "type": "string",
+                  "maxLength": 80,
+                  "description": "Bounded accessibility or semantic role."
+                },
+                "picture": {
+                  "type": "object",
+                  "properties": {
+                    "width": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "description": "Rendered width in CSS pixels."
+                    },
+                    "height": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "description": "Rendered height in CSS pixels."
+                    }
+                  },
+                  "required": [
+                    "width",
+                    "height"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Present for a picture the page shows (dsagent.page.find with includeImages): its rendered size. The target is what a click on the picture's centre lands on."
+                },
+                "ariaRole": {
+                  "type": "string",
+                  "maxLength": 40,
+                  "description": "Optional ARIA role, explicit or implied by the element (link for a link, textbox for a text input), present only when it differs from role; dsagent.page.find matches either."
+                },
+                "scrollAxis": {
+                  "type": "string",
+                  "enum": [
+                    "x",
+                    "both"
+                  ],
+                  "description": "Optional: the target scrolls sideways (carousel, tab strip, wide table); both means it also scrolls vertically. Scroll it with axis x."
+                },
+                "label": {
+                  "type": "string",
+                  "maxLength": 300,
+                  "description": "Bounded visible or accessible target label."
+                },
+                "hooks": {
+                  "type": "array",
+                  "maxItems": 4,
+                  "items": {
+                    "type": "string",
+                    "maxLength": 80,
+                    "description": "One declared hook: a test name (video-comment-more) or name=value (data-e2e=danmaku-container)."
+                  },
+                  "description": "Optional, only on a target whose label is empty: the QA hooks the page declares on the control or its close ancestors. Untrusted page vocabulary to tell unnamed icons apart; never a name to quote and never a selector. Use dsagent.page.visual.observe when they do not settle what the control does."
+                },
+                "state": {
+                  "type": "string",
+                  "maxLength": 160,
+                  "description": "Optional bounded state tokens, comma separated, such as checked, selected, expanded=true, pressed or unpressed, mixed, current, disabled, required, invalid, readonly, busy, haspopup=menu, valuenow=<n>, sort=<direction>, filled or empty."
+                },
+                "capabilities": {
+                  "type": "array",
+                  "maxItems": 29,
+                  "uniqueItems": true,
+                  "description": "Public atomic actions accepted for this opaque target by dsagent.page.action; empty for a text target found by dsagent.page.find.",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "click",
+                      "detect-form-fields",
+                      "handle-dialog",
+                      "dismiss",
+                      "drag",
+                      "drag-move",
+                      "drag-press",
+                      "drag-release",
+                      "fill-form",
+                      "history-back",
+                      "history-forward",
+                      "hover",
+                      "input",
+                      "press-key",
+                      "scroll",
+                      "select",
+                      "set-checkbox",
+                      "set-radio",
+                      "reload",
+                      "upload-file",
+                      "load-options",
+                      "detect-marquees",
+                      "detect-videos",
+                      "pause-marquees",
+                      "pause-videos",
+                      "play-videos",
+                      "resume-marquees",
+                      "detect-ads",
+                      "remove-ads"
+                    ]
+                  }
+                },
+                "inViewport": {
+                  "type": "boolean",
+                  "description": "Optional: whether part of the target is inside the current viewport at this revision."
+                },
+                "occluded": {
+                  "type": "boolean",
+                  "description": "Optional: whether another element covers the target centre (overlay, sticky header); scroll or dismiss before acting."
+                },
+                "navigationUrl": {
+                  "type": "string",
+                  "maxLength": 300,
+                  "description": "Optional: the sanitized HTTP(S) destination of a link target, as evidence of where it leads; navigate by clicking it, never by constructing the URL."
+                },
+                "scrollMetrics": {
+                  "type": "object",
+                  "properties": {
+                    "scrollTop": {
+                      "type": "number",
+                      "minimum": 0,
+                      "description": "The scrollable target's own scroll position in CSS pixels."
+                    },
+                    "scrollHeight": {
+                      "type": "number",
+                      "minimum": 0,
+                      "description": "Its full content height."
+                    },
+                    "clientHeight": {
+                      "type": "number",
+                      "minimum": 0,
+                      "description": "Its visible height."
+                    },
+                    "clippedBelow": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "description": "Controls in it below its visible bottom: 0 with scrollTop near the end means the list is exhausted."
+                    },
+                    "clippedAbove": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "description": "Controls in it above its visible top."
+                    }
+                  },
+                  "required": [
+                    "scrollTop",
+                    "scrollHeight",
+                    "clientHeight",
+                    "clippedBelow"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Optional, on a scrollable target: where it is scrolled and what it clips."
+                },
+                "scrollRootId": {
+                  "type": "string",
+                  "maxLength": 128,
+                  "description": "Optional: the published scrollable target whose box clips this control; scroll that target, not the page, to reveal it."
+                },
+                "contentKey": {
+                  "type": "string",
+                  "maxLength": 128,
+                  "description": "Optional: the record this control belongs to, identified by its content (attr:, link: or text:), stable across re-renders and pages where the structural id is not."
+                },
+                "frameId": {
+                  "type": "string",
+                  "maxLength": 16,
+                  "description": "Optional: the child frame that owns this target; absent for the main document."
+                }
+              },
+              "required": [
+                "id",
+                "kind",
+                "role",
+                "label",
+                "capabilities"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "changed": {
+            "type": "array",
+            "maxItems": 260,
+            "description": "Targets changed since the base revision.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "placeholder": {
+                  "type": "string",
+                  "maxLength": 160,
+                  "description": "Optional input hint, never the entered value or proof of its content."
+                },
+                "labelSource": {
+                  "type": "string",
+                  "enum": [
+                    "accessible-name",
+                    "placeholder",
+                    "rendered-text"
+                  ],
+                  "description": "Origin of the displayed target label; a placeholder is not the entered value."
+                },
+                "fieldLabel": {
+                  "type": "string",
+                  "maxLength": 80,
+                  "description": "The label the page prints for a field (its label or the heading of its field block), without a required mark; present when it says more than label, which may be only a placeholder. A required mark adds required to state."
+                },
+                "fieldMessage": {
+                  "type": "string",
+                  "maxLength": 160,
+                  "description": "What the page says about the field value: its error message or the text it shows under the field. Never the entered value."
+                },
+                "fieldPurpose": {
+                  "type": "string",
+                  "enum": [
+                    "search"
+                  ],
+                  "description": "search: the page declares this text field as its search box (input type search, role searchbox, a search landmark, enterkeyhint search, or its own name, id or class); its label may be only a suggested query that changes. A find for the search box (search, 搜索) returns it."
+                },
+                "labelContext": {
+                  "type": "object",
+                  "properties": {
+                    "text": {
+                      "type": "string",
+                      "maxLength": 160,
+                      "description": "Bounded local record, group or table column context for distinguishing repeated labels; never an input value."
+                    },
+                    "source": {
+                      "type": "string",
+                      "enum": [
+                        "record",
+                        "group",
+                        "column"
+                      ],
+                      "description": "Structural owner from which the context was observed: a record (row or card), a named group, or a table column whose header cell holds the control (the text is the header of that column)."
+                    },
+                    "scopeId": {
+                      "type": "string",
+                      "maxLength": 128,
+                      "description": "Opaque local context identity; not an actionable target or authorization."
+                    }
+                  },
+                  "required": [
+                    "text",
+                    "source",
+                    "scopeId"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Optional disambiguating evidence. The target label, opaque identity and revision remain authoritative."
+                },
+                "id": {
+                  "type": "string",
+                  "maxLength": 128,
+                  "description": "Opaque target identifier valid only for the associated page revision."
+                },
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "page",
+                    "interactive",
+                    "extractable",
+                    "scrollable"
+                  ],
+                  "description": "Semantic target category."
+                },
+                "role": {
+                  "type": "string",
+                  "maxLength": 80,
+                  "description": "Bounded accessibility or semantic role."
+                },
+                "picture": {
+                  "type": "object",
+                  "properties": {
+                    "width": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "description": "Rendered width in CSS pixels."
+                    },
+                    "height": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "description": "Rendered height in CSS pixels."
+                    }
+                  },
+                  "required": [
+                    "width",
+                    "height"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Present for a picture the page shows (dsagent.page.find with includeImages): its rendered size. The target is what a click on the picture's centre lands on."
+                },
+                "ariaRole": {
+                  "type": "string",
+                  "maxLength": 40,
+                  "description": "Optional ARIA role, explicit or implied by the element (link for a link, textbox for a text input), present only when it differs from role; dsagent.page.find matches either."
+                },
+                "scrollAxis": {
+                  "type": "string",
+                  "enum": [
+                    "x",
+                    "both"
+                  ],
+                  "description": "Optional: the target scrolls sideways (carousel, tab strip, wide table); both means it also scrolls vertically. Scroll it with axis x."
+                },
+                "label": {
+                  "type": "string",
+                  "maxLength": 300,
+                  "description": "Bounded visible or accessible target label."
+                },
+                "hooks": {
+                  "type": "array",
+                  "maxItems": 4,
+                  "items": {
+                    "type": "string",
+                    "maxLength": 80,
+                    "description": "One declared hook: a test name (video-comment-more) or name=value (data-e2e=danmaku-container)."
+                  },
+                  "description": "Optional, only on a target whose label is empty: the QA hooks the page declares on the control or its close ancestors. Untrusted page vocabulary to tell unnamed icons apart; never a name to quote and never a selector. Use dsagent.page.visual.observe when they do not settle what the control does."
+                },
+                "state": {
+                  "type": "string",
+                  "maxLength": 160,
+                  "description": "Optional bounded state tokens, comma separated, such as checked, selected, expanded=true, pressed or unpressed, mixed, current, disabled, required, invalid, readonly, busy, haspopup=menu, valuenow=<n>, sort=<direction>, filled or empty."
+                },
+                "capabilities": {
+                  "type": "array",
+                  "maxItems": 29,
+                  "uniqueItems": true,
+                  "description": "Public atomic actions accepted for this opaque target by dsagent.page.action; empty for a text target found by dsagent.page.find.",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "click",
+                      "detect-form-fields",
+                      "handle-dialog",
+                      "dismiss",
+                      "drag",
+                      "drag-move",
+                      "drag-press",
+                      "drag-release",
+                      "fill-form",
+                      "history-back",
+                      "history-forward",
+                      "hover",
+                      "input",
+                      "press-key",
+                      "scroll",
+                      "select",
+                      "set-checkbox",
+                      "set-radio",
+                      "reload",
+                      "upload-file",
+                      "load-options",
+                      "detect-marquees",
+                      "detect-videos",
+                      "pause-marquees",
+                      "pause-videos",
+                      "play-videos",
+                      "resume-marquees",
+                      "detect-ads",
+                      "remove-ads"
+                    ]
+                  }
+                },
+                "inViewport": {
+                  "type": "boolean",
+                  "description": "Optional: whether part of the target is inside the current viewport at this revision."
+                },
+                "occluded": {
+                  "type": "boolean",
+                  "description": "Optional: whether another element covers the target centre (overlay, sticky header); scroll or dismiss before acting."
+                },
+                "navigationUrl": {
+                  "type": "string",
+                  "maxLength": 300,
+                  "description": "Optional: the sanitized HTTP(S) destination of a link target, as evidence of where it leads; navigate by clicking it, never by constructing the URL."
+                },
+                "scrollMetrics": {
+                  "type": "object",
+                  "properties": {
+                    "scrollTop": {
+                      "type": "number",
+                      "minimum": 0,
+                      "description": "The scrollable target's own scroll position in CSS pixels."
+                    },
+                    "scrollHeight": {
+                      "type": "number",
+                      "minimum": 0,
+                      "description": "Its full content height."
+                    },
+                    "clientHeight": {
+                      "type": "number",
+                      "minimum": 0,
+                      "description": "Its visible height."
+                    },
+                    "clippedBelow": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "description": "Controls in it below its visible bottom: 0 with scrollTop near the end means the list is exhausted."
+                    },
+                    "clippedAbove": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "description": "Controls in it above its visible top."
+                    }
+                  },
+                  "required": [
+                    "scrollTop",
+                    "scrollHeight",
+                    "clientHeight",
+                    "clippedBelow"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Optional, on a scrollable target: where it is scrolled and what it clips."
+                },
+                "scrollRootId": {
+                  "type": "string",
+                  "maxLength": 128,
+                  "description": "Optional: the published scrollable target whose box clips this control; scroll that target, not the page, to reveal it."
+                },
+                "contentKey": {
+                  "type": "string",
+                  "maxLength": 128,
+                  "description": "Optional: the record this control belongs to, identified by its content (attr:, link: or text:), stable across re-renders and pages where the structural id is not."
+                },
+                "frameId": {
+                  "type": "string",
+                  "maxLength": 16,
+                  "description": "Optional: the child frame that owns this target; absent for the main document."
+                }
+              },
+              "required": [
+                "id",
+                "kind",
+                "role",
+                "label",
+                "capabilities"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "removedTargetIds": {
+            "type": "array",
+            "maxItems": 260,
+            "description": "Opaque target IDs removed since the base revision.",
+            "items": {
+              "type": "string",
+              "maxLength": 128
+            }
+          }
+        },
+        "required": [
+          "mode",
+          "added",
+          "changed",
+          "removedTargetIds"
+        ],
+        "additionalProperties": false,
+        "description": "Opaque semantic target snapshot or delta."
+      },
+      "structure": {
+        "type": "object",
+        "properties": {
+          "landmarks": {
+            "type": "array",
+            "maxItems": 24,
+            "description": "Page landmarks in document order, as a screen reader announces them.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "role": {
+                  "type": "string",
+                  "enum": [
+                    "main",
+                    "navigation",
+                    "banner",
+                    "contentinfo",
+                    "complementary",
+                    "search",
+                    "form",
+                    "region",
+                    "dialog",
+                    "tablist"
+                  ],
+                  "description": "Landmark role."
+                },
+                "label": {
+                  "type": "string",
+                  "maxLength": 60,
+                  "description": "Bounded accessible label when the page names the landmark."
+                }
+              },
+              "required": [
+                "role"
+              ],
+              "additionalProperties": false,
+              "description": "One landmark."
+            }
+          },
+          "headings": {
+            "type": "array",
+            "maxItems": 40,
+            "description": "Rendered headings in document order.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "level": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 6,
+                  "description": "Heading level."
+                },
+                "text": {
+                  "type": "string",
+                  "maxLength": 80,
+                  "description": "Bounded heading text."
+                }
+              },
+              "required": [
+                "level",
+                "text"
+              ],
+              "additionalProperties": false,
+              "description": "One heading."
+            }
+          },
+          "truncated": {
+            "type": "boolean",
+            "description": "More landmarks or headings exist than the bounds allow."
+          }
+        },
+        "required": [
+          "landmarks",
+          "headings",
+          "truncated"
+        ],
+        "additionalProperties": false,
+        "description": "The page outline (landmarks and headings), value-free; absent inside an active dialog or panel."
+      },
+      "dom": {
+        "type": "object",
+        "properties": {
+          "format": {
+            "type": "string",
+            "enum": [
+              "sanitized-html"
+            ],
+            "description": "Sanitized evidence representation."
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "full",
+              "delta",
+              "unchanged"
+            ],
+            "description": "DOM evidence change mode."
+          },
+          "baseRevision": {
+            "type": "string",
+            "maxLength": 128,
+            "description": "DOM base revision used for a delta when available."
+          },
+          "content": {
+            "type": "string",
+            "maxLength": 64000,
+            "description": "Bounded sanitized HTML evidence without executable script access."
+          },
+          "truncated": {
+            "type": "boolean",
+            "description": "Whether DOM evidence was truncated to the public bound. A truncated document prefix is not a viewport slice or a complete dataset."
+          },
+          "scope": {
+            "type": "string",
+            "enum": [
+              "document-prefix",
+              "target-region"
+            ],
+            "description": "document-prefix: the DOM starts at the document beginning. target-region: the DOM is the region around the requested targetId. Use current targets for scroll collection."
+          },
+          "contentFingerprint": {
+            "type": "string",
+            "maxLength": 128,
+            "description": "Fingerprint of document evidence; repeated content is not collection progress."
+          }
+        },
+        "required": [
+          "format",
+          "mode",
+          "content",
+          "truncated"
+        ],
+        "additionalProperties": false,
+        "description": "Optional bounded sanitized DOM evidence returned only in dom mode."
+      },
+      "warnings": {
+        "type": "array",
+        "maxItems": 2,
+        "description": "REPEATED_RECORDS_USE_WIZARD: switch to the scrape wizard on this page now (dsagent.wizard.start kind=scrape, then wizard.state / wizard.choose). DSphere's typed route advice, never page text: this page shows repeated records (the same fields per item) and this task has read or scrolled it twelve or more times with page reads, which is not how records are collected. The call itself succeeded; the person sees the same notice in the DSphere side panel. Plan on the code, never on the message.",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "code",
+            "message",
+            "nextActions"
+          ],
+          "description": "One typed warning.",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "REPEATED_RECORDS_USE_WIZARD"
+              ],
+              "description": "Stable warning code to plan on."
+            },
+            "message": {
+              "type": "string",
+              "maxLength": 300,
+              "description": "Bounded reason with the counts behind it; never page text."
+            },
+            "nextActions": {
+              "type": "array",
+              "maxItems": 2,
+              "description": "What to call next, in order.",
+              "items": {
+                "type": "string",
+                "maxLength": 200,
+                "description": "One next call, named as the catalog names it."
+              }
+            }
+          }
+        }
+      },
+      "guidance": {
+        "type": "object",
+        "properties": {
+          "evidenceGaps": {
+            "type": "array",
+            "maxItems": 2,
+            "description": "Bounded technical evidence gaps derived from current page facts; never a business-risk judgment.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "VISUAL_STATE_UNKNOWN",
+                "TARGET_AMBIGUOUS",
+                "OCCLUSION_UNKNOWN",
+                "RENDERED_CONTENT_UNAVAILABLE",
+                "ACTION_EFFECT_UNKNOWN",
+                "PAGE_NOT_RENDERED"
+              ]
+            }
+          },
+          "recommendedObservation": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "target-structure",
+                  "target-visual",
+                  "viewport-visual",
+                  "dom",
+                  "bring-forward"
+                ],
+                "description": "Read-only evidence layer most likely to close the technical gap; bring-forward (with PAGE_NOT_RENDERED) means the browser is not rendering the page: dsagent.page.focus brings it forward, then observe again."
+              },
+              "reason": {
+                "type": "string",
+                "enum": [
+                  "VISUAL_STATE_UNKNOWN",
+                  "TARGET_AMBIGUOUS",
+                  "OCCLUSION_UNKNOWN",
+                  "RENDERED_CONTENT_UNAVAILABLE",
+                  "ACTION_EFFECT_UNKNOWN",
+                  "PAGE_NOT_RENDERED"
+                ],
+                "description": "Technical evidence gap that caused this recommendation."
+              },
+              "pageContextId": {
+                "type": "string",
+                "maxLength": 128,
+                "description": "Opaque page context to reuse."
+              },
+              "expectedRevision": {
+                "type": "string",
+                "maxLength": 128,
+                "description": "Exact revision to reuse for the next read."
+              },
+              "targetId": {
+                "type": "string",
+                "maxLength": 128,
+                "description": "Optional opaque target for target-scoped evidence."
+              }
+            },
+            "required": [
+              "kind",
+              "reason",
+              "pageContextId",
+              "expectedRevision"
+            ],
+            "additionalProperties": false,
+            "description": "Bounded advisory only; it never captures an image or executes an action."
+          }
+        },
+        "required": [
+          "evidenceGaps",
+          "recommendedObservation"
+        ],
+        "additionalProperties": false,
+        "description": "Optional owner-derived read-only evidence escalation guidance."
+      },
+      "authentication": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "sign-in-required",
+              "no-wall"
+            ],
+            "description": "no-wall: the monitor checked this page and found no sign-in or verification wall, so do not tell the person the site needs a sign-in. sign-in-required: the page asks the person to sign in or pass a verification (the browser's sign-in monitor, the one workflow runs use, decided it)."
+          },
+          "type": {
+            "type": "string",
+            "maxLength": 40,
+            "description": "The kind of wall the monitor recognised: a challenge (CAPTCHA, SLIDER_CAPTCHA, IMAGE_CAPTCHA, RECAPTCHA, HCAPTCHA, TURNSTILE, GEETEST, ARKOSE, CLOUDFLARE, BOT_PROTECTION) or a sign-in kind (LOGIN_FORM, PHONE_LOGIN, SSO, OTP…)."
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "The monitor's confidence."
+          },
+          "waitingOn": {
+            "type": "string",
+            "enum": [
+              "agent",
+              "person"
+            ],
+            "description": "Who the wall waits on. agent: a challenge you hold and pass yourself with page actions (see the field description). person: a sign-in wall, or a challenge you failed; DSphere handed it to the person. DSphere has shown the person its sign-in sheet for this page (and a desktop notification when its side panel is closed). Tell your user that the page needs them to sign in or pass the check in the browser and click Resume in the DSphere side panel; do not use dsagent.page.ask for it. Wait, then read this page again (dsagent.page.observe); continue the task where it stopped once authentication is absent. Do not end the task, retry the effect before then, or sign in, enter credentials or solve the challenge yourself."
+          },
+          "attemptsLeft": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 12,
+            "description": "With waitingOn agent: effect calls (dsagent.page.action / .actions) you may still spend on this challenge before it is the person's."
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "additionalProperties": false,
+        "description": "The sign-in monitor's verdict on the page: status no-wall when it checked and found none (absent when it could not check); status sign-in-required, with type and confidence, when the page is a sign-in or verification (CAPTCHA) wall. With waitingOn \"agent\" the wall is a human-verification challenge (a CAPTCHA or bot check) that you pass yourself, with the page gestures a person uses: dsagent.page.visual.observe shows the puzzle; dsagent.page.observe / dsagent.page.find list its controls (a checkbox or a picture tile: click; a slider knob: drag with delta or dropTargetId; a code field: type; a refresh or confirm control: click); then read the page again. Once the challenge has survived one of your answers, DSphere sends your drags and plain clicks on it as real browser input (the receipt says so); nothing changes in how you call them. authentication absent or no-wall means it is passed; continue the task. You have attemptsLeft effect calls on this challenge (12 at first) and 5 minutes; when they are spent, or you call dsagent.page.notify on this page because you cannot pass it, DSphere hands the challenge to the person and waitingOn becomes \"person\". Never enter credentials, sign in or ask the person before that. The person may turn this off (DSphere Settings → Verification Challenges; dsagent.settings.get section agent-challenge-walls, which you cannot change): then every wall is the person's from the start. With waitingOn \"person\" effects other than a click on the active surface's own close control (activeSurface.closeTargetId), dismiss, scroll and Escape are refused with TARGET_BUSY / AUTHENTICATION_REQUIRED until the wall is gone. You may still close a sign-in popup the way a guest does, which signs nothing in: click its own close control (activeSurface.closeTargetId of your latest page read), dismiss, scroll or press Escape; then read the page again. DSphere has shown the person its sign-in sheet for this page (and a desktop notification when its side panel is closed). Tell your user that the page needs them to sign in or pass the check in the browser and click Resume in the DSphere side panel; do not use dsagent.page.ask for it. Wait, then read this page again (dsagent.page.observe); continue the task where it stopped once authentication is absent. Do not end the task, retry the effect before then, or sign in, enter credentials or solve the challenge yourself."
+      }
+    },
+    "required": [
+      "pageContextId",
+      "revision",
+      "change",
+      "url",
+      "title",
+      "semanticText",
+      "pageMetrics",
+      "targets"
+    ],
+    "additionalProperties": false,
+    "description": "Bounded live page state and opaque semantic targets."
+  },
+  "risk": "read-sensitive",
+  "targetKinds": [
+    "page"
+  ],
+  "requiredPermissions": [
+    "page.read"
+  ],
+  "timeoutMs": 35000,
+  "maxInlineResultBytes": 196608,
+  "concurrency": "shared-read",
+  "retry": "pre-dispatch-read-only",
+  "exposure": "exposed"
+}

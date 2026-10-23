@@ -1,0 +1,88 @@
+{
+  "method": "dsagent.bookmarks.sources",
+  "version": 1,
+  "title": "List other browsers' bookmarks",
+  "description": "List the Google Chrome, Microsoft Edge and Safari profiles on this computer whose bookmarks can be imported into the DSphere browser, with an opaque source ID, the profile name, a status and the bookmark count. The Native Agent finds them for the current user; no path is returned.",
+  "guidance": "Pass the source IDs of ready profiles to dsagent.bookmarks.import. Safari exists only on macOS and needs Full Disk Access for the DSphere browser (status access-denied until the person grants it). Fails with NATIVE_UNAVAILABLE when the Native Agent is not connected and NATIVE_UPGRADE_REQUIRED when it is too old to read bookmarks.",
+  "inputSchema": {
+    "type": "object",
+    "description": "No arguments.",
+    "additionalProperties": false,
+    "properties": {}
+  },
+  "outputSchema": {
+    "type": "object",
+    "description": "The profiles found, Chrome first, then Edge, then Safari.",
+    "additionalProperties": false,
+    "required": [
+      "sources"
+    ],
+    "properties": {
+      "sources": {
+        "type": "array",
+        "description": "The browser profiles found.",
+        "items": {
+          "type": "object",
+          "description": "One browser profile on this computer whose bookmarks can be imported.",
+          "additionalProperties": false,
+          "required": [
+            "sourceId",
+            "browser",
+            "profile",
+            "status",
+            "bookmarkCount"
+          ],
+          "properties": {
+            "sourceId": {
+              "type": "string",
+              "pattern": "^(chrome|edge|safari)-[0-9a-f]{16}$",
+              "description": "An opaque source ID from dsagent.bookmarks.sources: the browser name, a dash and 16 hex digits. It never contains a path."
+            },
+            "browser": {
+              "type": "string",
+              "enum": [
+                "chrome",
+                "edge",
+                "safari"
+              ],
+              "description": "The browser the profile belongs to: Google Chrome, Microsoft Edge or Safari (macOS only)."
+            },
+            "profile": {
+              "type": "string",
+              "description": "The name the person gave the browser profile."
+            },
+            "status": {
+              "type": "string",
+              "enum": [
+                "ready",
+                "access-denied",
+                "unreadable"
+              ],
+              "description": "ready: can be imported; access-denied: the operating system refused (Safari needs Full Disk Access for the DSphere browser, which only the person can grant); unreadable: missing or malformed."
+            },
+            "bookmarkCount": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "How many bookmarks (not folders) the profile has; 0 unless status is ready."
+            }
+          }
+        }
+      }
+    }
+  },
+  "risk": "read-sensitive",
+  "targetKinds": [
+    "browser"
+  ],
+  "requiredPermissions": [
+    "bookmarks.read"
+  ],
+  "timeoutMs": 45000,
+  "maxInlineResultBytes": 65536,
+  "concurrency": "shared-read",
+  "retry": "pre-dispatch-read-only",
+  "exposure": "exposed",
+  "requiredAgentCapabilities": [
+    "bookmarks.read.v1"
+  ]
+}

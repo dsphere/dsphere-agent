@@ -1,0 +1,217 @@
+{
+  "method": "dsagent.mail.send",
+  "version": 1,
+  "title": "Send an email from the person's account",
+  "description": "Send a new email from the account the person set up in the DSphere Agent Email panel (as that address and display name, through its SMTP login via the Native Agent); a copy is filed in its Sent folder unless the server files one itself.",
+  "guidance": "It is mail sent as the person: write only what they asked for, to the recipients the task names. dsagent.mail.account gives the person's own address. To, Cc and Bcc together hold at most 100 addresses; the subject is one line and the plain-text body at most 50000 characters. An optional html body (tables, inline styles, links) goes with body as its plain-text alternative; it is rebuilt from an email-safe allowlist, so scripts, style sheets, forms and anything that loads from the network are dropped, and images show only by cid: of an inline attachment. attachments are files the caller staged first with the dsagent_upload_file tool (a path on the caller's computer, or base64 chunks), by uploadId; the Native Agent puts the file bytes into the message, the whole of which stays under 5 MiB. Requires an idempotency key: repeating a key with the same message while it is sending or after it was sent returns that result without sending again; a key reused for a different message is refused, and a failed call keeps nothing, so it may be repeated. OUTCOME_UNKNOWN means the server may have accepted the mail: look in Sent with dsagent.mail.search before sending it again. MAIL_ATTACHMENT_NOT_FOUND means an uploadId expired (staged files last 24 hours): stage the file again. When the person turned on Settings → File Uploads (off by default), they are asked in the DSphere side panel before a staged attachment leaves the computer, once per file and recipients: until they answer the call is refused TARGET_BUSY with businessCode FILE_RELEASE_CONSENT_REQUIRED (nothing was sent; wait, then repeat the call with the same idempotencyKey), and a no is POLICY_DENIED with FILE_RELEASE_DENIED (tell the person; do not retry). Replies to stored messages are not supported here.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "The message to send.",
+    "properties": {
+      "to": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 100,
+        "items": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 320,
+              "description": "An email address."
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "description": "An email address with a display name.",
+              "properties": {
+                "address": {
+                  "type": "string",
+                  "minLength": 3,
+                  "maxLength": 320,
+                  "description": "Email address."
+                },
+                "name": {
+                  "type": "string",
+                  "maxLength": 200,
+                  "description": "Display name."
+                }
+              },
+              "required": [
+                "address"
+              ]
+            }
+          ]
+        },
+        "description": "Recipients; at least one."
+      },
+      "cc": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 100,
+        "items": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 320,
+              "description": "An email address."
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "description": "An email address with a display name.",
+              "properties": {
+                "address": {
+                  "type": "string",
+                  "minLength": 3,
+                  "maxLength": 320,
+                  "description": "Email address."
+                },
+                "name": {
+                  "type": "string",
+                  "maxLength": 200,
+                  "description": "Display name."
+                }
+              },
+              "required": [
+                "address"
+              ]
+            }
+          ]
+        },
+        "description": "Copy recipients."
+      },
+      "bcc": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 100,
+        "items": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 320,
+              "description": "An email address."
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "description": "An email address with a display name.",
+              "properties": {
+                "address": {
+                  "type": "string",
+                  "minLength": 3,
+                  "maxLength": 320,
+                  "description": "Email address."
+                },
+                "name": {
+                  "type": "string",
+                  "maxLength": 200,
+                  "description": "Display name."
+                }
+              },
+              "required": [
+                "address"
+              ]
+            }
+          ]
+        },
+        "description": "Blind copy recipients; they are not listed in the message."
+      },
+      "subject": {
+        "type": "string",
+        "maxLength": 900,
+        "description": "Subject, one line."
+      },
+      "body": {
+        "type": "string",
+        "maxLength": 50000,
+        "description": "Body as plain text; line breaks are kept. With html it is the plain-text alternative."
+      },
+      "html": {
+        "type": "string",
+        "maxLength": 100000,
+        "description": "Optional HTML body: email-safe markup with inline styles; <img src=\"cid:<contentId>\"> shows an inline attachment."
+      },
+      "attachments": {
+        "type": "array",
+        "maxItems": 10,
+        "description": "Files staged with the dsagent_upload_file tool, at most 10; the recipient sees the name and type given when staging.",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "One staged file.",
+          "properties": {
+            "uploadId": {
+              "type": "string",
+              "pattern": "^upl_[0-9a-f]{32}$",
+              "description": "uploadId dsagent_upload_file returned."
+            },
+            "contentId": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$",
+              "description": "Show this image inline where html has <img src=\"cid:<contentId>\">; images only."
+            }
+          },
+          "required": [
+            "uploadId"
+          ]
+        }
+      }
+    },
+    "required": [
+      "to",
+      "subject",
+      "body"
+    ]
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "The mail the server accepted.",
+    "properties": {
+      "messageId": {
+        "type": "string",
+        "maxLength": 400,
+        "description": "The Message-ID header the sent mail carries."
+      },
+      "from": {
+        "type": "string",
+        "maxLength": 320,
+        "description": "The address the mail was sent from."
+      },
+      "recipients": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 100,
+        "description": "How many distinct addresses it was sent to."
+      },
+      "attachments": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 10,
+        "description": "How many staged files it carried."
+      }
+    },
+    "required": [
+      "messageId",
+      "from",
+      "recipients",
+      "attachments"
+    ]
+  },
+  "risk": "external-effect",
+  "targetKinds": [
+    "local-mail"
+  ],
+  "requiredPermissions": [
+    "mail.send"
+  ],
+  "timeoutMs": 120000,
+  "maxInlineResultBytes": 4096,
+  "concurrency": "exclusive-target",
+  "retry": "never",
+  "exposure": "exposed"
+}

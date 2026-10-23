@@ -1,0 +1,147 @@
+{
+  "method": "dsagent.artifact.read",
+  "version": 1,
+  "title": "Read artifact",
+  "description": "Read a listed artifact.",
+  "guidance": "format records (the default) is the mandatory file-first structured read: JSON/NDJSON uses a fixed 4096-byte initial probe, returns records only when the complete result fits, otherwise fails with RESULT_LIMIT_EXCEEDED and export details instead of returning nextCursor (then page it with format jsonl or csv, or export it with dsagent.execution.artifact.export when you can read files on the browser machine; for records the caller cannot supply a byte budget). format jsonl or csv pages a structured dataset to its end for a caller that cannot read exported files (a sandboxed or remote agent): each page holds whole records within pageBytes (at most 65536) as JSON Lines or CSV lines with the columns once in header, and nextCursor continues until eof; a record larger than the page is named, never split. Binary artifacts retain fixed bounded Base64 cursor reads for compatibility and can also be exported.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "artifactId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 256,
+        "description": "Opaque artifact identifier returned by dsagent.artifacts.list."
+      },
+      "cursor": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 512,
+        "description": "Opaque continuation cursor returned by a prior read of the same artifact and format; omit for the first read."
+      },
+      "format": {
+        "type": "string",
+        "enum": [
+          "records",
+          "jsonl",
+          "csv"
+        ],
+        "description": "records (default): the complete records inline when they fit the fixed probe, else export. jsonl: pages of JSON Lines, one record per line. csv: pages of CSV lines under the dataset columns (header). jsonl and csv apply to structured artifacts only."
+      },
+      "pageBytes": {
+        "type": "integer",
+        "minimum": 1024,
+        "maximum": 65536,
+        "description": "With format jsonl or csv: the most bytes of records one page holds (default 65536); records never split across pages."
+      }
+    },
+    "required": [
+      "artifactId"
+    ],
+    "description": "Input for bounded reading of a listed execution artifact. For format records the byte budget is fixed by the Extension and is not caller-controlled; jsonl and csv take pageBytes."
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "artifactId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 256,
+        "description": "Artifact that was read."
+      },
+      "mediaType": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 200,
+        "description": "Artifact media type."
+      },
+      "format": {
+        "type": "string",
+        "enum": [
+          "jsonl",
+          "csv"
+        ],
+        "description": "Present on a paged text read: the format of page."
+      },
+      "cursor": {
+        "type": "string",
+        "maxLength": 512,
+        "description": "Cursor consumed by this read; empty for the first page."
+      },
+      "nextCursor": {
+        "type": [
+          "string",
+          "null"
+        ],
+        "maxLength": 512,
+        "description": "Opaque cursor for the next bounded page (binary, jsonl or csv), or null at EOF."
+      },
+      "eof": {
+        "type": "boolean",
+        "description": "Whether the complete artifact has been consumed."
+      },
+      "records": {
+        "type": "array",
+        "description": "Complete structured records returned only when they fit the fixed initial probe (format records).",
+        "items": {}
+      },
+      "page": {
+        "type": "string",
+        "description": "format jsonl: the records of this page, one JSON object per line. format csv: the CSV lines of this page (no header line; see header)."
+      },
+      "rowsInPage": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "How many records page holds."
+      },
+      "columns": {
+        "type": "array",
+        "maxItems": 200,
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500,
+          "description": "One column name."
+        },
+        "description": "The columns of the dataset (declared, else the keys of the records read so far), in the order csv cells follow."
+      },
+      "header": {
+        "type": "string",
+        "description": "format csv: the header line (the columns, CSV-escaped), the same on every page; write it once before the pages."
+      },
+      "encoding": {
+        "type": "string",
+        "enum": [
+          "base64"
+        ],
+        "description": "Binary payload encoding when data is returned inline."
+      },
+      "data": {
+        "type": "string",
+        "description": "Bounded Base64 binary payload for the current cursor page."
+      }
+    },
+    "required": [
+      "artifactId",
+      "mediaType",
+      "cursor",
+      "nextCursor",
+      "eof"
+    ],
+    "description": "Bounded structured, paged-text or binary artifact read result. Oversized structured data in format records fails with export instructions."
+  },
+  "risk": "read-sensitive",
+  "targetKinds": [
+    "workflow"
+  ],
+  "requiredPermissions": [
+    "workflow.read"
+  ],
+  "timeoutMs": 10000,
+  "maxInlineResultBytes": 262144,
+  "concurrency": "shared-read",
+  "retry": "pre-dispatch-read-only",
+  "exposure": "exposed"
+}

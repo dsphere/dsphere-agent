@@ -1,0 +1,222 @@
+{
+  "method": "dsagent.mail.read",
+  "version": 1,
+  "title": "Read messages from the person's local email",
+  "description": "Read the plain text of up to 10 messages found with dsagent.mail.search, by their ids, to answer or summarize from mail content: headers, attachment names and the body text (HTML mail converted to text), each cut to maxChars (default 8000) and all together to 40000 characters.",
+  "guidance": "It reads what the Email panel has synced; a message whose body is still downloading is fetched through the Native Agent first. Reading leaves the messages' read state unchanged and never returns account settings or passwords.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "Messages to read.",
+    "properties": {
+      "ids": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 10,
+        "uniqueItems": true,
+        "items": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{24}$",
+          "description": "A message id from dsagent.mail.search."
+        },
+        "description": "Message ids from dsagent.mail.search."
+      },
+      "maxChars": {
+        "type": "integer",
+        "minimum": 200,
+        "maximum": 20000,
+        "description": "Characters of body text per message; default 8000."
+      }
+    },
+    "required": [
+      "ids"
+    ]
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "The text of the messages.",
+    "properties": {
+      "messages": {
+        "type": "array",
+        "maxItems": 10,
+        "description": "The messages in the order asked.",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "One message.",
+          "properties": {
+            "id": {
+              "type": "string",
+              "maxLength": 24,
+              "description": "Message id."
+            },
+            "mailbox": {
+              "type": "string",
+              "maxLength": 1000,
+              "description": "Folder the message is in."
+            },
+            "subject": {
+              "type": "string",
+              "maxLength": 300,
+              "description": "Subject."
+            },
+            "from": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "description": "A mail address with its display name.",
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "maxLength": 200,
+                      "description": "Display name; empty when the message gave none."
+                    },
+                    "address": {
+                      "type": "string",
+                      "maxLength": 320,
+                      "description": "Email address."
+                    }
+                  },
+                  "required": [
+                    "name",
+                    "address"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Sender, or null."
+            },
+            "to": {
+              "type": "array",
+              "maxItems": 10,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "A mail address with its display name.",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "description": "Display name; empty when the message gave none."
+                  },
+                  "address": {
+                    "type": "string",
+                    "maxLength": 320,
+                    "description": "Email address."
+                  }
+                },
+                "required": [
+                  "name",
+                  "address"
+                ]
+              },
+              "description": "Recipients (To), at most ten."
+            },
+            "cc": {
+              "type": "array",
+              "maxItems": 10,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "A mail address with its display name.",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "description": "Display name; empty when the message gave none."
+                  },
+                  "address": {
+                    "type": "string",
+                    "maxLength": 320,
+                    "description": "Email address."
+                  }
+                },
+                "required": [
+                  "name",
+                  "address"
+                ]
+              },
+              "description": "Cc recipients, at most ten."
+            },
+            "date": {
+              "type": "string",
+              "maxLength": 40,
+              "description": "Sent date as an ISO 8601 timestamp."
+            },
+            "attachments": {
+              "type": "array",
+              "maxItems": 10,
+              "items": {
+                "type": "string",
+                "maxLength": 255,
+                "description": "File name."
+              },
+              "description": "Attachment names, at most ten."
+            },
+            "text": {
+              "type": "string",
+              "maxLength": 20000,
+              "description": "Plain text of the body, cut to maxChars."
+            },
+            "textTruncated": {
+              "type": "boolean",
+              "description": "Whether the text was cut."
+            },
+            "bodyAvailable": {
+              "type": "boolean",
+              "description": "False when only the headers are known (the body could not be downloaded)."
+            }
+          },
+          "required": [
+            "id",
+            "mailbox",
+            "subject",
+            "from",
+            "to",
+            "cc",
+            "date",
+            "attachments",
+            "text",
+            "textTruncated",
+            "bodyAvailable"
+          ]
+        }
+      },
+      "missing": {
+        "type": "array",
+        "maxItems": 10,
+        "items": {
+          "type": "string",
+          "maxLength": 24,
+          "description": "A message id."
+        },
+        "description": "Ids that are not stored (never synced, or deleted since)."
+      },
+      "truncated": {
+        "type": "boolean",
+        "description": "Whether any text was cut to fit the budget."
+      }
+    },
+    "required": [
+      "messages",
+      "missing",
+      "truncated"
+    ]
+  },
+  "risk": "read-sensitive",
+  "targetKinds": [
+    "local-mail"
+  ],
+  "requiredPermissions": [
+    "mail.read"
+  ],
+  "timeoutMs": 60000,
+  "maxInlineResultBytes": 65536,
+  "concurrency": "shared-read",
+  "retry": "pre-dispatch-read-only",
+  "exposure": "exposed"
+}

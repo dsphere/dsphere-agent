@@ -1,0 +1,102 @@
+{
+  "method": "dsagent.page.files.download",
+  "version": 1,
+  "title": "Download page files or images",
+  "description": "Download detected files or images of a page into the browser's Downloads folder, as the Files panel's download does, by fileId from the latest dsagent.page.files.detect (at most 50 per call). Only http and https addresses download; the result lists the fileIds that did not.",
+  "guidance": "The browser saves each under its file name, numbering duplicates. Requires an idempotency key: repeating a key with the same files returns the first result without downloading again.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "pageContextId",
+      "fileIds"
+    ],
+    "description": "The page and the files to download.",
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "minLength": 8,
+        "maxLength": 128,
+        "description": "Opaque page context from dsagent.pages.list or dsagent.page.open."
+      },
+      "fileIds": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 50,
+        "uniqueItems": true,
+        "description": "The files to download.",
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "description": "A fileId from the latest dsagent.page.files.detect of this page."
+        }
+      }
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "pageContextId",
+      "downloaded",
+      "skipped"
+    ],
+    "description": "The downloads started.",
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "minLength": 8,
+        "maxLength": 128,
+        "description": "Opaque page context from dsagent.pages.list or dsagent.page.open."
+      },
+      "downloaded": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Downloads the browser started."
+      },
+      "skipped": {
+        "type": "array",
+        "maxItems": 50,
+        "description": "Files not downloaded.",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "fileId",
+            "reason"
+          ],
+          "description": "One file not downloaded and why.",
+          "properties": {
+            "fileId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "description": "A fileId from the latest dsagent.page.files.detect of this page."
+            },
+            "reason": {
+              "type": "string",
+              "enum": [
+                "not-detected",
+                "not-http"
+              ],
+              "description": "not-detected: the latest detect of the page has no such fileId (detect again); not-http: the address is not http or https."
+            }
+          }
+        }
+      }
+    }
+  },
+  "risk": "external-effect",
+  "targetKinds": [
+    "page"
+  ],
+  "requiredPermissions": [
+    "page.files.download"
+  ],
+  "timeoutMs": 60000,
+  "maxInlineResultBytes": 8192,
+  "concurrency": "exclusive-target",
+  "retry": "never",
+  "exposure": "exposed"
+}

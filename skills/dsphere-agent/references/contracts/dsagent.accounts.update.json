@@ -1,0 +1,168 @@
+{
+  "method": "dsagent.accounts.update",
+  "version": 1,
+  "title": "Update Account",
+  "description": "Update permitted account fields using the current Work complete save format.",
+  "inputSchema": {
+    "type": "object",
+    "description": "Update permitted account fields using the current Work complete save format.",
+    "properties": {
+      "accountId": {
+        "type": "string",
+        "description": "Opaque account reference returned by accounts.list or accounts.get.",
+        "minLength": 1,
+        "maxLength": 100
+      },
+      "patch": {
+        "type": "object",
+        "description": "Allowed account changes; omitted fields retain their values.",
+        "properties": {
+          "account": {
+            "type": "string",
+            "description": "Existing website account name.",
+            "minLength": 1,
+            "maxLength": 320
+          },
+          "remark": {
+            "type": "string",
+            "description": "Account remark.",
+            "maxLength": 2000
+          },
+          "loginType": {
+            "type": "string",
+            "description": "An available login method from application options.",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "replaceCredential": {
+        "type": "boolean",
+        "description": "Ask the person to replace the password through trusted encrypted input."
+      }
+    },
+    "required": [
+      "accountId",
+      "patch"
+    ],
+    "additionalProperties": false
+  },
+  "outputSchema": {
+    "type": "object",
+    "description": "Account operation result. status/stage are for internal reconciliation, not user-facing open-success/failure badges. Report the separate autofill receipt; a page being open never proves fill or sign-in.",
+    "properties": {
+      "autofill": {
+        "type": "object",
+        "description": "Separate Biz autofill receipt. Query accounts.operations.get with operationId while running; unknown must not be replayed. succeeded proves fill owner completion, never website sign-in.",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Observed autofill state.",
+            "maxLength": 40,
+            "enum": [
+              "running",
+              "succeeded",
+              "failed",
+              "skipped",
+              "unknown"
+            ]
+          },
+          "updatedAt": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Receipt observation time in milliseconds."
+          },
+          "reason": {
+            "type": "string",
+            "description": "Safe reason code; never credentials or page field values.",
+            "maxLength": 120
+          }
+        },
+        "required": [
+          "status",
+          "updatedAt"
+        ],
+        "additionalProperties": false
+      },
+      "operationId": {
+        "type": "string",
+        "description": "Local operation reference; not a Pangu request receipt.",
+        "maxLength": 100
+      },
+      "status": {
+        "type": "string",
+        "description": "Observed operation status.",
+        "maxLength": 40,
+        "enum": [
+          "not-dispatched",
+          "waiting-user",
+          "running",
+          "succeeded",
+          "partial",
+          "failed",
+          "cancelled",
+          "outcome-unknown",
+          "record-unavailable",
+          "available"
+        ]
+      },
+      "stage": {
+        "type": "string",
+        "description": "Completed or current account business stage.",
+        "maxLength": 100
+      },
+      "accountId": {
+        "type": "string",
+        "description": "Account reference when known.",
+        "maxLength": 100
+      },
+      "pageContextId": {
+        "type": "string",
+        "description": "Actual opened/focused page reference when known.",
+        "maxLength": 100
+      },
+      "warnings": {
+        "type": "array",
+        "description": "Bounded warnings, including synchronization and unknown outcomes.",
+        "items": {
+          "type": "string",
+          "description": "One safe product warning.",
+          "maxLength": 500
+        },
+        "maxItems": 20
+      },
+      "data": {
+        "type": "object",
+        "description": "Only the selected account operation's public product fields.",
+        "properties": {
+          "saved": {
+            "type": "boolean",
+            "description": "Whether configuration was confirmed saved."
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    "required": [
+      "status",
+      "stage",
+      "warnings"
+    ],
+    "additionalProperties": false
+  },
+  "risk": "reversible-write",
+  "targetKinds": [
+    "managed-account"
+  ],
+  "requiredPermissions": [
+    "accounts.write"
+  ],
+  "timeoutMs": 300000,
+  "maxInlineResultBytes": 65536,
+  "concurrency": "exclusive-target",
+  "retry": "never",
+  "exposure": "exposed"
+}

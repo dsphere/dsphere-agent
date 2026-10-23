@@ -1,0 +1,124 @@
+{
+  "method": "dsagent.development.inject-fault",
+  "version": 1,
+  "title": "Inject a fault into the running development Extension",
+  "description": "Development only: reproduce on demand a fault the release gate must see handled (failure-endpoint fallback X10). Advertised only by development builds.",
+  "guidance": "kind=sqlite-lost-ack makes the next `times` dataset commits of this browser succeed on disk but lose their acknowledgment, so the workflow run retries them from its durable outbox (L8): the flush gives the lost acknowledgment one attempt, then the outbox retry gives it three rounds: times 1 to 3 recover the rows on the retry (coverage.rowsRecovered), times 4 or more exhaust it and the run reports rowsUnsaved. kind=sqlite-clear disarms it. kind=run-tab-group-closed closes every tab of the running execution's tab group as a person closing the group would, so the run reopens its page and resumes at its loop (L7), with its interrupted parallel items handed to you after the group. Faults stay armed until spent or cleared and affect every run of this browser: arm one right before the run that must meet it and clear it afterwards. Requires an idempotency key.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "The fault to inject.",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "enum": [
+          "sqlite-lost-ack",
+          "sqlite-clear",
+          "run-tab-group-closed"
+        ],
+        "description": "sqlite-lost-ack: the next dataset commits lose their acknowledgment; sqlite-clear: disarm it; run-tab-group-closed: close the execution's tab group."
+      },
+      "times": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 20,
+        "description": "sqlite-lost-ack only: how many commits lose their acknowledgment (the flush attempt and each outbox retry round count one)."
+      },
+      "executionId": {
+        "type": "string",
+        "maxLength": 64,
+        "description": "run-tab-group-closed only: the running execution whose tab group to close."
+      }
+    },
+    "required": [
+      "kind"
+    ]
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "What the fault injector did.",
+    "properties": {
+      "kind": {
+        "type": "string",
+        "enum": [
+          "sqlite-lost-ack",
+          "sqlite-clear",
+          "run-tab-group-closed"
+        ],
+        "description": "The fault that was injected or cleared."
+      },
+      "sqlite": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "The SQLite fault state after the call.",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "lost-ack"
+            ],
+            "description": "The armed fault; absent once spent or cleared."
+          },
+          "remaining": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Commits that will still lose their acknowledgment."
+          },
+          "fired": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Commits whose acknowledgment the current arming lost."
+          }
+        },
+        "required": [
+          "remaining",
+          "fired"
+        ]
+      },
+      "tabGroup": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "run-tab-group-closed: the tabs that were closed.",
+        "properties": {
+          "executionId": {
+            "type": "string",
+            "description": "The execution whose tabs were closed."
+          },
+          "tabGroupId": {
+            "type": "integer",
+            "description": "The tab group that was closed; absent when the tabs of the run were not grouped."
+          },
+          "closedTabIds": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "description": "A closed tab."
+            },
+            "maxItems": 64,
+            "description": "The browser tab ids that were closed."
+          }
+        },
+        "required": [
+          "executionId",
+          "closedTabIds"
+        ]
+      }
+    },
+    "required": [
+      "kind"
+    ]
+  },
+  "risk": "reversible-write",
+  "targetKinds": [
+    "browser"
+  ],
+  "requiredPermissions": [
+    "development.reload"
+  ],
+  "timeoutMs": 10000,
+  "maxInlineResultBytes": 2048,
+  "concurrency": "exclusive-browser",
+  "retry": "never",
+  "exposure": "exposed"
+}

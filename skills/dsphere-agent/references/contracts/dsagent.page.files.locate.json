@@ -1,0 +1,70 @@
+{
+  "method": "dsagent.page.files.locate",
+  "version": 1,
+  "title": "Scroll to a page file or image",
+  "description": "Scroll the page (or its embedded frame) so a detected file's link or picture is in the middle of the view, and outline it briefly, as the Files panel's locate does. Use it to show the person a file or to bring a picture into view before reading or picking it.",
+  "guidance": "located false means the page no longer shows it: detect again. It only scrolls; nothing is clicked. Requires an idempotency key.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "pageContextId",
+      "fileId"
+    ],
+    "description": "The page and the file to bring into view.",
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "minLength": 8,
+        "maxLength": 128,
+        "description": "Opaque page context from dsagent.pages.list or dsagent.page.open."
+      },
+      "fileId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 64,
+        "description": "A fileId from the latest dsagent.page.files.detect of this page."
+      }
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "pageContextId",
+      "fileId",
+      "located"
+    ],
+    "description": "Whether the file was scrolled into view.",
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "minLength": 8,
+        "maxLength": 128,
+        "description": "Opaque page context from dsagent.pages.list or dsagent.page.open."
+      },
+      "fileId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 64,
+        "description": "A fileId from the latest dsagent.page.files.detect of this page."
+      },
+      "located": {
+        "type": "boolean",
+        "description": "The element was found, scrolled into view and outlined."
+      }
+    }
+  },
+  "risk": "reversible-write",
+  "targetKinds": [
+    "page"
+  ],
+  "requiredPermissions": [
+    "page.control"
+  ],
+  "timeoutMs": 15000,
+  "maxInlineResultBytes": 1024,
+  "concurrency": "exclusive-target",
+  "retry": "never",
+  "exposure": "exposed"
+}

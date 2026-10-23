@@ -1,0 +1,161 @@
+{
+  "method": "dsagent.manual.get",
+  "version": 1,
+  "title": "Get DSphere Agent User Manual Section",
+  "description": "Return one bounded section of the build-time DSphere Agent Extension user manual as Markdown in English or Simplified Chinese. Omit section (or request \"index\") for a table of contents listing every section id, then request one section per call.",
+  "guidance": "This read-only method never reads pages, workflows, business data, arbitrary files, or external URLs.",
+  "inputSchema": {
+    "type": "object",
+    "description": "Parameters for reading one section of the build-time DSphere Agent user manual.",
+    "properties": {
+      "locale": {
+        "type": "string",
+        "enum": [
+          "en",
+          "zh-CN"
+        ],
+        "description": "Requested manual locale. Omit to use English."
+      },
+      "section": {
+        "type": "string",
+        "enum": [
+          "index",
+          "overview",
+          "console",
+          "welcome",
+          "agreement",
+          "workflows",
+          "recording",
+          "scraping",
+          "build",
+          "autonomous",
+          "running",
+          "schedules",
+          "monitor",
+          "plan",
+          "datasheet",
+          "files",
+          "templates",
+          "authenticator",
+          "llm-config",
+          "email",
+          "settings",
+          "chat",
+          "skill",
+          "mcp"
+        ],
+        "description": "Manual section to return. Omit to receive the index, which lists every section id with its title."
+      }
+    },
+    "additionalProperties": false
+  },
+  "outputSchema": {
+    "type": "object",
+    "description": "Build-time DSphere Agent user manual section response.",
+    "properties": {
+      "locale": {
+        "type": "string",
+        "enum": [
+          "en",
+          "zh-CN"
+        ],
+        "description": "Locale of the returned section."
+      },
+      "format": {
+        "type": "string",
+        "enum": [
+          "markdown"
+        ],
+        "description": "Stable text format of the manual content."
+      },
+      "section": {
+        "type": "string",
+        "enum": [
+          "index",
+          "overview",
+          "console",
+          "welcome",
+          "agreement",
+          "workflows",
+          "recording",
+          "scraping",
+          "build",
+          "autonomous",
+          "running",
+          "schedules",
+          "monitor",
+          "plan",
+          "datasheet",
+          "files",
+          "templates",
+          "authenticator",
+          "llm-config",
+          "email",
+          "settings",
+          "chat",
+          "skill",
+          "mcp"
+        ],
+        "description": "Section id this response carries."
+      },
+      "sections": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": [
+            "overview",
+            "console",
+            "welcome",
+            "agreement",
+            "workflows",
+            "recording",
+            "scraping",
+            "build",
+            "autonomous",
+            "running",
+            "schedules",
+            "monitor",
+            "plan",
+            "datasheet",
+            "files",
+            "templates",
+            "authenticator",
+            "llm-config",
+            "email",
+            "settings",
+            "chat",
+            "skill",
+            "mcp"
+          ]
+        },
+        "description": "Every manual section id, in manual order, so the whole manual can be read section by section."
+      },
+      "content": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 65536,
+        "description": "The requested bounded manual section in Markdown."
+      }
+    },
+    "required": [
+      "locale",
+      "format",
+      "section",
+      "sections",
+      "content"
+    ],
+    "additionalProperties": false
+  },
+  "risk": "read-sensitive",
+  "targetKinds": [
+    "extension-user-manual"
+  ],
+  "requiredPermissions": [
+    "manual.read"
+  ],
+  "timeoutMs": 5000,
+  "maxInlineResultBytes": 65536,
+  "concurrency": "shared-read",
+  "retry": "pre-dispatch-read-only",
+  "exposure": "exposed"
+}

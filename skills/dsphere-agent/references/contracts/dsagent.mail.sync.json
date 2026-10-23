@@ -1,0 +1,106 @@
+{
+  "method": "dsagent.mail.sync",
+  "version": 1,
+  "title": "Sync the person's local email now",
+  "description": "Fetch new mail for one folder (INBOX by default) from the person's mail server into the DSphere Agent Email panel's local copy now, instead of waiting for the background sync (every few minutes, 15 by default).",
+  "guidance": "Call it before dsagent.mail.search when mail may have just arrived, for example the reply to a question sent with dsagent.mail.send. It refreshes the newest messages of that folder (the panel's sync window): their headers and read/flag state, and removes messages deleted on the server. Bodies follow in the background, so a body-text search can lag (pendingBodies), while dsagent.mail.read fetches a body on demand. A sync already running for the folder is joined. It changes nothing on the server and never returns account settings or passwords. folders lists the synced account's folders; pass one as mailbox to sync it (for example the sent folder).",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "The folder to sync.",
+    "properties": {
+      "mailbox": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 1000,
+        "description": "Folder to sync, as folders or a search result names it (INBOX for the inbox). Default INBOX."
+      }
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "The folder after the sync.",
+    "properties": {
+      "mailbox": {
+        "type": "string",
+        "maxLength": 1000,
+        "description": "The folder that was synced."
+      },
+      "syncedAt": {
+        "type": "string",
+        "maxLength": 40,
+        "description": "When the folder finished syncing, as an ISO 8601 timestamp."
+      },
+      "messageCount": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Messages in the folder on the server."
+      },
+      "unreadCount": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Unread messages in the folder on the server."
+      },
+      "pendingBodies": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Stored messages (all folders) whose bodies are still downloading; their body text is not searchable yet."
+      },
+      "folders": {
+        "type": "array",
+        "maxItems": 100,
+        "description": "The account's folders, at most 100.",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "One folder.",
+          "properties": {
+            "path": {
+              "type": "string",
+              "maxLength": 1000,
+              "description": "Folder name; pass it as mailbox."
+            },
+            "role": {
+              "type": "string",
+              "enum": [
+                "inbox",
+                "sent",
+                "drafts",
+                "trash",
+                "junk",
+                "archive",
+                "other"
+              ],
+              "description": "What the folder is for: inbox, sent, drafts, trash, junk, archive or other."
+            }
+          },
+          "required": [
+            "path",
+            "role"
+          ]
+        }
+      }
+    },
+    "required": [
+      "mailbox",
+      "syncedAt",
+      "messageCount",
+      "unreadCount",
+      "pendingBodies",
+      "folders"
+    ]
+  },
+  "risk": "read-sensitive",
+  "targetKinds": [
+    "local-mail"
+  ],
+  "requiredPermissions": [
+    "mail.read"
+  ],
+  "timeoutMs": 180000,
+  "maxInlineResultBytes": 65536,
+  "concurrency": "shared-read",
+  "retry": "pre-dispatch-read-only",
+  "exposure": "exposed"
+}

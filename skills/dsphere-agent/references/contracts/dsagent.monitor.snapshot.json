@@ -1,0 +1,431 @@
+{
+  "method": "dsagent.monitor.snapshot",
+  "version": 1,
+  "title": "Monitor every browser task",
+  "description": "Every page and task of the browser, whoever started it: your own and other agents' pages, the person's own tabs, the DSphere Chat bot's tasks and workflow runs, in every browser session and tab group.",
+  "guidance": "Use it to watch what runs, report what went wrong (attention) and help where an owner is held up: pass a verification challenge, dismiss what covers a page, bring a failed task's page back to a usable state, tell the person (dsagent.page.notify) what needs them. Follow changes with dsagent.events.open topics [monitor] instead of polling. Reads of any page are shared (dsagent.page.observe / find / markdown on any pageContextId); to act on a page another owner holds, start an assist first (dsagent.monitor.assist). Never pass a sign-in wall, enter credentials or answer another task's question for the person. Read-only. Pages that need attention come first. The person can turn the monitor off (Settings, Browser Task Monitor): then it is refused POLICY_DENIED MONITOR_OFF.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "Filters for the monitor view.",
+    "properties": {
+      "attentionOnly": {
+        "type": "boolean",
+        "description": "Only pages and tasks with an attention signal."
+      },
+      "limit": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 100,
+        "description": "Most pages to list; defaults to 100."
+      }
+    },
+    "required": []
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "Every browser page and task, with who owns it and what holds it up.",
+    "properties": {
+      "at": {
+        "type": "string",
+        "maxLength": 40,
+        "description": "When the view was read (ISO 8601)."
+      },
+      "pages": {
+        "type": "array",
+        "maxItems": 100,
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "One open tab.",
+          "properties": {
+            "pageContextId": {
+              "type": "string",
+              "maxLength": 128,
+              "description": "The page, as every dsagent.page.* capability names it."
+            },
+            "title": {
+              "type": "string",
+              "maxLength": 200,
+              "description": "The tab title."
+            },
+            "url": {
+              "type": "string",
+              "maxLength": 300,
+              "description": "Origin and path only: no query, fragment or credentials."
+            },
+            "active": {
+              "type": "boolean",
+              "description": "The tab shown in its window."
+            },
+            "session": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kind"
+              ],
+              "description": "The browser session the page is in: default (the person's own), named (sessionGroup new/previous; reopen with previous and sessionName), account (a managed application account's own session; open pages in it with dsagent.page.open accountId) or other (a session agents cannot open pages in, such as a workflow run's isolated one).",
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "default",
+                    "named",
+                    "account",
+                    "other"
+                  ],
+                  "description": "The kind of browser session."
+                },
+                "sessionName": {
+                  "type": "string",
+                  "maxLength": 40,
+                  "description": "With named: the session's name, for sessionGroup previous."
+                },
+                "accountId": {
+                  "type": "string",
+                  "maxLength": 128,
+                  "description": "With account: the opaque application account id, for dsagent.page.open accountId."
+                },
+                "appName": {
+                  "type": "string",
+                  "maxLength": 200,
+                  "description": "With account: the application's name."
+                },
+                "accountName": {
+                  "type": "string",
+                  "maxLength": 300,
+                  "description": "With account: the account's label in the person's account catalog."
+                }
+              }
+            },
+            "tabGroup": {
+              "type": "object",
+              "additionalProperties": false,
+              "description": "The browser tab group the tab is in, when it is in one.",
+              "properties": {
+                "ref": {
+                  "type": "string",
+                  "maxLength": 40,
+                  "description": "Opaque, stable reference of the browser tab group."
+                },
+                "title": {
+                  "type": "string",
+                  "maxLength": 80,
+                  "description": "The tab group title (an agent or Chat task group is named after its task; a run group after the run)."
+                }
+              },
+              "required": [
+                "ref",
+                "title"
+              ]
+            },
+            "owner": {
+              "type": "object",
+              "additionalProperties": false,
+              "description": "Who owns the page.",
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "person",
+                    "agent",
+                    "chat"
+                  ],
+                  "description": "Whose page: the person's own tab, an outside agent's page (one opened or adopted for it), or the DSphere Chat bot's task page."
+                },
+                "mine": {
+                  "type": "boolean",
+                  "description": "Your own page."
+                },
+                "live": {
+                  "type": "boolean",
+                  "description": "Whether its agent or Chat task is still working (always true for the person)."
+                },
+                "agentName": {
+                  "type": "string",
+                  "maxLength": 80,
+                  "description": "With kind agent and not mine: the agent's name, as the person approved it."
+                }
+              },
+              "required": [
+                "kind",
+                "mine",
+                "live"
+              ]
+            },
+            "held": {
+              "type": "string",
+              "enum": [
+                "guided-wizard",
+                "workflow-run"
+              ],
+              "description": "Who else uses the page: a guided wizard or a workflow run."
+            },
+            "leasedBy": {
+              "type": "object",
+              "additionalProperties": false,
+              "description": "With owner person: the agent working on the person's page right now (its page lease).",
+              "properties": {
+                "mine": {
+                  "type": "boolean",
+                  "description": "Your lease."
+                },
+                "agentName": {
+                  "type": "string",
+                  "maxLength": 80,
+                  "description": "The leasing agent's name."
+                }
+              },
+              "required": [
+                "mine"
+              ]
+            },
+            "taskRef": {
+              "type": "string",
+              "maxLength": 40,
+              "description": "The task the page serves (see tasks)."
+            },
+            "attention": {
+              "type": "array",
+              "maxItems": 8,
+              "description": "What holds the work up, each with who must act. Empty when nothing does.",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "One attention signal.",
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "enum": [
+                      "sign-in-wall",
+                      "verification-challenge",
+                      "waiting-for-answer",
+                      "paused-for-repair",
+                      "paused-for-resources",
+                      "task-failed",
+                      "task-interrupted",
+                      "run-failed",
+                      "stalled"
+                    ],
+                    "description": "sign-in-wall: a sign-in, one-time-code, consent or block page that only the person can pass; verification-challenge: a CAPTCHA, slider, picture or bot check an agent may pass with page actions (dsagent.page.action under its challenge budget, while the person's Verification Challenges switch is on); waiting-for-answer: a task waits for the person's answer to its question; paused-for-repair: a run waits for the repair of a failed block (dsagent.execution.handoff.*, only its starting agent answers); paused-for-resources: a run waits for host memory or CPU; task-failed / task-interrupted / run-failed: the work ended without its result; stalled: a running task published no step for 3 minutes (reported only, it stays its owner's)."
+                  },
+                  "waitingOn": {
+                    "type": "string",
+                    "enum": [
+                      "person",
+                      "agent",
+                      "nobody"
+                    ],
+                    "description": "Who must act for it to clear: the person, an agent (the owner, or one assisting), or nobody (the work ended; report it)."
+                  },
+                  "since": {
+                    "type": "string",
+                    "maxLength": 40,
+                    "description": "Since when (ISO 8601), when the owner says."
+                  },
+                  "detail": {
+                    "type": "string",
+                    "maxLength": 80,
+                    "description": "A typed, value-free detail: the wall type, the run endpoint, the failure code."
+                  }
+                },
+                "required": [
+                  "code",
+                  "waitingOn"
+                ]
+              }
+            },
+            "blocked": {
+              "type": "boolean",
+              "description": "Whether the page's work is held up (a signal other than stalled, on the page or its task): what dsagent.monitor.assist requires."
+            },
+            "assist": {
+              "type": "string",
+              "enum": [
+                "yours",
+                "held-by-another-agent",
+                "available",
+                "not-needed",
+                "owner-working"
+              ],
+              "description": "yours: you assist here now; held-by-another-agent: another agent does; available: dsagent.monitor.assist start lets you act here; not-needed: you may act with dsagent.page.* already (your page, your lease, your run's repair, the person's free page, an agent page whose owner is gone); owner-working: its owner works and nothing holds it up, so leave it."
+            },
+            "assistExpiresAt": {
+              "type": "string",
+              "maxLength": 40,
+              "description": "With an assist: when it lapses unless started again (ISO 8601)."
+            }
+          },
+          "required": [
+            "pageContextId",
+            "title",
+            "url",
+            "active",
+            "owner",
+            "attention",
+            "blocked",
+            "assist"
+          ]
+        },
+        "description": "Open tabs, those needing attention first."
+      },
+      "totalPages": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Matching tabs before the limit."
+      },
+      "tasks": {
+        "type": "array",
+        "maxItems": 60,
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "One task running (or just ended) in the browser.",
+          "properties": {
+            "taskRef": {
+              "type": "string",
+              "maxLength": 40,
+              "description": "Opaque, stable reference of the task."
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "agent",
+                "chat",
+                "workflow-run"
+              ],
+              "description": "An outside agent's task (its connection to DSphere), a DSphere Chat bot task, or a workflow run (started by the person, a schedule, the Chat bot or an agent)."
+            },
+            "mine": {
+              "type": "boolean",
+              "description": "Your own task, or a run you started."
+            },
+            "ownerName": {
+              "type": "string",
+              "maxLength": 80,
+              "description": "The outside agent that owns the task or started the run, when one did."
+            },
+            "description": {
+              "type": "string",
+              "maxLength": 300,
+              "description": "The task as its owner described it (an agent's taskDescription, the Chat request), or the run's workflow name."
+            },
+            "status": {
+              "type": "string",
+              "maxLength": 40,
+              "description": "Its owner's status: a Chat or agent task phase (planning, acting, paused-auth, awaiting-user, failed…), a run status (running, paused-auth-interrupt, paused-agent-repair, failed…), or running / ended for an agent connection."
+            },
+            "terminal": {
+              "type": "boolean",
+              "description": "Whether the task ended."
+            },
+            "startedAt": {
+              "type": "string",
+              "maxLength": 40,
+              "description": "When it started (ISO 8601)."
+            },
+            "lastActivityAt": {
+              "type": "string",
+              "maxLength": 40,
+              "description": "Its last published step (ISO 8601)."
+            },
+            "executionId": {
+              "type": "string",
+              "maxLength": 128,
+              "description": "The workflow run (dsagent.execution.get / wait / artifacts)."
+            },
+            "pageContextIds": {
+              "type": "array",
+              "maxItems": 100,
+              "items": {
+                "type": "string",
+                "maxLength": 128,
+                "description": "One page of the task."
+              },
+              "description": "The task's open pages."
+            },
+            "attention": {
+              "type": "array",
+              "maxItems": 8,
+              "description": "What holds the work up, each with who must act. Empty when nothing does.",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "One attention signal.",
+                "properties": {
+                  "code": {
+                    "type": "string",
+                    "enum": [
+                      "sign-in-wall",
+                      "verification-challenge",
+                      "waiting-for-answer",
+                      "paused-for-repair",
+                      "paused-for-resources",
+                      "task-failed",
+                      "task-interrupted",
+                      "run-failed",
+                      "stalled"
+                    ],
+                    "description": "sign-in-wall: a sign-in, one-time-code, consent or block page that only the person can pass; verification-challenge: a CAPTCHA, slider, picture or bot check an agent may pass with page actions (dsagent.page.action under its challenge budget, while the person's Verification Challenges switch is on); waiting-for-answer: a task waits for the person's answer to its question; paused-for-repair: a run waits for the repair of a failed block (dsagent.execution.handoff.*, only its starting agent answers); paused-for-resources: a run waits for host memory or CPU; task-failed / task-interrupted / run-failed: the work ended without its result; stalled: a running task published no step for 3 minutes (reported only, it stays its owner's)."
+                  },
+                  "waitingOn": {
+                    "type": "string",
+                    "enum": [
+                      "person",
+                      "agent",
+                      "nobody"
+                    ],
+                    "description": "Who must act for it to clear: the person, an agent (the owner, or one assisting), or nobody (the work ended; report it)."
+                  },
+                  "since": {
+                    "type": "string",
+                    "maxLength": 40,
+                    "description": "Since when (ISO 8601), when the owner says."
+                  },
+                  "detail": {
+                    "type": "string",
+                    "maxLength": 80,
+                    "description": "A typed, value-free detail: the wall type, the run endpoint, the failure code."
+                  }
+                },
+                "required": [
+                  "code",
+                  "waitingOn"
+                ]
+              }
+            }
+          },
+          "required": [
+            "taskRef",
+            "kind",
+            "mine",
+            "status",
+            "terminal",
+            "pageContextIds",
+            "attention"
+          ]
+        },
+        "description": "Tasks and runs in the browser."
+      }
+    },
+    "required": [
+      "at",
+      "pages",
+      "totalPages",
+      "tasks"
+    ]
+  },
+  "risk": "read-sensitive",
+  "targetKinds": [
+    "browser"
+  ],
+  "requiredPermissions": [
+    "page.read"
+  ],
+  "timeoutMs": 20000,
+  "maxInlineResultBytes": 163840,
+  "concurrency": "shared-read",
+  "retry": "pre-dispatch-read-only",
+  "exposure": "exposed"
+}

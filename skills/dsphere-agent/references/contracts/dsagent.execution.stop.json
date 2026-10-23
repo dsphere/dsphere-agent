@@ -1,0 +1,56 @@
+{
+  "method": "dsagent.execution.stop",
+  "version": 1,
+  "title": "Stop execution",
+  "description": "Stop one workflow execution.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "executionId": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "Opaque identifier of a non-terminal workflow execution."
+      }
+    },
+    "required": [
+      "executionId"
+    ],
+    "additionalProperties": false,
+    "description": "Execution to stop."
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "executionId": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "Execution that was stopped."
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "stopped"
+        ],
+        "description": "Confirmed stop state."
+      }
+    },
+    "required": [
+      "executionId",
+      "status"
+    ],
+    "additionalProperties": false,
+    "description": "Confirmed workflow stop result."
+  },
+  "risk": "reversible-write",
+  "targetKinds": [
+    "workflow"
+  ],
+  "requiredPermissions": [
+    "workflow.execute"
+  ],
+  "timeoutMs": 20000,
+  "maxInlineResultBytes": 262144,
+  "concurrency": "exclusive-browser",
+  "retry": "never",
+  "exposure": "exposed"
+}

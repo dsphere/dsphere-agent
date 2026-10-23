@@ -1,0 +1,123 @@
+{
+  "method": "dsagent.page.ask.wait",
+  "version": 1,
+  "title": "Wait for the runtime answer",
+  "description": "Read or wait up to 30 seconds for the person to answer the question in DSphere. Pending is not consent: keep waiting. A cancelled or missing request never authorizes an action. Answers are returned only to the caller that asked on that page. This cannot submit an answer on the person’s behalf.",
+  "inputSchema": {
+    "type": "object",
+    "description": "A task-scoped runtime question or wait request.",
+    "additionalProperties": false,
+    "required": [
+      "pageContextId",
+      "requestId"
+    ],
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "minLength": 8,
+        "maxLength": 128,
+        "description": "The task page context from dsagent.page.open, dsagent.pages.list or a receipt's destinationPageContextId."
+      },
+      "requestId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "The opaque runtime question identity returned by page.ask."
+      },
+      "timeoutMs": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 30000,
+        "description": "Long-poll duration; default 30000. Zero reads immediately."
+      }
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "description": "Runtime question state and its answer when settled.",
+    "additionalProperties": false,
+    "required": [
+      "requestId",
+      "status"
+    ],
+    "properties": {
+      "requestId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "The opaque runtime question identity returned by page.ask."
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "answered",
+          "cancelled"
+        ],
+        "description": "Pending waits for the person in DSphere. Only an answered accepted response permits the requested continuation."
+      },
+      "publishedAt": {
+        "type": "number",
+        "minimum": 0,
+        "description": "Runtime question publication boundary in epoch milliseconds."
+      },
+      "answeredAt": {
+        "type": "number",
+        "minimum": 0,
+        "description": "Runtime validated response boundary in epoch milliseconds; use with answeredBy to distinguish person response from a safe default."
+      },
+      "response": {
+        "type": "object",
+        "description": "The runtime answer, available only after the question settles.",
+        "additionalProperties": false,
+        "required": [
+          "requestId",
+          "accepted"
+        ],
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "The opaque runtime question identity returned by page.ask."
+          },
+          "accepted": {
+            "type": "boolean",
+            "description": "The person accepted, or the declared safe default declined."
+          },
+          "answer": {
+            "type": "string",
+            "maxLength": 2000,
+            "description": "Bounded clarification answer from the person."
+          },
+          "optionIndex": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 7,
+            "description": "Chosen zero-based option."
+          },
+          "answeredBy": {
+            "type": "string",
+            "enum": [
+              "person",
+              "default"
+            ],
+            "description": "The person or the runtime safe default."
+          }
+        }
+      }
+    }
+  },
+  "risk": "read-sensitive",
+  "targetKinds": [
+    "page"
+  ],
+  "requiredPermissions": [
+    "page.read"
+  ],
+  "timeoutMs": 35000,
+  "maxInlineResultBytes": 4096,
+  "concurrency": "shared-read",
+  "retry": "pre-dispatch-read-only",
+  "exposure": "exposed"
+}

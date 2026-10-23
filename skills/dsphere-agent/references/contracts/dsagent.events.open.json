@@ -1,0 +1,105 @@
+{
+  "method": "dsagent.events.open",
+  "version": 1,
+  "title": "Open Browser Event Channel",
+  "description": "Attach the current MCP control session to a bounded resumable channel for typed events published by the Extension. The channel is generic infrastructure and does not start a workflow, recording, or browser action.",
+  "inputSchema": {
+    "type": "object",
+    "description": "Parameters for opening a bounded browser event channel.",
+    "properties": {
+      "topics": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 6,
+        "uniqueItems": true,
+        "items": {
+          "type": "string",
+          "enum": [
+            "session",
+            "execution",
+            "recovery",
+            "page",
+            "interaction",
+            "monitor"
+          ]
+        },
+        "description": "Event topics to attach to this control-session-scoped channel. page: page.navigated, page.opened (a tab your page opened), page.closed, page.authentication.required / .cleared; your own pages report to you alone, pages no agent owns to every channel. interaction: your own steps (interaction.step.*) and session events. execution: execution.started / .status / .progress / .finished of runs in this browser, and execution.handoff.opened / .closed when a run opens or closes a repair handoff (details handoffId, endpoint, waitingOn), even under a sign-in pause whose status does not change. monitor: every task and page of the browser whoever started it (dsagent.monitor.snapshot as it changes): monitor.task.started / .status / .ended, monitor.attention.raised / .cleared (code and who it waits on), monitor.assist.started / .ended; off while the person turned the monitor off."
+      },
+      "leaseTtlSeconds": {
+        "type": "integer",
+        "minimum": 60,
+        "maximum": 14400,
+        "description": "Optional channel lease in seconds; the Extension applies its default when omitted."
+      }
+    },
+    "required": [
+      "topics"
+    ],
+    "additionalProperties": false
+  },
+  "outputSchema": {
+    "type": "object",
+    "description": "Opened browser event channel and initial cursor.",
+    "properties": {
+      "channelId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "Opaque identifier for the opened event channel."
+      },
+      "resumeToken": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "Opaque token for resuming reads from the same channel."
+      },
+      "topics": {
+        "type": "array",
+        "maxItems": 6,
+        "items": {
+          "type": "string",
+          "enum": [
+            "session",
+            "execution",
+            "recovery",
+            "page",
+            "interaction",
+            "monitor"
+          ]
+        },
+        "description": "Topics accepted for this channel."
+      },
+      "cursor": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Initial event cursor for subsequent waits."
+      },
+      "expiresAt": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 64,
+        "description": "Channel lease expiry timestamp."
+      }
+    },
+    "required": [
+      "channelId",
+      "resumeToken",
+      "topics",
+      "cursor",
+      "expiresAt"
+    ],
+    "additionalProperties": false
+  },
+  "risk": "reversible-write",
+  "targetKinds": [
+    "browser-event-channel"
+  ],
+  "requiredPermissions": [
+    "browser.events.read"
+  ],
+  "timeoutMs": 10000,
+  "maxInlineResultBytes": 16384,
+  "concurrency": "exclusive-target",
+  "retry": "never",
+  "exposure": "exposed"
+}

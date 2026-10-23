@@ -1,0 +1,106 @@
+{
+  "method": "dsagent.execution.data.export",
+  "version": 1,
+  "title": "Export execution data as CSV",
+  "description": "Write the records a finished execution collected (for example one started by dsagent.wizard.run, once dsagent.execution.wait reports it terminal) as UTF-8 CSV files in the Extension-managed directory, one file per dataset table: a list with details, such as posts and their comments, gives one file…",
+  "guidance": "Write the records a finished execution collected (for example one started by dsagent.wizard.run, once dsagent.execution.wait reports it terminal) as UTF-8 CSV files in the Extension-managed directory, one file per dataset table: a list with details, such as posts and their comments, gives one file per table, and every row carries 记录ID, 父记录ID and 层级 so child rows join their parents. Analyze the returned local paths without inlining their content. Requires an idempotency key; repeating a key with the same input returns the same files.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "executionId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "Opaque workflow execution identifier returned by dsagent.wizard.run or dsagent.execution.run; the execution must be terminal."
+      }
+    },
+    "required": [
+      "executionId"
+    ],
+    "description": "Input for exporting one terminal execution's collected records as CSV files."
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "executionId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "Workflow execution whose records were exported."
+      },
+      "files": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 50,
+        "description": "CSV files written for the execution, one per dataset table, in table order.",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "path": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 4096,
+              "description": "Absolute local path of the CSV file inside the configured managed directory."
+            },
+            "mediaType": {
+              "type": "string",
+              "enum": [
+                "text/csv"
+              ],
+              "description": "Media type of the exported file."
+            },
+            "sizeBytes": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Exact file size in bytes."
+            },
+            "rowCount": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Data rows in the file, header excluded."
+            },
+            "table": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500,
+              "description": "Dataset table the file holds, present when the collection has several tables (for example posts and comments)."
+            },
+            "sourceArtifactId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256,
+              "description": "Artifact the rows were read from, when the execution stored one."
+            }
+          },
+          "required": [
+            "path",
+            "mediaType",
+            "sizeBytes",
+            "rowCount"
+          ],
+          "description": "One exported CSV file."
+        }
+      }
+    },
+    "required": [
+      "executionId",
+      "files"
+    ],
+    "description": "Local CSV file references for one terminal execution."
+  },
+  "risk": "reversible-write",
+  "targetKinds": [
+    "workflow"
+  ],
+  "requiredPermissions": [
+    "workflow.execute"
+  ],
+  "timeoutMs": 120000,
+  "maxInlineResultBytes": 65536,
+  "concurrency": "shared-read",
+  "retry": "never",
+  "exposure": "exposed"
+}

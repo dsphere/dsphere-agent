@@ -1,0 +1,236 @@
+{
+  "method": "dsagent.page.account.detect",
+  "version": 1,
+  "title": "Detect the signed-in account",
+  "description": "Read which account the web application on this page shows as signed in, from where applications show it: the top-left and top-right corners of the header and the bottom-left corner (a sidebar foot), using the avatar, the name beside it, account menus and accessible labels.",
+  "guidance": "Use it after a sign-in, before acting for a task that names an application account, or to check which account a reused session holds. status signed-in with account names the likely account; signed-out means a sign-in control shows. signed-in without account means only an avatar shows: open the account menu to read the name, then call this again. accountMenu names the avatar control: dsagent.page.action with action hover on accountMenu.targetId and accountMenu.expectedRevision (click instead when hovering does not open it; never when the control is a link to another page), then dsagent.page.account.detect again, which reads the open menu (accountMenu.open true, signals account-menu), then close the menu again with a dismiss page action on one of its items (it clicks outside the menu, then presses its control, then Escape, until the menu closes, and says which closed it), and check with this call that accountMenu.open is false; close a page you opened only for this instead. Without accountMenu.targetId observe the page and find the avatar control first. The label is what the page shows, evidence of the account rather than proof, and is recorded for the page's browser session and site (dsagent.browser.sessions.list reports observedAccountLabel and a switch when the page later shows another account). Read-only: nothing on the page is clicked or changed.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "pageContextId"
+    ],
+    "description": "The page to read.",
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "minLength": 8,
+        "maxLength": 128,
+        "description": "Opaque page context from dsagent.pages.list or dsagent.page.open."
+      }
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "pageContextId",
+      "status",
+      "avatar",
+      "signInControl",
+      "candidates"
+    ],
+    "description": "The signed-in account the page shows.",
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "minLength": 8,
+        "maxLength": 128,
+        "description": "Opaque page context from dsagent.pages.list or dsagent.page.open."
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "signed-in",
+          "signed-out",
+          "unknown"
+        ],
+        "description": "signed-in: an account name or avatar shows in a corner and no sign-in control does; signed-out: a sign-in control shows and no account does; unknown: neither, or both."
+      },
+      "account": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "label",
+          "corner",
+          "source",
+          "score",
+          "signals"
+        ],
+        "description": "The most likely account, when the evidence is strong enough.",
+        "properties": {
+          "label": {
+            "type": "string",
+            "maxLength": 80,
+            "description": "The account as the page shows it (a name, nickname, email or masked phone number)."
+          },
+          "corner": {
+            "type": "string",
+            "enum": [
+              "top-left",
+              "top-right",
+              "bottom-left"
+            ],
+            "description": "Where the page shows it: top-left or top-right of the header, or bottom-left (a sidebar foot)."
+          },
+          "source": {
+            "type": "string",
+            "enum": [
+              "text",
+              "aria-label",
+              "title",
+              "image-alt"
+            ],
+            "description": "Read from visible text, an accessible label, a tooltip title or an avatar picture's alternative text."
+          },
+          "score": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Strength of the evidence; 3 or more names the account."
+          },
+          "signals": {
+            "type": "array",
+            "maxItems": 6,
+            "description": "Why it looks like the account.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "beside-avatar",
+                "account-container",
+                "named-account",
+                "menu-trigger",
+                "login-identifier",
+                "account-menu"
+              ],
+              "description": "beside-avatar: next to a user picture; account-container: inside an element named user/account/profile; named-account: an accessible label names the account; menu-trigger: the control opens a menu; login-identifier: shaped like an email or phone number; account-menu: read from the open account menu."
+            }
+          }
+        }
+      },
+      "avatar": {
+        "type": "boolean",
+        "description": "A user picture shows in a corner."
+      },
+      "signInControl": {
+        "type": "boolean",
+        "description": "A sign-in or log-in control shows in a corner."
+      },
+      "candidates": {
+        "type": "array",
+        "maxItems": 5,
+        "description": "Every account label considered, strongest first.",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "label",
+            "corner",
+            "source",
+            "score",
+            "signals"
+          ],
+          "description": "One account label the page shows.",
+          "properties": {
+            "label": {
+              "type": "string",
+              "maxLength": 80,
+              "description": "The account as the page shows it (a name, nickname, email or masked phone number)."
+            },
+            "corner": {
+              "type": "string",
+              "enum": [
+                "top-left",
+                "top-right",
+                "bottom-left"
+              ],
+              "description": "Where the page shows it: top-left or top-right of the header, or bottom-left (a sidebar foot)."
+            },
+            "source": {
+              "type": "string",
+              "enum": [
+                "text",
+                "aria-label",
+                "title",
+                "image-alt"
+              ],
+              "description": "Read from visible text, an accessible label, a tooltip title or an avatar picture's alternative text."
+            },
+            "score": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Strength of the evidence; 3 or more names the account."
+            },
+            "signals": {
+              "type": "array",
+              "maxItems": 6,
+              "description": "Why it looks like the account.",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "beside-avatar",
+                  "account-container",
+                  "named-account",
+                  "menu-trigger",
+                  "login-identifier",
+                  "account-menu"
+                ],
+                "description": "beside-avatar: next to a user picture; account-container: inside an element named user/account/profile; named-account: an accessible label names the account; menu-trigger: the control opens a menu; login-identifier: shaped like an email or phone number; account-menu: read from the open account menu."
+              }
+            }
+          }
+        }
+      },
+      "accountMenu": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "open",
+          "corner"
+        ],
+        "description": "The control that opens the account menu (the avatar's), to open it with a page action when only an avatar shows.",
+        "properties": {
+          "targetId": {
+            "type": "string",
+            "maxLength": 128,
+            "description": "Opaque page target of the control, for dsagent.page.action with expectedRevision."
+          },
+          "expectedRevision": {
+            "type": "string",
+            "maxLength": 128,
+            "description": "The page revision the target was published at."
+          },
+          "open": {
+            "type": "boolean",
+            "description": "The menu is open now; its labels were read."
+          },
+          "label": {
+            "type": "string",
+            "maxLength": 80,
+            "description": "The control's accessible name, when it has one."
+          },
+          "corner": {
+            "type": "string",
+            "enum": [
+              "top-left",
+              "top-right",
+              "bottom-left"
+            ],
+            "description": "The corner the control is in."
+          }
+        }
+      }
+    }
+  },
+  "risk": "read-sensitive",
+  "targetKinds": [
+    "page"
+  ],
+  "requiredPermissions": [
+    "page.read"
+  ],
+  "timeoutMs": 15000,
+  "maxInlineResultBytes": 8192,
+  "concurrency": "shared-read",
+  "retry": "pre-dispatch-read-only",
+  "exposure": "exposed"
+}

@@ -1,0 +1,324 @@
+{
+  "method": "dsagent.page.markdown",
+  "version": 1,
+  "title": "Read browser page as Markdown",
+  "description": "Read the current document of a page context as clean Markdown for reading, summarising or answering: page chrome, hidden elements and ad slots removed, links written as numbered citations with a reference list, low-density link farms pruned in fit mode.",
+  "guidance": "The text is a bounded prefix of the page in document order, not a dataset; use dsagent.page.observe for targets and actions, and pass focus to keep only the blocks relevant to a wording. The destination of every cited link is in references[].url (the address dsagent.page.find reports as navigationUrl), so one read collects the links of a list, such as the profile addresses of its authors, without a find per name.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "minLength": 8,
+        "maxLength": 128,
+        "description": "Opaque page context from dsagent.pages.list, dsagent.page.open, or a receipt's destinationPageContextId."
+      },
+      "profile": {
+        "type": "string",
+        "enum": [
+          "minimal",
+          "balanced",
+          "aggressive"
+        ],
+        "description": "Noise removal: minimal keeps navigation and footers, balanced (default) removes page chrome and hidden elements, aggressive also removes sidebars and modal-like blocks."
+      },
+      "links": {
+        "type": "string",
+        "enum": [
+          "inline",
+          "citations",
+          "none"
+        ],
+        "description": "Link rendering: citations (default) writes text⟨n⟩ plus a reference list, inline keeps [text](url), none drops destinations."
+      },
+      "fit": {
+        "type": "boolean",
+        "description": "Prune low-density link-farm blocks (default true). Repeated records such as listing cards are always kept."
+      },
+      "focus": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 500,
+        "description": "Optional wording to focus the reading on; only relevant blocks and headings are kept (BM25, Chinese-aware). A wording that matches nothing keeps everything."
+      },
+      "maxChars": {
+        "type": "integer",
+        "minimum": 4000,
+        "maximum": 120000,
+        "description": "Maximum Markdown characters returned inline; longer pages are cut at a paragraph boundary and flagged truncated."
+      },
+      "cursor": {
+        "type": "string",
+        "minLength": 4,
+        "maxLength": 32,
+        "description": "nextCursor of the previous read of this page with the same options: continue the Markdown where that read was cut."
+      }
+    },
+    "required": [
+      "pageContextId"
+    ],
+    "additionalProperties": false,
+    "description": "Page context to read and the Markdown rendering options."
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "Opaque page context that was read."
+      },
+      "revision": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "Page revision observed for this read; pass it to dsagent.page.action or observe again when it changes."
+      },
+      "url": {
+        "type": "string",
+        "maxLength": 2048,
+        "description": "Sanitized current page URL."
+      },
+      "title": {
+        "type": "string",
+        "maxLength": 300,
+        "description": "Bounded current page title."
+      },
+      "format": {
+        "type": "string",
+        "enum": [
+          "markdown"
+        ],
+        "description": "Text representation."
+      },
+      "markdown": {
+        "type": "string",
+        "maxLength": 120000,
+        "description": "The page as Markdown in document order, bounded by maxChars."
+      },
+      "truncated": {
+        "type": "boolean",
+        "description": "True when the Markdown was cut at maxChars or at the inline byte limit, the capture hit its node budget or the compiler its time budget."
+      },
+      "nextCursor": {
+        "type": "string",
+        "maxLength": 32,
+        "description": "Present when the Markdown was cut before the end of the rendering: pass it as cursor, with the same options, to read on."
+      },
+      "references": {
+        "type": "array",
+        "maxItems": 400,
+        "description": "Numbered link and image destinations referenced from the Markdown in citations mode.",
+        "items": {
+          "type": "object",
+          "properties": {
+            "index": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Citation number used in the Markdown as ⟨n⟩."
+            },
+            "url": {
+              "type": "string",
+              "maxLength": 2048,
+              "description": "Absolute destination, as the page links it now (the same address dsagent.page.find reports as navigationUrl)."
+            },
+            "text": {
+              "type": "string",
+              "maxLength": 160,
+              "description": "Bounded link text, empty for images."
+            }
+          },
+          "required": [
+            "index",
+            "url",
+            "text"
+          ],
+          "additionalProperties": false,
+          "description": "One numbered reference."
+        }
+      },
+      "metadata": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "maxLength": 500,
+            "description": "Meta description when the page declares one."
+          },
+          "canonicalUrl": {
+            "type": "string",
+            "maxLength": 2048,
+            "description": "Canonical URL when the page declares one."
+          },
+          "language": {
+            "type": "string",
+            "maxLength": 32,
+            "description": "Document language."
+          },
+          "siteName": {
+            "type": "string",
+            "maxLength": 500,
+            "description": "Site name when the page declares one."
+          },
+          "author": {
+            "type": "string",
+            "maxLength": 500,
+            "description": "Author when the page declares one."
+          },
+          "publishedAt": {
+            "type": "string",
+            "maxLength": 64,
+            "description": "Publication time when the page declares one."
+          },
+          "capturedAt": {
+            "type": "string",
+            "maxLength": 64,
+            "description": "ISO timestamp of the read."
+          }
+        },
+        "required": [
+          "capturedAt"
+        ],
+        "additionalProperties": false,
+        "description": "What the document says about itself in its head, bounded."
+      },
+      "warnings": {
+        "type": "array",
+        "maxItems": 2,
+        "description": "REPEATED_RECORDS_USE_WIZARD: switch to the scrape wizard on this page now (dsagent.wizard.start kind=scrape, then wizard.state / wizard.choose). DSphere's typed route advice, never page text: this page shows repeated records (the same fields per item) and this task has read or scrolled it twelve or more times with page reads, which is not how records are collected. The call itself succeeded; the person sees the same notice in the DSphere side panel. Plan on the code, never on the message.",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "code",
+            "message",
+            "nextActions"
+          ],
+          "description": "One typed warning.",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "REPEATED_RECORDS_USE_WIZARD"
+              ],
+              "description": "Stable warning code to plan on."
+            },
+            "message": {
+              "type": "string",
+              "maxLength": 300,
+              "description": "Bounded reason with the counts behind it; never page text."
+            },
+            "nextActions": {
+              "type": "array",
+              "maxItems": 2,
+              "description": "What to call next, in order.",
+              "items": {
+                "type": "string",
+                "maxLength": 200,
+                "description": "One next call, named as the catalog names it."
+              }
+            }
+          }
+        }
+      },
+      "fit": {
+        "type": "object",
+        "properties": {
+          "rawByteLength": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Bytes of the unpruned rendering."
+          },
+          "prunedBlocks": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Block elements left out by density pruning."
+          },
+          "matchedChunks": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Blocks kept by the focus wording."
+          },
+          "totalChunks": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Blocks scored against the focus wording."
+          }
+        },
+        "required": [
+          "rawByteLength",
+          "prunedBlocks"
+        ],
+        "additionalProperties": false,
+        "description": "Pruning statistics, present when fit or focus was applied."
+      },
+      "authentication": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "sign-in-required",
+              "no-wall"
+            ],
+            "description": "no-wall: the monitor checked this page and found no sign-in or verification wall, so do not tell the person the site needs a sign-in. sign-in-required: the page asks the person to sign in or pass a verification (the browser's sign-in monitor, the one workflow runs use, decided it)."
+          },
+          "type": {
+            "type": "string",
+            "maxLength": 40,
+            "description": "The kind of wall the monitor recognised: a challenge (CAPTCHA, SLIDER_CAPTCHA, IMAGE_CAPTCHA, RECAPTCHA, HCAPTCHA, TURNSTILE, GEETEST, ARKOSE, CLOUDFLARE, BOT_PROTECTION) or a sign-in kind (LOGIN_FORM, PHONE_LOGIN, SSO, OTP…)."
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "The monitor's confidence."
+          },
+          "waitingOn": {
+            "type": "string",
+            "enum": [
+              "agent",
+              "person"
+            ],
+            "description": "Who the wall waits on. agent: a challenge you hold and pass yourself with page actions (see the field description). person: a sign-in wall, or a challenge you failed; DSphere handed it to the person. DSphere has shown the person its sign-in sheet for this page (and a desktop notification when its side panel is closed). Tell your user that the page needs them to sign in or pass the check in the browser and click Resume in the DSphere side panel; do not use dsagent.page.ask for it. Wait, then read this page again (dsagent.page.observe); continue the task where it stopped once authentication is absent. Do not end the task, retry the effect before then, or sign in, enter credentials or solve the challenge yourself."
+          },
+          "attemptsLeft": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 12,
+            "description": "With waitingOn agent: effect calls (dsagent.page.action / .actions) you may still spend on this challenge before it is the person's."
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "additionalProperties": false,
+        "description": "The sign-in monitor's verdict on the page: status no-wall when it checked and found none (absent when it could not check); status sign-in-required, with type and confidence, when the page is a sign-in or verification (CAPTCHA) wall. With waitingOn \"agent\" the wall is a human-verification challenge (a CAPTCHA or bot check) that you pass yourself, with the page gestures a person uses: dsagent.page.visual.observe shows the puzzle; dsagent.page.observe / dsagent.page.find list its controls (a checkbox or a picture tile: click; a slider knob: drag with delta or dropTargetId; a code field: type; a refresh or confirm control: click); then read the page again. Once the challenge has survived one of your answers, DSphere sends your drags and plain clicks on it as real browser input (the receipt says so); nothing changes in how you call them. authentication absent or no-wall means it is passed; continue the task. You have attemptsLeft effect calls on this challenge (12 at first) and 5 minutes; when they are spent, or you call dsagent.page.notify on this page because you cannot pass it, DSphere hands the challenge to the person and waitingOn becomes \"person\". Never enter credentials, sign in or ask the person before that. The person may turn this off (DSphere Settings → Verification Challenges; dsagent.settings.get section agent-challenge-walls, which you cannot change): then every wall is the person's from the start. With waitingOn \"person\" effects other than a click on the active surface's own close control (activeSurface.closeTargetId), dismiss, scroll and Escape are refused with TARGET_BUSY / AUTHENTICATION_REQUIRED until the wall is gone. You may still close a sign-in popup the way a guest does, which signs nothing in: click its own close control (activeSurface.closeTargetId of your latest page read), dismiss, scroll or press Escape; then read the page again. DSphere has shown the person its sign-in sheet for this page (and a desktop notification when its side panel is closed). Tell your user that the page needs them to sign in or pass the check in the browser and click Resume in the DSphere side panel; do not use dsagent.page.ask for it. Wait, then read this page again (dsagent.page.observe); continue the task where it stopped once authentication is absent. Do not end the task, retry the effect before then, or sign in, enter credentials or solve the challenge yourself."
+      }
+    },
+    "required": [
+      "pageContextId",
+      "revision",
+      "url",
+      "title",
+      "format",
+      "markdown",
+      "truncated",
+      "references",
+      "metadata"
+    ],
+    "additionalProperties": false,
+    "description": "Bounded Markdown rendering of the current document with its references and metadata."
+  },
+  "risk": "read-sensitive",
+  "targetKinds": [
+    "page"
+  ],
+  "requiredPermissions": [
+    "page.read"
+  ],
+  "timeoutMs": 35000,
+  "maxInlineResultBytes": 262144,
+  "concurrency": "shared-read",
+  "retry": "pre-dispatch-read-only",
+  "exposure": "exposed"
+}

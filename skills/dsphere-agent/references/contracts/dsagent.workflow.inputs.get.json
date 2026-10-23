@@ -1,0 +1,101 @@
+{
+  "method": "dsagent.workflow.inputs.get",
+  "version": 1,
+  "title": "Get workflow inputs",
+  "description": "List editable run inputs using opaque field IDs. Call before execution when a workflow may require form values.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "workflowId": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "Opaque workflow identifier returned by dsagent.workflows.list."
+      }
+    },
+    "required": [
+      "workflowId"
+    ],
+    "additionalProperties": false,
+    "description": "Workflow whose editable run-time fields should be inspected."
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "workflowId": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "Workflow whose run-time fields were inspected."
+      },
+      "fields": {
+        "type": "array",
+        "maxItems": 100,
+        "description": "Editable workflow fields; use writable field IDs in dsagent.execution.run.fieldValues.",
+        "items": {
+          "type": "object",
+          "properties": {
+            "fieldId": {
+              "type": "string",
+              "maxLength": 256,
+              "description": "Opaque field identifier accepted by dsagent.execution.run."
+            },
+            "label": {
+              "type": "string",
+              "maxLength": 500,
+              "description": "Human-readable field label."
+            },
+            "alias": {
+              "type": "string",
+              "maxLength": 500,
+              "description": "Workflow-defined field alias."
+            },
+            "fieldType": {
+              "type": "string",
+              "maxLength": 100,
+              "description": "Workflow field type; upload-file fields are not writable through MCP."
+            },
+            "value": {
+              "type": [
+                "string",
+                "number",
+                "boolean",
+                "null"
+              ],
+              "description": "Current bounded field value, or an empty value for unsupported upload-file inputs."
+            },
+            "writable": {
+              "type": "boolean",
+              "description": "Whether MCP may provide a replacement value for this field."
+            }
+          },
+          "required": [
+            "fieldId",
+            "label",
+            "alias",
+            "fieldType",
+            "value",
+            "writable"
+          ],
+          "additionalProperties": false
+        }
+      }
+    },
+    "required": [
+      "workflowId",
+      "fields"
+    ],
+    "additionalProperties": false,
+    "description": "Editable run-time fields for one workflow."
+  },
+  "risk": "read-sensitive",
+  "targetKinds": [
+    "workflow"
+  ],
+  "requiredPermissions": [
+    "workflow.read"
+  ],
+  "timeoutMs": 10000,
+  "maxInlineResultBytes": 262144,
+  "concurrency": "shared-read",
+  "retry": "pre-dispatch-read-only",
+  "exposure": "exposed"
+}

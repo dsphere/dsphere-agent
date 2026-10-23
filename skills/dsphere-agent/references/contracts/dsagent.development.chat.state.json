@@ -1,0 +1,127 @@
+{
+  "method": "dsagent.development.chat.state",
+  "version": 1,
+  "title": "Read where the SidePanel is and what its Chat shows",
+  "description": "Development only: the view the SidePanel of the person's focused window shows (chat, workflows, scrape, ...) and, while the Chat is that view, its latest messages (cut) with their browser tasks' status. panelOpen false when no SidePanel answered.",
+  "guidance": "Only when the person explicitly asked you to use the Chat, and only while the person's grant is on (SidePanel Settings, development builds, one hour; no capability can turn it on): without it every call is refused with POLICY_DENIED (CHAT_AGENT_ACCESS_NOT_GRANTED). Never use the Chat to run your own work: the Chat is the person's autonomous task path.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "No input.",
+    "properties": {}
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "The SidePanel of the focused window.",
+    "properties": {
+      "panelOpen": {
+        "type": "boolean",
+        "description": "A SidePanel answered."
+      },
+      "activeTab": {
+        "type": "string",
+        "description": "The view it shows."
+      },
+      "chat": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "The open conversation, bounded.",
+        "properties": {
+          "busy": {
+            "type": "boolean",
+            "description": "A reply is still streaming."
+          },
+          "taskRunning": {
+            "type": "boolean",
+            "description": "A browser task of the Chat is running."
+          },
+          "conversationId": {
+            "type": "string",
+            "description": "The open conversation."
+          },
+          "messages": {
+            "type": "array",
+            "maxItems": 6,
+            "description": "The latest messages, oldest first.",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "description": "One message.",
+              "properties": {
+                "role": {
+                  "type": "string",
+                  "enum": [
+                    "user",
+                    "assistant"
+                  ],
+                  "description": "Who wrote it."
+                },
+                "fromAgent": {
+                  "type": "boolean",
+                  "description": "True for an outside agent's task mirrored into the Chat: shown as a user message, but the person did not write it."
+                },
+                "text": {
+                  "type": "string",
+                  "description": "Its text, cut at 400 characters.",
+                  "maxLength": 400
+                },
+                "errorCode": {
+                  "type": "string",
+                  "description": "The typed failure the message shows, if any."
+                },
+                "task": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "description": "The browser task this message reports.",
+                  "properties": {
+                    "sessionId": {
+                      "type": "string",
+                      "description": "The task."
+                    },
+                    "status": {
+                      "type": "string",
+                      "description": "running, succeeded, failed, cancelled, ..."
+                    },
+                    "executionId": {
+                      "type": "string",
+                      "description": "The workflow run it started."
+                    }
+                  },
+                  "required": [
+                    "sessionId",
+                    "status"
+                  ]
+                }
+              },
+              "required": [
+                "role",
+                "text"
+              ]
+            }
+          }
+        },
+        "required": [
+          "busy",
+          "taskRunning",
+          "messages"
+        ]
+      }
+    },
+    "required": [
+      "panelOpen"
+    ]
+  },
+  "risk": "read-sensitive",
+  "targetKinds": [
+    "browser"
+  ],
+  "requiredPermissions": [
+    "development.chat"
+  ],
+  "timeoutMs": 10000,
+  "maxInlineResultBytes": 8192,
+  "concurrency": "shared-read",
+  "retry": "pre-dispatch-read-only",
+  "exposure": "exposed"
+}

@@ -1,0 +1,60 @@
+{
+  "method": "dsagent.page.focus",
+  "version": 1,
+  "title": "Bring a page forward",
+  "description": "Bring a page's tab forward in its window and focus that window, for the rare step that needs the page on screen (a visual read that reports TAB_NOT_ACTIVE or WINDOW_NOT_FOCUSED, a control that only paints while visible).",
+  "guidance": "No other page action activates a tab or focuses a window: dsagent.page.action and dsagent.page.actions drive a page in the background and leave the person's and other agents' tabs where they are. Allowed on a page opened for you, or on one of the person's pages you hold the lease on (the first agent acting on it keeps it for 90 s per action); another agent's page is refused POLICY_DENIED and its leased page TARGET_BUSY. Requires an idempotency key; repeating a key returns the first result.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "minLength": 8,
+        "maxLength": 128,
+        "description": "Opaque page context from dsagent.pages.list, dsagent.page.open, or a receipt's destinationPageContextId."
+      }
+    },
+    "required": [
+      "pageContextId"
+    ],
+    "additionalProperties": false,
+    "description": "The page to bring forward."
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "The page that was brought forward."
+      },
+      "active": {
+        "type": "boolean",
+        "description": "Whether the tab is now the active tab of its window."
+      },
+      "focused": {
+        "type": "boolean",
+        "description": "Whether its window is now focused; false when the browser or OS refused focus, in which case the person has to click the window."
+      }
+    },
+    "required": [
+      "pageContextId",
+      "active",
+      "focused"
+    ],
+    "additionalProperties": false,
+    "description": "The page as it is after the call."
+  },
+  "risk": "reversible-write",
+  "targetKinds": [
+    "page"
+  ],
+  "requiredPermissions": [
+    "page.open"
+  ],
+  "timeoutMs": 15000,
+  "maxInlineResultBytes": 1024,
+  "concurrency": "exclusive-target",
+  "retry": "never",
+  "exposure": "exposed"
+}

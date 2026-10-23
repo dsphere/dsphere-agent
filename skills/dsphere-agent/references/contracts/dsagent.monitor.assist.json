@@ -1,0 +1,262 @@
+{
+  "method": "dsagent.monitor.assist",
+  "version": 1,
+  "title": "Assist on a held-up page",
+  "description": "Start or end your assist on a page another owner holds (the person, another agent, the Chat bot, a workflow run) while its work is held up (dsagent.monitor.snapshot: blocked, assist available).",
+  "guidance": "While it lasts (5 minutes; start again to renew) your dsagent.page.action / actions / focus are admitted there although the page is not yours; the page stays its owner's. Walls stay decided as on your own pages: a verification challenge is yours to pass under its attempt budget while the person's Verification Challenges switch is on, a sign-in wall is never yours. When the page is clear, end the assist: if the wall is verified gone, the task or run that waited on it continues. An assist ends by itself once nothing holds the page up any more (refused then with MONITOR_ASSIST_ENDED), when it lapses, when your connection ends or when the person turns the monitor off. Refusals: ASSIST_NOT_NEEDED (act directly), NOT_BLOCKED (its owner works; leave it), ASSIST_HELD (another agent assists), MONITOR_OFF. Requires an idempotency key.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "Which page, and start or end.",
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "The page (from dsagent.monitor.snapshot or dsagent.pages.list)."
+      },
+      "operation": {
+        "type": "string",
+        "enum": [
+          "start",
+          "end"
+        ],
+        "description": "start (or renew) your assist, or end it."
+      }
+    },
+    "required": [
+      "pageContextId",
+      "operation"
+    ]
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "The assist after this call.",
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "The page."
+      },
+      "state": {
+        "type": "string",
+        "enum": [
+          "assisting",
+          "ended"
+        ],
+        "description": "assisting: act on the page now; ended: the assist is over."
+      },
+      "expiresAt": {
+        "type": "string",
+        "maxLength": 40,
+        "description": "With assisting: when it lapses (ISO 8601)."
+      },
+      "attention": {
+        "type": "array",
+        "maxItems": 8,
+        "description": "What holds the work up, each with who must act. Empty when nothing does.",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "One attention signal.",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "sign-in-wall",
+                "verification-challenge",
+                "waiting-for-answer",
+                "paused-for-repair",
+                "paused-for-resources",
+                "task-failed",
+                "task-interrupted",
+                "run-failed",
+                "stalled"
+              ],
+              "description": "sign-in-wall: a sign-in, one-time-code, consent or block page that only the person can pass; verification-challenge: a CAPTCHA, slider, picture or bot check an agent may pass with page actions (dsagent.page.action under its challenge budget, while the person's Verification Challenges switch is on); waiting-for-answer: a task waits for the person's answer to its question; paused-for-repair: a run waits for the repair of a failed block (dsagent.execution.handoff.*, only its starting agent answers); paused-for-resources: a run waits for host memory or CPU; task-failed / task-interrupted / run-failed: the work ended without its result; stalled: a running task published no step for 3 minutes (reported only, it stays its owner's)."
+            },
+            "waitingOn": {
+              "type": "string",
+              "enum": [
+                "person",
+                "agent",
+                "nobody"
+              ],
+              "description": "Who must act for it to clear: the person, an agent (the owner, or one assisting), or nobody (the work ended; report it)."
+            },
+            "since": {
+              "type": "string",
+              "maxLength": 40,
+              "description": "Since when (ISO 8601), when the owner says."
+            },
+            "detail": {
+              "type": "string",
+              "maxLength": 80,
+              "description": "A typed, value-free detail: the wall type, the run endpoint, the failure code."
+            }
+          },
+          "required": [
+            "code",
+            "waitingOn"
+          ]
+        }
+      },
+      "task": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "One task running (or just ended) in the browser.",
+        "properties": {
+          "taskRef": {
+            "type": "string",
+            "maxLength": 40,
+            "description": "Opaque, stable reference of the task."
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "agent",
+              "chat",
+              "workflow-run"
+            ],
+            "description": "An outside agent's task (its connection to DSphere), a DSphere Chat bot task, or a workflow run (started by the person, a schedule, the Chat bot or an agent)."
+          },
+          "mine": {
+            "type": "boolean",
+            "description": "Your own task, or a run you started."
+          },
+          "ownerName": {
+            "type": "string",
+            "maxLength": 80,
+            "description": "The outside agent that owns the task or started the run, when one did."
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 300,
+            "description": "The task as its owner described it (an agent's taskDescription, the Chat request), or the run's workflow name."
+          },
+          "status": {
+            "type": "string",
+            "maxLength": 40,
+            "description": "Its owner's status: a Chat or agent task phase (planning, acting, paused-auth, awaiting-user, failed…), a run status (running, paused-auth-interrupt, paused-agent-repair, failed…), or running / ended for an agent connection."
+          },
+          "terminal": {
+            "type": "boolean",
+            "description": "Whether the task ended."
+          },
+          "startedAt": {
+            "type": "string",
+            "maxLength": 40,
+            "description": "When it started (ISO 8601)."
+          },
+          "lastActivityAt": {
+            "type": "string",
+            "maxLength": 40,
+            "description": "Its last published step (ISO 8601)."
+          },
+          "executionId": {
+            "type": "string",
+            "maxLength": 128,
+            "description": "The workflow run (dsagent.execution.get / wait / artifacts)."
+          },
+          "pageContextIds": {
+            "type": "array",
+            "maxItems": 100,
+            "items": {
+              "type": "string",
+              "maxLength": 128,
+              "description": "One page of the task."
+            },
+            "description": "The task's open pages."
+          },
+          "attention": {
+            "type": "array",
+            "maxItems": 8,
+            "description": "What holds the work up, each with who must act. Empty when nothing does.",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "description": "One attention signal.",
+              "properties": {
+                "code": {
+                  "type": "string",
+                  "enum": [
+                    "sign-in-wall",
+                    "verification-challenge",
+                    "waiting-for-answer",
+                    "paused-for-repair",
+                    "paused-for-resources",
+                    "task-failed",
+                    "task-interrupted",
+                    "run-failed",
+                    "stalled"
+                  ],
+                  "description": "sign-in-wall: a sign-in, one-time-code, consent or block page that only the person can pass; verification-challenge: a CAPTCHA, slider, picture or bot check an agent may pass with page actions (dsagent.page.action under its challenge budget, while the person's Verification Challenges switch is on); waiting-for-answer: a task waits for the person's answer to its question; paused-for-repair: a run waits for the repair of a failed block (dsagent.execution.handoff.*, only its starting agent answers); paused-for-resources: a run waits for host memory or CPU; task-failed / task-interrupted / run-failed: the work ended without its result; stalled: a running task published no step for 3 minutes (reported only, it stays its owner's)."
+                },
+                "waitingOn": {
+                  "type": "string",
+                  "enum": [
+                    "person",
+                    "agent",
+                    "nobody"
+                  ],
+                  "description": "Who must act for it to clear: the person, an agent (the owner, or one assisting), or nobody (the work ended; report it)."
+                },
+                "since": {
+                  "type": "string",
+                  "maxLength": 40,
+                  "description": "Since when (ISO 8601), when the owner says."
+                },
+                "detail": {
+                  "type": "string",
+                  "maxLength": 80,
+                  "description": "A typed, value-free detail: the wall type, the run endpoint, the failure code."
+                }
+              },
+              "required": [
+                "code",
+                "waitingOn"
+              ]
+            }
+          }
+        },
+        "required": [
+          "taskRef",
+          "kind",
+          "mine",
+          "status",
+          "terminal",
+          "pageContextIds",
+          "attention"
+        ]
+      },
+      "wallCleared": {
+        "type": "boolean",
+        "description": "With ended: whether a fresh read found the page without a wall."
+      },
+      "ownerResumed": {
+        "type": "string",
+        "enum": [
+          "task",
+          "run"
+        ],
+        "description": "With ended: the task or run that waited on the wall continues."
+      }
+    },
+    "required": [
+      "pageContextId",
+      "state"
+    ]
+  },
+  "risk": "reversible-write",
+  "targetKinds": [
+    "page"
+  ],
+  "requiredPermissions": [
+    "page.read"
+  ],
+  "timeoutMs": 20000,
+  "maxInlineResultBytes": 32768,
+  "concurrency": "exclusive-target",
+  "retry": "never",
+  "exposure": "exposed"
+}

@@ -1,0 +1,281 @@
+{
+  "method": "dsagent.accounts.open",
+  "version": 1,
+  "title": "Open Account",
+  "description": "Open the account using its existing browser environment and fill owner.",
+  "inputSchema": {
+    "type": "object",
+    "description": "Open the account using its existing browser environment and fill owner.",
+    "properties": {
+      "accountId": {
+        "type": "string",
+        "description": "Opaque account reference returned by accounts.list or accounts.get.",
+        "minLength": 1,
+        "maxLength": 100
+      }
+    },
+    "required": [
+      "accountId"
+    ],
+    "additionalProperties": false
+  },
+  "outputSchema": {
+    "type": "object",
+    "description": "Account operation result. status/stage are for internal reconciliation, not user-facing open-success/failure badges. Report the separate autofill receipt; a page being open never proves fill or sign-in.",
+    "properties": {
+      "autofill": {
+        "type": "object",
+        "description": "Separate Biz autofill receipt. Query accounts.operations.get with operationId while running; unknown must not be replayed. succeeded proves fill owner completion, never website sign-in.",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Observed autofill state.",
+            "maxLength": 40,
+            "enum": [
+              "running",
+              "succeeded",
+              "failed",
+              "skipped",
+              "unknown"
+            ]
+          },
+          "updatedAt": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Receipt observation time in milliseconds."
+          },
+          "reason": {
+            "type": "string",
+            "description": "Safe reason code; never credentials or page field values.",
+            "maxLength": 120
+          }
+        },
+        "required": [
+          "status",
+          "updatedAt"
+        ],
+        "additionalProperties": false
+      },
+      "operationId": {
+        "type": "string",
+        "description": "Local operation reference; not a Pangu request receipt.",
+        "maxLength": 100
+      },
+      "status": {
+        "type": "string",
+        "description": "Observed operation status.",
+        "maxLength": 40,
+        "enum": [
+          "not-dispatched",
+          "waiting-user",
+          "running",
+          "succeeded",
+          "partial",
+          "failed",
+          "cancelled",
+          "outcome-unknown",
+          "record-unavailable",
+          "available"
+        ]
+      },
+      "stage": {
+        "type": "string",
+        "description": "Completed or current account business stage.",
+        "maxLength": 100
+      },
+      "accountId": {
+        "type": "string",
+        "description": "Account reference when known.",
+        "maxLength": 100
+      },
+      "pageContextId": {
+        "type": "string",
+        "description": "Actual opened/focused page reference when known.",
+        "maxLength": 100
+      },
+      "warnings": {
+        "type": "array",
+        "description": "Bounded warnings, including synchronization and unknown outcomes.",
+        "items": {
+          "type": "string",
+          "description": "One safe product warning.",
+          "maxLength": 500
+        },
+        "maxItems": 20
+      },
+      "data": {
+        "type": "object",
+        "description": "Only the selected account operation's public product fields.",
+        "properties": {
+          "account": {
+            "type": "object",
+            "description": "Visible account summary; no password, cookie or internal tags.",
+            "properties": {
+              "accountId": {
+                "type": "string",
+                "description": "Account reference.",
+                "maxLength": 100
+              },
+              "appId": {
+                "type": "string",
+                "description": "Application reference.",
+                "maxLength": 100
+              },
+              "appName": {
+                "type": "string",
+                "description": "Application name.",
+                "maxLength": 200
+              },
+              "accountName": {
+                "type": "string",
+                "description": "Account name.",
+                "maxLength": 200
+              },
+              "accountType": {
+                "type": "string",
+                "description": "Source account type.",
+                "maxLength": 100
+              },
+              "enabled": {
+                "type": "boolean",
+                "description": "Whether the account is enabled."
+              },
+              "allowedActions": {
+                "type": "array",
+                "description": "Operations allowed by the current source, permissions and state.",
+                "items": {
+                  "type": "string",
+                  "description": "Allowed account operation.",
+                  "maxLength": 100,
+                  "enum": [
+                    "options.get",
+                    "list",
+                    "get",
+                    "create",
+                    "update",
+                    "delete",
+                    "set-enabled",
+                    "open",
+                    "close",
+                    "focus",
+                    "fingerprint.get",
+                    "fingerprint.update",
+                    "fingerprint.regenerate",
+                    "operations.get",
+                    "pages.list"
+                  ]
+                },
+                "maxItems": 14
+              },
+              "unavailableReason": {
+                "type": "string",
+                "description": "Why some operations are unavailable.",
+                "maxLength": 300
+              }
+            },
+            "required": [
+              "accountId",
+              "appId",
+              "appName",
+              "accountName",
+              "accountType",
+              "enabled",
+              "allowedActions"
+            ],
+            "additionalProperties": false
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Number of matches within this Work-visible snapshot."
+          },
+          "sessionGroupId": {
+            "type": "string",
+            "description": "Browser session group identity; read-only metadata.",
+            "maxLength": 1000
+          },
+          "pages": {
+            "type": "array",
+            "description": "Current pages bound to this account. Numeric browser IDs are diagnostic metadata; use pageContextId for page actions.",
+            "items": {
+              "type": "object",
+              "description": "Account page.",
+              "properties": {
+                "pageContextId": {
+                  "type": "string",
+                  "description": "Page reference.",
+                  "maxLength": 100
+                },
+                "title": {
+                  "type": "string",
+                  "description": "Page title.",
+                  "maxLength": 200
+                },
+                "tabId": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Browser tab ID."
+                },
+                "windowId": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Browser window ID."
+                },
+                "groupId": {
+                  "type": "integer",
+                  "minimum": -1,
+                  "description": "Browser tab-group ID, or -1 when ungrouped."
+                },
+                "sessionGroupId": {
+                  "type": "string",
+                  "description": "Browser session group identity.",
+                  "maxLength": 1000
+                },
+                "url": {
+                  "type": "string",
+                  "description": "HTTP(S) URL without credentials, query or fragment.",
+                  "maxLength": 2000
+                },
+                "active": {
+                  "type": "boolean",
+                  "description": "Whether this tab is active."
+                },
+                "status": {
+                  "type": "string",
+                  "description": "Browser loading status.",
+                  "maxLength": 40
+                }
+              },
+              "required": [
+                "pageContextId",
+                "title"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 100
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    "required": [
+      "status",
+      "stage",
+      "warnings"
+    ],
+    "additionalProperties": false
+  },
+  "risk": "reversible-write",
+  "targetKinds": [
+    "managed-account"
+  ],
+  "requiredPermissions": [
+    "accounts.write"
+  ],
+  "timeoutMs": 300000,
+  "maxInlineResultBytes": 65536,
+  "concurrency": "exclusive-target",
+  "retry": "never",
+  "exposure": "exposed"
+}

@@ -1,0 +1,1772 @@
+{
+  "method": "dsagent.settings.update",
+  "version": 1,
+  "title": "Change an Extension setting",
+  "description": "Change one setting section exactly as the person would in the SidePanel or Options page: the change goes through the same owner (storage or background handler) as the SidePanel, needs the same SidePanel permission, and open SidePanel views reload it.",
+  "guidance": "Read the section with dsagent.settings.get first; pick the operation it lists and send the value shaped like the matching oneOf branch. set merges into the current value unless the branch says otherwise; create returns the new itemId. Parts listed as personOnly (credentials, physical paths, arbitrary URLs) fail with PERSON_ONLY_SETTING and must be changed by the person. Requires an idempotency key; repeating a key with the same request replays its result.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "One change to one settings section. The fields each section and operation accept are given by the oneOf branch whose section and operation match.",
+    "properties": {
+      "section": {
+        "type": "string",
+        "enum": [
+          "export-directory",
+          "dom-training-export",
+          "trace-logs",
+          "intent-interpreter",
+          "ad-blocker-default",
+          "fallback-model",
+          "execution-memory",
+          "site-memory",
+          "site-notes",
+          "resource-pressure",
+          "professional-mode",
+          "identity-providers",
+          "run-window-focus",
+          "agent-challenge-walls",
+          "browser-monitor",
+          "file-release-consent",
+          "notification-channels",
+          "schedules",
+          "llm-models",
+          "chat-model",
+          "mail",
+          "dashboard-url",
+          "workflow-favorite",
+          "workflow-run-environment",
+          "workflow-name",
+          "workflow-sheet-binding",
+          "workflow-record-limits",
+          "workflow-monitors"
+        ],
+        "description": "Section to change; list them with dsagent.settings.get."
+      },
+      "operation": {
+        "type": "string",
+        "enum": [
+          "set",
+          "delete",
+          "update",
+          "test",
+          "create",
+          "reset"
+        ],
+        "description": "What to do; the operations a section accepts are listed by dsagent.settings.get."
+      },
+      "workflowId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "Opaque workflow id from dsagent.workflows.list; required for workflow-* sections and refused for the others."
+      },
+      "itemId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 256,
+        "description": "Item of a collection section to update or delete, as dsagent.settings.get lists it."
+      },
+      "value": {
+        "description": "The operation's value; its shape is the value schema of the matching oneOf branch."
+      }
+    },
+    "required": [
+      "section",
+      "operation"
+    ],
+    "oneOf": [
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "dom-training-export set: Turn the DOM training export on or off; it applies to the next workflow the scrape wizard creates.",
+        "properties": {
+          "section": {
+            "const": "dom-training-export",
+            "description": "Section dom-training-export: DOM Training Export."
+          },
+          "operation": {
+            "const": "set",
+            "description": "Turn the DOM training export on or off; it applies to the next workflow the scrape wizard creates."
+          },
+          "value": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "The wanted state.",
+            "properties": {
+              "enabled": {
+                "type": "boolean",
+                "description": "Whether the scrape wizard exports DOM snapshots for training after it creates a workflow (default false)."
+              }
+            },
+            "required": [
+              "enabled"
+            ]
+          }
+        },
+        "required": [
+          "section",
+          "operation",
+          "value"
+        ]
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "trace-logs set: Turn trace logs on or off; the background and open Extension pages start or stop tracing at once.",
+        "properties": {
+          "section": {
+            "const": "trace-logs",
+            "description": "Section trace-logs: Trace Logs."
+          },
+          "operation": {
+            "const": "set",
+            "description": "Turn trace logs on or off; the background and open Extension pages start or stop tracing at once."
+          },
+          "value": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "The wanted state.",
+            "properties": {
+              "enabled": {
+                "type": "boolean",
+                "description": "Whether trace logs are written (default false): website DOM snapshots and separate scrape wizard and workflow execution logs, saved to the export directory."
+              }
+            },
+            "required": [
+              "enabled"
+            ]
+          }
+        },
+        "required": [
+          "section",
+          "operation",
+          "value"
+        ]
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "intent-interpreter set: Turn Model Repair on or off. The result carries the switch as the workflow failure recovery reads it.",
+        "properties": {
+          "section": {
+            "const": "intent-interpreter",
+            "description": "Section intent-interpreter: Model Repair."
+          },
+          "operation": {
+            "const": "set",
+            "description": "Turn Model Repair on or off. The result carries the switch as the workflow failure recovery reads it."
+          },
+          "value": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "The wanted state.",
+            "properties": {
+              "enabled": {
+                "type": "boolean",
+                "description": "Whether the model repairs failed workflow steps (default true). When true, an eligible failed step is sent with bounded, redacted page text to the model selected in Chat (a platform model or the person's own), and platform access and usage limits apply; when false, failed steps are not repaired by the model. Tasks are interpreted by the model either way."
+              }
+            },
+            "required": [
+              "enabled"
+            ]
+          }
+        },
+        "required": [
+          "section",
+          "operation",
+          "value"
+        ]
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "ad-blocker-default set: Change the level, the persistence or both; omitted fields keep their current values. It applies to sessions and tasks started afterwards.",
+        "properties": {
+          "section": {
+            "const": "ad-blocker-default",
+            "description": "Section ad-blocker-default: Ad Blocker."
+          },
+          "operation": {
+            "const": "set",
+            "description": "Change the level, the persistence or both; omitted fields keep their current values. It applies to sessions and tasks started afterwards."
+          },
+          "value": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "Fields to change.",
+            "properties": {
+              "level": {
+                "type": "string",
+                "enum": [
+                  "none",
+                  "basic",
+                  "standard",
+                  "aggressive"
+                ],
+                "description": "The ad blocker level new scrape sessions and autonomous tasks start with (default none): none leaves ads on the page unless a session turns the blocker on; basic removes well-known ad networks and ad iframes; standard also removes overlays, sticky banners and Chinese ad networks; aggressive also removes elements labelled as ads or sponsored."
+              },
+              "persistent": {
+                "type": "boolean",
+                "description": "Keep ads removed: re-remove ads that come back while the page updates (default true). Applies when level is not none."
+              }
+            }
+          }
+        },
+        "required": [
+          "section",
+          "operation",
+          "value"
+        ]
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "fallback-model set: Choose the fallback model by one of options[].id, or clear it with null. It applies to the next autonomous task.",
+        "properties": {
+          "section": {
+            "const": "fallback-model",
+            "description": "Section fallback-model: Fallback Model."
+          },
+          "operation": {
+            "const": "set",
+            "description": "Choose the fallback model by one of options[].id, or clear it with null. It applies to the next autonomous task."
+          },
+          "value": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "The wanted fallback.",
+            "properties": {
+              "fallbackModelConfigId": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "minLength": 1,
+                "maxLength": 200,
+                "description": "The id of the fallback model, one of options[].id; null for no fallback (the default), which keeps failing on the selected model."
+              }
+            },
+            "required": [
+              "fallbackModelConfigId"
+            ]
+          }
+        },
+        "required": [
+          "section",
+          "operation",
+          "value"
+        ]
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "execution-memory set: Choose the execution memory mode; it applies to the next task. Once chosen, the build's own mode no longer applies.",
+        "properties": {
+          "section": {
+            "const": "execution-memory",
+            "description": "Section execution-memory: Execution Memory."
+          },
+          "operation": {
+            "const": "set",
+            "description": "Choose the execution memory mode; it applies to the next task. Once chosen, the build's own mode no longer applies."
+          },
+          "value": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "The wanted mode.",
+            "properties": {
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "disabled",
+                  "shadow",
+                  "site-recall"
+                ],
+                "description": "How the agent uses what earlier tasks verified on each site: disabled remembers and recalls nothing; shadow records memories and logs every recall but a run never acts on them; site-recall recalls verified memories and acts on them, while the run still verifies every step on the page."
+              }
+            },
+            "required": [
+              "mode"
+            ]
+          }
+        },
+        "required": [
+          "section",
+          "operation",
+          "value"
+        ]
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "site-memory delete: Forget one listed entry, or everything remembered about one listed site. Later tasks no longer recall it; the site's note (section site-notes) is kept.",
+        "properties": {
+          "section": {
+            "const": "site-memory",
+            "description": "Section site-memory: Site Memory."
+          },
+          "operation": {
+            "const": "delete",
+            "description": "Forget one listed entry, or everything remembered about one listed site. Later tasks no longer recall it; the site's note (section site-notes) is kept."
+          },
+          "itemId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "description": "An itemId from the current listing: an entry's \"<kind>:<id>\" forgets that entry; a site's host name, such as example.com, forgets everything remembered about the site."
+          }
+        },
+        "required": [
+          "section",
+          "operation",
+          "itemId"
+        ]
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "site-notes set: Add or replace the note of the site named by itemId. At most 200 sites can have a note; a new site beyond that is refused.",
+        "properties": {
+          "section": {
+            "const": "site-notes",
+            "description": "Section site-notes: Site Notes."
+          },
+          "operation": {
+            "const": "set",
+            "description": "Add or replace the note of the site named by itemId. At most 200 sites can have a note; a new site beyond that is refused."
+          },
+          "itemId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "description": "The site's host name, such as example.com: lower-case, without scheme, port, path or a leading \"www.\" (www.example.com is kept as example.com). A URL is refused."
+          },
+          "value": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "The note.",
+            "properties": {
+              "note": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 400,
+                "description": "The person's guidance for the site, in their own words; every task on the site (or a subdomain without its own note) reads it. At most 400 characters; stored as trimmed single-spaced lines."
+              }
+            },
+            "required": [
+              "note"
+            ]
+          }
+        },
+        "required": [
+          "section",
+          "operation",
+          "itemId",
+          "value"
+        ]
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "site-notes delete: Remove the note of the site named by itemId.",
+        "properties": {
+          "section": {
+            "const": "site-notes",
+            "description": "Section site-notes: Site Notes."
+          },
+          "operation": {
+            "const": "delete",
+            "description": "Remove the note of the site named by itemId."
+          },
+          "itemId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "description": "The site's host name, such as example.com: lower-case, without scheme, port, path or a leading \"www.\" (www.example.com is kept as example.com). A URL is refused."
+          }
+        },
+        "required": [
+          "section",
+          "operation",
+          "itemId"
+        ]
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "resource-pressure set: Change any of the fields; omitted fields keep their current values. The result carries the thresholds as the monitor saved them.",
+        "properties": {
+          "section": {
+            "const": "resource-pressure",
+            "description": "Section resource-pressure: Resource protection."
+          },
+          "operation": {
+            "const": "set",
+            "description": "Change any of the fields; omitted fields keep their current values. The result carries the thresholds as the monitor saved them."
+          },
+          "value": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "Fields to change.",
+            "properties": {
+              "enabled": {
+                "type": "boolean",
+                "description": "Pause running workflows while the computer is under memory or CPU pressure (default false)."
+              },
+              "pauseMemoryPercent": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100,
+                "description": "Memory use that pauses running workflows, default 85 (1-100)."
+              },
+              "pauseCpuPercent": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100,
+                "description": "CPU use that pauses running workflows, default 90 (1-100)."
+              },
+              "resumeMemoryPercent": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100,
+                "description": "Memory use below which paused workflows resume, default 70; a value at or above pauseMemoryPercent is lowered to one below it (1-100)."
+              },
+              "resumeCpuPercent": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 100,
+                "description": "CPU use below which paused workflows resume, default 75; a value at or above pauseCpuPercent is lowered to one below it (1-100)."
+              }
+            }
+          }
+        },
+        "required": [
+          "section",
+          "operation",
+          "value"
+        ]
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "professional-mode set: Turn Professional Mode on or off; an open workflow list shows or hides the actions at once.",
+        "properties": {
+          "section": {
+            "const": "professional-mode",
+            "description": "Section professional-mode: Professional Mode."
+          },
+          "operation": {
+            "const": "set",
+            "description": "Turn Professional Mode on or off; an open workflow list shows or hides the actions at once."
+          },
+          "value": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "The wanted state.",
+            "properties": {
+              "enabled": {
+                "type": "boolean",
+                "description": "Whether workflow cards show the advanced workflow actions, such as Debug (default false)."
+              }
+            },
+            "required": [
+              "enabled"
+            ]
+          }
+        },
+        "required": [
+          "section",
+          "operation",
+          "value"
+        ]
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "identity-providers set: Replace the whole list; an empty list removes every host. Every entry must be a hostname the list accepts. The result carries the list as stored.",
+        "properties": {
+          "section": {
+            "const": "identity-providers",
+            "description": "Section identity-providers: Identity Providers."
+          },
+          "operation": {
+            "const": "set",
+            "description": "Replace the whole list; an empty list removes every host. Every entry must be a hostname the list accepts. The result carries the list as stored."
+          },
+          "value": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "The wanted list.",
+            "properties": {
+              "hosts": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 253,
+                  "pattern": "^[A-Za-z0-9.-]+$",
+                  "description": "One hostname (or IPv4 address) only: no scheme, port, path or query."
+                },
+                "maxItems": 50,
+                "description": "Sign-in hostnames of the person's own organization, such as sso.example.com; at most 50. Stored lower-case without duplicates."
+              }
+            },
+            "required": [
+              "hosts"
+            ]
+          }
+        },
+        "required": [
+          "section",
+          "operation",
+          "value"
+        ]
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "run-window-focus set: Turn bringing the run window to the front on or off; the next action of a running workflow follows it.",
+        "properties": {
+          "section": {
+            "const": "run-window-focus",
+            "description": "Section run-window-focus: Run Window Focus."
+          },
+          "operation": {
+            "const": "set",
+            "description": "Turn bringing the run window to the front on or off; the next action of a running workflow follows it."
+          },
+          "value": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "The wanted state.",
+            "properties": {
+              "enabled": {
+                "type": "boolean",
+                "description": "Whether a workflow run brings its browser window to the front when its page is hidden (window minimized or covered) before it clicks or types on the page; a hidden page does not render and ignores the run's actions (default true)."
+              }
+            },
+            "required": [
+              "enabled"
+            ]
+          }
+        },
+        "required": [
+          "section",
+          "operation",
+          "value"
+        ]
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "notification-channels update: Change a bot's name, on/off switch or categories, as SidePanel → Settings → Notifications does; omitted fields keep their values and at least one field is needed. webhookUrl and secret are refused with PERSON_ONLY_SETTING.",
+        "properties": {
+          "section": {
+            "const": "notification-channels",
+            "description": "Section notification-channels: Notifications."
+          },
+          "operation": {
+            "const": "update",
+            "description": "Change a bot's name, on/off switch or categories, as SidePanel → Settings → Notifications does; omitted fields keep their values and at least one field is needed. webhookUrl and secret are refused with PERSON_ONLY_SETTING."
+          },
+          "itemId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "description": "Group bot id as dsagent.settings.get lists it in channels[].id."
+          },
+          "value": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "Fields to change.",
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 30,
+                "pattern": "\\S",
+                "description": "The bot's name as the person sees it, 1-30 characters."
+              },
+              "enabled": {
+                "type": "boolean",
+                "description": "Whether the bot sends anything; off keeps its configuration and cancels messages still waiting to be sent."
+              },
+              "triggerLevel": {
+                "type": "string",
+                "enum": [
+                  "FAILED_ONLY",
+                  "ALL_FINISHED"
+                ],
+                "description": "Results category: FAILED_ONLY sends failed and partly completed runs and tasks that need the person; ALL_FINISHED sends every finished run and task (succeeded, partial, failed, stopped)."
+              },
+              "notifyNotRun": {
+                "type": "boolean",
+                "description": "Did not run category: scheduled runs that never started, runs the plan restricted, and failed monitor checks (default true)."
+              },
+              "notifyProgress": {
+                "type": "boolean",
+                "description": "Progress category: a run or task started, or resumed after a pause (default false)."
+              }
+            }
+          }
+        },
+        "required": [
+          "section",
+          "operation",
+          "itemId",
+          "value"
+        ]
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "notification-channels test: Send a test message to the bot, as Send Test does. Succeeds with the section's value when the platform accepted it (a broken bot becomes enabled again); fails with SETTING_NOT_APPLIED and the platform's reason otherwise (a configuration failure marks the bot broken). Limited to one test per bot every 5 seconds.",
+        "properties": {
+          "section": {
+            "const": "notification-channels",
+            "description": "Section notification-channels: Notifications."
+          },
+          "operation": {
+            "const": "test",
+            "description": "Send a test message to the bot, as Send Test does. Succeeds with the section's value when the platform accepted it (a broken bot becomes enabled again); fails with SETTING_NOT_APPLIED and the platform's reason otherwise (a configuration failure marks the bot broken). Limited to one test per bot every 5 seconds."
+          },
+          "itemId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "description": "Group bot id as dsagent.settings.get lists it in channels[].id."
+          }
+        },
+        "required": [
+          "section",
+          "operation",
+          "itemId"
+        ]
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "notification-channels delete: Delete a bot, as SidePanel → Settings → Notifications → Delete does; messages still waiting for it are canceled. Only the person can add it back.",
+        "properties": {
+          "section": {
+            "const": "notification-channels",
+            "description": "Section notification-channels: Notifications."
+          },
+          "operation": {
+            "const": "delete",
+            "description": "Delete a bot, as SidePanel → Settings → Notifications → Delete does; messages still waiting for it are canceled. Only the person can add it back."
+          },
+          "itemId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "description": "Group bot id as dsagent.settings.get lists it in channels[].id."
+          }
+        },
+        "required": [
+          "section",
+          "operation",
+          "itemId"
+        ]
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "schedules create: Schedule a saved workflow, as the Schedules panel's New schedule does. Give the timing field of scheduleType (daily defaults to 09:00); a date must be in the future. Without accountIds the workflow runs in the current browser environment. Returns the new schedule's id as itemId.",
+        "properties": {
+          "section": {
+            "const": "schedules",
+            "description": "Section schedules: Schedules."
+          },
+          "operation": {
+            "const": "create",
+            "description": "Schedule a saved workflow, as the Schedules panel's New schedule does. Give the timing field of scheduleType (daily defaults to 09:00); a date must be in the future. Without accountIds the workflow runs in the current browser environment. Returns the new schedule's id as itemId."
+          },
+          "value": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "The new schedule.",
+            "properties": {
+              "workflowId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "description": "Workflow to run, from dsagent.workflows.list."
+              },
+              "scheduleType": {
+                "type": "string",
+                "enum": [
+                  "daily",
+                  "interval",
+                  "date",
+                  "cron"
+                ],
+                "description": "How the schedule repeats: daily at a time, every N minutes, once at a date and time, or by a cron expression."
+              },
+              "dailyTime": {
+                "type": "string",
+                "maxLength": 5,
+                "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$",
+                "description": "For daily: the local time of day, HH:mm (default 09:00)."
+              },
+              "intervalMinutes": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 10080,
+                "description": "For interval: minutes between runs, 1-10080."
+              },
+              "dateTime": {
+                "type": "string",
+                "maxLength": 16,
+                "pattern": "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])T([01]\\d|2[0-3]):[0-5]\\d$",
+                "description": "For date: the one run's local date and time on the person's computer, YYYY-MM-DDTHH:mm; must be in the future."
+              },
+              "cronExpression": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 120,
+                "pattern": "\\S",
+                "description": "For cron: a Quartz cron expression with seconds, for example 0 0 9 * * ?."
+              },
+              "enabled": {
+                "type": "boolean",
+                "description": "Whether the schedule runs; a paused schedule keeps its settings."
+              },
+              "accountIds": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "description": "Opaque account id from dsagent.app.accounts.list."
+                },
+                "maxItems": 50,
+                "uniqueItems": true,
+                "description": "Application accounts to run the workflow in, as opaque ids from dsagent.app.accounts.list for this workflow; empty runs it in the current browser environment."
+              }
+            },
+            "required": [
+              "workflowId",
+              "scheduleType"
+            ]
+          }
+        },
+        "required": [
+          "section",
+          "operation",
+          "value"
+        ]
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "schedules update: Change a schedule, as its edit sheet does; omitted fields keep their values. Changing scheduleType needs that type's timing field unless the schedule already has one. accountIds replaces the accounts ([] switches to the current browser environment); without it the saved accounts stay as they are. Changing only enabled pauses or resumes the schedule as the panel's switch does.",
+        "properties": {
+          "section": {
+            "const": "schedules",
+            "description": "Section schedules: Schedules."
+          },
+          "operation": {
+            "const": "update",
+            "description": "Change a schedule, as its edit sheet does; omitted fields keep their values. Changing scheduleType needs that type's timing field unless the schedule already has one. accountIds replaces the accounts ([] switches to the current browser environment); without it the saved accounts stay as they are. Changing only enabled pauses or resumes the schedule as the panel's switch does."
+          },
+          "itemId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "description": "Schedule id as dsagent.settings.get lists it in schedules[].id."
+          },
+          "value": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "Fields to change.",
+            "properties": {
+              "scheduleType": {
+                "type": "string",
+                "enum": [
+                  "daily",
+                  "interval",
+                  "date",
+                  "cron"
+                ],
+                "description": "How the schedule repeats: daily at a time, every N minutes, once at a date and time, or by a cron expression."
+              },
+              "dailyTime": {
+                "type": "string",
+                "maxLength": 5,
+                "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$",
+                "description": "For daily: the local time of day, HH:mm (default 09:00)."
+              },
+              "intervalMinutes": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 10080,
+                "description": "For interval: minutes between runs, 1-10080."
+              },
+              "dateTime": {
+                "type": "string",
+                "maxLength": 16,
+                "pattern": "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])T([01]\\d|2[0-3]):[0-5]\\d$",
+                "description": "For date: the one run's local date and time on the person's computer, YYYY-MM-DDTHH:mm; must be in the future."
+              },
+              "cronExpression": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 120,
+                "pattern": "\\S",
+                "description": "For cron: a Quartz cron expression with seconds, for example 0 0 9 * * ?."
+              },
+              "enabled": {
+                "type": "boolean",
+                "description": "Whether the schedule runs; a paused schedule keeps its settings."
+              },
+              "accountIds": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "description": "Opaque account id from dsagent.app.accounts.list."
+                },
+                "maxItems": 50,
+                "uniqueItems": true,
+                "description": "Application accounts to run the workflow in, as opaque ids from dsagent.app.accounts.list for this workflow; empty runs it in the current browser environment."
+              }
+            }
+          }
+        },
+        "required": [
+          "section",
+          "operation",
+          "itemId",
+          "value"
+        ]
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "schedules delete: Delete a schedule, as the panel's delete does; the workflow itself stays.",
+        "properties": {
+          "section": {
+            "const": "schedules",
+            "description": "Section schedules: Schedules."
+          },
+          "operation": {
+            "const": "delete",
+            "description": "Delete a schedule, as the panel's delete does; the workflow itself stays."
+          },
+          "itemId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "description": "Schedule id as dsagent.settings.get lists it in schedules[].id."
+          }
+        },
+        "required": [
+          "section",
+          "operation",
+          "itemId"
+        ]
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "llm-models update: Change a configured model's name, model id, on/off switch or vision flag, as the panel's edit form and card switch do; omitted fields keep their values and the stored API key, base URL and provider stay exactly as they are. Platform-managed entries (managed: true) are refused with PERSON_ONLY_SETTING.",
+        "properties": {
+          "section": {
+            "const": "llm-models",
+            "description": "Section llm-models: LLM models."
+          },
+          "operation": {
+            "const": "update",
+            "description": "Change a configured model's name, model id, on/off switch or vision flag, as the panel's edit form and card switch do; omitted fields keep their values and the stored API key, base URL and provider stay exactly as they are. Platform-managed entries (managed: true) are refused with PERSON_ONLY_SETTING."
+          },
+          "itemId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "description": "Model id as dsagent.settings.get lists it in models[].id."
+          },
+          "value": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "Fields to change.",
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200,
+                "pattern": "\\S",
+                "description": "Display name of the model in the panel and the chat model picker."
+              },
+              "model": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200,
+                "pattern": "\\S",
+                "description": "Model id sent to the provider, for example gpt-4o."
+              },
+              "enabled": {
+                "type": "boolean",
+                "description": "Whether the model is switched on; only enabled models are offered in the chat model picker and to autonomous runs."
+              },
+              "supportsVision": {
+                "type": "boolean",
+                "description": "Whether the model accepts images; when true a page screenshot goes with detection requests."
+              }
+            }
+          }
+        },
+        "required": [
+          "section",
+          "operation",
+          "itemId",
+          "value"
+        ]
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "llm-models delete: Remove a configured model and its stored API key, as the card's delete does. Platform-managed entries are refused with PERSON_ONLY_SETTING.",
+        "properties": {
+          "section": {
+            "const": "llm-models",
+            "description": "Section llm-models: LLM models."
+          },
+          "operation": {
+            "const": "delete",
+            "description": "Remove a configured model and its stored API key, as the card's delete does. Platform-managed entries are refused with PERSON_ONLY_SETTING."
+          },
+          "itemId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "description": "Model id as dsagent.settings.get lists it in models[].id."
+          }
+        },
+        "required": [
+          "section",
+          "operation",
+          "itemId"
+        ]
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "llm-models test: Send one test request to the model with its stored key, as the card's test does. Succeeds with the section's value when the model answers; fails with SETTING_NOT_APPLIED and the redacted reason when it does not.",
+        "properties": {
+          "section": {
+            "const": "llm-models",
+            "description": "Section llm-models: LLM models."
+          },
+          "operation": {
+            "const": "test",
+            "description": "Send one test request to the model with its stored key, as the card's test does. Succeeds with the section's value when the model answers; fails with SETTING_NOT_APPLIED and the redacted reason when it does not."
+          },
+          "itemId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "description": "Model id as dsagent.settings.get lists it in models[].id."
+          }
+        },
+        "required": [
+          "section",
+          "operation",
+          "itemId"
+        ]
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "chat-model set: Select the model the chat uses, as picking it in the chat model picker does. The id must be one of the options; any other id fails with SETTING_TARGET_NOT_FOUND.",
+        "properties": {
+          "section": {
+            "const": "chat-model",
+            "description": "Section chat-model: Chat model."
+          },
+          "operation": {
+            "const": "set",
+            "description": "Select the model the chat uses, as picking it in the chat model picker does. The id must be one of the options; any other id fails with SETTING_TARGET_NOT_FOUND."
+          },
+          "value": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "The model to select.",
+            "properties": {
+              "selectedModelId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512,
+                "description": "Id of one of the options to use in chat."
+              }
+            },
+            "required": [
+              "selectedModelId"
+            ]
+          }
+        },
+        "required": [
+          "section",
+          "operation",
+          "value"
+        ]
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "mail set: Change autoSyncMinutes, syncWindow, loadRemoteImages and/or markReadOnOpen, as Email → Settings does; omitted fields keep their values. The account fields are refused with PERSON_ONLY_SETTING.",
+        "properties": {
+          "section": {
+            "const": "mail",
+            "description": "Section mail: Email."
+          },
+          "operation": {
+            "const": "set",
+            "description": "Change autoSyncMinutes, syncWindow, loadRemoteImages and/or markReadOnOpen, as Email → Settings does; omitted fields keep their values. The account fields are refused with PERSON_ONLY_SETTING."
+          },
+          "value": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "Fields to change.",
+            "properties": {
+              "autoSyncMinutes": {
+                "type": "integer",
+                "enum": [
+                  0,
+                  5,
+                  15,
+                  30,
+                  60
+                ],
+                "description": "How often the inbox syncs in the background, in minutes; 0 syncs only when the Email panel opens or is refreshed. Default 15."
+              },
+              "syncWindow": {
+                "type": "integer",
+                "minimum": 50,
+                "maximum": 2000,
+                "description": "How many of the newest messages per folder are kept locally and searchable; 50-2000, default 200."
+              },
+              "loadRemoteImages": {
+                "type": "boolean",
+                "description": "Whether remote images in HTML mail load without the person asking (default false: they are blocked until the person shows them)."
+              },
+              "markReadOnOpen": {
+                "type": "boolean",
+                "description": "Whether opening a message in the Email panel marks it read on the mail server (default true)."
+              }
+            }
+          }
+        },
+        "required": [
+          "section",
+          "operation",
+          "value"
+        ]
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "mail reset: Return the sync and display preferences to their defaults; the account is not touched.",
+        "properties": {
+          "section": {
+            "const": "mail",
+            "description": "Section mail: Email."
+          },
+          "operation": {
+            "const": "reset",
+            "description": "Return the sync and display preferences to their defaults; the account is not touched."
+          }
+        },
+        "required": [
+          "section",
+          "operation"
+        ]
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "mail test: Log in to the stored IMAP (and SMTP, when set) servers without changing anything, as the panel's Test connection does. Succeeds with the section's value when every login works; fails with SETTING_NOT_APPLIED and the failing code otherwise.",
+        "properties": {
+          "section": {
+            "const": "mail",
+            "description": "Section mail: Email."
+          },
+          "operation": {
+            "const": "test",
+            "description": "Log in to the stored IMAP (and SMTP, when set) servers without changing anything, as the panel's Test connection does. Succeeds with the section's value when every login works; fails with SETTING_NOT_APPLIED and the failing code otherwise."
+          }
+        },
+        "required": [
+          "section",
+          "operation"
+        ]
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "dashboard-url set: Save a dashboard URL, as the Options page's Save does. Only a URL on the product's own dashboard hosts (dsphere.com.cn and its auth-/work-/console/agent/dsagent subdomains, duokaibrowser.com; HTTPS only in release builds, which never accept localhost or 127.0.0.1) is accepted; any other URL fails with PERSON_ONLY_SETTING because only the person may point the Extension at another server. To go back to the default, use reset.",
+        "properties": {
+          "section": {
+            "const": "dashboard-url",
+            "description": "Section dashboard-url: Dashboard URL."
+          },
+          "operation": {
+            "const": "set",
+            "description": "Save a dashboard URL, as the Options page's Save does. Only a URL on the product's own dashboard hosts (dsphere.com.cn and its auth-/work-/console/agent/dsagent subdomains, duokaibrowser.com; HTTPS only in release builds, which never accept localhost or 127.0.0.1) is accepted; any other URL fails with PERSON_ONLY_SETTING because only the person may point the Extension at another server. To go back to the default, use reset."
+          },
+          "value": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "The dashboard URL to save.",
+            "properties": {
+              "url": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2048,
+                "description": "An http(s) URL on one of the product's dashboard hosts, for example https://agent.dsphere.com.cn."
+              }
+            },
+            "required": [
+              "url"
+            ]
+          }
+        },
+        "required": [
+          "section",
+          "operation",
+          "value"
+        ]
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "dashboard-url reset: Forget the saved dashboard URL so the build's default applies, as the Options page's reset does.",
+        "properties": {
+          "section": {
+            "const": "dashboard-url",
+            "description": "Section dashboard-url: Dashboard URL."
+          },
+          "operation": {
+            "const": "reset",
+            "description": "Forget the saved dashboard URL so the build's default applies, as the Options page's reset does."
+          }
+        },
+        "required": [
+          "section",
+          "operation"
+        ]
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "dashboard-url test: Check that the dashboard in use (the saved URL, or the default when none is saved) answers, as the Options page's Test button does. Succeeds with the current value when it answers; fails with SETTING_NOT_APPLIED and the reason (status or network error) when it does not.",
+        "properties": {
+          "section": {
+            "const": "dashboard-url",
+            "description": "Section dashboard-url: Dashboard URL."
+          },
+          "operation": {
+            "const": "test",
+            "description": "Check that the dashboard in use (the saved URL, or the default when none is saved) answers, as the Options page's Test button does. Succeeds with the current value when it answers; fails with SETTING_NOT_APPLIED and the reason (status or network error) when it does not."
+          }
+        },
+        "required": [
+          "section",
+          "operation"
+        ]
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "workflow-favorite set: Star or unstar the workflow; setting the current state changes nothing.",
+        "properties": {
+          "section": {
+            "const": "workflow-favorite",
+            "description": "Section workflow-favorite: Star."
+          },
+          "operation": {
+            "const": "set",
+            "description": "Star or unstar the workflow; setting the current state changes nothing."
+          },
+          "workflowId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "Opaque workflow id from dsagent.workflows.list; required for workflow-* sections and refused for the others."
+          },
+          "value": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "The wanted state.",
+            "properties": {
+              "starred": {
+                "type": "boolean",
+                "description": "Whether the workflow is starred; starred workflows are pinned to the top of the workflow list, most recently starred first."
+              }
+            },
+            "required": [
+              "starred"
+            ]
+          }
+        },
+        "required": [
+          "section",
+          "operation",
+          "workflowId",
+          "value"
+        ]
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "workflow-run-environment set: Replace the run environment, as confirming the sheet does. env accounts needs at least one accountId (the sheet cannot be confirmed without one); env current takes no accountIds. An accountId that is not offered for this workflow fails with NOT_FOUND.",
+        "properties": {
+          "section": {
+            "const": "workflow-run-environment",
+            "description": "Section workflow-run-environment: Application Account."
+          },
+          "operation": {
+            "const": "set",
+            "description": "Replace the run environment, as confirming the sheet does. env accounts needs at least one accountId (the sheet cannot be confirmed without one); env current takes no accountIds. An accountId that is not offered for this workflow fails with NOT_FOUND."
+          },
+          "workflowId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "Opaque workflow id from dsagent.workflows.list; required for workflow-* sections and refused for the others."
+          },
+          "value": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "The run environment to save.",
+            "properties": {
+              "env": {
+                "type": "string",
+                "enum": [
+                  "current",
+                  "accounts"
+                ],
+                "description": "current: run in the browser session the person is using; accounts: run once in the session of each selected application account."
+              },
+              "accountIds": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "description": "Opaque account id from dsagent.app.accounts.list called with this workflowId (the accounts the run-environment sheet offers for the workflow's site)."
+                },
+                "maxItems": 200,
+                "uniqueItems": true,
+                "description": "Accounts to run with when env is accounts, in the order to run them."
+              }
+            },
+            "required": [
+              "env"
+            ]
+          }
+        },
+        "required": [
+          "section",
+          "operation",
+          "workflowId",
+          "value"
+        ]
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "workflow-name set: Rename the workflow, as saving the rename sheet does. A name equal to the current one (after trimming) changes nothing.",
+        "properties": {
+          "section": {
+            "const": "workflow-name",
+            "description": "Section workflow-name: Name."
+          },
+          "operation": {
+            "const": "set",
+            "description": "Rename the workflow, as saving the rename sheet does. A name equal to the current one (after trimming) changes nothing."
+          },
+          "workflowId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "Opaque workflow id from dsagent.workflows.list; required for workflow-* sections and refused for the others."
+          },
+          "value": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "The new name.",
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "pattern": "\\S",
+                "description": "Workflow name as the card shows it: 1-128 characters with at least one that is not a space; surrounding spaces are trimmed."
+              }
+            },
+            "required": [
+              "name"
+            ]
+          }
+        },
+        "required": [
+          "section",
+          "operation",
+          "workflowId",
+          "value"
+        ]
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "workflow-sheet-binding set: Save the binding as the binding sheet does. source local binds sheetId with at least one mapping and makes it the binding runs use; source server (only when serverBindingAvailable) keeps the local binding but stops using it. Unknown sheet, field or column ids fail with NOT_FOUND; a new column for an upload-file field fails with PERSON_ONLY_SETTING.",
+        "properties": {
+          "section": {
+            "const": "workflow-sheet-binding",
+            "description": "Section workflow-sheet-binding: Data sheet binding."
+          },
+          "operation": {
+            "const": "set",
+            "description": "Save the binding as the binding sheet does. source local binds sheetId with at least one mapping and makes it the binding runs use; source server (only when serverBindingAvailable) keeps the local binding but stops using it. Unknown sheet, field or column ids fail with NOT_FOUND; a new column for an upload-file field fails with PERSON_ONLY_SETTING."
+          },
+          "workflowId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "Opaque workflow id from dsagent.workflows.list; required for workflow-* sections and refused for the others."
+          },
+          "value": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "The binding to save.",
+            "properties": {
+              "source": {
+                "type": "string",
+                "enum": [
+                  "local",
+                  "server"
+                ],
+                "description": "local: a local sheet fills the fields; server: use the binding saved on the server."
+              },
+              "sheetId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "description": "Local data sheet id as this section lists it in sheets. Required for source local, refused for source server."
+              },
+              "mappings": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "description": "One field mapping.",
+                  "properties": {
+                    "fieldId": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 256,
+                      "description": "Opaque workflow input field id as this section lists it in fields (the same id dsagent.workflow.inputs.get publishes)."
+                    },
+                    "columnId": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128,
+                      "description": "Column id of the sheet as this section lists it in sheets[].columns."
+                    }
+                  },
+                  "required": [
+                    "fieldId",
+                    "columnId"
+                  ]
+                },
+                "maxItems": 100,
+                "description": "Required for source local (at least one), refused for source server: which column fills which field; fields left out are not filled from the sheet."
+              }
+            },
+            "required": [
+              "source"
+            ]
+          }
+        },
+        "required": [
+          "section",
+          "operation",
+          "workflowId",
+          "value"
+        ]
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "workflow-sheet-binding reset: Remove the local binding, as the sheet's Remove local binding does; the workflow then uses the server binding if it has one. Without a local binding nothing changes.",
+        "properties": {
+          "section": {
+            "const": "workflow-sheet-binding",
+            "description": "Section workflow-sheet-binding: Data sheet binding."
+          },
+          "operation": {
+            "const": "reset",
+            "description": "Remove the local binding, as the sheet's Remove local binding does; the workflow then uses the server binding if it has one. Without a local binding nothing changes."
+          },
+          "workflowId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "Opaque workflow id from dsagent.workflows.list; required for workflow-* sections and refused for the others."
+          }
+        },
+        "required": [
+          "section",
+          "operation",
+          "workflowId"
+        ]
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "workflow-record-limits set: Change any of the limits, as saving the Record limits sheet does; omitted limits keep their current values. detailLimit and maxNestedExpansionsPerParent are accepted only when the value lists them (not null).",
+        "properties": {
+          "section": {
+            "const": "workflow-record-limits",
+            "description": "Section workflow-record-limits: Record limits."
+          },
+          "operation": {
+            "const": "set",
+            "description": "Change any of the limits, as saving the Record limits sheet does; omitted limits keep their current values. detailLimit and maxNestedExpansionsPerParent are accepted only when the value lists them (not null)."
+          },
+          "workflowId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "Opaque workflow id from dsagent.workflows.list; required for workflow-* sections and refused for the others."
+          },
+          "value": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "Limits to change.",
+            "properties": {
+              "listLimit": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 10000,
+                "description": "Records collected over the whole run (list items); 0 collects all records, 1-10000 caps them."
+              },
+              "detailLimit": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 10000,
+                "description": "Records collected on each detail page the run opens; 0 collects all records, 1-10000 caps them."
+              },
+              "maxNestedExpansionsPerParent": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 10000,
+                "description": "Nested items expanded under each parent block; 0 expands all, 1-10000 caps them."
+              }
+            }
+          }
+        },
+        "required": [
+          "section",
+          "operation",
+          "workflowId",
+          "value"
+        ]
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "workflow-monitors create: Create an active monitor as the sheet's New monitor does. It watches what targetType says; before creating it the workflow is put on a schedule so its sheet stays fresh: an enabled schedule is kept, otherwise the first paused schedule is enabled or an interval schedule at pollIntervalMs is created. Returns the new monitorId as itemId.",
+        "properties": {
+          "section": {
+            "const": "workflow-monitors",
+            "description": "Section workflow-monitors: Monitor settings."
+          },
+          "operation": {
+            "const": "create",
+            "description": "Create an active monitor as the sheet's New monitor does. It watches what targetType says; before creating it the workflow is put on a schedule so its sheet stays fresh: an enabled schedule is kept, otherwise the first paused schedule is enabled or an interval schedule at pollIntervalMs is created. Returns the new monitorId as itemId."
+          },
+          "workflowId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "Opaque workflow id from dsagent.workflows.list; required for workflow-* sections and refused for the others."
+          },
+          "value": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "The new monitor.",
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200,
+                "pattern": "\\S",
+                "description": "Monitor name; surrounding spaces are trimmed and it may not be empty."
+              },
+              "description": {
+                "type": "string",
+                "maxLength": 2000,
+                "description": "Monitor description; the sheet proposes the workflow name."
+              },
+              "pollIntervalMs": {
+                "type": "integer",
+                "enum": [
+                  60000,
+                  300000,
+                  900000,
+                  1800000,
+                  3600000,
+                  21600000,
+                  86400000
+                ],
+                "description": "How often the monitor compares the workflow's local sheet with its previous snapshot, in milliseconds; one of the intervals the sheet offers (60000, 300000, 900000, 1800000, 3600000, 21600000, 86400000). Defaults to 300000."
+              },
+              "notifyOnGrowth": {
+                "type": "boolean",
+                "description": "data-table only: notify when rows are added (default true)."
+              },
+              "notifyOnDeletion": {
+                "type": "boolean",
+                "description": "data-table only: notify when rows are deleted (default true)."
+              },
+              "fieldKeys": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200,
+                  "description": "A sheet column or extracted field name, as fieldKeys of this section lists it."
+                },
+                "minItems": 1,
+                "maxItems": 200,
+                "uniqueItems": true,
+                "description": "form-fields only: the fields to watch, from fieldKeys of this section; every offered field when omitted."
+              }
+            },
+            "required": [
+              "name"
+            ]
+          }
+        },
+        "required": [
+          "section",
+          "operation",
+          "workflowId",
+          "value"
+        ]
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "workflow-monitors update: Change one monitor as editing it in the sheet does; omitted fields keep their current values. isActive pauses or resumes it as the sheet's toggle does. A data-table monitor keeps at least one of notifyOnGrowth and notifyOnDeletion; a form-fields monitor watches at least one of fieldKeys.",
+        "properties": {
+          "section": {
+            "const": "workflow-monitors",
+            "description": "Section workflow-monitors: Monitor settings."
+          },
+          "operation": {
+            "const": "update",
+            "description": "Change one monitor as editing it in the sheet does; omitted fields keep their current values. isActive pauses or resumes it as the sheet's toggle does. A data-table monitor keeps at least one of notifyOnGrowth and notifyOnDeletion; a form-fields monitor watches at least one of fieldKeys."
+          },
+          "workflowId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "Opaque workflow id from dsagent.workflows.list; required for workflow-* sections and refused for the others."
+          },
+          "itemId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "description": "monitorId of one of this workflow's monitors."
+          },
+          "value": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "Fields to change.",
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200,
+                "pattern": "\\S",
+                "description": "Monitor name; surrounding spaces are trimmed and it may not be empty."
+              },
+              "description": {
+                "type": "string",
+                "maxLength": 2000,
+                "description": "Monitor description; empty removes it."
+              },
+              "pollIntervalMs": {
+                "type": "integer",
+                "enum": [
+                  60000,
+                  300000,
+                  900000,
+                  1800000,
+                  3600000,
+                  21600000,
+                  86400000
+                ],
+                "description": "How often the monitor compares the workflow's local sheet with its previous snapshot, in milliseconds; one of the intervals the sheet offers (60000, 300000, 900000, 1800000, 3600000, 21600000, 86400000)."
+              },
+              "notifyOnGrowth": {
+                "type": "boolean",
+                "description": "data-table monitors only: notify when rows are added."
+              },
+              "notifyOnDeletion": {
+                "type": "boolean",
+                "description": "data-table monitors only: notify when rows are deleted."
+              },
+              "fieldKeys": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200,
+                  "description": "A sheet column or extracted field name, as fieldKeys of this section lists it."
+                },
+                "minItems": 1,
+                "maxItems": 200,
+                "uniqueItems": true,
+                "description": "form-fields monitors only: the fields to watch, from fieldKeys of this section or the ones the monitor already watches."
+              },
+              "isActive": {
+                "type": "boolean",
+                "description": "Run (true) or pause (false) the monitor."
+              }
+            }
+          }
+        },
+        "required": [
+          "section",
+          "operation",
+          "workflowId",
+          "itemId",
+          "value"
+        ]
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "workflow-monitors delete: Delete one monitor and its snapshots, as the sheet's delete does.",
+        "properties": {
+          "section": {
+            "const": "workflow-monitors",
+            "description": "Section workflow-monitors: Monitor settings."
+          },
+          "operation": {
+            "const": "delete",
+            "description": "Delete one monitor and its snapshots, as the sheet's delete does."
+          },
+          "workflowId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "description": "Opaque workflow id from dsagent.workflows.list; required for workflow-* sections and refused for the others."
+          },
+          "itemId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "description": "monitorId of one of this workflow's monitors."
+          }
+        },
+        "required": [
+          "section",
+          "operation",
+          "workflowId",
+          "itemId"
+        ]
+      }
+    ]
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "The applied change and the section's value afterwards.",
+    "properties": {
+      "section": {
+        "type": "string",
+        "enum": [
+          "export-directory",
+          "dom-training-export",
+          "trace-logs",
+          "intent-interpreter",
+          "ad-blocker-default",
+          "fallback-model",
+          "execution-memory",
+          "site-memory",
+          "site-notes",
+          "resource-pressure",
+          "professional-mode",
+          "identity-providers",
+          "run-window-focus",
+          "agent-challenge-walls",
+          "browser-monitor",
+          "file-release-consent",
+          "notification-channels",
+          "schedules",
+          "llm-models",
+          "chat-model",
+          "mail",
+          "dashboard-url",
+          "workflow-favorite",
+          "workflow-run-environment",
+          "workflow-name",
+          "workflow-sheet-binding",
+          "workflow-record-limits",
+          "workflow-monitors"
+        ],
+        "description": "Section that changed."
+      },
+      "operation": {
+        "type": "string",
+        "enum": [
+          "set",
+          "reset",
+          "create",
+          "update",
+          "delete",
+          "test"
+        ],
+        "description": "Operation that was applied."
+      },
+      "workflowId": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "Workflow whose card setting changed."
+      },
+      "itemId": {
+        "type": "string",
+        "maxLength": 256,
+        "description": "Id of the item a create added, usable for later update or delete."
+      },
+      "value": {
+        "description": "The section's value after the change, shaped like its dsagent.settings.get value."
+      }
+    },
+    "required": [
+      "section",
+      "operation",
+      "value"
+    ]
+  },
+  "risk": "reversible-write",
+  "targetKinds": [
+    "browser",
+    "workflow"
+  ],
+  "requiredPermissions": [
+    "settings.write"
+  ],
+  "timeoutMs": 30000,
+  "maxInlineResultBytes": 131072,
+  "concurrency": "exclusive-target",
+  "retry": "never",
+  "exposure": "exposed"
+}

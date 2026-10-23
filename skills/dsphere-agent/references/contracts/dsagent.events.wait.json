@@ -1,0 +1,268 @@
+{
+  "method": "dsagent.events.wait",
+  "version": 1,
+  "title": "Wait For Browser Events",
+  "description": "Wait for typed Extension events after an opaque cursor; returns immediately on change or at the bounded timeout. timedOut=true is a heartbeat, not a task failure; callers may continue from nextCursor.",
+  "inputSchema": {
+    "type": "object",
+    "description": "Parameters for waiting on a previously opened event channel.",
+    "properties": {
+      "channelId": {
+        "type": "string",
+        "minLength": 8,
+        "maxLength": 128,
+        "description": "Opaque channel identifier returned by events.open."
+      },
+      "resumeToken": {
+        "type": "string",
+        "minLength": 8,
+        "maxLength": 128,
+        "description": "Optional opaque resume token returned by events.open."
+      },
+      "cursor": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Last consumed cursor; events strictly after it are returned."
+      },
+      "limit": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 50,
+        "description": "Maximum number of events to return in this wait."
+      },
+      "timeoutMs": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 25000,
+        "description": "Bounded wait duration in milliseconds."
+      }
+    },
+    "required": [
+      "channelId",
+      "cursor"
+    ],
+    "additionalProperties": false
+  },
+  "outputSchema": {
+    "type": "object",
+    "description": "Bounded event page and continuation cursor.",
+    "properties": {
+      "channelId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "Opaque identifier of the channel that produced this page."
+      },
+      "events": {
+        "type": "array",
+        "maxItems": 50,
+        "items": {
+          "type": "object",
+          "description": "One typed event published by the Extension.",
+          "properties": {
+            "eventId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "description": "Opaque event identifier."
+            },
+            "sequence": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Monotonic sequence number within the channel."
+            },
+            "topic": {
+              "type": "string",
+              "enum": [
+                "session",
+                "execution",
+                "recovery",
+                "page",
+                "interaction",
+                "monitor"
+              ],
+              "description": "Topic that owns this event."
+            },
+            "type": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "description": "Typed event name published by the owning Extension capability."
+            },
+            "occurredAt": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "description": "Timestamp when the event occurred."
+            },
+            "subject": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64,
+                  "description": "Reference kind owned by the publishing capability."
+                },
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "description": "Opaque referenced object identifier."
+                }
+              },
+              "required": [
+                "kind",
+                "id"
+              ],
+              "additionalProperties": false,
+              "description": "Primary opaque subject of the event."
+            },
+            "summary": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 500,
+              "description": "Bounded redacted event summary."
+            },
+            "revision": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "description": "Optional subject revision associated with this event."
+            },
+            "references": {
+              "type": "array",
+              "maxItems": 20,
+              "items": {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64,
+                    "description": "Reference kind owned by the publishing capability."
+                  },
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128,
+                    "description": "Opaque referenced object identifier."
+                  }
+                },
+                "required": [
+                  "kind",
+                  "id"
+                ],
+                "additionalProperties": false
+              },
+              "description": "Additional opaque references related to the event."
+            },
+            "details": {
+              "type": "array",
+              "maxItems": 30,
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128,
+                    "description": "Stable detail field name."
+                  },
+                  "value": {
+                    "description": "Bounded scalar detail value.",
+                    "oneOf": [
+                      {
+                        "type": "string",
+                        "maxLength": 500
+                      },
+                      {
+                        "type": "number"
+                      },
+                      {
+                        "type": "boolean"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "name",
+                  "value"
+                ],
+                "additionalProperties": false
+              },
+              "description": "Optional bounded structured event details."
+            }
+          },
+          "required": [
+            "eventId",
+            "sequence",
+            "topic",
+            "type",
+            "occurredAt",
+            "subject",
+            "summary"
+          ],
+          "additionalProperties": false
+        },
+        "description": "Typed bounded events after the requested cursor."
+      },
+      "nextCursor": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Cursor to pass to the next events.wait call."
+      },
+      "timedOut": {
+        "type": "boolean",
+        "description": "True when the bounded wait ended without a new event; this is a heartbeat, not task failure."
+      },
+      "expiresAt": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 64,
+        "description": "Current channel lease expiry timestamp."
+      },
+      "gap": {
+        "type": "object",
+        "description": "Present when the bounded channel (200 events) dropped events after your cursor: you missed them, so read the state of what you follow (dsagent.execution.get, dsagent.wizard.state, dsagent.pages.list) instead of waiting for the lost events; nextCursor already moved past the gap.",
+        "properties": {
+          "droppedBefore": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "The oldest sequence the channel still holds; every event before it is gone."
+          },
+          "dropped": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "How many events after your cursor were dropped."
+          }
+        },
+        "required": [
+          "droppedBefore",
+          "dropped"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "required": [
+      "channelId",
+      "events",
+      "nextCursor",
+      "timedOut",
+      "expiresAt"
+    ],
+    "additionalProperties": false
+  },
+  "risk": "read-sensitive",
+  "targetKinds": [
+    "browser-event-channel"
+  ],
+  "requiredPermissions": [
+    "browser.events.read"
+  ],
+  "timeoutMs": 30000,
+  "maxInlineResultBytes": 196608,
+  "concurrency": "shared-read",
+  "retry": "pre-dispatch-read-only",
+  "exposure": "exposed"
+}

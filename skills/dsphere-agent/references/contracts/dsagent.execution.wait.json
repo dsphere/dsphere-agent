@@ -1,0 +1,1052 @@
+{
+  "method": "dsagent.execution.wait",
+  "version": 1,
+  "title": "Wait for execution",
+  "description": "Bounded wait (at most 30 s) until the execution is terminal, or until it pauses for your repair of a failed block (pause.kind agent-repair, or pause.handoff under a sign-in wall: answer with dsagent.execution.handoff.get / resume / abort).",
+  "guidance": "A run in this browser is followed from its own runtime without backend polling and reports progress with movedDuringWait; call again while terminal is false.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "executionId": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "Opaque workflow execution identifier to poll."
+      },
+      "timeoutMs": {
+        "type": "integer",
+        "minimum": 100,
+        "maximum": 30000,
+        "description": "Bounded wait duration in milliseconds; defaults to 30000."
+      },
+      "runToken": {
+        "type": "string",
+        "maxLength": 128,
+        "pattern": "^[A-Za-z0-9_-]{16,128}$",
+        "description": "The run's ownership token, as dsagent.execution.run or dsagent.wizard.run returned it (shown once). Pass it when your browser connection was renewed (a restarted Connector): the run, its open repair handoff and its pages follow you to the new connection. Not needed on the connection that started the run."
+      }
+    },
+    "required": [
+      "executionId"
+    ],
+    "additionalProperties": false,
+    "description": "Execution and maximum duration for one bounded status wait."
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "executionId": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "Opaque workflow execution identifier."
+      },
+      "workflowId": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "Opaque workflow identifier."
+      },
+      "workflowName": {
+        "type": "string",
+        "maxLength": 500,
+        "description": "Optional workflow display name."
+      },
+      "status": {
+        "type": "string",
+        "maxLength": 100,
+        "description": "Current execution lifecycle status. partial: ended through the agent repair handoff after saving rows (terminal)."
+      },
+      "startedAt": {
+        "type": "string",
+        "maxLength": 100,
+        "description": "Optional execution start timestamp."
+      },
+      "finishedAt": {
+        "type": "string",
+        "maxLength": 100,
+        "description": "Optional execution finish timestamp."
+      },
+      "durationMs": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Optional execution duration in milliseconds."
+      },
+      "error": {
+        "type": "string",
+        "maxLength": 500,
+        "description": "Optional bounded execution error summary."
+      },
+      "endpoint": {
+        "type": "string",
+        "enum": [
+          "target-not-found",
+          "target-ambiguous",
+          "target-stale",
+          "target-out-of-range",
+          "target-covered",
+          "recorded-target-unreached",
+          "list-unbound",
+          "click-not-dispatched",
+          "loop-no-elements",
+          "wait-timeout",
+          "readiness-deadline",
+          "readiness-target-missing",
+          "readiness-wrong-document",
+          "readiness-unresolved",
+          "block-timeout",
+          "navigation-failed",
+          "navigation-not-observed",
+          "new-tab-not-opened",
+          "new-tab-url-rejected",
+          "new-tab-open-failed",
+          "tab-unavailable",
+          "effect-unverified",
+          "detail-visit-unverified",
+          "media-state-unverified",
+          "nested-identity-conflict",
+          "continuation-source-changed",
+          "traversal-budget-exhausted",
+          "record-limit-not-reached",
+          "list-load-incomplete",
+          "records-not-saved",
+          "config-invalid",
+          "input-data-unavailable",
+          "execution-state-invalid",
+          "api-request-failed",
+          "browser-operation-failed",
+          "script-error",
+          "permission-denied",
+          "person-declined",
+          "auth-required",
+          "execution-stopped",
+          "parallel-group-timeout",
+          "workflow-invalid",
+          "engine-error",
+          "dataset-save-unconfirmed",
+          "plan-restricted",
+          "run-ownership-conflict",
+          "recovery-replay-forbidden",
+          "run-tab-group-closed",
+          "recovery-reopen-unavailable",
+          "recovery-attempts-exhausted",
+          "recovery-snapshot-missing",
+          "unclassified"
+        ],
+        "description": "The typed place the failure of the run landed on, from one closed set: target-* (the step's element), wait-timeout / readiness-* / block-timeout (waiting), navigation-* / new-tab-* / tab-unavailable, effect-unverified (a click or upload that may have happened: inspect the page before acting again), collection endpoints (record-limit-not-reached, records-not-saved, traversal-budget-exhausted), input and host endpoints, plan-restricted, unclassified. Absent when the run did not fail, or failed outside this browser."
+      },
+      "endpointFallback": {
+        "type": "string",
+        "enum": [
+          "none",
+          "recovery",
+          "agent-handoff",
+          "person"
+        ],
+        "description": "The last fallback tier the endpoint admits: recovery (the in-run repair already tried), agent-handoff (an agent may repair it), person (a wall the person passes), none (terminal)."
+      },
+      "endpointDetails": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "maxLength": 40,
+            "description": "Which detail this is: navigation, readiness, budget, tab, timeout, recorded-target, effect, detail-visit or auth."
+          },
+          "wallType": {
+            "type": "string",
+            "maxLength": 40,
+            "description": "auth: the kind of sign-in or verification wall the run waited out (LOGIN_FORM, CAPTCHA, SSO, ...)."
+          },
+          "failureClass": {
+            "type": "string",
+            "maxLength": 40,
+            "description": "navigation: the browser failure class (dns, connection, offline, timeout, certificate, blocked, http-error, ...)."
+          },
+          "netError": {
+            "type": "string",
+            "maxLength": 60,
+            "description": "navigation: the browser error name (ERR_*)."
+          },
+          "transient": {
+            "type": "boolean",
+            "description": "navigation: whether waiting can clear it."
+          },
+          "phase": {
+            "type": "string",
+            "maxLength": 40,
+            "description": "readiness: document or target-content."
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 40,
+            "description": "readiness: the readiness reason; tab: closed, discarded, frozen or no-tab."
+          },
+          "dimension": {
+            "type": "string",
+            "maxLength": 10,
+            "description": "budget: nodes or time."
+          },
+          "resumeCursor": {
+            "type": "string",
+            "maxLength": 80,
+            "description": "budget: the opaque point the chunked read paused at; a handoff retry continues the read from it."
+          },
+          "timeoutMs": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "timeout: the deadline that passed, in milliseconds."
+          },
+          "awaitedState": {
+            "type": "string",
+            "maxLength": 20,
+            "description": "timeout of a wait for an element: the state it waited for (visible, hidden, attached, ...)."
+          },
+          "matched": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "timeout of a wait for an element: elements its selector matched at the deadline (a selector that matched is not stale)."
+          },
+          "visible": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "timeout of a wait for an element: how many of the matched elements were visible."
+          },
+          "attempts": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "timeout (block-timeout): how many attempts the block ran before its deadline."
+          },
+          "waitingOn": {
+            "type": "string",
+            "maxLength": 64,
+            "description": "timeout (block-timeout): the page command the block was still waiting on (a command type such as LOOP_ELEMENTS)."
+          },
+          "lookalikes": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "recorded-target: elements on the page that look like the recorded target."
+          },
+          "effect": {
+            "type": "string",
+            "maxLength": 20,
+            "description": "effect: click, upload or navigation."
+          },
+          "fields": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "detail-visit: the detail fields the visit was to read."
+          },
+          "read": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "detail-visit: how many of them it read (0: the visit read nothing; its record is not saved until you answer)."
+          }
+        },
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "Bounded, value-free detail of the endpoint; never page text, URLs or selectors."
+      },
+      "endpointProvenance": {
+        "type": "string",
+        "enum": [
+          "typed",
+          "code",
+          "message"
+        ],
+        "description": "How the endpoint was known: typed by its owner, a stable code, or read from an untyped message."
+      },
+      "errorCode": {
+        "type": "string",
+        "maxLength": 100,
+        "description": "The terminal error code of the endpoint (NODE_* for a node, ENGINE_ERROR, SQLITE_SCHEMA_WRITE_UNCONFIRMED, PLAN_RESTRICTED)."
+      },
+      "errorNodeId": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "The workflow node the run failed at; read it with dsagent.workflow.definition.get."
+      },
+      "outcomeSource": {
+        "type": "string",
+        "enum": [
+          "local",
+          "backend"
+        ],
+        "description": "Where how-it-ended was read from: local (the run executed in this browser; everything is its own), or backend (the run executed elsewhere; the DSphere backend stored its endpoint, node, row count and coverage, or only its error code for a run reported before the endpoint travelled)."
+      },
+      "stopSource": {
+        "type": "string",
+        "enum": [
+          "person",
+          "agent",
+          "tab-closed",
+          "server",
+          "chat-task",
+          "unspecified"
+        ],
+        "description": "A stopped run: who stopped it. person (the SidePanel), agent (dsagent.execution.stop), tab-closed (its page was closed), server (the backend), chat-task (the Chat task that ran it was cancelled), unspecified."
+      },
+      "handoffEnding": {
+        "type": "string",
+        "enum": [
+          "aborted",
+          "timed-out",
+          "budget-exhausted",
+          "handoff-disabled",
+          "handoff-occupied"
+        ],
+        "description": "How a run that took the agent repair handoff's terminal path ended it: aborted (dsagent.execution.handoff.abort), timed-out (the handoff deadline passed), budget-exhausted (no handoff left), handoff-disabled (the run was started with agentRepairHandoff false). With rows saved the run is partial, without them failed."
+      },
+      "recovery": {
+        "type": "object",
+        "properties": {
+          "decline": {
+            "type": "string",
+            "enum": [
+              "ineligible",
+              "execution-stopped",
+              "fallback-disabled",
+              "effect-outcome-unknown",
+              "model-unavailable",
+              "evidence-empty",
+              "decision-invalid",
+              "low-confidence",
+              "model-give-up",
+              "action-not-allowed",
+              "selector-update-invalid",
+              "probe-incomplete",
+              "identity-not-preserved",
+              "identity-unverifiable",
+              "cardinality-mismatch",
+              "list-setting-unrepaired",
+              "zero-matches",
+              "target-gone",
+              "target-unaddressable",
+              "blocker-not-dismissed",
+              "retry-failed",
+              "prerequisite-unavailable",
+              "prerequisite-unaddressable",
+              "prerequisite-replay-failed",
+              "model-request-failed",
+              "revision-changed",
+              "recovery-unavailable",
+              "triaged-out:resource-budget",
+              "triaged-out:nested-identity-conflict",
+              "triaged-out:permission",
+              "triaged-out:script-error",
+              "triaged-out:network-navigation",
+              "triaged-out:wrong-document",
+              "triaged-out:document-changed",
+              "triaged-out:content-absent",
+              "recovery-queue-full",
+              "recovery-execution-closed",
+              "recovery-execution-budget",
+              "recovery-already-attempted",
+              "recovery-admission-unavailable",
+              "recovery-cancelled",
+              "recovery-deadline",
+              "recovery-model-budget",
+              "recovery-settled",
+              "recovery-page-evidence-timeout",
+              "recovery-disabled",
+              "recovery-not-offered",
+              "no-tab",
+              "recovery-error",
+              "contributor-error",
+              "no-semantic-owner",
+              "not-semantic-replay",
+              "semantic-replay-ineligible",
+              "semantic-owner-failed",
+              "semantic-cleanup-unrecovered",
+              "execution-state-not-page",
+              "relayed-item-failure"
+            ],
+            "description": "Why the in-run recovery did not repair the failure."
+          }
+        },
+        "required": [
+          "decline"
+        ],
+        "additionalProperties": false,
+        "description": "The in-run recovery the run tried for the failing node; present when it declined."
+      },
+      "coverage": {
+        "type": "object",
+        "properties": {
+          "rowsSaved": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Distinct records committed to the local data sheet; they are kept after a failure."
+          },
+          "rowsUnsaved": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Rows whose write to the local data sheet was still not confirmed after the bounded retry of the buffered writes of the run; they stay queued for a later recovery. Absent when every write confirmed."
+          },
+          "rowsRecovered": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Rows a retry of the buffered writes of the run saved after their first write failed."
+          },
+          "collectionFulfillment": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "fulfilled",
+                  "partial",
+                  "unknown"
+                ],
+                "description": "Whether the collection reached what it asked for."
+              },
+              "expectedParents": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Parent records the detail loops listed to visit (all list pages, within the record limit)."
+              },
+              "visitedParents": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Parent records whose detail visit ended, in sequential and parallel loops alike."
+              },
+              "collectedRecords": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Records collected."
+              },
+              "unresolvedVisits": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Visits whose outcome could not be proven."
+              },
+              "shortfallVisits": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Visits that fell short of a strict record count."
+              },
+              "skippedVisits": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Visits whose loop item was skipped (skip-item, or a visit that never started): not collected; counted among the unresolved visits."
+              },
+              "rowsVanished": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Parent records the list loop listed that the list no longer showed when the loop read it again after the page shifted (a re-rendered or re-fetched list): still expected, never visited. The reason a run that visited every row left is partial."
+              },
+              "requestShortfall": {
+                "type": "object",
+                "properties": {
+                  "lists": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Lists that ran out early."
+                  },
+                  "requested": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Records they were asked for."
+                  },
+                  "collected": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Records they held."
+                  }
+                },
+                "required": [
+                  "lists",
+                  "requested",
+                  "collected"
+                ],
+                "additionalProperties": false,
+                "description": "Lists that ran out of pages before the requested record count."
+              },
+              "truncated": {
+                "type": "boolean",
+                "description": "Whether the evidence was cut at its bound."
+              }
+            },
+            "required": [
+              "status",
+              "visitedParents",
+              "collectedRecords",
+              "unresolvedVisits",
+              "shortfallVisits",
+              "truncated"
+            ],
+            "additionalProperties": false,
+            "description": "Collection completeness, separate from the run status."
+          },
+          "fieldsMissing": {
+            "type": "array",
+            "maxItems": 20,
+            "description": "Fields the run saved its records without, counted per field: detail fields its detail visits missed, fields the wizard showed with a value that read empty on every row of the run (degraded outcome field-empty-all-rows: the run saved its rows, but that column is lost), and list fields whose match in a record was another field by its stated label or place, left empty rather than read wrong (degraded outcome field-identity-refused, counted in rows; check the page before trusting the data), and list cells left empty although the record shows the field (degraded outcome field-read-blanked, counted in rows). A visit that read none of its fields is handed to you instead (endpoint detail-visit-unverified, endpointDetails.kind detail-visit).",
+            "items": {
+              "type": "object",
+              "properties": {
+                "field": {
+                  "type": "string",
+                  "maxLength": 100,
+                  "description": "The field (its variable)."
+                },
+                "count": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Records saved without it."
+                }
+              },
+              "required": [
+                "field",
+                "count"
+              ],
+              "additionalProperties": false,
+              "description": "One detail field and how many records lack it."
+            }
+          },
+          "chartsIncomplete": {
+            "type": "array",
+            "maxItems": 20,
+            "description": "Chart fields whose sweep could not prove it read every record the chart shows (degraded outcome chart-sweep-incomplete): a gap between neighbouring readings stayed open, the time limit cut the sweep, or it found about one record per pixel of the plot (the pointer moves in whole pixels, or the chart draws a sample of its series). The run saves the records it read (within its record limit), so a success can still be a partial chart: compare with the chart (for example a narrower date range) before treating the data as the whole series. Absent when every chart read was complete.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "field": {
+                  "type": "string",
+                  "maxLength": 100,
+                  "description": "The chart field (its variable)."
+                },
+                "count": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Records the incomplete sweep read; the chart may show more. The run saves them within its record limit (rowsSaved), so it can save fewer."
+                }
+              },
+              "required": [
+                "field",
+                "count"
+              ],
+              "additionalProperties": false,
+              "description": "One chart field and how many records its incomplete sweep read."
+            }
+          },
+          "itemsSkipped": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Loop items answered skip-item in a repair handoff (by you or the person): not collected, and no row was written for them. Absent when none was skipped."
+          },
+          "stoppedAt": {
+            "type": "object",
+            "properties": {
+              "nodeId": {
+                "type": "string",
+                "maxLength": 128,
+                "description": "The node the run stopped at."
+              },
+              "blockType": {
+                "type": "string",
+                "maxLength": 100,
+                "description": "Its block type."
+              }
+            },
+            "required": [
+              "nodeId"
+            ],
+            "additionalProperties": false,
+            "description": "Where the run stopped collecting, when it failed or ended partial at a node."
+          },
+          "degradedOutcomes": {
+            "type": "array",
+            "maxItems": 20,
+            "description": "Lesser outcomes the run kept instead of failing.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "kept-unreached",
+                    "zero-iterations",
+                    "continued-unverified",
+                    "pagination-shortfall",
+                    "rows-not-saved",
+                    "rows-unverified",
+                    "detail-field-missing",
+                    "item-skipped",
+                    "field-empty-all-rows",
+                    "field-identity-refused",
+                    "field-read-blanked",
+                    "chart-sweep-incomplete"
+                  ],
+                  "description": "kept-unreached (a read kept its empty value), zero-iterations (a list loop ran no item), continued-unverified (a click meant to open a tab opened none), pagination-shortfall (pages ran out before the requested count), rows-not-saved / rows-unverified (the local sheet), detail-field-missing (a detail visit kept its record without this field), item-skipped (a loop item answered skip-item: not collected, no row written), field-empty-all-rows (a field the wizard showed with a value read empty on every row; count is the rows saved without it), field-identity-refused (a list field whose every match in a record was another field, by its stated label or its place in the record; the cell stayed empty; count is the rows), field-read-blanked (list cells left empty although the record shows the field: the recorded field refused the value at its place, or recovery found several candidates; count is the rows; check the page before trusting the column), chart-sweep-incomplete (a chart field whose sweep may have missed records; count is the records it read; see chartsIncomplete)."
+                },
+                "count": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "How often it happened."
+                },
+                "endpoint": {
+                  "type": "string",
+                  "enum": [
+                    "target-not-found",
+                    "target-ambiguous",
+                    "target-stale",
+                    "target-out-of-range",
+                    "target-covered",
+                    "recorded-target-unreached",
+                    "list-unbound",
+                    "click-not-dispatched",
+                    "loop-no-elements",
+                    "wait-timeout",
+                    "readiness-deadline",
+                    "readiness-target-missing",
+                    "readiness-wrong-document",
+                    "readiness-unresolved",
+                    "block-timeout",
+                    "navigation-failed",
+                    "navigation-not-observed",
+                    "new-tab-not-opened",
+                    "new-tab-url-rejected",
+                    "new-tab-open-failed",
+                    "tab-unavailable",
+                    "effect-unverified",
+                    "detail-visit-unverified",
+                    "media-state-unverified",
+                    "nested-identity-conflict",
+                    "continuation-source-changed",
+                    "traversal-budget-exhausted",
+                    "record-limit-not-reached",
+                    "list-load-incomplete",
+                    "records-not-saved",
+                    "config-invalid",
+                    "input-data-unavailable",
+                    "execution-state-invalid",
+                    "api-request-failed",
+                    "browser-operation-failed",
+                    "script-error",
+                    "permission-denied",
+                    "person-declined",
+                    "auth-required",
+                    "execution-stopped",
+                    "parallel-group-timeout",
+                    "workflow-invalid",
+                    "engine-error",
+                    "dataset-save-unconfirmed",
+                    "plan-restricted",
+                    "run-ownership-conflict",
+                    "recovery-replay-forbidden",
+                    "run-tab-group-closed",
+                    "recovery-reopen-unavailable",
+                    "recovery-attempts-exhausted",
+                    "recovery-snapshot-missing",
+                    "unclassified"
+                  ],
+                  "description": "The endpoint the step would have failed on."
+                },
+                "nodeId": {
+                  "type": "string",
+                  "maxLength": 128,
+                  "description": "The first node it happened at."
+                },
+                "field": {
+                  "type": "string",
+                  "maxLength": 100,
+                  "description": "The variable or column the kept value belongs to."
+                }
+              },
+              "required": [
+                "kind",
+                "count"
+              ],
+              "additionalProperties": false,
+              "description": "One kind of kept outcome."
+            }
+          }
+        },
+        "additionalProperties": false,
+        "description": "What the run collected and where it stopped; present when the run executed in this browser."
+      },
+      "toleratedFailures": {
+        "type": "object",
+        "properties": {
+          "count": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "How many failures the run passed over, such as detail visits whose page did not open; each such record is kept with empty detail fields."
+          },
+          "firstError": {
+            "type": "string",
+            "maxLength": 500,
+            "description": "The message of the first failure the run passed over."
+          }
+        },
+        "required": [
+          "count"
+        ],
+        "additionalProperties": false,
+        "description": "Failures the policies of the run tolerated (skipped list items). The run went on and its status is unchanged; present only when there were any and the execution ran in this browser."
+      },
+      "hasResult": {
+        "type": "boolean",
+        "description": "Whether at least one execution result artifact is available."
+      },
+      "artifactCount": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Number of listed artifacts when the execution is terminal and artifact access is available."
+      },
+      "lifecycle": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "running",
+          "paused",
+          "completed",
+          "partial",
+          "failed",
+          "stopped"
+        ],
+        "description": "The lifecycle to plan on, whatever words status (the backend record) uses: completed covers completed and success, partial is a run that ended through the agent repair handoff (you aborted it, its deadline passed, its handoff budget was spent, or the handoff was turned off) after saving rows (coverage.rowsSaved; they are kept and listed like any terminal run's, and endpoint names where it stopped), failed covers failed and restricted (refused under the plan limits), stopped covers stopped and cancelled, paused is a run in this browser waiting on a sign-in wall, on host resources, or on your repair of a failed block (pause says which)."
+      },
+      "pause": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "auth",
+              "resource",
+              "agent-repair"
+            ],
+            "description": "What the run waits on: auth = a sign-in or verification wall the person must pass (never you); resource = host memory or CPU pressure, it resumes on its own; agent-repair = a block failed after every automatic tier and the run waits for your answer (dsagent.execution.handoff.get, then dsagent.execution.handoff.resume or dsagent.execution.handoff.abort) until deadline."
+          },
+          "waitingOn": {
+            "type": "string",
+            "enum": [
+              "agent",
+              "person",
+              "host"
+            ],
+            "description": "Who the run waits on. auth: person (the wall is theirs; never sign in yourself). resource: host (the pressure must ease, or the person adjusts the resource-pressure settings). agent-repair: agent = you (the person may also answer in the SidePanel; the first answer wins); person = your control session ended and did not come back within 30 s, so the person answers in the SidePanel until deadline (moved earlier, at most 5 minutes); you may still answer while it is open. A run you did not start (openedFor person) waits on the person from the start."
+          },
+          "openedFor": {
+            "type": "string",
+            "enum": [
+              "agent",
+              "person"
+            ],
+            "description": "agent-repair: whom the handoff was opened for. agent: the agent that started the run (you, when you did). person: nobody started this run over MCP or the Chat (a SidePanel start, a dataset run, a scheduled fire); the person answers in the SidePanel within 5 minutes and you cannot answer it."
+          },
+          "sinceMs": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "auth, resource: how long the run has waited, in milliseconds."
+          },
+          "deadline": {
+            "type": "string",
+            "maxLength": 40,
+            "description": "ISO time. auth: the run ends failed on auth-required if the person has not passed the wall by then (60 minutes; a restart keeps it). resource: the pause is escalated to the person then (escalated true); the run stays paused. agent-repair: the run ends failed on the block's endpoint if you have not answered; it stands still while a sign-in wall outranks the handoff."
+          },
+          "wall": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "maxLength": 40,
+                "description": "The kind of wall (LOGIN_FORM, CAPTCHA, SSO, ...)."
+              },
+              "host": {
+                "type": "string",
+                "maxLength": 120,
+                "description": "The host of the walled page."
+              }
+            },
+            "required": [
+              "type"
+            ],
+            "additionalProperties": false,
+            "description": "auth: which wall stands, on which host."
+          },
+          "pageContextId": {
+            "type": "string",
+            "maxLength": 128,
+            "description": "auth: the run page the wall stands on, issued to you to observe (never to sign in on). agent-repair: the run page the block failed on, issued to you (the agent that started the run): observe and act on it with dsagent.page.* while the run waits."
+          },
+          "handoff": {
+            "type": "object",
+            "description": "auth: the repair handoff the wall outranks, still open and still yours to answer (the same fields as an agent-repair pause: handoffId, endpoint, nodeId, blockType, attempt, deadline, answers, retargetable, pageContextId). Its deadline stands still while the wall stands; answer it once the person passed the wall, or now."
+          },
+          "trigger": {
+            "type": "string",
+            "enum": [
+              "memory",
+              "cpu",
+              "memory+cpu"
+            ],
+            "description": "resource: which host resource is under pressure."
+          },
+          "memoryPercent": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "resource: host memory in use when last sampled."
+          },
+          "cpuPercent": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "resource: host CPU in use when last sampled."
+          },
+          "escalated": {
+            "type": "boolean",
+            "description": "resource: the pause outlasted its deadline; the person was told again. The run is still paused; the way out is nextStep."
+          },
+          "nextStep": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "adjust-settings"
+                ],
+                "description": "resource: the typed way out: adjust the resource-pressure settings (thresholds, or turn the pause off) with the person's agreement."
+              },
+              "settingsSection": {
+                "type": "string",
+                "enum": [
+                  "resource-pressure"
+                ],
+                "description": "The settings section to read with dsagent.settings.get and change with dsagent.settings.update."
+              },
+              "capability": {
+                "type": "string",
+                "enum": [
+                  "dsagent.settings.update"
+                ],
+                "description": "The capability that applies the change."
+              }
+            },
+            "required": [
+              "kind",
+              "settingsSection",
+              "capability"
+            ],
+            "additionalProperties": false,
+            "description": "resource: what ends the pause other than the pressure easing."
+          },
+          "handoffId": {
+            "type": "string",
+            "maxLength": 64,
+            "description": "agent-repair: the handoff to answer with dsagent.execution.handoff.get / resume / abort."
+          },
+          "endpoint": {
+            "type": "string",
+            "maxLength": 80,
+            "description": "agent-repair: the typed execution endpoint the block failed on (the same enum terminal runs report)."
+          },
+          "nodeId": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "agent-repair: the failed block."
+          },
+          "blockType": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "agent-repair: its block type."
+          },
+          "blockLabel": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "agent-repair: its label in the workflow."
+          },
+          "targetDescription": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "agent-repair: the element the block was recorded on, as a person names it (role and label); never a selector."
+          },
+          "attempt": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5,
+            "description": "agent-repair: the run's how-many-th handoff (at most 5 per run, 1 per block and loop item)."
+          },
+          "loopItem": {
+            "type": "object",
+            "properties": {
+              "loopNodeId": {
+                "type": "string",
+                "maxLength": 200,
+                "description": "The loop block whose item failed."
+              },
+              "index": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Zero-based index of the item."
+              }
+            },
+            "required": [
+              "loopNodeId",
+              "index"
+            ],
+            "additionalProperties": false,
+            "description": "agent-repair: the loop item the block failed in, when it ran in a loop."
+          },
+          "answers": {
+            "type": "array",
+            "maxItems": 3,
+            "items": {
+              "type": "string",
+              "enum": [
+                "retry",
+                "skip-item",
+                "continue"
+              ],
+              "description": "One answer dsagent.execution.handoff.resume accepts."
+            },
+            "description": "agent-repair: the answers this handoff accepts (skip-item only inside a loop item)."
+          },
+          "retargetable": {
+            "type": "boolean",
+            "description": "agent-repair: whether retry may rebind the block to another element (retarget.pageTargetId): the block recorded an identity to verify it against."
+          },
+          "restored": {
+            "type": "boolean",
+            "description": "agent-repair: the handoff was open when the Extension restarted and was restored with the same handoffId and deadline."
+          }
+        },
+        "required": [
+          "kind"
+        ],
+        "additionalProperties": false,
+        "description": "Present while the run is paused in this browser: what it waits on, who must act, and until when."
+      },
+      "terminal": {
+        "type": "boolean",
+        "description": "true: the run has ended (completed, partial, failed, restricted or stopped) and its artifacts are final; false: wait again or read progress. A failed or partial run names its endpoint, errorNodeId, recovery and coverage."
+      },
+      "resultDelivery": {
+        "type": "string",
+        "enum": [
+          "pending"
+        ],
+        "description": "Present when the run ended in this browser and its result is still on its way to the DSphere backend: the run is terminal and its status, finishedAt and durationMs (which end when the run ended) are its own. The backend's execution history and its copy of the result follow once delivered; nothing is needed from you."
+      },
+      "runPageContextIds": {
+        "type": "array",
+        "maxItems": 32,
+        "items": {
+          "type": "string",
+          "maxLength": 128,
+          "description": "A page context of a tab the run holds."
+        },
+        "description": "The pages of the tabs this run holds right now (its worker tabs, popups and stamped tabs), issued to you as your pages: read them with dsagent.page.observe, and close one the run left behind with dsagent.page.close once the run ended. Absent when the run holds no tab, does not run in this browser, or another agent started it (its tabs stay with that agent)."
+      },
+      "progress": {
+        "type": "object",
+        "properties": {
+          "currentNode": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "maxLength": 128,
+                "description": "The node running now."
+              },
+              "title": {
+                "type": "string",
+                "maxLength": 200,
+                "description": "Its label in the workflow."
+              },
+              "type": {
+                "type": "string",
+                "maxLength": 100,
+                "description": "Its block type."
+              }
+            },
+            "required": [
+              "id",
+              "title",
+              "type"
+            ],
+            "additionalProperties": false,
+            "description": "The node running now, when the runtime names one."
+          },
+          "nodeIndex": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "One-based position of the current node among the nodes of the run."
+          },
+          "nodeCount": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Nodes of the run."
+          },
+          "recordsSoFar": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Records the run has scraped so far (detail records included)."
+          },
+          "listRecordsSoFar": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Parent (list) records scraped so far."
+          },
+          "authInterrupt": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "maxLength": 40,
+                "description": "The kind of wall (LOGIN_FORM, CAPTCHA, ...)."
+              }
+            },
+            "additionalProperties": false,
+            "description": "Present while the run waits on a sign-in or verification wall the person must pass."
+          },
+          "paused": {
+            "type": "string",
+            "enum": [
+              "resource-pressure"
+            ],
+            "description": "Present while the run is paused for host memory or CPU pressure; it resumes on its own."
+          },
+          "movedDuringWait": {
+            "type": "boolean",
+            "description": "execution.wait only: whether the records, node or status of the run changed during this wait. false on a run that is not terminal means it made no visible progress for the whole wait (a stall, a hidden window, a wall): read progress and the page of the run before waiting again."
+          }
+        },
+        "required": [
+          "nodeCount"
+        ],
+        "additionalProperties": false,
+        "description": "Present while the run executes in this browser: what it is doing now. A run elsewhere (another browser, a server) carries no progress."
+      },
+      "timedOut": {
+        "type": "boolean",
+        "description": "Whether the bounded wait ended before the execution reached a terminal state."
+      }
+    },
+    "required": [
+      "executionId",
+      "workflowId",
+      "status",
+      "hasResult",
+      "lifecycle",
+      "terminal",
+      "timedOut"
+    ],
+    "additionalProperties": false,
+    "description": "Execution state after the bounded wait."
+  },
+  "risk": "read-sensitive",
+  "targetKinds": [
+    "workflow"
+  ],
+  "requiredPermissions": [
+    "workflow.read"
+  ],
+  "timeoutMs": 35000,
+  "maxInlineResultBytes": 262144,
+  "concurrency": "shared-read",
+  "retry": "pre-dispatch-read-only",
+  "exposure": "exposed"
+}

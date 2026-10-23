@@ -1,0 +1,64 @@
+{
+  "method": "dsagent.page.close",
+  "version": 1,
+  "title": "Close a page opened for you",
+  "description": "Close a browser tab opened for you, once you are done with it (for example when a test or check is finished and its data is exported): a page dsagent.page.open opened, a page a guided wizard you drive opened (the sample detail page it reported as pagePick.pageContextId), or any tab of a named…",
+  "guidance": "Close a browser tab opened for you, once you are done with it (for example when a test or check is finished and its data is exported): a page dsagent.page.open opened, a page a guided wizard you drive opened (the sample detail page it reported as pagePick.pageContextId), or any tab of a named browser session (sessionGroup new or previous). These stay closable after an Extension reload, so close leftovers from earlier tasks too. Only those pages can be closed: the person's own tabs, a workflow run's tabs and any other tab are refused with POLICY_DENIED, and a page a guided wizard or a workflow run is still using is refused with TARGET_BUSY until it finishes or is canceled. A page that is already gone succeeds with alreadyClosed true. The page context is released after closing. Requires an idempotency key; repeating a key returns the first result.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "minLength": 8,
+        "maxLength": 128,
+        "description": "The pageContextId dsagent.page.open returned or a guided wizard reported as pagePick.pageContextId for a page it opened (or the one dsagent.pages.list lists for that same tab)."
+      }
+    },
+    "required": [
+      "pageContextId"
+    ],
+    "additionalProperties": false,
+    "description": "The page to close."
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "The page context that was closed; dsagent.page.* no longer accepts it."
+      },
+      "closed": {
+        "type": "boolean",
+        "enum": [
+          true
+        ],
+        "description": "Always true: the tab is gone."
+      },
+      "alreadyClosed": {
+        "type": "boolean",
+        "description": "True when the tab was already gone (closed by the person or the browser) before this call."
+      }
+    },
+    "required": [
+      "pageContextId",
+      "closed",
+      "alreadyClosed"
+    ],
+    "additionalProperties": false,
+    "description": "The closed page."
+  },
+  "risk": "reversible-write",
+  "targetKinds": [
+    "browser",
+    "page"
+  ],
+  "requiredPermissions": [
+    "page.open"
+  ],
+  "timeoutMs": 15000,
+  "maxInlineResultBytes": 1024,
+  "concurrency": "exclusive-target",
+  "retry": "never",
+  "exposure": "exposed"
+}

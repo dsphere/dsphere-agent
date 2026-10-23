@@ -1,0 +1,520 @@
+{
+  "method": "dsagent.page.find",
+  "version": 1,
+  "title": "Find browser page targets",
+  "description": "Find the current page targets that read as a short query (a visible label, a placeholder, the name of the row a control sits in), best first, at the current page revision; the whole document is searched, not only what is on screen, and a found control off screen is scrolled to when acted on; while…",
+  "guidance": "Find the current page targets that read as a short query (a visible label, a placeholder, the name of the row a control sits in), best first, at the current page revision; the whole document is searched, not only what is on screen, and a found control off screen is scrolled to when acted on; while a dialog or panel is the active surface only its targets are searched, and activeSurface names it and counts the matches behind it. Use it instead of scanning a long observation or guessing: the result carries the revision and target ids dsagent.page.action accepts. With includeText it also finds the text the page shows (a heading, a paragraph, a date or time beside a table) as kind extractable with no actions, for dsagent.wizard.pick to pick a field by the text it shows (pagePick.includeText of the wizard state asks for it). With includeImages it also lists the pictures the page shows, largest first, for dsagent.wizard.pick to pick a picture such as the main gallery image of a product (pagePick.includeImages asks for it). Read-only; it never returns selectors.",
+  "inputSchema": {
+    "type": "object",
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "minLength": 8,
+        "maxLength": 128,
+        "description": "Opaque page context from dsagent.pages.list, dsagent.page.open, or a receipt's destinationPageContextId."
+      },
+      "query": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 160,
+        "description": "What to look for, in the words the page shows (\"关注\", \"Next page\", \"Search\"). Optional with role: without it, the role’s targets are listed in page order (an unlabeled comment editor is found as role textbox)."
+      },
+      "limit": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 20,
+        "description": "Maximum matches; defaults to 10."
+      },
+      "role": {
+        "type": "string",
+        "maxLength": 40,
+        "description": "Optional: only targets of this role (button, link, tab, textbox, checkbox…); alone, without query, every target of the role."
+      },
+      "context": {
+        "type": "string",
+        "maxLength": 120,
+        "description": "Optional: only controls inside the record whose name contains this text."
+      },
+      "includeText": {
+        "type": "boolean",
+        "description": "Optional: also return text targets (headings, paragraphs, dates and other shown text; kind extractable, no actions) for dsagent.wizard.pick. Defaults to false: only targets dsagent.page.action takes."
+      },
+      "includeImages": {
+        "type": "boolean",
+        "description": "Optional: also return the pictures the page shows, first and largest first whatever the query (matchedOn picture; target.picture gives the rendered size; the target is what a click on the picture's centre lands on), for dsagent.wizard.pick of a picture (pagePick.includeImages of the wizard state asks for it). Defaults to false."
+      },
+      "surface": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "Optional open surface id, or latest for the most recently opened menu, panel or dialog. Uses the shared runtime control inspector."
+      }
+    },
+    "required": [
+      "pageContextId"
+    ],
+    "additionalProperties": false,
+    "description": "Opaque page context and a find-style query, a role, or both, over the current semantic targets."
+  },
+  "outputSchema": {
+    "type": "object",
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "Opaque observed page context."
+      },
+      "revision": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "Current page revision the returned target ids belong to; pass it as expectedRevision to dsagent.page.action."
+      },
+      "query": {
+        "type": "string",
+        "maxLength": 160,
+        "description": "The query as evaluated."
+      },
+      "surfaceMissing": {
+        "type": "boolean",
+        "description": "The requested surface is not open; no fallback to unrelated controls."
+      },
+      "truncated": {
+        "type": "boolean",
+        "description": "The shared control query reached its bound."
+      },
+      "searched": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "How many current targets were considered."
+      },
+      "activeSurface": {
+        "type": "object",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "dialog",
+              "panel"
+            ],
+            "description": "What bounds the targets."
+          },
+          "label": {
+            "type": "string",
+            "maxLength": 160,
+            "description": "Bounded label of the dialog or panel."
+          },
+          "backgroundMatches": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Controls behind the surface that read as the query: they are not returned. Finish or close the surface (for example a login panel) to reach them; they are not gone."
+          }
+        },
+        "required": [
+          "kind",
+          "label",
+          "backgroundMatches"
+        ],
+        "additionalProperties": false,
+        "description": "Present when an open dialog or panel bounded the search."
+      },
+      "warnings": {
+        "type": "array",
+        "maxItems": 2,
+        "description": "REPEATED_RECORDS_USE_WIZARD: switch to the scrape wizard on this page now (dsagent.wizard.start kind=scrape, then wizard.state / wizard.choose). DSphere's typed route advice, never page text: this page shows repeated records (the same fields per item) and this task has read or scrolled it twelve or more times with page reads, which is not how records are collected. The call itself succeeded; the person sees the same notice in the DSphere side panel. Plan on the code, never on the message.",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "code",
+            "message",
+            "nextActions"
+          ],
+          "description": "One typed warning.",
+          "properties": {
+            "code": {
+              "type": "string",
+              "enum": [
+                "REPEATED_RECORDS_USE_WIZARD"
+              ],
+              "description": "Stable warning code to plan on."
+            },
+            "message": {
+              "type": "string",
+              "maxLength": 300,
+              "description": "Bounded reason with the counts behind it; never page text."
+            },
+            "nextActions": {
+              "type": "array",
+              "maxItems": 2,
+              "description": "What to call next, in order.",
+              "items": {
+                "type": "string",
+                "maxLength": 200,
+                "description": "One next call, named as the catalog names it."
+              }
+            }
+          }
+        }
+      },
+      "matches": {
+        "type": "array",
+        "maxItems": 20,
+        "description": "Matching targets, best first.",
+        "items": {
+          "type": "object",
+          "properties": {
+            "target": {
+              "type": "object",
+              "properties": {
+                "placeholder": {
+                  "type": "string",
+                  "maxLength": 160,
+                  "description": "Optional input hint, never the entered value or proof of its content."
+                },
+                "labelSource": {
+                  "type": "string",
+                  "enum": [
+                    "accessible-name",
+                    "placeholder",
+                    "rendered-text"
+                  ],
+                  "description": "Origin of the displayed target label; a placeholder is not the entered value."
+                },
+                "fieldLabel": {
+                  "type": "string",
+                  "maxLength": 80,
+                  "description": "The label the page prints for a field (its label or the heading of its field block), without a required mark; present when it says more than label, which may be only a placeholder. A required mark adds required to state."
+                },
+                "fieldMessage": {
+                  "type": "string",
+                  "maxLength": 160,
+                  "description": "What the page says about the field value: its error message or the text it shows under the field. Never the entered value."
+                },
+                "fieldPurpose": {
+                  "type": "string",
+                  "enum": [
+                    "search"
+                  ],
+                  "description": "search: the page declares this text field as its search box (input type search, role searchbox, a search landmark, enterkeyhint search, or its own name, id or class); its label may be only a suggested query that changes. A find for the search box (search, 搜索) returns it."
+                },
+                "labelContext": {
+                  "type": "object",
+                  "properties": {
+                    "text": {
+                      "type": "string",
+                      "maxLength": 160,
+                      "description": "Bounded local record, group or table column context for distinguishing repeated labels; never an input value."
+                    },
+                    "source": {
+                      "type": "string",
+                      "enum": [
+                        "record",
+                        "group",
+                        "column"
+                      ],
+                      "description": "Structural owner from which the context was observed: a record (row or card), a named group, or a table column whose header cell holds the control (the text is the header of that column)."
+                    },
+                    "scopeId": {
+                      "type": "string",
+                      "maxLength": 128,
+                      "description": "Opaque local context identity; not an actionable target or authorization."
+                    }
+                  },
+                  "required": [
+                    "text",
+                    "source",
+                    "scopeId"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Optional disambiguating evidence. The target label, opaque identity and revision remain authoritative."
+                },
+                "id": {
+                  "type": "string",
+                  "maxLength": 128,
+                  "description": "Opaque target identifier valid only for the associated page revision."
+                },
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "page",
+                    "interactive",
+                    "extractable",
+                    "scrollable"
+                  ],
+                  "description": "Semantic target category."
+                },
+                "role": {
+                  "type": "string",
+                  "maxLength": 80,
+                  "description": "Bounded accessibility or semantic role."
+                },
+                "picture": {
+                  "type": "object",
+                  "properties": {
+                    "width": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "description": "Rendered width in CSS pixels."
+                    },
+                    "height": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "description": "Rendered height in CSS pixels."
+                    }
+                  },
+                  "required": [
+                    "width",
+                    "height"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Present for a picture the page shows (dsagent.page.find with includeImages): its rendered size. The target is what a click on the picture's centre lands on."
+                },
+                "ariaRole": {
+                  "type": "string",
+                  "maxLength": 40,
+                  "description": "Optional ARIA role, explicit or implied by the element (link for a link, textbox for a text input), present only when it differs from role; dsagent.page.find matches either."
+                },
+                "scrollAxis": {
+                  "type": "string",
+                  "enum": [
+                    "x",
+                    "both"
+                  ],
+                  "description": "Optional: the target scrolls sideways (carousel, tab strip, wide table); both means it also scrolls vertically. Scroll it with axis x."
+                },
+                "label": {
+                  "type": "string",
+                  "maxLength": 300,
+                  "description": "Bounded visible or accessible target label."
+                },
+                "hooks": {
+                  "type": "array",
+                  "maxItems": 4,
+                  "items": {
+                    "type": "string",
+                    "maxLength": 80,
+                    "description": "One declared hook: a test name (video-comment-more) or name=value (data-e2e=danmaku-container)."
+                  },
+                  "description": "Optional, only on a target whose label is empty: the QA hooks the page declares on the control or its close ancestors. Untrusted page vocabulary to tell unnamed icons apart; never a name to quote and never a selector. Use dsagent.page.visual.observe when they do not settle what the control does."
+                },
+                "state": {
+                  "type": "string",
+                  "maxLength": 160,
+                  "description": "Optional bounded state tokens, comma separated, such as checked, selected, expanded=true, pressed or unpressed, mixed, current, disabled, required, invalid, readonly, busy, haspopup=menu, valuenow=<n>, sort=<direction>, filled or empty."
+                },
+                "capabilities": {
+                  "type": "array",
+                  "maxItems": 29,
+                  "uniqueItems": true,
+                  "description": "Public atomic actions accepted for this opaque target by dsagent.page.action; empty for a text target found by dsagent.page.find.",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "click",
+                      "detect-form-fields",
+                      "handle-dialog",
+                      "dismiss",
+                      "drag",
+                      "drag-move",
+                      "drag-press",
+                      "drag-release",
+                      "fill-form",
+                      "history-back",
+                      "history-forward",
+                      "hover",
+                      "input",
+                      "press-key",
+                      "scroll",
+                      "select",
+                      "set-checkbox",
+                      "set-radio",
+                      "reload",
+                      "upload-file",
+                      "load-options",
+                      "detect-marquees",
+                      "detect-videos",
+                      "pause-marquees",
+                      "pause-videos",
+                      "play-videos",
+                      "resume-marquees",
+                      "detect-ads",
+                      "remove-ads"
+                    ]
+                  }
+                },
+                "inViewport": {
+                  "type": "boolean",
+                  "description": "Optional: whether part of the target is inside the current viewport at this revision."
+                },
+                "occluded": {
+                  "type": "boolean",
+                  "description": "Optional: whether another element covers the target centre (overlay, sticky header); scroll or dismiss before acting."
+                },
+                "navigationUrl": {
+                  "type": "string",
+                  "maxLength": 300,
+                  "description": "Optional: the sanitized HTTP(S) destination of a link target, as evidence of where it leads; navigate by clicking it, never by constructing the URL."
+                },
+                "scrollMetrics": {
+                  "type": "object",
+                  "properties": {
+                    "scrollTop": {
+                      "type": "number",
+                      "minimum": 0,
+                      "description": "The scrollable target's own scroll position in CSS pixels."
+                    },
+                    "scrollHeight": {
+                      "type": "number",
+                      "minimum": 0,
+                      "description": "Its full content height."
+                    },
+                    "clientHeight": {
+                      "type": "number",
+                      "minimum": 0,
+                      "description": "Its visible height."
+                    },
+                    "clippedBelow": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "description": "Controls in it below its visible bottom: 0 with scrollTop near the end means the list is exhausted."
+                    },
+                    "clippedAbove": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "description": "Controls in it above its visible top."
+                    }
+                  },
+                  "required": [
+                    "scrollTop",
+                    "scrollHeight",
+                    "clientHeight",
+                    "clippedBelow"
+                  ],
+                  "additionalProperties": false,
+                  "description": "Optional, on a scrollable target: where it is scrolled and what it clips."
+                },
+                "scrollRootId": {
+                  "type": "string",
+                  "maxLength": 128,
+                  "description": "Optional: the published scrollable target whose box clips this control; scroll that target, not the page, to reveal it."
+                },
+                "contentKey": {
+                  "type": "string",
+                  "maxLength": 128,
+                  "description": "Optional: the record this control belongs to, identified by its content (attr:, link: or text:), stable across re-renders and pages where the structural id is not."
+                },
+                "frameId": {
+                  "type": "string",
+                  "maxLength": 16,
+                  "description": "Optional: the child frame that owns this target; absent for the main document."
+                }
+              },
+              "required": [
+                "id",
+                "kind",
+                "role",
+                "label",
+                "capabilities"
+              ],
+              "additionalProperties": false,
+              "description": "The matching opaque target, as dsagent.page.observe lists it."
+            },
+            "score": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 400,
+              "description": "Relative match strength within this result only."
+            },
+            "matchedOn": {
+              "type": "array",
+              "maxItems": 6,
+              "description": "Which target facts matched the query.",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "label",
+                  "placeholder",
+                  "context",
+                  "role",
+                  "state",
+                  "content-key",
+                  "picture"
+                ]
+              }
+            }
+          },
+          "required": [
+            "target",
+            "score",
+            "matchedOn"
+          ],
+          "additionalProperties": false,
+          "description": "One matching target with its match evidence."
+        }
+      },
+      "authentication": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "sign-in-required",
+              "no-wall"
+            ],
+            "description": "no-wall: the monitor checked this page and found no sign-in or verification wall, so do not tell the person the site needs a sign-in. sign-in-required: the page asks the person to sign in or pass a verification (the browser's sign-in monitor, the one workflow runs use, decided it)."
+          },
+          "type": {
+            "type": "string",
+            "maxLength": 40,
+            "description": "The kind of wall the monitor recognised: a challenge (CAPTCHA, SLIDER_CAPTCHA, IMAGE_CAPTCHA, RECAPTCHA, HCAPTCHA, TURNSTILE, GEETEST, ARKOSE, CLOUDFLARE, BOT_PROTECTION) or a sign-in kind (LOGIN_FORM, PHONE_LOGIN, SSO, OTP…)."
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 100,
+            "description": "The monitor's confidence."
+          },
+          "waitingOn": {
+            "type": "string",
+            "enum": [
+              "agent",
+              "person"
+            ],
+            "description": "Who the wall waits on. agent: a challenge you hold and pass yourself with page actions (see the field description). person: a sign-in wall, or a challenge you failed; DSphere handed it to the person. DSphere has shown the person its sign-in sheet for this page (and a desktop notification when its side panel is closed). Tell your user that the page needs them to sign in or pass the check in the browser and click Resume in the DSphere side panel; do not use dsagent.page.ask for it. Wait, then read this page again (dsagent.page.observe); continue the task where it stopped once authentication is absent. Do not end the task, retry the effect before then, or sign in, enter credentials or solve the challenge yourself."
+          },
+          "attemptsLeft": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 12,
+            "description": "With waitingOn agent: effect calls (dsagent.page.action / .actions) you may still spend on this challenge before it is the person's."
+          }
+        },
+        "required": [
+          "status"
+        ],
+        "additionalProperties": false,
+        "description": "The sign-in monitor's verdict on the page: status no-wall when it checked and found none (absent when it could not check); status sign-in-required, with type and confidence, when the page is a sign-in or verification (CAPTCHA) wall. With waitingOn \"agent\" the wall is a human-verification challenge (a CAPTCHA or bot check) that you pass yourself, with the page gestures a person uses: dsagent.page.visual.observe shows the puzzle; dsagent.page.observe / dsagent.page.find list its controls (a checkbox or a picture tile: click; a slider knob: drag with delta or dropTargetId; a code field: type; a refresh or confirm control: click); then read the page again. Once the challenge has survived one of your answers, DSphere sends your drags and plain clicks on it as real browser input (the receipt says so); nothing changes in how you call them. authentication absent or no-wall means it is passed; continue the task. You have attemptsLeft effect calls on this challenge (12 at first) and 5 minutes; when they are spent, or you call dsagent.page.notify on this page because you cannot pass it, DSphere hands the challenge to the person and waitingOn becomes \"person\". Never enter credentials, sign in or ask the person before that. The person may turn this off (DSphere Settings → Verification Challenges; dsagent.settings.get section agent-challenge-walls, which you cannot change): then every wall is the person's from the start. With waitingOn \"person\" effects other than a click on the active surface's own close control (activeSurface.closeTargetId), dismiss, scroll and Escape are refused with TARGET_BUSY / AUTHENTICATION_REQUIRED until the wall is gone. You may still close a sign-in popup the way a guest does, which signs nothing in: click its own close control (activeSurface.closeTargetId of your latest page read), dismiss, scroll or press Escape; then read the page again. DSphere has shown the person its sign-in sheet for this page (and a desktop notification when its side panel is closed). Tell your user that the page needs them to sign in or pass the check in the browser and click Resume in the DSphere side panel; do not use dsagent.page.ask for it. Wait, then read this page again (dsagent.page.observe); continue the task where it stopped once authentication is absent. Do not end the task, retry the effect before then, or sign in, enter credentials or solve the challenge yourself."
+      }
+    },
+    "required": [
+      "pageContextId",
+      "revision",
+      "query",
+      "searched",
+      "matches"
+    ],
+    "additionalProperties": false,
+    "description": "Revision-bound find result over the current semantic targets."
+  },
+  "risk": "read-sensitive",
+  "targetKinds": [
+    "page"
+  ],
+  "requiredPermissions": [
+    "page.read"
+  ],
+  "timeoutMs": 35000,
+  "maxInlineResultBytes": 65536,
+  "concurrency": "shared-read",
+  "retry": "pre-dispatch-read-only",
+  "exposure": "exposed"
+}

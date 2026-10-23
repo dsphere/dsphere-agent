@@ -1,0 +1,61 @@
+{
+  "method": "dsagent.events.close",
+  "version": 1,
+  "title": "Close Browser Event Channel",
+  "description": "Close one owned browser event channel and release its bounded event buffer.",
+  "inputSchema": {
+    "type": "object",
+    "description": "Parameters for closing an owned event channel.",
+    "properties": {
+      "channelId": {
+        "type": "string",
+        "minLength": 8,
+        "maxLength": 128,
+        "description": "Opaque channel identifier to close."
+      },
+      "resumeToken": {
+        "type": "string",
+        "minLength": 8,
+        "maxLength": 128,
+        "description": "Optional opaque token proving access to the channel."
+      }
+    },
+    "required": [
+      "channelId"
+    ],
+    "additionalProperties": false
+  },
+  "outputSchema": {
+    "type": "object",
+    "description": "Result of closing the event channel.",
+    "properties": {
+      "channelId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "Opaque identifier of the closed channel."
+      },
+      "closed": {
+        "type": "boolean",
+        "description": "Whether the channel is now closed."
+      }
+    },
+    "required": [
+      "channelId",
+      "closed"
+    ],
+    "additionalProperties": false
+  },
+  "risk": "reversible-write",
+  "targetKinds": [
+    "browser-event-channel"
+  ],
+  "requiredPermissions": [
+    "browser.events.read"
+  ],
+  "timeoutMs": 10000,
+  "maxInlineResultBytes": 8192,
+  "concurrency": "exclusive-target",
+  "retry": "never",
+  "exposure": "exposed"
+}

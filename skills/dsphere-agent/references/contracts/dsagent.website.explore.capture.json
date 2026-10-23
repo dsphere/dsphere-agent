@@ -1,0 +1,113 @@
+{
+  "method": "dsagent.website.explore.capture",
+  "version": 1,
+  "risk": "reversible-write",
+  "targetKinds": [
+    "page"
+  ],
+  "requiredPermissions": [
+    "page.read"
+  ],
+  "timeoutMs": 60000,
+  "maxInlineResultBytes": 8192,
+  "concurrency": "exclusive-browser",
+  "retry": "never",
+  "exposure": "exposed",
+  "title": "Export website exploration evidence",
+  "description": "ONLY when the user explicitly requests website exploration or an exploration report. Capture selected controls at a current page revision and export a verified Markdown evidence file. Independent from atomic execution: never invoked automatically.",
+  "guidance": "No navigation, LLM loop, dataset collection or page modification. Returns caller-owned evidence ID retained for 24 hours or until browser exit, and a durable file path. Use a fresh idempotency key for a new capture; reuse the same key/input to recover a receipt.",
+  "inputSchema": {
+    "type": "object",
+    "description": "Capture explicitly requested website exploration evidence from selected current controls. No browsing or actions are performed.",
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "Existing task page context."
+      },
+      "expectedRevision": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "Current observation revision; stale captures fail closed."
+      },
+      "label": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 200,
+        "description": "Meaningful page or explored state name."
+      },
+      "targetIds": {
+        "type": "array",
+        "description": "Select only relevant observed controls, never records for bulk data collection. Empty captures document the page identity only.",
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "Opaque current target identity."
+        },
+        "minItems": 0,
+        "maxItems": 32,
+        "uniqueItems": true
+      }
+    },
+    "required": [
+      "pageContextId",
+      "expectedRevision",
+      "label",
+      "targetIds"
+    ],
+    "additionalProperties": false
+  },
+  "outputSchema": {
+    "type": "object",
+    "description": "Confirmed exploration evidence and durable Markdown artifact.",
+    "properties": {
+      "evidenceId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 80,
+        "description": "Opaque evidence ID for report export; not an action handle."
+      },
+      "capturedAt": {
+        "type": "number",
+        "minimum": 0,
+        "description": "Capture timestamp in epoch milliseconds."
+      },
+      "revision": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "Captured page observation revision."
+      },
+      "path": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 4096,
+        "description": "Confirmed Markdown file in the configured export directory, or the browser download directory."
+      },
+      "sizeBytes": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Verified file size in bytes."
+      },
+      "mediaType": {
+        "type": "string",
+        "enum": [
+          "text/markdown"
+        ],
+        "description": "Portable Markdown document."
+      }
+    },
+    "required": [
+      "evidenceId",
+      "capturedAt",
+      "revision",
+      "path",
+      "sizeBytes",
+      "mediaType"
+    ],
+    "additionalProperties": false
+  }
+}
