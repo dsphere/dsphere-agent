@@ -2,6 +2,8 @@
 
 Built Skill distribution for DSphere Agent. Version: **1.8.2**.
 
+[Installation and update guide / 安装与更新指南](installation-guide.md)
+
 Download the [immutable 1.8.2 package](https://github.com/dsphere/dsphere-agent/archive/refs/tags/dsphere-agent-v1.8.2.zip), extract it, and use `skills/dsphere-agent/`. Read its `SKILL.md` and the setup guide for your platform. Verify the extracted package with `node skills/dsphere-agent/scripts/verify-package.mjs skills/dsphere-agent` before installation.
 
 The package includes Windows x64/x86 and macOS Intel/Apple Silicon native binaries, capability references, installation scripts, and integrity manifests. It contains no Native Agent source repository or source history.
