@@ -23,6 +23,11 @@ if (-not (Test-Path -LiteralPath $Executable -PathType Leaf)) {
 }
 
 $RegistrationTargets = @()
+$ExpectedManifestPath = $ManifestPath
+# Receipt evidence comes only from this user's own detection scan. Caller-supplied
+# roots or paths are never reported as scan evidence, so the receipt stays empty.
+$ScannedTargets = @()
+$ScannedManifestPath = $null
 if ($RegistryRoots) {
   $RegistrationTargets = @($RegistryRoots.Split(';', [StringSplitOptions]::RemoveEmptyEntries) | ForEach-Object {
     [pscustomobject]@{ brand = 'Custom'; registryRoot = $_.Trim() }
@@ -35,9 +40,23 @@ if ($RegistryRoots) {
   } catch {
     throw 'Browser detection did not return valid JSON.'
   }
+  if ($Detection.status -ne 'manifest-ready' -or -not $Detection.selectedCandidate) {
+    throw "External browser detection blocked registration: $($Detection.status)"
+  }
+  $Candidate = $Detection.selectedCandidate
+  $ScannedManifestPath = [IO.Path]::GetFullPath([string]$Candidate.manifestPath)
+  if (-not $ManifestPath) {
+    $ExpectedManifestPath = [string]$Candidate.manifestPath
+    if ($Candidate.manifestSource -ne 'new') { $ManifestPath = $ExpectedManifestPath }
+  }
+  if (-not $TemplatePath -and $Candidate.sourceManifestPath -and
+      $Candidate.sourceManifestPath -ine $Candidate.manifestPath) {
+    $TemplatePath = [string]$Candidate.sourceManifestPath
+  }
   $RegistrationTargets = @($Detection.registrationTargets | Where-Object { $_.installed } | ForEach-Object {
     [pscustomobject]@{ brand = [string]$_.brand; registryRoot = [string]$_.registryRoot }
   })
+  $ScannedTargets = @($RegistrationTargets)
 }
 $RegistrationRoots = @($RegistrationTargets | ForEach-Object { $_.registryRoot })
 if ($RegistrationTargets.Count -eq 0 -or @($RegistrationRoots | Select-Object -Unique).Count -ne $RegistrationTargets.Count) {
@@ -115,6 +134,9 @@ for ($Index = 0; $Index -lt $RegistrationTargets.Count; $Index++) {
   }
 
   $ActualManifestPath = [IO.Path]::GetFullPath($Verified.manifestPath)
+  if ($ExpectedManifestPath -and -not [string]::Equals([IO.Path]::GetFullPath($ExpectedManifestPath), $ActualManifestPath, [StringComparison]::OrdinalIgnoreCase)) {
+    throw 'Registration verification differs from the external detection manifest.'
+  }
   if ($PublishedManifestPath -and -not [string]::Equals([IO.Path]::GetFullPath($PublishedManifestPath), $ActualManifestPath, [StringComparison]::OrdinalIgnoreCase)) {
     throw 'Registration verification returned a different shared manifest path.'
   }
@@ -136,6 +158,8 @@ if (-not [string]::Equals([IO.Path]::GetFullPath($Manifest.path), $Executable, [
   status = 'registered'
   verification = 'passed'
   challenge = $Challenge
+  detectedTargets = @($ScannedTargets)
+  expectedManifestPath = $ScannedManifestPath
   manifestPath = $PublishedManifestPath
   manifestSha256 = Get-Sha256Hex -Path $PublishedManifestPath
   nativeAgentPath = $Executable

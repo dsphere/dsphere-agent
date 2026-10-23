@@ -44,6 +44,10 @@ Verify Skill identity/version, bundled program size and SHA-256, executable mode
 
 ## 3. Register and connect / 注册与连接
 
+**Windows registration boundary / Windows 注册边界:** Never write Native Host keys using `reg add`, registry APIs or an improvised script. Use only the verified bundled installer. Codex Full Access does not prove the process uses the browser's Windows user or an unvirtualized registry. A packaged client, restricted token, different desktop user, or unverifiable context must stop automatic registration and use PowerShell opened by the user from Windows Start, under the browser's account. Do not launch another shell from the agent as a workaround, change HKLM/HKEY_USERS, impersonate a user, disable security controls or retry with another write method. Older packages without these checks must also complete Windows registration externally; a successful sandbox readback is not verification.
+
+禁止通过 `reg add`、注册表 API 或临时脚本手工注册。只能使用校验过的包内安装器；Full Access 不代表正确 Windows 用户或无虚拟化。打包应用、受限 token、不同桌面用户或无法确认上下文时，使用用户从 Windows 开始菜单打开的普通 PowerShell 完成注册，不在 Agent 内另起 shell 绕过、不改 HKLM/HKEY_USERS、不冒用身份或关闭安全设置。旧包缺少上述检查时也必须在外部完成注册；沙箱内回读成功不能作为验收。
+
 安装后加载包中 `SKILL.md`，按用户语言只读取当前操作系统的 `references/guide.*.md`、`references/setup-windows.*.md` 或 `references/setup-macos.*.md`，再读取 `references/client-setup.*.md`；不要混用平台步骤。
 Load the installed SKILL.md and only the current OS/language setup references. Follow their browser detection and Native Host registration exactly; do not invent paths, registry roots or permission grants.
 

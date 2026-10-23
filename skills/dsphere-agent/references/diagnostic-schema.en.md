@@ -2,6 +2,8 @@
 
 ## Windows schema 3
 
+From 1.8.4, both `install` and legacy `configure` (including `--check`) share the Windows registration-context guard. Besides `packaged-client-virtualized`, errors include `registration-context-restricted` (restricted token), `registration-user-mismatch` (process SID differs from this desktop shell's user SID), and `registration-context-unverified` (missing/unreadable desktop identity). These return no success receipt and perform no manifest/registry access. Use external completion; no bypass flag exists. The external helper receipt includes `detectedTargets` (installed brand/root pairs from that user's scan) and `expectedManifestPath`; compare against those, never sandbox detection. Both come only from the helper's own scan: with caller-supplied `-RegistryRoots` they are `[]` and `null`, and such a receipt is not verification. It preserves the external scan's existing manifest and source and refuses a blocked scan.
+
 Windows no longer requires or searches a browser-owned NativeMessagingHosts directory. Core fields below remain, but schemaVersion=3, statuses are browser-not-installed, registration-blocked or manifest-ready. nextAction is install-browser, repair-user-registration or install-user-native-host.
 
 Windows scans Dsphere, DuokaiBrowser and DsWorkspace on every run. `candidates` and `registrationTargets` contain all three brands in that order; setup registers only targets with `installed=true`. `selectionRequired` is always false, and `selectedCandidate` is the preferred browser for tasks (Dsphere first, then DuokaiBrowser). Any invalid registration source belonging to an installed brand blocks setup; an absent brand never causes registration or blocks an installed brand.

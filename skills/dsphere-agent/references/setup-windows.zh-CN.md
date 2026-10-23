@@ -4,6 +4,8 @@
 
 ## 执行顺序
 
+已知打包应用、沙箱或不同用户上下文时，在检测浏览器前直接进入外部人工完成流程。其他情况也只能使用已校验的包内安装器：install 和 `--check` 在访问 manifest/注册表前检查包身份、受限 token，以及当前进程 SID 是否等于本桌面 shell 的用户 SID。桌面身份缺失或读取失败（包括无桌面的会话）必须拒绝。环境变量用户名与 Full Access 不构成身份依据。禁止改用 `reg add`、注册表 API、`configure`、Agent 启动的另一个 shell、HKLM/HKEY_USERS、冒用身份或关闭安全设置；旧包缺少这些检查时也适用。
+
 现在就执行检测、注册与回读，再配置 MCP；这些都是初始化的一部分，不推迟到用户重启之后。先自动执行，只有客户端安全边界阻止注册表写入或回读时才进入下述人工完成流程；不因工具存在就跳过。读取本文件不代表配置已经完成。
 
 - 首次使用或 manifest 缺失：执行 1–4 步完成初始化。
@@ -76,17 +78,19 @@ for ($Index = 0; $Index -lt $Targets.Count; $Index++) {
 
 ### 受限客户端的人工完成流程
 
+`registration-user-mismatch`、`registration-context-restricted`、`registration-context-unverified` 同样进入本流程，禁止在客户端内重试。桌面用户必须也是运行浏览器的账号；本流程不支持特意以另一用户运行的浏览器。
+
 仅当自动安装或某次最后 `--check` 因当前客户端沙箱/权限限制而无法写入或读取一个或多个已安装浏览器的 HKCU 注册时使用。任一 install 或 `--check` 返回 `packaged-client-virtualized` 也进入本流程：当前客户端是 Windows 打包应用（MSIX，例如 Codex Desktop），其 AppData 与 HKCU 写入会被重定向到私有存储，浏览器看不到，因此在该客户端内既不能安装也不能回读；不要重试或改用其他写入方式。配置校验失败、manifest 冲突、Origin 不匹配或并发变化不是权限回退；报告后停止。
 
-1. 生成一个 16–64 字符、只含 `[A-Za-z0-9_-]` 的新 challenge。解析已验证 `$SkillExe` 与 `scripts\complete-windows-registration.ps1` 的绝对路径。helper 会重新扫描三个品牌，并只注册执行时已安装的品牌。`manifestSource=new` 时省略 `-ManifestPath`；否则附加检测到的精确 `-ManifestPath`。只有自动流程已核实旧来源时才附加 `-TemplatePath`。
+1. 生成一个 16–64 字符、只含 `[A-Za-z0-9_-]` 的新 challenge。解析已验证 `$SkillExe` 与 `scripts\complete-windows-registration.ps1` 的绝对路径。完整 Skill 必须能被桌面用户访问，否则先在其普通 PowerShell 安装并验证完整发布包。禁止传入沙箱检测得到的 `-ManifestPath`、`-TemplatePath` 或 `-RegistryRoots`。helper 在外部用户上下文独立重新检测品牌，并保留该上下文发现的现有 manifest/来源；不能采信沙箱路径或沙箱内的空浏览器列表。
 2. 用下列模板生成一条可直接复制的命令。显示前替换所有尖括号值；PowerShell 单引号值中的 `'` 必须写成 `''`。绝不把占位符或环境变量留给用户：
 
 ```powershell
 & powershell.exe -NoProfile -ExecutionPolicy Bypass -File '<absolute-skill>\scripts\complete-windows-registration.ps1' -SkillExe '<absolute-skill-exe>' -Challenge '<fresh-challenge>'
 ```
 
-3. 引导用户在运行所选浏览器的同一 Windows 账号下打开普通 PowerShell，原样粘贴命令，只返回最后一行 JSON 或最终错误。不要让用户用注册表编辑器手工构造值、关闭安全设置或以管理员身份运行；HKCU 通常无需提权。用户只回复“完成”不能作为验证。
-4. 仅当回执满足以下条件才接受：`verification=passed`、`status=registered`、`challenge` 与本次值相同，且 `registrations` 与本次重新扫描到的已安装品牌完全一致——每个 root 恰好一项且 `status=registered`。`manifestPath` 必须等于预期共享用户 manifest；`nativeAgentPath`、manifest `path` 证据和 `descriptor.command` 都必须等于已验证 Skill 程序，descriptor args 严格为 `mcp`、`serve`、`--stdio`。品牌缺失/多余、root 重复、字段缺失、值不符或 helper 报错仍视为阻塞。只有有效回执才进入第 4 步。
+3. 引导用户在运行所选浏览器的同一 Windows 账号下，从 Windows 开始菜单打开普通 PowerShell，原样粘贴命令，只返回最后一行 JSON 或最终错误。不得由 Agent 启动此窗口。不要让用户用注册表编辑器手工构造值、关闭安全设置或以管理员身份运行；HKCU 通常无需提权。用户只回复“完成”不能作为验证。
+4. 仅当回执满足以下条件才接受：`verification=passed`、`status=registered`、`challenge` 与本次值相同，且 `registrations` 与回执 `detectedTargets` 外部扫描中的已安装品牌完全一致——每个 root 恰好一项且 `status=registered`，品牌/root 必须符合上表。`manifestPath` 必须等于外部扫描的 `expectedManifestPath`，不能与沙箱路径比较；`nativeAgentPath`、manifest `path` 证据和 `descriptor.command` 都必须等于已验证 Skill 程序，descriptor args 严格为 `mcp`、`serve`、`--stdio`。品牌缺失/多余、root 重复、字段缺失、值不符或 helper 报错仍视为阻塞。旧 helper 缺少外部扫描证据时，要求用户同时返回普通 PowerShell 的 detector 输出。只有有效回执才进入第 4 步，仍须验证实际浏览器/runtime 连接。
 
 ## 4. 配置客户端，然后提示重启并验连
 

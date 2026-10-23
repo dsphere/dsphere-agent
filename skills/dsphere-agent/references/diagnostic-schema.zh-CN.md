@@ -2,6 +2,8 @@
 
 ## Windows schema 3
 
+1.8.4 起，`install` 与旧 `configure`（包括 `--check`）共用 Windows 注册上下文门禁。除 `packaged-client-virtualized` 外，错误包括 `registration-context-restricted`（受限 token）、`registration-user-mismatch`（进程 SID 与本桌面 shell 用户 SID 不同）、`registration-context-unverified`（桌面身份缺失或无法读取）。这些错误不返回成功回执、不访问 manifest/注册表；进入外部人工流程，不提供绕过开关。外部 helper 回执新增 `detectedTargets`（该用户扫描到的已安装品牌/root）和 `expectedManifestPath`，应据此校验而不是与沙箱检测比较。两者只来自 helper 自身扫描：调用方传入 `-RegistryRoots` 时分别为 `[]` 与 `null`，此类回执不能作为验收。helper 保留外部扫描发现的现有 manifest/来源，并拒绝被阻塞的扫描。
+
 Windows 不再要求或搜索浏览器目录中的 NativeMessagingHosts。下述核心字段保持，但 schemaVersion=3；status 为 browser-not-installed、registration-blocked 或 manifest-ready；nextAction 为 install-browser、repair-user-registration 或 install-user-native-host。
 
 Windows 每次都扫描 Dsphere、DuokaiBrowser 与 DsWorkspace。`candidates` 和 `registrationTargets` 按此顺序包含三个品牌；setup 只注册 `installed=true` 的目标。`selectionRequired` 始终为 false，`selectedCandidate` 表示默认任务浏览器（Dsphere 优先，其次 DuokaiBrowser）。任一已安装品牌的注册来源无效都会阻塞 setup；未安装品牌既不触发注册，也不会阻塞已安装品牌。
