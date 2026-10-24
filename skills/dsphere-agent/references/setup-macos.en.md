@@ -13,7 +13,7 @@ Execute detection, registration and readback now, then configure MCP. These are 
 
 ## 1. Detect the browser automatically
 
-Detect Dsphere first, then DuokaiBrowser, then DsWorkspace. Use the first installed brand immediately and stop searching; check the next brand only when the earlier ones are absent. Do not ask the user to choose, compare running states or prefer the other brand because its configuration is healthier. Repair or report a matched browser's configuration error.
+Only the DSphere browser (`/Applications/Dsphere.app`) is supported. The detector looks only for it and setup configures only its user directory; DuokaiBrowser, DsWorkspace and other Chromium browsers are not set up, and their existing configuration is left untouched. Do not ask the user to choose a browser. Repair or report the DSphere browser's configuration error.
 
 Run from the Skill root:
 
@@ -21,11 +21,11 @@ Run from the Skill root:
 bash scripts/detect-macos.sh
 ```
 
-Prefer `~/Library/Application Support/<brand>/NativeMessagingHosts/com.dsworkspace.agent.json`. Only when absent, read the current app version’s nested then direct manifest as a creation source; the write destination is always the user directory. Report an invalid existing user manifest instead of selecting app resources. Do not modify a signed app or bypass system protection.
+Prefer `~/Library/Application Support/Dsphere/NativeMessagingHosts/com.dsworkspace.agent.json`. Only when absent, read the current app version’s nested then direct manifest as a creation source; the write destination is always the user directory. Report an invalid existing user manifest instead of selecting app resources. Do not modify a signed app or bypass system protection.
 
 Follow the result:
 
-- `browser-not-installed`: use the organization’s official browser installation channel; do not invent URLs.
+- `browser-not-installed`: the DSphere browser must be installed before setup can continue. Tell the user, and give them the official download page from the result's `downloadUrl` (`https://work.dsphereai.com/download/index.html`); if it cannot be found or opened, the official website `websiteUrl` (`https://www.dsphereai.com/`) links to the download. Offer to open the page in their default browser and do so only if they agree (`open '<downloadUrl>'`). Never download or run an installer yourself, use any other address, or suggest another browser. Ask them to tell you when the installation has finished, wait for that, then run this step again and continue setup.
 - `upgrade-required`: explain the candidate’s `issue`; the browser deployment owner must restore valid configuration. Do not invent extension permissions when no valid source exists.
 - `manifest-ready`: retain `selectedCandidate.brand` and `selectedCandidate.manifestPath` and continue. An empty or missing old executable path does not prevent setup; never execute it.
 
@@ -41,7 +41,7 @@ If its executable bit is lost, restore `chmod 755` only on the Skill program. Do
 
 ## 3. Create or update the user manifest
 
-Set `BROWSER_BRAND` to the selected brand, `BROWSER_MANIFEST` to the detected path and `SKILL_EXE` to the verified absolute Skill executable. Always write the user-level `NativeMessagingHosts/com.dsworkspace.agent.json`. Update only `path` when it exists; otherwise copy name, type, allowed_origins and all other source fields, setting `path` to the Skill program. App resources are read-only sources.
+Set `BROWSER_BRAND` to the selected brand (always `Dsphere`; the program refuses any other), `BROWSER_MANIFEST` to the detected path and `SKILL_EXE` to the verified absolute Skill executable. Always write the user-level `NativeMessagingHosts/com.dsworkspace.agent.json`. Update only `path` when it exists; otherwise copy name, type, allowed_origins and all other source fields, setting `path` to the Skill program. App resources are read-only sources.
 
 ```bash
 "$SKILL_EXE" integrations native-host configure --manifest "$BROWSER_MANIFEST" --user-brand "$BROWSER_BRAND" --check

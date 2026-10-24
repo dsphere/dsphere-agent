@@ -303,7 +303,7 @@
                 },
                 "capabilities": {
                   "type": "array",
-                  "maxItems": 29,
+                  "maxItems": 30,
                   "uniqueItems": true,
                   "description": "Public atomic actions accepted for this opaque target by dsagent.page.action; empty for a text target found by dsagent.page.find.",
                   "items": {
@@ -317,6 +317,7 @@
                       "drag-move",
                       "drag-press",
                       "drag-release",
+                      "edit-text",
                       "fill-form",
                       "history-back",
                       "history-forward",

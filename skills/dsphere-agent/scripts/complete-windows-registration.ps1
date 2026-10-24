@@ -32,6 +32,11 @@ if ($RegistryRoots) {
   $RegistrationTargets = @($RegistryRoots.Split(';', [StringSplitOptions]::RemoveEmptyEntries) | ForEach-Object {
     [pscustomobject]@{ brand = 'Custom'; registryRoot = $_.Trim() }
   })
+  # Only the DSphere browser is supported; the installer refuses any other root
+  # apart from isolated roots under the automated-test namespace.
+  if (@($RegistrationTargets | Where-Object { $_.registryRoot -ine 'Software\Dsphere' -and $_.registryRoot -notmatch '^Software\\DSphereNativeHostTests\\[^\\]+' }).Count) {
+    throw 'Only the DSphere browser is supported: RegistryRoots may only name Software\Dsphere.'
+  }
 } else {
   $Detector = Join-Path $PSScriptRoot 'detect-windows.ps1'
   $DetectionRaw = & $Detector
@@ -39,6 +44,9 @@ if ($RegistryRoots) {
     $Detection = (($DetectionRaw -join [Environment]::NewLine) | ConvertFrom-Json)
   } catch {
     throw 'Browser detection did not return valid JSON.'
+  }
+  if ($Detection.status -eq 'browser-not-installed') {
+    throw "The DSphere browser is not installed. Download it from $($Detection.downloadUrl) (or $($Detection.websiteUrl)), install it, then run this command again."
   }
   if ($Detection.status -ne 'manifest-ready' -or -not $Detection.selectedCandidate) {
     throw "External browser detection blocked registration: $($Detection.status)"

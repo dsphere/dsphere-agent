@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "sourceExtensionVersion": "1.1.25.6",
-  "catalogSha256": "d2efa1d99c4fead4fe8c1d518169333192a4e4a02fe632b630ae6a0f6f5c767c",
+  "sourceExtensionVersion": "1.1.25.8",
+  "catalogSha256": "6b45697d65400a467bc33851c6eea09f442a17df2dd70139beed6fc404dbf6a4",
   "hashing": {
     "sha256": "SHA-256 of JSON.stringify(descriptor) with no whitespace, where descriptor is references/contracts/<method>.json parsed as JSON (key order as in the file).",
     "fileSha256": "SHA-256 of the bytes of references/contracts/<method>.json after replacing every CRLF with LF.",
@@ -329,14 +329,14 @@
     {
       "method": "dsagent.page.action",
       "version": 1,
-      "sha256": "c18e45e7fc20ef65ad2bade233326ed4ce5df9e6f0f1d23233093af89dafe367",
-      "fileSha256": "b01539aff4a5c7bfa9ebaa9103e732d4660473034bd11369afe22a006b31c13e"
+      "sha256": "e7d778cad43bb4823c08ad0ce4e6160e5a99c15ede7dd54bfa6d9e19125e91fd",
+      "fileSha256": "c517643ab13ec1ef2cfe83c3d60ef746bbc5f2c99b7057e581309171670beedf"
     },
     {
       "method": "dsagent.page.actions",
       "version": 1,
-      "sha256": "99a747a16dae41f09b599d852ddba4af20603903a0835be304bef46d1d58408f",
-      "fileSha256": "6a775f16b0f500d2b9690d53c5fbb32a233369a39c0cbbabe0ec25f24547a632"
+      "sha256": "36908efb4ac39a2c4271482b023578d058e7ad812d4512219c0318e9c4ef206e",
+      "fileSha256": "ddf90670079c78a8dfb5633aa1606366ea232e6991e7c8f3498ebff108e35936"
     },
     {
       "method": "dsagent.page.ask",
@@ -389,8 +389,8 @@
     {
       "method": "dsagent.page.find",
       "version": 1,
-      "sha256": "56ed2e80607e343fbc90dde2eea0ca701ed4ffdca3a2e9151e9124f2301fd942",
-      "fileSha256": "bb070d19ab5d3339b1b152ffda6f38b7b9dbac6798f4e091952c9e2c9fd1321b"
+      "sha256": "fcb4222544dbd496401ee7584bb126d4ef219c5122e0c46366fe75dd41e78d2e",
+      "fileSha256": "2f81bcb6c430034311131ceaec89439682a5a38543755c8634648544ce042e0c"
     },
     {
       "method": "dsagent.page.focus",
@@ -413,8 +413,8 @@
     {
       "method": "dsagent.page.observe",
       "version": 1,
-      "sha256": "ab2e895547cb189e91486140a6df3cac57b8827901655eb44c4b5e5796ab1608",
-      "fileSha256": "9333739cd128ff657f5fb087806e415840a62abcd55580c23887e030a0d479fe"
+      "sha256": "5967681c212fe4523a1a3aaae654d82ea3f840856b465e910ff807e371560d98",
+      "fileSha256": "b35b2445336f3c902a76d8dbb381e42571b504b4fd8b3a86c73d5275713a56a2"
     },
     {
       "method": "dsagent.page.open",

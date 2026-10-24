@@ -64,6 +64,7 @@ Bounded live page state and opaque semantic targets.
 | `tables` | array of object {id, kind, label, columns, columnCount, rowCount, …} (≤ 4) |  | With detail full: the page's data tables, large… |
 | `pageSurfaces` | object {sequence, surfaces} |  | Live surface evidence from the shared global pa… |
 | `motion` | object {scope, animationCount, marqueeCount, carouselCount, heldCount, unpausableCount, …} |  | Current motion state; successful input is not p… |
+| `focusedCaret` | object {surface, textLength, selectionStart, selectionEnd, caret, selectedText, …} |  | Where the caret stands in the focused text fiel… |
 | `framePageSurfaces` | array of object {frameId, observed} (≤ 8) |  | Admitted child-frame surface monitors; compare… |
 | `mediaPlayback` | object {scope, videoCount, playingCount, truncated} |  | Read-only playback state without media URLs or… |
 | `pageMetrics` | object {viewportWidth, viewportHeight, scrollX, scrollY, pixelsAbove, pixelsBelow} |  | Viewport and scroll metrics used for bounded na… |
@@ -81,8 +82,8 @@ Complete value lists and id patterns for the fields above (the contract file is 
 - `omittedCandidates[].hiddenBy`: one of `excluded`, `detached`, `css-hidden`, `no-box`, `hidden-attribute`, `aria-hidden`, `display-none`, `transparent`, `content-hidden`, `clipped`
 - `pageSurfaces.surfaces[].broughtBy.eventType`: one of `press`, `click`, `double-click`, `context-click`, `hover`, `focus`, `key`, `input`, `drag`, `drop`, `wheel`
 - `framePageSurfaces[].observed.surfaces[].broughtBy.eventType`: one of `press`, `click`, `double-click`, `context-click`, `hover`, `focus`, `key`, `input`, `drag`, `drop`, `wheel`
-- `targets.added[].capabilities[]`: one of `click`, `detect-form-fields`, `handle-dialog`, `dismiss`, `drag`, `drag-move`, `drag-press`, `drag-release`, `fill-form`, `history-back`, `history-forward`, `hover`, `input`, `press-key`, `scroll`, `select`, `set-checkbox`, `set-radio`, `reload`, `upload-file`, `load-options`, `detect-marquees`, `detect-videos`, `pause-marquees`, `pause-videos`, `play-videos`, `resume-marquees`, `detect-ads`, `remove-ads`
-- `targets.changed[].capabilities[]`: one of `click`, `detect-form-fields`, `handle-dialog`, `dismiss`, `drag`, `drag-move`, `drag-press`, `drag-release`, `fill-form`, `history-back`, `history-forward`, `hover`, `input`, `press-key`, `scroll`, `select`, `set-checkbox`, `set-radio`, `reload`, `upload-file`, `load-options`, `detect-marquees`, `detect-videos`, `pause-marquees`, `pause-videos`, `play-videos`, `resume-marquees`, `detect-ads`, `remove-ads`
+- `targets.added[].capabilities[]`: one of `click`, `detect-form-fields`, `handle-dialog`, `dismiss`, `drag`, `drag-move`, `drag-press`, `drag-release`, `edit-text`, `fill-form`, `history-back`, `history-forward`, `hover`, `input`, `press-key`, `scroll`, `select`, `set-checkbox`, `set-radio`, `reload`, `upload-file`, `load-options`, `detect-marquees`, `detect-videos`, `pause-marquees`, `pause-videos`, `play-videos`, `resume-marquees`, `detect-ads`, `remove-ads`
+- `targets.changed[].capabilities[]`: one of `click`, `detect-form-fields`, `handle-dialog`, `dismiss`, `drag`, `drag-move`, `drag-press`, `drag-release`, `edit-text`, `fill-form`, `history-back`, `history-forward`, `hover`, `input`, `press-key`, `scroll`, `select`, `set-checkbox`, `set-radio`, `reload`, `upload-file`, `load-options`, `detect-marquees`, `detect-videos`, `pause-marquees`, `pause-videos`, `play-videos`, `resume-marquees`, `detect-ads`, `remove-ads`
 - `structure.landmarks[].role`: one of `main`, `navigation`, `banner`, `contentinfo`, `complementary`, `search`, `form`, `region`, `dialog`, `tablist`
 
 ## Guidance

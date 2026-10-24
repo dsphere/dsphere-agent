@@ -3,7 +3,7 @@
 set -u
 
 if [[ "$(uname -s)" != "Darwin" ]]; then
-  printf '%s\n' '{"schemaVersion":2,"os":"macos","status":"unsupported-platform","nextAction":"use-windows-detector","selectionRequired":false,"selectedCandidate":null,"compatibleCandidates":[],"candidates":[]}'
+  printf '%s\n' '{"schemaVersion":2,"os":"macos","status":"unsupported-platform","nextAction":"use-windows-detector","downloadUrl":"https://work.dsphereai.com/download/index.html","websiteUrl":"https://www.dsphereai.com/","selectionRequired":false,"selectedCandidate":null,"compatibleCandidates":[],"candidates":[]}'
   exit 2
 fi
 
@@ -41,7 +41,11 @@ join_json_array() {
   printf ']'
 }
 
-brands=("Dsphere" "DuokaiBrowser" "DsWorkspace")
+# Only the Dsphere browser is set up; when it is missing the result names the
+# official download page.
+brands=("Dsphere")
+download_url="https://work.dsphereai.com/download/index.html"
+website_url="https://www.dsphereai.com/"
 candidates=()
 compatible_candidates=()
 installed_count=0
@@ -121,9 +125,7 @@ for brand in "${brands[@]}"; do
   if [[ "$manifest_compatible" == true ]]; then
     compatible_candidates+=("$candidate")
   fi
-  # Stop at the first installed brand, including when its manifest needs repair.
-  # A stopped Dsphere still takes precedence over a running DuokaiBrowser or
-  # DsWorkspace, and a stopped DuokaiBrowser over a running DsWorkspace.
+  # Stop at the installed browser, including when its manifest needs repair.
   if [[ "$installed" == true ]]; then
     break
   fi
@@ -144,8 +146,8 @@ elif [[ "$compatible_count" -eq 1 ]]; then
   next_action="configure-skill-native-host"
 fi
 
-printf '{"schemaVersion":2,"os":"macos","status":%s,"nextAction":%s,"selectionRequired":%s,"selectedCandidate":%s,"compatibleCandidates":' \
-  "$(json_string "$status")" "$(json_string "$next_action")" "$selection_required" "$selected_candidate"
+printf '{"schemaVersion":2,"os":"macos","status":%s,"nextAction":%s,"downloadUrl":%s,"websiteUrl":%s,"selectionRequired":%s,"selectedCandidate":%s,"compatibleCandidates":' \
+  "$(json_string "$status")" "$(json_string "$next_action")" "$(json_string "$download_url")" "$(json_string "$website_url")" "$selection_required" "$selected_candidate"
 # macOS ships Bash 3.2, where an empty array is unset under nounset.
 if [[ "$compatible_count" -gt 0 ]]; then
   join_json_array "${compatible_candidates[@]}"

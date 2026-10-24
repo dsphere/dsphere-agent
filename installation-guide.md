@@ -11,6 +11,9 @@
 | Install directory inside tag | `skills/dsphere-agent/` |
 | Immutable tag | `dsphere-agent-v<version>` |
 
+**前提 / Prerequisite:** 需要 Windows 或 macOS 上的 DSphere 浏览器（只支持 DSphere 浏览器）。尚未安装时，把官方下载页 https://work.dsphereai.com/download/index.html 给用户（找不到或打不开时用官网 https://www.dsphereai.com/）；仅在用户同意后帮其打开，不自行下载或运行安装程序。可以先安装 Skill，用户装好浏览器后再继续第 3 步。
+The DSphere browser (Windows or macOS) is required; no other browser is supported. If it is missing, give the user the official download page https://work.dsphereai.com/download/index.html (or the website https://www.dsphereai.com/ if that page cannot be found or opened), open it only if they agree, and never download or run an installer yourself. The Skill may be installed first; continue with step 3 once the browser is installed.
+
 ## 1. Read the current release / 读取最新版本
 
 本指南可以从 main 读取，但 **Skill 必须从经校验的不可变 tag 安装，不从 main 安装**。
@@ -51,7 +54,7 @@ Verify Skill identity/version, bundled program size and SHA-256, executable mode
 安装后加载包中 `SKILL.md`，按用户语言只读取当前操作系统的 `references/guide.*.md`、`references/setup-windows.*.md` 或 `references/setup-macos.*.md`，再读取 `references/client-setup.*.md`；不要混用平台步骤。
 Load the installed SKILL.md and only the current OS/language setup references. Follow their browser detection and Native Host registration exactly; do not invent paths, registry roots or permission grants.
 
-Windows 按检测到的已安装品牌执行用户级 install 与只读回验；macOS 按检测品牌执行 configure --user-brand，应用包只读。Native Host 为 `com.dsworkspace.agent`，仅维护本通道；品牌缺失或不受支持时明确说明，不扩展授权。
+Windows 为检测到的 DSphere 浏览器执行用户级 install 与只读回验；macOS 执行 configure --user-brand Dsphere，应用包只读。Native Host 为 `com.dsworkspace.agent`，仅维护本通道；其他浏览器不配置，DSphere 浏览器未安装时按上方前提给出下载页，不扩展授权。
 用**同一个包内程序**的 `mcp serve --stdio` 配置本地 MCP，名称 `dsphere-agent`。按客户端支持方式重新加载 Skill 与重连 MCP，不伪造 descriptor、command 或“已连接”状态。
 Configure local stdio MCP `dsphere-agent` with the same verified bundled program; register only this channel's Native Host. No fabricated descriptor or success state.
 

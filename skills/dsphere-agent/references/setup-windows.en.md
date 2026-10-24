@@ -15,7 +15,7 @@ Known packaged/sandboxed/different-user contexts go directly to external complet
 
 ## 1. Detect the browser automatically
 
-Scan Dsphere, DuokaiBrowser and DsWorkspace. Register only the brands whose browser executable is actually installed. Every installed brand needs its own registration; do not create or alter an absent brand's key. Do not ask the user to choose. The default task target is the first installed brand in that order (Dsphere, then DuokaiBrowser, then DsWorkspace), but registration health is verified independently for every installed brand.
+Only the DSphere browser (Dsphere) is supported. The detector looks only for it and setup registers only it; DuokaiBrowser, DsWorkspace and other Chromium browsers are not set up, and their existing registrations are left untouched. Do not ask the user to choose a browser.
 
 Run from the Skill root:
 
@@ -23,22 +23,20 @@ Run from the Skill root:
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts\detect-windows.ps1
 ```
 
-Default manifest: `%LOCALAPPDATA%\dsphere\NativeMessagingHosts\com.dsworkspace.agent.json`. `registrationTargets` always describes all three supported brands and marks whether each is installed; setup filters it to `installed=true`:
+Default manifest: `%LOCALAPPDATA%\dsphere\NativeMessagingHosts\com.dsworkspace.agent.json`. `registrationTargets` describes the DSphere browser and whether it is installed; setup uses it only with `installed=true`:
 
 | Browser | `Candidate.registryRoot` | Host registration |
 |---|---|---|
 | Dsphere | `Software\Dsphere` | `HKCU\Software\Dsphere\NativeMessagingHosts\com.dsworkspace.agent` |
-| DuokaiBrowser | `Software\DuokaiBrowser` | `HKCU\Software\DuokaiBrowser\NativeMessagingHosts\com.dsworkspace.agent` |
-| DsWorkspace | `Software\DsWorkspace` | `HKCU\Software\DsWorkspace\NativeMessagingHosts\com.dsworkspace.agent` |
 
-Read the 32-bit HKCU view before the 64-bit view and preserve an existing supported user manifest. A registration under `Software\Chromium` does not register any supported brand. Always pass each installed target's root to install and every `--check`; the executable's legacy default is Chromium. An explicit `-RegistryRoot` overrides detection only for a verified custom build. Never search or write browser-version directories, HKLM or policy.
+Read the 32-bit HKCU view before the 64-bit view and preserve an existing supported user manifest. A registration under `Software\Chromium` or another browser's key does not register the DSphere browser. Always pass the target's root (`Software\Dsphere`) to install and every `--check`; the installer refuses any other root. Never search or write browser-version directories, HKLM or policy.
 
 Retain `selectedCandidate.manifestPath` and `sourceManifestPath`, plus every installed entry in `registrationTargets`. First install needs no source file. The built-in extension ID is `dkpedeeoceglnpignjhiblgfgofpmmik`; never ask the user for it or use example IDs/wildcards. Existing permissions excluding it must be reported, not broadened.
 
 Follow the result:
 
-- `browser-not-installed`: use the organization’s official browser installation channel; do not invent URLs.
-- `registration-blocked`: at least one installed brand has an invalid registration source; report that brand and the actual issue, such as `user-registration-invalid`. Do not overwrite permissions or prescribe a browser upgrade.
+- `browser-not-installed`: the DSphere browser must be installed before setup can continue. Tell the user, and give them the official download page from the result's `downloadUrl` (`https://work.dsphereai.com/download/index.html`); if it cannot be found or opened, the official website `websiteUrl` (`https://www.dsphereai.com/`) links to the download. Offer to open the page in their default browser and do so only if they agree (`Start-Process '<downloadUrl>'`). Never download or run an installer yourself, use any other address, or suggest another browser. Ask them to tell you when the installation has finished, wait for that, then run this step again and continue setup.
+- `registration-blocked`: the DSphere browser has an invalid registration source; report the actual issue, such as `user-registration-invalid`. Do not overwrite permissions or prescribe a browser upgrade.
 - `manifest-ready`: retain `selectedCandidate.manifestPath` and continue. An empty or missing old executable path does not prevent setup; never execute it.
 
 Inspect only locations defined by the detector. Read the [diagnostic schema](diagnostic-schema.en.md) only for field details.
@@ -82,7 +80,7 @@ Sources are read-only; the user directory and registry are the actual destinatio
 
 Use this fallback only when automatic installation or a final `--check` cannot write/read one or more installed-browser HKCU registrations because the current client is sandboxed or permission-restricted. Any install or `--check` returning `packaged-client-virtualized` also uses this fallback: the client is a packaged Windows app (MSIX, such as Codex Desktop) whose AppData and HKCU writes are redirected to private storage the browser cannot see, so it can neither install nor read back from inside that client; do not retry or try another write method. Validation, manifest conflicts, Origin mismatches and concurrent-change errors are not permission fallbacks; report them and stop.
 
-1. Generate a fresh 16–64 character `[A-Za-z0-9_-]` challenge. Resolve absolute paths for the verified `$SkillExe` and `scripts\complete-windows-registration.ps1`. The complete Skill must be accessible to the desktop user; otherwise install and verify the complete release from their normal PowerShell first. Do not pass `-ManifestPath`, `-TemplatePath` or `-RegistryRoots` from sandbox detection. The helper independently rescans all brands and preserves the existing manifest/source discovered in the external user's context. Sandbox paths and a sandbox's empty browser list are not authoritative.
+1. Generate a fresh 16–64 character `[A-Za-z0-9_-]` challenge. Resolve absolute paths for the verified `$SkillExe` and `scripts\complete-windows-registration.ps1`. The complete Skill must be accessible to the desktop user; otherwise install and verify the complete release from their normal PowerShell first. Do not pass `-ManifestPath`, `-TemplatePath` or `-RegistryRoots` from sandbox detection. The helper independently rescans for the DSphere browser and preserves the existing manifest/source discovered in the external user's context. Sandbox paths and a sandbox's empty browser list are not authoritative.
 2. Render one copy-ready command from the template below. Replace every angle-bracket value, PowerShell single-quote literals by doubling any embedded `'`, and never show placeholders or environment variables to the user:
 
 ```powershell
@@ -94,7 +92,7 @@ Use this fallback only when automatic installation or a final `--check` cannot w
 
 ## 4. Configure the client, then request restart and verify
 
-Use the installed target set from the fresh scan. The two brands share one user manifest, but every installed brand needs its own verified registration. Do not create a key for an absent brand, infer that one registration covers both, or remove an existing Chromium registration during repair.
+Use the installed target from the fresh scan; it needs its own verified registration. Do not create keys for other browsers, and do not remove their existing registrations or an existing Chromium registration during repair.
 
 Use the returned descriptor: MCP command equals `nativeAgentPath`, with args `mcp serve --stdio`. Continue to [shared MCP setup, restart prompt and verification](client-setup.en.md). Use the client’s native MCP settings; do not add a second service name or substitute another browser tool.
 

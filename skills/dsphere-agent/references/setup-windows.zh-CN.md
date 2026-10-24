@@ -15,7 +15,7 @@
 
 ## 1. 自动检测浏览器
 
-同时扫描 Dsphere、DuokaiBrowser 与 DsWorkspace，只为实际检测到浏览器程序已安装的品牌注册。每个已安装品牌都必须完成各自的注册；不得创建或修改未安装品牌的注册项。不让用户选择；默认任务目标按 Dsphere、DuokaiBrowser、DsWorkspace 的顺序取第一个已安装品牌，但每个已安装品牌的注册状态都要独立验证。
+只支持 DSphere 浏览器（Dsphere）。检测脚本只查找它，setup 也只为它注册；DuokaiBrowser、DsWorkspace 及其他 Chromium 浏览器不再配置，它们已有的注册保持不动。不让用户选择浏览器。
 
 在 Skill 根目录执行：
 
@@ -23,22 +23,20 @@
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts\detect-windows.ps1
 ```
 
-默认 manifest 是 `%LOCALAPPDATA%\dsphere\NativeMessagingHosts\com.dsworkspace.agent.json`。`registrationTargets` 始终描述三个受支持品牌并标记各自是否安装；setup 只保留 `installed=true` 的目标：
+默认 manifest 是 `%LOCALAPPDATA%\dsphere\NativeMessagingHosts\com.dsworkspace.agent.json`。`registrationTargets` 描述 DSphere 浏览器及其是否安装；setup 只在 `installed=true` 时使用：
 
 | 浏览器 | `Candidate.registryRoot` | Host 注册位置 |
 |---|---|---|
 | Dsphere | `Software\Dsphere` | `HKCU\Software\Dsphere\NativeMessagingHosts\com.dsworkspace.agent` |
-| DuokaiBrowser | `Software\DuokaiBrowser` | `HKCU\Software\DuokaiBrowser\NativeMessagingHosts\com.dsworkspace.agent` |
-| DsWorkspace | `Software\DsWorkspace` | `HKCU\Software\DsWorkspace\NativeMessagingHosts\com.dsworkspace.agent` |
 
-优先读取 32 位 HKCU 视图，再读 64 位视图；保留已有受支持的用户 manifest。`Software\Chromium` 中的注册不代表任何受支持品牌已注册。install 和每次 `--check` 都必须显式传入每个已安装目标的注册根，程序的历史默认值仍为 Chromium。仅已核实的定制版本使用 `-RegistryRoot` 覆盖检测。不搜索或写入浏览器版本目录，不修改 HKLM 或策略。
+优先读取 32 位 HKCU 视图，再读 64 位视图；保留已有受支持的用户 manifest。`Software\Chromium` 或其他浏览器键下的注册不代表 DSphere 浏览器已注册。install 和每次 `--check` 都必须显式传入目标注册根 `Software\Dsphere`，安装程序拒绝其他任何注册根。不搜索或写入浏览器版本目录，不修改 HKLM 或策略。
 
 保留 `selectedCandidate.manifestPath`、`sourceManifestPath`，以及 `registrationTargets` 中每个已安装项。首次安装不需要来源文件；内置扩展 ID 为 `dkpedeeoceglnpignjhiblgfgofpmmik`，无需询问用户，不使用示例 ID 或通配符。已有配置不包含该 ID 时停止报告，不扩大权限。
 
 按结果处理：
 
-- `browser-not-installed`：通过组织正式渠道安装支持的浏览器，不虚构下载地址。
-- `registration-blocked`：至少一个已安装品牌的注册来源无效；报告对应品牌与 `user-registration-invalid` 等实际问题，不静默覆盖现有授权，也不要求升级浏览器。
+- `browser-not-installed`：必须先安装 DSphere 浏览器，setup 才能继续。告诉用户这一点，并给出结果中 `downloadUrl` 的官方下载页（`https://work.dsphereai.com/download/index.html`）；如果找不到或打不开，官网 `websiteUrl`（`https://www.dsphereai.com/`）提供下载入口。主动提出帮用户在默认浏览器中打开该页面，仅在用户同意后打开（`Start-Process '<downloadUrl>'`）。不要自行下载或运行安装程序，不使用其他地址，也不推荐其他浏览器。请用户安装完成后告诉你，等待确认后重新执行本步骤并继续 setup。
+- `registration-blocked`：DSphere 浏览器的注册来源无效；报告 `user-registration-invalid` 等实际问题，不静默覆盖现有授权，也不要求升级浏览器。
 - `manifest-ready`：保留 `selectedCandidate.manifestPath`，进入下一步。旧 `path` 为空或文件已丢失不代表无法配置，也不要执行旧程序。
 
 只检查检测器规定的位置。字段细节按需读[诊断状态](diagnostic-schema.zh-CN.md)。
@@ -82,7 +80,7 @@ for ($Index = 0; $Index -lt $Targets.Count; $Index++) {
 
 仅当自动安装或某次最后 `--check` 因当前客户端沙箱/权限限制而无法写入或读取一个或多个已安装浏览器的 HKCU 注册时使用。任一 install 或 `--check` 返回 `packaged-client-virtualized` 也进入本流程：当前客户端是 Windows 打包应用（MSIX，例如 Codex Desktop），其 AppData 与 HKCU 写入会被重定向到私有存储，浏览器看不到，因此在该客户端内既不能安装也不能回读；不要重试或改用其他写入方式。配置校验失败、manifest 冲突、Origin 不匹配或并发变化不是权限回退；报告后停止。
 
-1. 生成一个 16–64 字符、只含 `[A-Za-z0-9_-]` 的新 challenge。解析已验证 `$SkillExe` 与 `scripts\complete-windows-registration.ps1` 的绝对路径。完整 Skill 必须能被桌面用户访问，否则先在其普通 PowerShell 安装并验证完整发布包。禁止传入沙箱检测得到的 `-ManifestPath`、`-TemplatePath` 或 `-RegistryRoots`。helper 在外部用户上下文独立重新检测品牌，并保留该上下文发现的现有 manifest/来源；不能采信沙箱路径或沙箱内的空浏览器列表。
+1. 生成一个 16–64 字符、只含 `[A-Za-z0-9_-]` 的新 challenge。解析已验证 `$SkillExe` 与 `scripts\complete-windows-registration.ps1` 的绝对路径。完整 Skill 必须能被桌面用户访问，否则先在其普通 PowerShell 安装并验证完整发布包。禁止传入沙箱检测得到的 `-ManifestPath`、`-TemplatePath` 或 `-RegistryRoots`。helper 在外部用户上下文独立重新检测 DSphere 浏览器，并保留该上下文发现的现有 manifest/来源；不能采信沙箱路径或沙箱内的空浏览器列表。
 2. 用下列模板生成一条可直接复制的命令。显示前替换所有尖括号值；PowerShell 单引号值中的 `'` 必须写成 `''`。绝不把占位符或环境变量留给用户：
 
 ```powershell
@@ -94,7 +92,7 @@ for ($Index = 0; $Index -lt $Targets.Count; $Index++) {
 
 ## 4. 配置客户端，然后提示重启并验连
 
-使用本次扫描得到的已安装目标集合。所有品牌共享一个用户 manifest，但每个已安装品牌都必须有各自已验证的注册项。不得为未安装品牌创建注册项，不得把一个品牌注册成功当作另一个已完成，也不要在修复时删除现有 Chromium 注册。新建 manifest 时只省略 `--manifest`，仍必须为每个目标传入 `--registry-root`。
+使用本次扫描得到的已安装目标，它必须有已验证的注册项。不得为其他浏览器创建注册项，修复时也不要删除它们已有的注册或现有 Chromium 注册。新建 manifest 时只省略 `--manifest`，仍必须为每个目标传入 `--registry-root`。
 
 使用返回的 descriptor，MCP command 必须等于 `nativeAgentPath`，args 为 `mcp serve --stdio`。接着读[通用 MCP 配置、重启提示与验连](client-setup.zh-CN.md)。仅使用当前客户端原生 MCP 设置，不注册第二个服务名，不替换为其他浏览器工具。
 

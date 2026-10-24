@@ -87,7 +87,7 @@ Act on browser page target. Gateway: `dsagent_invoke`; risk: `external-effect`; 
 {"method":"dsagent.page.action","args":{"pageContextId":"<pageContextId>","targetId":"<targetId>","expectedRevision":"<expectedRevision>","action":"click"},"idempotencyKey":"<fresh-key>"}
 ```
 
-Result preview: `pageSurfaces`, `motion`, `framePageSurfaces`, `timing`; complete result in the linked contract.
+Result preview: `pageSurfaces`, `motion`, `focusedCaret`, `framePageSurfaces`; complete result in the linked contract.
 
 [Options and constraints](capabilities/dsagent.page.action.md) · [Lossless contract](contracts/dsagent.page.action.json)
 

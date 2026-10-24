@@ -13,7 +13,7 @@
 
 ## 1. 自动检测浏览器
 
-按 Dsphere、DuokaiBrowser、DsWorkspace 的顺序检测；使用第一个已安装的品牌并停止搜索，只有前面的品牌都未安装时才检测下一个。不让用户选择，不比较运行状态，也不因另一个品牌配置更健康而切换。匹配浏览器的配置有误时修复或报告该问题。
+只支持 DSphere 浏览器（`/Applications/Dsphere.app`）。检测脚本只查找它，setup 也只配置它的用户目录；DuokaiBrowser、DsWorkspace 及其他 Chromium 浏览器不再配置，它们已有的配置保持不动。不让用户选择浏览器。DSphere 浏览器的配置有误时修复或报告该问题。
 
 在 Skill 根目录执行：
 
@@ -21,11 +21,11 @@
 bash scripts/detect-macos.sh
 ```
 
-优先读取 `~/Library/Application Support/<brand>/NativeMessagingHosts/com.dsworkspace.agent.json`；仅当它不存在时，读取当前 `.app` 版本内的嵌套、直接 manifest 作为创建来源，写入目标始终是用户级目录。用户级文件存在但无效时报告错误，不改用包内配置。不得修改签名包或绕过系统保护。
+优先读取 `~/Library/Application Support/Dsphere/NativeMessagingHosts/com.dsworkspace.agent.json`；仅当它不存在时，读取当前 `.app` 版本内的嵌套、直接 manifest 作为创建来源，写入目标始终是用户级目录。用户级文件存在但无效时报告错误，不改用包内配置。不得修改签名包或绕过系统保护。
 
 按结果处理：
 
-- `browser-not-installed`：通过组织正式渠道安装支持的浏览器，不虚构下载地址。
+- `browser-not-installed`：必须先安装 DSphere 浏览器，setup 才能继续。告诉用户这一点，并给出结果中 `downloadUrl` 的官方下载页（`https://work.dsphereai.com/download/index.html`）；如果找不到或打不开，官网 `websiteUrl`（`https://www.dsphereai.com/`）提供下载入口。主动提出帮用户在默认浏览器中打开该页面，仅在用户同意后打开（`open '<downloadUrl>'`）。不要自行下载或运行安装程序，不使用其他地址，也不推荐其他浏览器。请用户安装完成后告诉你，等待确认后重新执行本步骤并继续 setup。
 - `upgrade-required`：说明候选的 `issue`，由浏览器部署方恢复有效配置；缺少有效来源时不猜测扩展授权。
 - `manifest-ready`：保留 `selectedCandidate.brand` 和 `selectedCandidate.manifestPath`，进入下一步。旧 `path` 为空或文件已丢失不代表无法配置，也不要执行旧程序。
 
@@ -41,7 +41,7 @@ bash scripts/detect-macos.sh
 
 ## 3. 创建或更新用户级 manifest
 
-`BROWSER_BRAND` 使用选定品牌，`BROWSER_MANIFEST` 使用检测返回的路径，`SKILL_EXE` 是已核实的 Skill 程序绝对路径。以下命令始终写用户级 `NativeMessagingHosts/com.dsworkspace.agent.json`：已有文件只更新 `path`；文件不存在时，从来源复制 name、type、allowed_origins 和其他字段，再将 `path` 指向 Skill 程序。应用包仅作读取来源，不修改。
+`BROWSER_BRAND` 使用选定品牌（始终为 `Dsphere`，程序拒绝其他品牌），`BROWSER_MANIFEST` 使用检测返回的路径，`SKILL_EXE` 是已核实的 Skill 程序绝对路径。以下命令始终写用户级 `NativeMessagingHosts/com.dsworkspace.agent.json`：已有文件只更新 `path`；文件不存在时，从来源复制 name、type、allowed_origins 和其他字段，再将 `path` 指向 Skill 程序。应用包仅作读取来源，不修改。
 
 ```bash
 "$SKILL_EXE" integrations native-host configure --manifest "$BROWSER_MANIFEST" --user-brand "$BROWSER_BRAND" --check

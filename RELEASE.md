@@ -1,39 +1,43 @@
-# Release 1.8.4
+# Release 1.9.0 - 2026-10-24
 
-Built from native-agent source commit 487f0f2a70a95b9baee0bb06757cfe15e0560532. This GitHub
-distribution was promoted with the source-owned channel packager
-(`package-channel-release.mjs --channel production --distribution github`) from the same
-test-channel wrapper that produced the Gitee `dsphere-agent-v1.8.4` release, so both
-distributions carry identical Native binaries and identical canonical content (244 files).
-Only the bilingual installation/update references name this repository.
+Built from Native source commit 2454455a043f893221f7ed554858cfad5ed1d1cb and promoted
+with the source-owned channel packager (test wrapper, then production for this
+repository's distribution). At the owner's request this release skipped the test-channel
+publication and test acceptance: no dsphere-agent-test-v1.9.0 tag exists. Gitee and GitHub
+carry identical Native binaries and identical canonical content; only the bilingual
+installation/update references name their own repository.
 
-Changes since 1.8.3:
-
-- Windows registration refuses sandboxed or virtualized contexts (Windows app packages,
-  restricted tokens, a process user other than the desktop user, or an unverifiable
-  desktop) for both install and `--check`, so a sandbox-private registration is never
-  reported as registered. Registration then completes through the bundled helper in
-  PowerShell opened by the user from the Start menu, under the browser's account.
-- The external helper's receipt fields `detectedTargets` and `expectedManifestPath` come
-  only from its own detection scan; with caller-supplied `-RegistryRoots` they are `[]`
-  and `null`, so such a receipt cannot pass verification.
-- Wizard capability references regenerated for the fields-step AI review
-  (Extension 1.1.25.6 snapshot; 92 capabilities).
+Changes since 1.8.4:
+- Only the DSphere browser (Dsphere) is supported for setup and for dsagent_launch_browser.
+  DuokaiBrowser and DsWorkspace are no longer detected, registered or started; their existing
+  registrations and already-connected browsers keep working. The Windows installer accepts
+  only the Software\Dsphere registry root (now also its default) and macOS --user-brand only
+  Dsphere.
+- A person who installed the Skill before the browser is no longer stuck: detection results
+  carry downloadUrl and websiteUrl, and setup, the BROWSER_NOT_INSTALLED error and the
+  installation guide give the official download page
+  https://work.dsphereai.com/download/index.html (website fallback https://www.dsphereai.com/),
+  open it only with the person's consent, and resume setup once it is installed.
+- References for edit-text, caret keys and caret context, and the in-place editing rule in
+  both automation guides.
+- A staged upload is freed once a page accepted it (upload.release.v1); the SDK's base64
+  check no longer overflows on large payloads.
+- Capability references regenerated from Extension 1.1.25.8 (92 capabilities; upload-file
+  wording in dsagent.page.action/page.actions).
 
 Native SHA-256:
+- windows-x64 c1a74f77600a8ffa62c95bdefd388cdae695cb54aefc3e42eb22650b3f000d35
+- windows-x86 c2ec42eb447c9b3dc9c12571ae4608868d3da98a67469a3f39ffd0469cfe3544
+- macos-x64   7ce10d0be2d82198199b780efaabce9cbc2be9cb27fe763f2749836d1d4c2318
+- macos-arm64 7c6cbd8abe084fa3193bc4bd3fbdc1f9e0da611d868fd1e328cd53899ca7d0b6
 
-| Platform | SHA-256 |
-|---|---|
-| windows-x64 | `8920425107c272bb2e06fc74edc20d5c98bd4f129ad4b02a3eca674085989756` |
-| windows-x86 | `deff0f187347ba90ce3d61df764cc571ec92bc0fa96d47eeb5ef4a0cbc46df9e` |
-| macos-x64 | `c0f3e4ed251d09991cf1961e7cc00571e0134ee7af8ab2847247aae7b6c3dee8` |
-| macos-arm64 | `11b541f86b343be912b1fbebefea30827dc4e992112898829a304de7b263b524` |
+Validation: official skills-ref validate/read-properties; capability references (92 verified)
+and Extension drift check in sync; bilingual detection contract; Skill, release-tooling and
+WorkBuddy suites against this candidate (172 passed, 10 skipped, 4 failed only because this
+host cannot create symlinks or because they read an older shared candidate directory);
+Native Go suite passing except symlink-dependent tests; Native binaries and canonical
+inventory preserved through test and production packaging; package verifier on the promoted
+trees and on a fresh checkout of the tag.
 
-Validation: package verifier (identity, channel, Native manifest, capability build,
-promotion manifest) on the promoted tree and on a fresh checkout of this tag; Native
-SHA-256 and canonical inventory compared with the Gitee 1.8.4 tag; official skills-ref
-validate/read-properties. The candidate's Skill suite: 171 passed, 9 skipped, 1 failed only
-because the build host cannot create symlinks.
-
-At the owner's request the test-channel acceptance was skipped. This release adds no
-platform runtime certification or browser acceptance. Previous tags are preserved.
+This release adds no platform runtime certification or browser acceptance.
+Previous tags are preserved.

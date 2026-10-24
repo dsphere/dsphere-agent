@@ -28,12 +28,12 @@ The element to pick, as an opaque page target.
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
-| `wizardId` | string (0–36 chars, pattern under Constraints) | yes | Opaque wizard id returned by ds… |
-| `wizardToken` | string (16–128 chars, pattern under Constraints) |  | Ownership token returned once b… |
-| `expectedRevision` | string (0–16 chars, pattern under Constraints) | yes | revision of the state this call… |
-| `pageContextId` | string (0–128 chars, pattern under Constraints) | yes | pagePick.pageContextId: the pag… |
-| `targetId` | string (0–128 chars, pattern under Constraints) | yes | Opaque target from dsagent.page… |
-| `targetRevision` | string (0–128 chars, pattern under Constraints) | yes | revision of the dsagent.page.ob… |
+| `wizardId` | string (0–36 chars, pattern under Constraints) | yes | Opaque wizard id re… |
+| `wizardToken` | string (16–128 chars, pattern under Constraints) |  | Ownership token ret… |
+| `expectedRevision` | string (0–16 chars, pattern under Constraints) | yes | revision of the sta… |
+| `pageContextId` | string (0–128 chars, pattern under Constraints) | yes | pagePick.pageContex… |
+| `targetId` | string (0–128 chars, pattern under Constraints) | yes | Opaque target from… |
+| `targetRevision` | string (0–128 chars, pattern under Constraints) | yes | revision of the dsa… |
 
 ## Input constraints
 
@@ -52,24 +52,24 @@ The wizard state after the pick.
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
-| `wizardId` | string (0–36 chars, pattern under Constraints) |  | Opaque wizard id returned by ds… |
-| `kind` | enum: scrape, record |  | Scrape wizard or recording wiza… |
-| `revision` | string (0–16 chars, pattern under Constraints) |  | Digest of everything below; pas… |
-| `phase` | enum (8 values, listed under Constraints) |  | Where the wizard is. ready-to-s… |
-| `sidePanelStep` | integer (0…5) |  | The scrape wizard step the pers… |
-| `busy` | one of 2: object {activity, sinceMs} / null |  | Present while a step runs. |
-| `awaitingPerson` | one of 2: enum (13 values, listed under Constraints) / null |  | Something to do on the page now. |
-| `pagePick` | one of 2: object {pageContextId, includeText, includeImages} / null |  | The page on which you may make… |
-| `pendingChoice` | one of 2: object {choiceId, selection, minSelected, maxSelected, options, values, …} / null |  | The one decision the wizard wai… |
-| `summary` | object {searchResultState, page, pagination, source, adFilter, repeatActions, …} |  | What the wizard has configured… |
-| `nextActions` | array of enum (7 values, listed under Constraints) (≤ 7) |  | The dsagent.wizard.* calls that… |
-| `authentication` | object {status, type, confidence, waitingOn, sinceMs, deadline} |  | Present only while the page the… |
-| `workflowId` | string (0–128 chars) |  | Saved workflow id (dsagent.work… |
-| `executionId` | string (0–128 chars) |  | Execution started by dsagent.wi… |
-| `lastError` | object {code, message} |  | The last step that failed in th… |
-| `lastEndpoint` | object {endpoint, group, outcome, scope, reason, scrapeErrorCode, …} |  | The typed endpoint the latest s… |
-| `warnings` | array of object {code, message} (≤ 8) |  | What the saved workflow does di… |
-| `personTookOver` | boolean |  | True when the person pressed Ta… |
+| `wizardId` | string (0–36 chars, pattern under Constraints) |  | Opaque wizard id re… |
+| `kind` | enum: scrape, record |  | Scrape wizard or re… |
+| `revision` | string (0–16 chars, pattern under Constraints) |  | Digest of everythin… |
+| `phase` | enum (8 values, listed under Constraints) |  | Where the wizard is… |
+| `sidePanelStep` | integer (0…5) |  | The scrape wizard s… |
+| `busy` | one of 2: object {activity, sinceMs} / null |  | Present while a ste… |
+| `awaitingPerson` | one of 2: enum (13 values, listed under Constraints) / null |  | Something to do on… |
+| `pagePick` | one of 2: object {pageContextId, includeText, includeImages} / null |  | The page on which y… |
+| `pendingChoice` | one of 2: object {choiceId, selection, minSelected, maxSelected, options, values, …} / null |  | The one decision th… |
+| `summary` | object {searchResultState, page, pagination, source, adFilter, repeatActions, …} |  | What the wizard has… |
+| `nextActions` | array of enum (7 values, listed under Constraints) (≤ 7) |  | The dsagent.wizard.… |
+| `authentication` | object {status, type, confidence, waitingOn, sinceMs, deadline} |  | Present only while… |
+| `workflowId` | string (0–128 chars) |  | Saved workflow id (… |
+| `executionId` | string (0–128 chars) |  | Execution started b… |
+| `lastError` | object {code, message} |  | The last step that… |
+| `lastEndpoint` | object {endpoint, group, outcome, scope, reason, scrapeErrorCode, …} |  | The typed endpoint… |
+| `warnings` | array of object {code, message} (≤ 8) |  | What the saved work… |
+| `personTookOver` | boolean |  | True when the perso… |
 
 ## Result constraints
 

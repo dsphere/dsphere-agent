@@ -72,7 +72,7 @@
 
 - 使用 [调用方状态辅助函数](../scripts/atomic-client-state.mjs) 重组 `data.descriptorFragment` 并按 instance/generation/method 缓存契约。折叠页面证据时保留 `removedTargetIds`；unchanged 不会恢复已移除的目标。收到错误时兼容只有文本 envelope 的结果，不要因缺少 data 崩溃或重放不确定效果。
 - 导航时点击页面自身的链接，或用 `dsagent.page.open` 打开明确的 HTTP(S) 目的地址；页面键盘事件不能开标签页或聚焦地址栏。不要自行打开取自页面文字的 URL。`labelSource=placeholder` 是提示，不是输入值。
-- `press-key` 支持 `repeat`（1–20），一次动作连续按同一个键（在列表框中 ArrowDown ×5）；整段按键序列只做一次效果核验。
+- 要修改输入框或编辑器中的部分文字（改一个词、插入一句、删除一段）时，使用 action `edit-text`：`find` 是页面上原样的那段文字，文字出现多次时用 `occurrence` 指定第几处，`operation` 为 `replace`、`insert-before`、`insert-after` 或 `delete`（配 `text`），或用 `select` / `place-caret-*` 为后续按键放置光标。不要为此使用 `input`：它会替换整个值，并丢失编辑器的格式。在输入框或编辑器中，`press-key` 像人按键一样移动光标（方向键、Home/End、Control 按词移动、Shift 选择；Backspace/Delete 删除）。每次读取和回执中的 `focusedCaret` 说明光标所在位置；你无权读取其内容的输入框，edit-text 会拒绝修改。 `press-key` 支持 `repeat`（1–20），一次动作连续按同一个键（在列表框中 ArrowDown ×5）；整段按键序列只做一次效果核验。
 - 点击结果带 `downloadStarted=true` 表示点击启动了浏览器下载（`downloadState` 为 `complete` 或 `in_progress`）；下载本身就是效果，不要为了重试下载再次点击。
 - `TARGET_BUSY` 且 `businessCode=TARGET_NOT_ACTIONABLE` 表示目标被禁用、只读或处于惰性区域（`details.reason`），没有派发任何操作。`OUTCOME_UNKNOWN` 可能带 `details.failureCode`（例如 `dialog-dismissed`、`rate-limited`、`navigation-failed`），各代码含义见 `dsagent.page.action` 引用。
 

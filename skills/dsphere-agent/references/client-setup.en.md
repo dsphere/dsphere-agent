@@ -62,7 +62,7 @@ After confirmation, reconnect the client's MCP and perform the read-only verific
 
 ## Verification
 
-Multiple `dsphere-native-agent.exe` processes can be normal: each MCP client/session starts a separate `mcp serve --stdio` connector. Each browser profile launches one runtime that holds that profile's lock (Dsphere, DuokaiBrowser and DsWorkspace each have their own and appear as separate instances; pass `instanceId` when more than one is online); a competing runtime for the same profile receives `AGENT_ALREADY_RUNNING`. Inspect command arguments and parent processes before diagnosing duplicates; do not terminate connectors merely because their executable names match. A bare CLI debug runtime does not use this browser-runtime singleton lock.
+Multiple `dsphere-native-agent.exe` processes can be normal: each MCP client/session starts a separate `mcp serve --stdio` connector. Each browser profile launches one runtime that holds that profile's lock (each browser profile appears as a separate instance; pass `instanceId` when more than one is online); a competing runtime for the same profile receives `AGENT_ALREADY_RUNNING`. Inspect command arguments and parent processes before diagnosing duplicates; do not terminate connectors merely because their executable names match. A bare CLI debug runtime does not use this browser-runtime singleton lock.
 
 Only call:
 

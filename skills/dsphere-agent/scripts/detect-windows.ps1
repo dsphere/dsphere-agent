@@ -3,15 +3,22 @@ param(
     [string]$RegistryRoot = ''
 )
 
-# Read-only dsphere-agent browser discovery.
+# Read-only dsphere-agent browser discovery. Only the Dsphere browser is set up;
+# when it is missing the result names the official download page.
 $ErrorActionPreference = 'Stop'
 $ExtensionId = 'dkpedeeoceglnpignjhiblgfgofpmmik'
+$SupportedBrand = 'Dsphere'
+$DownloadUrl = 'https://work.dsphereai.com/download/index.html'
+$WebsiteUrl = 'https://www.dsphereai.com/'
 $IsWindowsVariable = Get-Variable -Name IsWindows -ErrorAction SilentlyContinue
 $RunningOnWindows = if ($IsWindowsVariable) { [bool]$IsWindowsVariable.Value } else { $env:OS -eq 'Windows_NT' }
 
-if ($RegistryRoot -and ($RegistryRoot -notmatch '^Software\\[^\\]+' -or $RegistryRoot -match '[/:\x00\r\n]' -or
-    @($RegistryRoot.Split('\') | Where-Object { $_ -in @('', '.', '..', 'Policies', 'NativeMessagingHosts') }).Count)) {
-    throw 'RegistryRoot must be the verified HKCU-relative browser product root.'
+# Only the Dsphere root is accepted, apart from isolated roots under the
+# automated-test namespace, which no browser reads.
+$IsTestRoot = $RegistryRoot -match '^Software\\DSphereNativeHostTests\\[^\\]+' -and $RegistryRoot -notmatch '[/:\x00\r\n]' -and
+    -not @($RegistryRoot.Split('\') | Where-Object { $_ -in @('', '.', '..', 'Policies', 'NativeMessagingHosts') }).Count
+if ($RegistryRoot -and $RegistryRoot -ine "Software\$SupportedBrand" -and -not $IsTestRoot) {
+    throw "Only the DSphere browser is supported: RegistryRoot must be Software\$SupportedBrand."
 }
 
 function Get-UserNativeHostRegistration {
@@ -119,8 +126,8 @@ function Test-NativeHostManifest {
 function Get-BrowserCandidate {
     param([string]$Brand)
 
-    # OEM builds use their own product key; a generic Chromium registration
-    # does not establish registration for either supported browser brand.
+    # The browser reads its own product key; a generic Chromium registration
+    # does not establish registration for it.
     $candidateRegistryRoot = if ($RegistryRoot) { $RegistryRoot } else { "Software\$Brand" }
     $applicationRoot = Join-Path $env:LOCALAPPDATA "$Brand\Application"
     $executablePath = Join-Path $applicationRoot "$Brand.exe"
@@ -155,8 +162,8 @@ function Get-BrowserCandidate {
         if ($version) { $versionDir = Join-Path $applicationRoot $version }
     }
 
-    # Registration is inspected independently of browser installation because
-    # setup binds both supported Chromium brands to the same user manifest.
+    # Registration is inspected independently of browser installation, so a
+    # stale registration is reported even before the browser is installed.
     try {
         $registration = Get-UserNativeHostRegistration -RegistryRoot $candidateRegistryRoot
         $registrationPath = $registration.path
@@ -225,6 +232,8 @@ if (-not $RunningOnWindows -and $PSVersionTable.PSVersion.Major -ge 6) {
         os = 'windows'
         status = 'unsupported-platform'
         nextAction = 'use-macos-detector'
+        downloadUrl = $DownloadUrl
+        websiteUrl = $WebsiteUrl
         selectionRequired = $false
         selectedCandidate = $null
         compatibleCandidates = @()
@@ -235,9 +244,7 @@ if (-not $RunningOnWindows -and $PSVersionTable.PSVersion.Major -ge 6) {
 }
 
 $candidates = @(
-    Get-BrowserCandidate -Brand 'Dsphere'
-    Get-BrowserCandidate -Brand 'DuokaiBrowser'
-    Get-BrowserCandidate -Brand 'DsWorkspace'
+    Get-BrowserCandidate -Brand $SupportedBrand
 )
 $installedCandidates = @($candidates | Where-Object { $_.installed })
 $compatibleCandidates = @($candidates | Where-Object { $_.manifestCompatible })
@@ -262,9 +269,7 @@ if ($installedCandidates.Count -eq 0) {
     $status = 'browser-not-installed'
     $nextAction = 'install-browser'
 } elseif (@($registrationTargets | Where-Object { $_.installed -and -not $_.registrationCompatible }).Count -eq 0) {
-    # Dsphere is the preferred task target, then DuokaiBrowser, but registration
-    # covers every installed brand and is not complete until each root passes
-    # readback.
+    # Registration is not complete until the Dsphere root passes readback.
     $selectedCandidate = $compatibleCandidates[0]
     $status = 'manifest-ready'
     $nextAction = 'install-user-native-host'
@@ -275,6 +280,8 @@ if ($installedCandidates.Count -eq 0) {
     os = 'windows'
     status = $status
     nextAction = $nextAction
+    downloadUrl = $DownloadUrl
+    websiteUrl = $WebsiteUrl
     selectionRequired = $selectionRequired
     selectedCandidate = $selectedCandidate
     compatibleCandidates = $compatibleCandidates

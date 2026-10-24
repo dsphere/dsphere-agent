@@ -836,6 +836,67 @@
         ],
         "description": "Current motion state; successful input is not proof that motion stopped."
       },
+      "focusedCaret": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "surface": {
+            "type": "string",
+            "enum": [
+              "field",
+              "host"
+            ],
+            "description": "field: a text input or textarea; host: an editor (an editable region of the page)."
+          },
+          "textLength": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Characters in the surface's text."
+          },
+          "selectionStart": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Offset where the selection starts; equal to selectionEnd when nothing is selected."
+          },
+          "selectionEnd": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Offset where the selection ends."
+          },
+          "caret": {
+            "type": "number",
+            "minimum": 0,
+            "description": "Offset of the end the selection extends from: where the next Shift+Arrow moves."
+          },
+          "selectedText": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "The selected text, bounded."
+          },
+          "before": {
+            "type": "string",
+            "maxLength": 80,
+            "description": "Up to 80 characters just before the selection or caret."
+          },
+          "after": {
+            "type": "string",
+            "maxLength": 80,
+            "description": "Up to 80 characters just after the selection or caret."
+          },
+          "redacted": {
+            "type": "boolean",
+            "enum": [
+              true
+            ],
+            "description": "Present when the field's value is private (a person's entry, a credential): offsets only, no text."
+          }
+        },
+        "required": [
+          "surface",
+          "textLength"
+        ],
+        "description": "Where the caret stands in the focused text field or editor; offsets are absent when the selection lies outside it. Edit at a phrase with the edit-text action; press-key moves the caret as a person's keys do."
+      },
       "framePageSurfaces": {
         "type": "array",
         "maxItems": 8,
@@ -1228,7 +1289,7 @@
                 },
                 "capabilities": {
                   "type": "array",
-                  "maxItems": 29,
+                  "maxItems": 30,
                   "uniqueItems": true,
                   "description": "Public atomic actions accepted for this opaque target by dsagent.page.action; empty for a text target found by dsagent.page.find.",
                   "items": {
@@ -1242,6 +1303,7 @@
                       "drag-move",
                       "drag-press",
                       "drag-release",
+                      "edit-text",
                       "fill-form",
                       "history-back",
                       "history-forward",
@@ -1488,7 +1550,7 @@
                 },
                 "capabilities": {
                   "type": "array",
-                  "maxItems": 29,
+                  "maxItems": 30,
                   "uniqueItems": true,
                   "description": "Public atomic actions accepted for this opaque target by dsagent.page.action; empty for a text target found by dsagent.page.find.",
                   "items": {
@@ -1502,6 +1564,7 @@
                       "drag-move",
                       "drag-press",
                       "drag-release",
+                      "edit-text",
                       "fill-form",
                       "history-back",
                       "history-forward",

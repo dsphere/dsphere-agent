@@ -62,7 +62,7 @@ codex mcp add dsphere-agent -- "<descriptor.command>" mcp serve --stdio
 
 ## 验连
 
-多个 `dsphere-native-agent.exe` 进程可能正常：各 MCP 客户端/会话分别启动 `mcp serve --stdio` Connector。每个浏览器 profile 启动一个 runtime 并持有该 profile 的锁（Dsphere、DuokaiBrowser 与 DsWorkspace 各有一个，显示为不同实例；多于一个在线时传 `instanceId`），同一 profile 的竞争启动返回 `AGENT_ALREADY_RUNNING`。先查命令参数和父进程，不因程序同名就判定重复或终止 Connector。无参数 CLI 调试 runtime 不使用该浏览器 runtime 单实例锁。
+多个 `dsphere-native-agent.exe` 进程可能正常：各 MCP 客户端/会话分别启动 `mcp serve --stdio` Connector。每个浏览器 profile 启动一个 runtime 并持有该 profile 的锁（每个浏览器 profile 显示为不同实例；多于一个在线时传 `instanceId`），同一 profile 的竞争启动返回 `AGENT_ALREADY_RUNNING`。先查命令参数和父进程，不因程序同名就判定重复或终止 Connector。无参数 CLI 调试 runtime 不使用该浏览器 runtime 单实例锁。
 
 只调用：
 

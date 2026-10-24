@@ -50,6 +50,7 @@
                 "drag-move",
                 "drag-press",
                 "drag-release",
+                "edit-text",
                 "fill-form",
                 "history-back",
                 "history-forward",
@@ -189,6 +190,36 @@
               },
               "description": "With drag: the pixel offset from the press point (the dragged target's centre, or its offset point) to the release point (a slider knob); required unless dropTargetId is given. With drag-move: where the held pointer goes, as the offset from the drag-press point (required). With drag-release: an optional last move, the same way, before letting go."
             },
+            "find": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 2000,
+              "description": "The exact text in the field to act on, copied as it reads (case and punctuation matter). It must lie within one paragraph or line."
+            },
+            "occurrence": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000,
+              "description": "Which match of find to use, counting from 1 in reading order. Required when find appears more than once; the call fails as ambiguous otherwise."
+            },
+            "operation": {
+              "type": "string",
+              "enum": [
+                "replace",
+                "insert-before",
+                "insert-after",
+                "delete",
+                "select",
+                "place-caret-before",
+                "place-caret-after"
+              ],
+              "description": "replace: put text in place of find. insert-before / insert-after: add text beside find. delete: remove find. select: select find. place-caret-before / place-caret-after: put the caret beside find without changing the text."
+            },
+            "text": {
+              "type": "string",
+              "maxLength": 8000,
+              "description": "The new text for replace, insert-before and insert-after; ignored by the other operations. An empty replace deletes find."
+            },
             "formFields": {
               "type": "array",
               "minItems": 1,
@@ -283,10 +314,26 @@
                 "Control+z",
                 "Control+Enter",
                 "Shift+Enter",
+                "Shift+ArrowLeft",
+                "Shift+ArrowRight",
+                "Shift+ArrowUp",
+                "Shift+ArrowDown",
+                "Shift+Home",
+                "Shift+End",
+                "Control+ArrowLeft",
+                "Control+ArrowRight",
+                "Control+Home",
+                "Control+End",
+                "Control+Shift+ArrowLeft",
+                "Control+Shift+ArrowRight",
+                "Control+Shift+Home",
+                "Control+Shift+End",
+                "Control+Backspace",
+                "Control+Delete",
                 "/",
                 "?"
               ],
-              "description": "Key or modifier chord to press in the current page target context. Chords use \"+\" (Control+a)."
+              "description": "Key or modifier chord to press in the current page target context. Chords use \"+\" (Control+a). The reply's focusedCaret says where the caret stands afterwards in a text field or editor; to edit at a known phrase, edit-text is more direct than moving by keys."
             },
             "repeat": {
               "type": "integer",
@@ -354,7 +401,7 @@
               "pattern": "^upl_[0-9a-f]{32}$",
               "minLength": 36,
               "maxLength": 36,
-              "description": "With upload-file: the uploadId dsagent_upload_file returned for the local file to upload (stage it with this instance). When the person turned on Settings → File Uploads (off by default), they are asked in the DSphere side panel before the file goes into a site, once per file and site: until they answer the call is refused TARGET_BUSY with businessCode FILE_RELEASE_CONSENT_REQUIRED (nothing was placed; wait, then repeat the call with the same idempotencyKey), and a no is POLICY_DENIED with FILE_RELEASE_DENIED (tell the person; do not retry). Call upload-file on the page target first: the Extension detects the page's upload slots and places the file into the one slot it finds. On a page with several slots, call it on the target of the intended upload control or drop area instead, and it uses the detected slot holding that target. Only when the page target reports failureCode candidate-not-found (no upload slot detected) call it on the page's own upload button as the fallback: the button is clicked with the file chooser intercepted, so no dialog opens. Other failure codes: candidate-ambiguous (several slots: observe, then call it on the control of the intended slot), value-not-found (the upload expired or was staged with another browser: stage it again), destination-http-error (the page sent the file and its server rejected it). operationResult.uploadState is uploaded when the page's upload request completed, placed when the page holds the file but has not sent it yet (it may send it on submit). Never click an upload button yourself to open the native file chooser."
+              "description": "With upload-file: the uploadId dsagent_upload_file returned for the local file to upload (stage it with this instance). When the person turned on Settings → File Uploads (off by default), they are asked in the DSphere side panel before the file goes into a site, once per file and site: until they answer the call is refused TARGET_BUSY with businessCode FILE_RELEASE_CONSENT_REQUIRED (nothing was placed; wait, then repeat the call with the same idempotencyKey), and a no is POLICY_DENIED with FILE_RELEASE_DENIED (tell the person; do not retry). Call upload-file on the page target first: the Extension detects the page's upload slots and places the file into the one slot it finds. On a page with several slots, call it on the target of the intended upload control or drop area instead, and it uses the detected slot holding that target. Only when the page target reports failureCode candidate-not-found (no upload slot detected) call it on the page's own upload button as the fallback: the button is clicked with the file chooser intercepted, so no dialog opens. Other failure codes: candidate-ambiguous (several slots: observe, then call it on the control of the intended slot), value-not-found (the upload expired or was staged with another browser: stage it again), destination-http-error (the page sent the file and its server rejected it), page-request-failed (the page sent the file and its upload request got no response at all: details.failureReason names the request, its status 0 and how long the page waited; retry later, not at once). operationResult.uploadState is uploaded when the page's upload request completed, placed when the page holds the file but has not sent it yet (it may send it on submit). Once the page accepts the file (uploaded or placed) the staged copy is freed and its uploadId ends: stage the file again to upload it to another page or attach it to mail. A failed upload keeps it for the retry. Never click an upload button yourself to open the native file chooser."
             },
             "level": {
               "type": "string",
@@ -488,6 +535,7 @@
                 "drag-move",
                 "drag-press",
                 "drag-release",
+                "edit-text",
                 "fill-form",
                 "history-back",
                 "history-forward",
@@ -1102,6 +1150,67 @@
             ],
             "description": "Current motion state; successful input is not proof that motion stopped."
           },
+          "focusedCaret": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "surface": {
+                "type": "string",
+                "enum": [
+                  "field",
+                  "host"
+                ],
+                "description": "field: a text input or textarea; host: an editor (an editable region of the page)."
+              },
+              "textLength": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Characters in the surface's text."
+              },
+              "selectionStart": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Offset where the selection starts; equal to selectionEnd when nothing is selected."
+              },
+              "selectionEnd": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Offset where the selection ends."
+              },
+              "caret": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Offset of the end the selection extends from: where the next Shift+Arrow moves."
+              },
+              "selectedText": {
+                "type": "string",
+                "maxLength": 200,
+                "description": "The selected text, bounded."
+              },
+              "before": {
+                "type": "string",
+                "maxLength": 80,
+                "description": "Up to 80 characters just before the selection or caret."
+              },
+              "after": {
+                "type": "string",
+                "maxLength": 80,
+                "description": "Up to 80 characters just after the selection or caret."
+              },
+              "redacted": {
+                "type": "boolean",
+                "enum": [
+                  true
+                ],
+                "description": "Present when the field's value is private (a person's entry, a credential): offsets only, no text."
+              }
+            },
+            "required": [
+              "surface",
+              "textLength"
+            ],
+            "description": "Where the caret stands in the focused text field or editor; offsets are absent when the selection lies outside it. Edit at a phrase with the edit-text action; press-key moves the caret as a person's keys do."
+          },
           "framePageSurfaces": {
             "type": "array",
             "maxItems": 8,
@@ -1622,7 +1731,8 @@
                     "enum": [
                       "confirmed",
                       "not-observed",
-                      "rejected"
+                      "rejected",
+                      "no-response"
                     ],
                     "description": "What the page's own upload request did within the wait."
                   }
@@ -2035,6 +2145,7 @@
               "drag-move",
               "drag-press",
               "drag-release",
+              "edit-text",
               "fill-form",
               "history-back",
               "history-forward",
@@ -2313,6 +2424,32 @@
             "type": "integer",
             "minimum": 0,
             "description": "Optional number of matching targets reported by the action runtime."
+          },
+          "caretEffect": {
+            "type": "object",
+            "properties": {
+              "placed": {
+                "type": "boolean",
+                "enum": [
+                  true
+                ],
+                "description": "A plain click into a text field or editor left the caret there."
+              },
+              "inputChannel": {
+                "type": "string",
+                "enum": [
+                  "browser"
+                ],
+                "description": "Caret keys or a caret click went to the page as real browser input, the last fallback after the page-level caret move showed nothing: read the page to see where the caret went."
+              },
+              "matchCount": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "With edit-text: how many times find appeared in the field (occurrence chose among them)."
+              }
+            },
+            "additionalProperties": false,
+            "description": "What a key, a click or edit-text did to the caret; focusedCaret says where it stands now."
           },
           "downloadStarted": {
             "type": "boolean",
@@ -2593,7 +2730,7 @@
                     },
                     "capabilities": {
                       "type": "array",
-                      "maxItems": 29,
+                      "maxItems": 30,
                       "uniqueItems": true,
                       "description": "Public atomic actions accepted for this opaque target by dsagent.page.action; empty for a text target found by dsagent.page.find.",
                       "items": {
@@ -2607,6 +2744,7 @@
                           "drag-move",
                           "drag-press",
                           "drag-release",
+                          "edit-text",
                           "fill-form",
                           "history-back",
                           "history-forward",
@@ -2853,7 +2991,7 @@
                     },
                     "capabilities": {
                       "type": "array",
-                      "maxItems": 29,
+                      "maxItems": 30,
                       "uniqueItems": true,
                       "description": "Public atomic actions accepted for this opaque target by dsagent.page.action; empty for a text target found by dsagent.page.find.",
                       "items": {
@@ -2867,6 +3005,7 @@
                           "drag-move",
                           "drag-press",
                           "drag-release",
+                          "edit-text",
                           "fill-form",
                           "history-back",
                           "history-forward",
