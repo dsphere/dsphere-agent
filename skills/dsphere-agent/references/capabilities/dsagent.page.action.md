@@ -59,7 +59,7 @@ Opaque target binding, revision guard, and bounded parameters for one external a
 | `checked` | boolean |  | Required final chec… |
 | `bypassCache` | boolean |  | Reload past the bro… |
 | `uploadId` | string (36–36 chars, pattern under Constraints) |  | With upload-file: t… |
-| … | 2 more fields in the contract | | |
+| … | 3 more fields in the contract | | |
 
 ## Input constraints
 

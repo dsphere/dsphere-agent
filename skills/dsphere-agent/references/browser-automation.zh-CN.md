@@ -88,7 +88,7 @@
 - 优先使用工作流运行（采集向导或已保存工作流）产生的托管采集产物和导出；不要从页面观察重建已持久化的数据集，也不要为同一采集创建第二条执行路径。
 - 仅当你自己的遍历必须保存记录且没有工作流持久化这些记录时，在第一个业务记录产生前，使用外部客户端的本地文件或数据库能力创建 JSONL 或 SQLite 检查点，记录目标标识、完成数量、游标、EOF 和失败原因；每处理一个记录或有界批次立即追加。
 - CSV 用于最终交换或导出，不是唯一恢复状态。客户端没有本地持久化工具时，应明确说明长任务不可恢复，不能只把全部记录留在模型上下文。本地文件和数据库 API 属于外部客户端；不通过 `dsagent_invoke` 传递物理路径、任意 SQL 或数据库句柄。要用邮件发送本机文件时，先用 `dsagent_upload_file` 工具暂存，再传返回的 uploadId。
-- 要把本机文件上传到网页时，先用 `dsagent_upload_file` 暂存（有多个实例在线时传 `instanceId`），再以 action `upload-file`、返回的 `uploadId` 和页面目标调用 `dsagent.page.action`：Extension 检测页面的上传位并把文件放入唯一的上传位（报告 `candidate-ambiguous` 时，对目标上传控件的目标调用它）。只有它报告未检测到上传位时，才找到页面自己的上传按钮，对该目标调用 `upload-file` 作为回退。不要自行点击上传按钮打开系统文件选择框，那样只能由用户手动选择文件。
+- 要把本机文件上传到网页时，先用 `dsagent_upload_file` 暂存（有多个实例在线时传 `instanceId`），再以 action `upload-file`、返回的 `uploadId` 和页面目标调用 `dsagent.page.action`：Extension 检测页面的上传位并把文件放入唯一的上传位（报告 `candidate-ambiguous` 时，对目标上传控件的目标调用它）。只有它报告未检测到上传位时，才找到页面自己的上传按钮，对该目标调用 `upload-file` 作为回退。不要自行点击上传按钮打开系统文件选择框，那样只能由用户手动选择文件。可上传不超过 1 GiB 的文件：大文件分块传入页面，传输未完成时 `upload-file` 返回 `TARGET_BUSY`、businessCode `FILE_TRANSFER_IN_PROGRESS` 与 `details.transferredBytes`，应立即以相同 `idempotencyKey` 重复同一调用，直到返回上传结果。超过 1 GiB 的文件会被拒绝（暂存时 `CONTENT_TOO_LARGE`，网页上 `FILE_TOO_LARGE_FOR_PAGE_UPLOAD`）：告诉用户它需要浏览器自身的上传支持。
 - 要填写表单时，先在页面目标上以 action `detect-form-fields` 调用 `dsagent.page.action`：Extension 的表单检测器列出页面的可编辑字段（有打开的对话框时为对话框中的表单），给出不透明的 `fieldId`、标签、类型、必填标记、当前值和原生下拉框的选项。然后在页面目标上以 action `fill-form` 和 `formFields` 调用（每项为一个 `fieldId` 加 `value`、`checked` 或 `selections`）：写入前先检查所有条目，每个字段都由常规的输入与表单 owner 填写并校验，后面的字段在写入前会重新检测。只有 `detect-form-fields` 未列出的字段（位于 iframe 或 shadow root 中）才以其观察到的 `targetId` 代替 `fieldId`，作为回退。密码和一次性验证码列为敏感字段，不会被填写，由用户自行输入。`fill-form` 不会提交表单；只有任务要求时才点击表单的提交按钮。
 
 ## 结果处理

@@ -1,39 +1,39 @@
 {
   "schemaVersion": 1,
   "channelSchemaVersion": 1,
-  "skillVersion": "1.9.0",
-  "nativeVersion": "1.9.0",
-  "sourceCommit": "2454455a043f893221f7ed554858cfad5ed1d1cb",
+  "skillVersion": "1.10.0",
+  "nativeVersion": "1.10.0",
+  "sourceCommit": "002b4c44cbecd06a089abe3da0a6270c3242b593",
   "sourceDirty": false,
-  "builtAt": "2026-10-24T16:21:34.876Z",
+  "builtAt": "2026-10-26T00:51:13.218Z",
   "artifacts": [
     {
       "path": "windows-x64/dsphere-native-agent.exe",
       "goos": "windows",
       "goarch": "amd64",
-      "size": 28385792,
-      "sha256": "c1a74f77600a8ffa62c95bdefd388cdae695cb54aefc3e42eb22650b3f000d35"
+      "size": 28397056,
+      "sha256": "79e6c257d572205547ea8ba85add70802e748ca7bc111d3bad0f43f0ed19d27e"
     },
     {
       "path": "windows-x86/dsphere-native-agent.exe",
       "goos": "windows",
       "goarch": "386",
-      "size": 27433984,
-      "sha256": "c2ec42eb447c9b3dc9c12571ae4608868d3da98a67469a3f39ffd0469cfe3544"
+      "size": 27445248,
+      "sha256": "6dd970b609170095bfde69f78e5f9f07689429a0b0984b44dea28bae4e3f0981"
     },
     {
       "path": "macos-x64/dsphere-native-agent",
       "goos": "darwin",
       "goarch": "amd64",
-      "size": 28099184,
-      "sha256": "7ce10d0be2d82198199b780efaabce9cbc2be9cb27fe763f2749836d1d4c2318"
+      "size": 28111728,
+      "sha256": "40f9b1b3b6a87185946881d92267cc8801393198d8d19ad17a856006c1cff6ff"
     },
     {
       "path": "macos-arm64/dsphere-native-agent",
       "goos": "darwin",
       "goarch": "arm64",
-      "size": 26243218,
-      "sha256": "7c6cbd8abe084fa3193bc4bd3fbdc1f9e0da611d868fd1e328cd53899ca7d0b6"
+      "size": 26243474,
+      "sha256": "f9e6bfd63cea286f6e804dee6e4dd8f83ca76c56bec393f91b23784e584bc996"
     }
   ]
 }

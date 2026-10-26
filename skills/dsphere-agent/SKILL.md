@@ -3,7 +3,7 @@ name: dsphere-agent
 description: "Drive DSphere browser via MCP: read pages, act on controls, collect data with the wizard, and replay workflows."
 metadata:
   author: "dsphere"
-  version: "1.9.0"
+  version: "1.10.0"
   specification: "https://agentskills.io/specification"
 ---
 

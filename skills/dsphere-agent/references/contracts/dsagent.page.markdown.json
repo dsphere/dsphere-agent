@@ -45,7 +45,7 @@
         "type": "integer",
         "minimum": 4000,
         "maximum": 120000,
-        "description": "Maximum Markdown characters returned inline; longer pages are cut at a paragraph boundary and flagged truncated."
+        "description": "Maximum Markdown characters returned inline, from 4000 to 120000 (default 48000); longer pages are cut at a paragraph boundary and flagged truncated. For a short read, narrow with focus instead of a smaller maxChars."
       },
       "cursor": {
         "type": "string",

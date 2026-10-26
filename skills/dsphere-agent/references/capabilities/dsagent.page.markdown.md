@@ -28,7 +28,7 @@ Page context to read and the Markdown rendering options.
 | `links` | enum: inline, citations, none |  | Link rendering: citations (default) writes text⟨n⟩ plus a reference list, inline keeps [text](url), none drops destinat… |
 | `fit` | boolean |  | Prune low-density link-farm blocks (default true). Repeated records such as listing cards are always kept. |
 | `focus` | string (1–500 chars) |  | Optional wording to focus the reading on; only relevant blocks and headings are kept (BM25, Chinese-aware). A wording t… |
-| `maxChars` | integer (4000…120000) |  | Maximum Markdown characters returned inline; longer pages are cut at a paragraph boundary and flagged truncated. |
+| `maxChars` | integer (4000…120000) |  | Maximum Markdown characters returned inline, from 4000 to 120000 (default 48000); longer pages are cut at a paragraph b… |
 | `cursor` | string (4–32 chars) |  | nextCursor of the previous read of this page with the same options: continue the Markdown where that read was cut. |
 
 ## Result fields (data.data)
