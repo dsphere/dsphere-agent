@@ -1,10 +1,10 @@
 # DSphere Agent
 
-Built Skill distribution for DSphere Agent. Version: **1.9.0**.
+Built Skill distribution for DSphere Agent. Version: **1.10.0**.
 
 [Installation and update guide / 安装与更新指南](installation-guide.md)
 
-Download the [immutable 1.9.0 package](https://github.com/dsphere/dsphere-agent/archive/refs/tags/dsphere-agent-v1.9.0.zip), extract it, and install the complete `skills/dsphere-agent/` directory after verification. Follow the installation guide for your platform and client.
+Download the [immutable 1.10.0 package](https://github.com/dsphere/dsphere-agent/archive/refs/tags/dsphere-agent-v1.10.0.zip), extract it, and install the complete `skills/dsphere-agent/` directory after verification. Follow the installation guide for your platform and client.
 
 This distribution uses `https://github.com/dsphere/dsphere-agent.git` and the version pointer at `https://raw.githubusercontent.com/dsphere/dsphere-agent/main/latest-version.json`. Updates stay in this repository. Always install the exact immutable tag named by the validated pointer.
 
