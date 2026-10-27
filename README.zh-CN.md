@@ -1,3 +1,5 @@
+<p align="center"><a href="README.md">English</a> | <b>简体中文</b></p>
+
 <p align="center">
   <a href="https://www.dsphereai.com/"><img src="docs/images/dsphere-logo.svg" alt="DSphere" height="48"></a>
 </p>
@@ -14,8 +16,7 @@
   <a href="https://www.dsphereai.com/">官网</a> ·
   <a href="https://work.dsphereai.com/download/index.html">下载 DSphere 浏览器</a> ·
   <a href="installation-guide.md">安装与更新指南</a> ·
-  <a href="RELEASE.md">发布验证</a> ·
-  <a href="README.md">English</a>
+  <a href="RELEASE.md">发布验证</a>
 </p>
 
 <p align="center">

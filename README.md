@@ -1,3 +1,5 @@
+<p align="center"><b>English</b> | <a href="README.zh-CN.md">简体中文</a></p>
+
 <p align="center">
   <a href="https://www.dsphereai.com/"><img src="docs/images/dsphere-logo.svg" alt="DSphere" height="48"></a>
 </p>
@@ -14,8 +16,7 @@
   <a href="https://www.dsphereai.com/">Website</a> ·
   <a href="https://work.dsphereai.com/download/index.html">Download the DSphere browser</a> ·
   <a href="installation-guide.md">Installation and update guide</a> ·
-  <a href="RELEASE.md">Release validation</a> ·
-  <a href="README.zh-CN.md">中文</a>
+  <a href="RELEASE.md">Release validation</a>
 </p>
 
 <p align="center">
