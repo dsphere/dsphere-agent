@@ -23,9 +23,9 @@
   <img src="docs/images/sidepanel-chat.webp" alt="DSphere Agent side panel next to a web page, showing that Claude Code is controlling the browser" width="900">
 </p>
 
-Current release: **1.11.0**.
+Current release: **1.11.1**.
 
-Download the [immutable 1.11.0 package](https://github.com/dsphere/dsphere-agent/archive/refs/tags/dsphere-agent-v1.11.0.zip), extract it, and install the complete `skills/dsphere-agent/` directory after verification. Follow the [installation guide](installation-guide.md) for your platform and client.
+Download the [immutable 1.11.1 package](https://github.com/dsphere/dsphere-agent/archive/refs/tags/dsphere-agent-v1.11.1.zip), extract it, and install the complete `skills/dsphere-agent/` directory after verification. Follow the [installation guide](installation-guide.md) for your platform and client.
 
 ## What is DSphere Agent?
 

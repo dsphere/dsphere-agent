@@ -23,9 +23,9 @@
   <img src="docs/images/sidepanel-chat.webp" alt="网页旁的 DSphere Agent 侧边栏，显示 Claude Code 正在控制浏览器" width="900">
 </p>
 
-当前版本：**1.11.0**。
+当前版本：**1.11.1**。
 
-下载[不可变的 1.11.0 安装包](https://github.com/dsphere/dsphere-agent/archive/refs/tags/dsphere-agent-v1.11.0.zip)，解压并校验后安装完整的 `skills/dsphere-agent/` 目录。按你的系统和客户端阅读[安装指南](installation-guide.md)。
+下载[不可变的 1.11.1 安装包](https://github.com/dsphere/dsphere-agent/archive/refs/tags/dsphere-agent-v1.11.1.zip)，解压并校验后安装完整的 `skills/dsphere-agent/` 目录。按你的系统和客户端阅读[安装指南](installation-guide.md)。
 
 ## DSphere Agent 是什么？
 
