@@ -46,9 +46,9 @@ Complete value lists and id patterns for the fields above (the contract file is 
 
 - `status`: one of `not-dispatched`, `waiting-user`, `running`, `succeeded`, `partial`, `failed`, `cancelled`, `outcome-unknown`, `record-unavailable`, `available`
 - `data.configuration.fields[].control`: one of `text`, `select`, `multiselect`, `boolean`, `private`, `group`, `override`
-- `data.configuration.fields[].children[].control`: one of `text`, `select`, `multiselect`, `boolean`, `private`, `group`, `override`
+- `data.configuration.fields[].children[].control`: same values as `data.configuration.fields[].control`
 - `data.records[].allowedActions[]`: one of `options.get`, `list`, `get`, `create`, `update`, `delete`, `set-enabled`, `open`, `close`, `focus`, `fingerprint.get`, `fingerprint.update`, `fingerprint.regenerate`, `operations.get`, `pages.list`
-- `data.account.allowedActions[]`: one of `options.get`, `list`, `get`, `create`, `update`, `delete`, `set-enabled`, `open`, `close`, `focus`, `fingerprint.get`, `fingerprint.update`, `fingerprint.regenerate`, `operations.get`, `pages.list`
+- `data.account.allowedActions[]`: same values as `data.records[].allowedActions[]`
 
 ## Contract
 

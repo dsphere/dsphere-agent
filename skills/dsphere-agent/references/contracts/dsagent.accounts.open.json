@@ -2,10 +2,10 @@
   "method": "dsagent.accounts.open",
   "version": 1,
   "title": "Open Account",
-  "description": "Open the account using its existing browser environment and fill owner.",
+  "description": "Open the account using its existing browser environment and fill owner. At the plan's limit on app accounts open at once, a new account is refused with POLICY_DENIED / APP_ACCOUNTS_OPEN_LIMIT and nothing opens: tell the person; do not retry.",
   "inputSchema": {
     "type": "object",
-    "description": "Open the account using its existing browser environment and fill owner.",
+    "description": "Open the account using its existing browser environment and fill owner. At the plan's limit on app accounts open at once, a new account is refused with POLICY_DENIED / APP_ACCOUNTS_OPEN_LIMIT and nothing opens: tell the person; do not retry.",
     "properties": {
       "accountId": {
         "type": "string",
@@ -244,6 +244,17 @@
                   "type": "string",
                   "description": "Browser loading status.",
                   "maxLength": 40
+                },
+                "state": {
+                  "type": "string",
+                  "description": "Where the page stands on its way to the signed-in application. loading: no web document yet. sign-in-required: the sign-in monitor of the browser finds a sign-in or verification wall; the person signs in: read the page (DSphere shows them the sign-in), then dsagent.page.wait until authentication-cleared. signed-in: the monitor checked the application page and found no wall. unchecked: the application page is open and the monitor could not check it yet; read the page.",
+                  "maxLength": 40,
+                  "enum": [
+                    "loading",
+                    "sign-in-required",
+                    "signed-in",
+                    "unchecked"
+                  ]
                 }
               },
               "required": [

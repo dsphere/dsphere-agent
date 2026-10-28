@@ -10,7 +10,7 @@
     "properties": {
       "pageContextId": {
         "type": "string",
-        "minLength": 8,
+        "minLength": 2,
         "maxLength": 128,
         "description": "Opaque context of a page opened for this agent or in its named browser session."
       },
@@ -48,7 +48,7 @@
     "properties": {
       "pageContextId": {
         "type": "string",
-        "minLength": 8,
+        "minLength": 2,
         "maxLength": 128,
         "description": "Opaque context of a page opened for this agent or in its named browser session."
       },

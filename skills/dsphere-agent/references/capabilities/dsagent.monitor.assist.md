@@ -47,7 +47,7 @@ The assist after this call.
 Complete value lists and id patterns for the fields above (the contract file is authoritative).
 
 - `attention[].code`: one of `sign-in-wall`, `verification-challenge`, `waiting-for-answer`, `paused-for-repair`, `paused-for-resources`, `task-failed`, `task-interrupted`, `run-failed`, `stalled`
-- `task.attention[].code`: one of `sign-in-wall`, `verification-challenge`, `waiting-for-answer`, `paused-for-repair`, `paused-for-resources`, `task-failed`, `task-interrupted`, `run-failed`, `stalled`
+- `task.attention[].code`: same values as `attention[].code`
 
 ## Guidance
 

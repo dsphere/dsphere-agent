@@ -275,9 +275,10 @@
           "tab-closed",
           "server",
           "chat-task",
+          "plan",
           "unspecified"
         ],
-        "description": "A stopped run: who stopped it. person (the SidePanel), agent (dsagent.execution.stop), tab-closed (its page was closed), server (the backend), chat-task (the Chat task that ran it was cancelled), unspecified."
+        "description": "A stopped run: who stopped it. person (the SidePanel), agent (dsagent.execution.stop), tab-closed (its page was closed), server (the backend), chat-task (the Chat task that ran it was cancelled), plan (the plan automation limit was reached; endpoint plan-restricted), unspecified."
       },
       "handoffEnding": {
         "type": "string",

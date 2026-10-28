@@ -40,7 +40,7 @@ Every browser page and task, with who owns it and what holds it up.
 Complete value lists and id patterns for the fields above (the contract file is authoritative).
 
 - `pages[].attention[].code`: one of `sign-in-wall`, `verification-challenge`, `waiting-for-answer`, `paused-for-repair`, `paused-for-resources`, `task-failed`, `task-interrupted`, `run-failed`, `stalled`
-- `tasks[].attention[].code`: one of `sign-in-wall`, `verification-challenge`, `waiting-for-answer`, `paused-for-repair`, `paused-for-resources`, `task-failed`, `task-interrupted`, `run-failed`, `stalled`
+- `tasks[].attention[].code`: same values as `pages[].attention[].code`
 
 ## Guidance
 

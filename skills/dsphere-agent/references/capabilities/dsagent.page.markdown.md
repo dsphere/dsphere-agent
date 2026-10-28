@@ -23,7 +23,7 @@ Page context to read and the Markdown rendering options.
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
-| `pageContextId` | string (8–128 chars) | yes | Opaque page context from dsagent.pages.list, dsagent.page.open, or a receipt's destinationPageContextId. |
+| `pageContextId` | string (2–128 chars) | yes | Opaque page context from dsagent.pages.list, dsagent.page.open, or a receipt's destinationPageContextId. |
 | `profile` | enum: minimal, balanced, aggressive |  | Noise removal: minimal keeps navigation and footers, balanced (default) removes page chrome and hidden elements, aggres… |
 | `links` | enum: inline, citations, none |  | Link rendering: citations (default) writes text⟨n⟩ plus a reference list, inline keeps [text](url), none drops destinat… |
 | `fit` | boolean |  | Prune low-density link-farm blocks (default true). Repeated records such as listing cards are always kept. |
@@ -42,7 +42,7 @@ Bounded Markdown rendering of the current document with its references and metad
 | `url` | string (0–2048 chars) |  | Sanitized current page URL. |
 | `title` | string (0–300 chars) |  | Bounded current page title. |
 | `format` | enum: markdown |  | Text representation. |
-| `markdown` | string (0–120000 chars) |  | The page as Markdown in document order, bounded by maxChars. |
+| `markdown` | string (0–120000 chars) |  | The page as Markdown in document order, bounded by maxChars. Phone and ID numbers keep only their last 4 digits (******… |
 | `truncated` | boolean |  | True when the Markdown was cut at maxChars or at the inline byte limit, the capture hit its node budget or the compiler… |
 | `nextCursor` | string (0–32 chars) |  | Present when the Markdown was cut before the end of the rendering: pass it as cursor, with the same options, to read on. |
 | `references` | array of object {index, url, text} (≤ 400) |  | Numbered link and image destinations referenced from the Markdown in citations mode. |

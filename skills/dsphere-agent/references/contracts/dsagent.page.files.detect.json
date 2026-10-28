@@ -14,7 +14,7 @@
     "properties": {
       "pageContextId": {
         "type": "string",
-        "minLength": 8,
+        "minLength": 2,
         "maxLength": 128,
         "description": "Opaque page context from dsagent.pages.list or dsagent.page.open."
       },
@@ -65,7 +65,7 @@
     "properties": {
       "pageContextId": {
         "type": "string",
-        "minLength": 8,
+        "minLength": 2,
         "maxLength": 128,
         "description": "Opaque page context from dsagent.pages.list or dsagent.page.open."
       },

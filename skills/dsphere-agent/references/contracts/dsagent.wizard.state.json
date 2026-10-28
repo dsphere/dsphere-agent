@@ -1,6 +1,7 @@
 {
   "method": "dsagent.wizard.state",
   "version": 1,
+  "pageEvidence": true,
   "title": "Read a guided wizard",
   "description": "Read the wizard's current step, the pending choice with its options (opaque optionIds bound to revision, bounded redacted samples), what the person must do on the page, and a summary of the configuration.",
   "guidance": "With sinceRevision and waitMs (up to 25000) it returns as soon as the revision changes (a step finished, the person clicked on the page or changed something in the SidePanel) or when waitMs elapses (timedOut=true is a heartbeat, not a failure). Read-only.",
@@ -385,6 +386,14 @@
                       "type": "integer",
                       "minimum": 0,
                       "description": "data-block / data-table: records the structure shows on the page (items or rows)."
+                    },
+                    "chrome": {
+                      "type": "string",
+                      "enum": [
+                        "navigation",
+                        "related"
+                      ],
+                      "description": "data-block / data-table: the detection reads it as page chrome (navigation: a menu, a header or footer link list) or as related items beside an opened record (related), not the page's own data. Never recommended; collect it only when the task asks for exactly that."
                     },
                     "labelSource": {
                       "type": "string",

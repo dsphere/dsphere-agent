@@ -1,6 +1,7 @@
 {
   "method": "dsagent.wizard.highlight",
   "version": 1,
+  "pageEvidence": true,
   "title": "Show a wizard option on the page",
   "description": "Highlight one option of the pending choice on the page (a data block or table and its fields, or one field) so the person can see what it refers to before deciding. Changes only the page overlay, not the wizard. Requires an idempotency key.",
   "inputSchema": {
@@ -386,6 +387,14 @@
                       "type": "integer",
                       "minimum": 0,
                       "description": "data-block / data-table: records the structure shows on the page (items or rows)."
+                    },
+                    "chrome": {
+                      "type": "string",
+                      "enum": [
+                        "navigation",
+                        "related"
+                      ],
+                      "description": "data-block / data-table: the detection reads it as page chrome (navigation: a menu, a header or footer link list) or as related items beside an opened record (related), not the page's own data. Never recommended; collect it only when the task asks for exactly that."
                     },
                     "labelSource": {
                       "type": "string",

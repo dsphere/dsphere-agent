@@ -1,5 +1,6 @@
 {
   "method": "dsagent.page.focus",
+  "pageEvidence": true,
   "version": 1,
   "title": "Bring a page forward",
   "description": "Bring a page's tab forward in its window and focus that window, for the rare step that needs the page on screen (a visual read that reports TAB_NOT_ACTIVE or WINDOW_NOT_FOCUSED, a control that only paints while visible).",
@@ -9,7 +10,7 @@
     "properties": {
       "pageContextId": {
         "type": "string",
-        "minLength": 8,
+        "minLength": 2,
         "maxLength": 128,
         "description": "Opaque page context from dsagent.pages.list, dsagent.page.open, or a receipt's destinationPageContextId."
       }

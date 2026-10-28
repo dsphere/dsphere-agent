@@ -23,7 +23,7 @@ The page to read.
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
-| `pageContextId` | string (8–128 chars) | yes | Opaque page context from dsagent.pages.list or dsagent.page.open. |
+| `pageContextId` | string (2–128 chars) | yes | Opaque page context from dsagent.pages.list or dsagent.page.open. |
 
 ## Result fields (data.data)
 
@@ -31,7 +31,7 @@ The signed-in account the page shows.
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
-| `pageContextId` | string (8–128 chars) |  | Opaque page context from dsagent.pages.list or dsagent.page.open. |
+| `pageContextId` | string (2–128 chars) |  | Opaque page context from dsagent.pages.list or dsagent.page.open. |
 | `status` | enum: signed-in, signed-out, unknown |  | signed-in: an account name or avatar shows in a corner and no sign-in control does; signed-out: a sign-in control shows… |
 | `account` | object {label, corner, source, score, signals} |  | The most likely account, when the evidence is strong enough. |
 | `avatar` | boolean |  | A user picture shows in a corner. |

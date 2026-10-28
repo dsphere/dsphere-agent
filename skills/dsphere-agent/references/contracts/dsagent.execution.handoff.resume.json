@@ -39,7 +39,7 @@
             "type": "string",
             "maxLength": 128,
             "description": "The run page the target is on: pause.pageContextId.",
-            "pattern": "^[A-Za-z0-9_.:-]{8,128}$"
+            "pattern": "^[A-Za-z0-9_.:-]{2,128}$"
           },
           "targetId": {
             "type": "string",

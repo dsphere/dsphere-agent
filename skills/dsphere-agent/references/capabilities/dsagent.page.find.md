@@ -23,7 +23,7 @@ Opaque page context and a find-style query, a role, or both, over the current se
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
-| `pageContextId` | string (8–128 chars) | yes | Opaque page context from dsagent.pages.list, dsagent.page.open, or a receipt's destinationPageContextId. |
+| `pageContextId` | string (2–128 chars) | yes | Opaque page context from dsagent.pages.list, dsagent.page.open, or a receipt's destinationPageContextId. |
 | `query` | string (1–160 chars) |  | What to look for, in the words the page shows ("关注", "Next page", "Search"). Optional with role: without it, the role’s… |
 | `limit` | integer (1…20) |  | Maximum matches; defaults to 10. |
 | `role` | string (0–40 chars) |  | Optional: only targets of this role (button, link, tab, textbox, checkbox…); alone, without query, every target of the… |
@@ -44,6 +44,7 @@ Revision-bound find result over the current semantic targets.
 | `surfaceMissing` | boolean |  | The requested surface is not open; no fallback to unrelated controls. |
 | `truncated` | boolean |  | The shared control query reached its bound. |
 | `searched` | integer (0…∞) |  | How many current targets were considered. |
+| `unansweredFrames` | object {admitted, dropped} |  | Present when shown child frames did not answer: the matches cover the rest of the page only, so an empty or short list… |
 | `activeSurface` | object {kind, label, backgroundMatches} |  | Present when an open dialog or panel bounded the search. |
 | `warnings` | array of object {code, message, nextActions} (≤ 2) |  | REPEATED_RECORDS_USE_WIZARD: switch to the scrape wizard on this page now (dsagent.wizard.start kind=scrape, then wizar… |
 | `matches` | array of object {target, score, matchedOn} (≤ 20) |  | Matching targets, best first. |
@@ -53,7 +54,7 @@ Revision-bound find result over the current semantic targets.
 
 Complete value lists and id patterns for the fields above (the contract file is authoritative).
 
-- `matches[].target.capabilities[]`: one of `click`, `detect-form-fields`, `handle-dialog`, `dismiss`, `drag`, `drag-move`, `drag-press`, `drag-release`, `edit-text`, `fill-form`, `history-back`, `history-forward`, `hover`, `input`, `press-key`, `scroll`, `select`, `set-checkbox`, `set-radio`, `reload`, `upload-file`, `load-options`, `detect-marquees`, `detect-videos`, `pause-marquees`, `pause-videos`, `play-videos`, `resume-marquees`, `detect-ads`, `remove-ads`
+- `matches[].target.capabilities[]`: one of `click`, `detect-form-fields`, `handle-dialog`, `dismiss`, `drag`, `drag-move`, `drag-press`, `drag-release`, `edit-text`, `fill-form`, `history-back`, `history-forward`, `hover`, `input`, `paste`, `press-key`, `scroll`, `select`, `set-checkbox`, `set-radio`, `reload`, `upload-file`, `load-options`, `detect-marquees`, `detect-videos`, `pause-marquees`, `pause-videos`, `play-videos`, `resume-marquees`, `detect-ads`, `remove-ads`
 - `matches[].matchedOn[]`: one of `label`, `placeholder`, `context`, `role`, `state`, `content-key`, `picture`
 
 ## Guidance

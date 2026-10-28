@@ -48,7 +48,7 @@ Complete value lists and id patterns for the fields above (the contract file is 
 
 - `status`: one of `not-dispatched`, `waiting-user`, `running`, `succeeded`, `partial`, `failed`, `cancelled`, `outcome-unknown`, `record-unavailable`, `available`
 - `data.configuration.fields[].control`: one of `text`, `select`, `multiselect`, `boolean`, `private`, `group`, `override`
-- `data.configuration.fields[].children[].control`: one of `text`, `select`, `multiselect`, `boolean`, `private`, `group`, `override`
+- `data.configuration.fields[].children[].control`: same values as `data.configuration.fields[].control`
 
 ## Contract
 

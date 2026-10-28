@@ -27,7 +27,7 @@ The page and the files to download.
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
-| `pageContextId` | string (8–128 chars) | yes | Opaque page context from dsagent.pages.list or dsagent.page.open. |
+| `pageContextId` | string (2–128 chars) | yes | Opaque page context from dsagent.pages.list or dsagent.page.open. |
 | `fileIds` | array of string (1–64 chars) (≤ 50) | yes | The files to download. |
 
 ## Result fields (data.data)
@@ -36,7 +36,7 @@ The downloads started.
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
-| `pageContextId` | string (8–128 chars) |  | Opaque page context from dsagent.pages.list or dsagent.page.open. |
+| `pageContextId` | string (2–128 chars) |  | Opaque page context from dsagent.pages.list or dsagent.page.open. |
 | `downloaded` | integer (0…∞) |  | Downloads the browser started. |
 | `skipped` | array of object {fileId, reason} (≤ 50) |  | Files not downloaded. |
 

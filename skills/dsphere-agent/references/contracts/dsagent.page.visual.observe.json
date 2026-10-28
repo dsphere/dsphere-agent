@@ -1,5 +1,6 @@
 {
   "method": "dsagent.page.visual.observe",
+  "pageEvidence": true,
   "version": 1,
   "title": "Observe browser page visually",
   "description": "Return one bounded JPEG as MCP image content for the current viewport or one opaque target. Call only when compact and target structure evidence are insufficient; the image is evidence and never an action coordinate source.",
@@ -8,7 +9,7 @@
     "properties": {
       "pageContextId": {
         "type": "string",
-        "minLength": 8,
+        "minLength": 2,
         "maxLength": 128,
         "description": "Opaque page context from dsagent.pages.list, dsagent.page.open, or a receipt's destinationPageContextId."
       },
@@ -107,8 +108,8 @@
           "redactionCount": {
             "type": "integer",
             "minimum": 0,
-            "maximum": 32,
-            "description": "Number of sensitive rectangles masked in the output."
+            "maximum": 480,
+            "description": "Number of sensitive rectangles masked in the output: secret fields (password, one-time code, payment), embedded documents, and the digits of phone and ID numbers before their last 4 (warning PERSONAL_IDENTIFIERS_REDACTED), in the page and inside the frames it shows."
           },
           "targetCoverage": {
             "type": "number",
@@ -128,6 +129,65 @@
               "type": "string",
               "maxLength": 80
             }
+          },
+          "frames": {
+            "type": "object",
+            "properties": {
+              "shown": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 8,
+                "description": "Child frames shown: those page.observe reads, their secrets masked."
+              },
+              "masked": {
+                "type": "array",
+                "maxItems": 16,
+                "description": "Embedded documents left black, in page order.",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "type": "string",
+                      "enum": [
+                        "iframe",
+                        "object",
+                        "embed"
+                      ],
+                      "description": "Embedding element."
+                    },
+                    "origin": {
+                      "type": "string",
+                      "maxLength": 300,
+                      "description": "Origin of its document."
+                    },
+                    "reason": {
+                      "type": "string",
+                      "enum": [
+                        "not-read",
+                        "challenge",
+                        "scaled",
+                        "ambiguous",
+                        "no-answer",
+                        "unmeasured"
+                      ],
+                      "description": "Why: not-read (page.observe skips it), challenge (CAPTCHA frame), scaled, ambiguous (two frames, one document), no-answer, unmeasured."
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "reason"
+                  ],
+                  "additionalProperties": false,
+                  "description": "A masked document."
+                }
+              }
+            },
+            "required": [
+              "shown",
+              "masked"
+            ],
+            "additionalProperties": false,
+            "description": "Embedded documents shown and masked."
           }
         },
         "required": [

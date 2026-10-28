@@ -1,5 +1,6 @@
 {
   "method": "dsagent.execution.handoff.get",
+  "pageEvidence": true,
   "version": 1,
   "title": "Get a run's repair handoff",
   "description": "Read the bounded, redacted context of a run paused for your repair (pause.kind agent-repair of dsagent.execution.get / wait; failure-endpoint fallback tier E3): the typed endpoint the block failed on, the block, the element it was recorded on (tag, role, label, intent; never a selector), the loop…",

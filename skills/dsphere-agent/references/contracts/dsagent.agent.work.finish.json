@@ -1,11 +1,11 @@
 {
   "method": "dsagent.agent.work.finish",
   "version": 1,
-  "title": "Finish my ordinary browser task",
-  "description": "Call before your final answer when an ordinary browser task has ended. Name one page belonging to that task and report succeeded, failed or cancelled. Ends only your task and starts the existing 60-second shutdown countdown on its owned tabs, including child tabs. The person can keep them open.",
-  "guidance": "User tabs and pages held by a wizard, execution, question or sign-in are preserved. Active work must be resolved first. Without a finish call, ten idle minutes end an unattended ordinary task as interrupted, never as successful.",
+  "title": "Finish my browser task",
+  "description": "Ends your task with its verified outcome, and with keep closes its pages in the same call: pass keep [] to close every page the task opened, or name the pages to leave open for the person.",
+  "guidance": "Pages the person opened, other tasks' pages and pages a wizard, run, question or sign-in wall holds are never closed. Without keep, a 60-second countdown the person can stop closes the task's pages. For an ordinary task, dsagent.page.close on its last page also ends it as succeeded; a continue task (taskMode continue or step reports) ends only by this call. Name one page of the task. Active work must be resolved first. Without a finish, ten idle minutes end an unattended task as interrupted, never as successful.",
   "inputSchema": {
-    "description": "The page identifying your task and its verified terminal outcome.",
+    "description": "The page identifying your task, its verified terminal outcome, and the pages to keep.",
     "type": "object",
     "additionalProperties": false,
     "required": [
@@ -27,11 +27,23 @@
           "cancelled"
         ],
         "description": "The outcome you verified for this task."
+      },
+      "keep": {
+        "type": "array",
+        "maxItems": 32,
+        "uniqueItems": true,
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128,
+          "description": "A pageContextId of this task to leave open."
+        },
+        "description": "Close the task's other pages now: [] closes them all, listed pages stay open for the person. Omit for the 60-second countdown instead."
       }
     }
   },
   "outputSchema": {
-    "description": "The recorded terminal outcome of this task.",
+    "description": "The recorded terminal outcome of this task, and what keep closed.",
     "type": "object",
     "additionalProperties": false,
     "required": [
@@ -47,6 +59,21 @@
           "interrupted"
         ],
         "description": "The terminal status recorded for this task."
+      },
+      "closedPages": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "With keep: how many of the task's pages this call closed."
+      },
+      "keptPages": {
+        "type": "array",
+        "maxItems": 32,
+        "items": {
+          "type": "string",
+          "maxLength": 128,
+          "description": "A kept pageContextId."
+        },
+        "description": "With keep: the kept pages that are this task's and still open; a name that is not one is left out."
       }
     }
   },
@@ -58,7 +85,7 @@
     "page.close"
   ],
   "timeoutMs": 30000,
-  "maxInlineResultBytes": 1024,
+  "maxInlineResultBytes": 8192,
   "concurrency": "exclusive-target",
   "retry": "never",
   "exposure": "exposed"

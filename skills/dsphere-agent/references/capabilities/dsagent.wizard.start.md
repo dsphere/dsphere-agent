@@ -28,17 +28,20 @@ Which wizard to start and on which page.
 | `pageContextId` | string (0–128 chars, pattern under Constraints) |  | Optional page conte… |
 | `adoptActive` | boolean |  | Guide the wizard or… |
 | `taskDescription` | string (1–2000 chars) |  | The person’s reques… |
+| `taskMode` | enum: auto, continue |  | continue when you f… |
+| `taskSteps` | array of string (1–160 chars) (≤ 30) |  | With taskMode conti… |
 | `collectHint` | string (1–300 chars) |  | kind=scrape only: W… |
+| `auto` | object {maxRecords, detailPages, workflowName, workflowDescription} |  | Auto mode for a lis… |
 
 ## Input constraints
 
 Complete value lists and id patterns for the fields above (the contract file is authoritative).
 
-- `pageContextId`: matches `^[A-Za-z0-9_.:-]{8,128}$`
+- `pageContextId`: matches `^[A-Za-z0-9_.:-]{2,128}$`
 
 ## Result fields (data.data)
 
-The started wizard and its first state.
+The started wizard and its first state (with auto, the state where auto ended).
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
@@ -61,6 +64,7 @@ The started wizard and its first state.
 | `warnings` | array of object {code, message} (≤ 8) |  | What the saved work… |
 | `personTookOver` | boolean |  | True when the perso… |
 | `wizardToken` | string (0–128 chars) |  | Ownership token, re… |
+| `auto` | object {outcome, stoppedAt, reason, answered, preview} |  | Present when the ca… |
 
 ## Result constraints
 
@@ -82,6 +86,10 @@ Complete value lists and id patterns for the fields above (the contract file is 
 - `lastEndpoint.reason`: one of `content-unavailable`, `main-frame-timed-out`, `main-frame-failed`, `processing-budget`, `all-frames-failed`, `content-error`, `no-session`, `low-confidence`, `unknown-kind`, `unmappable`, `document-replaced`, `no-model`, `snapshot-unavailable`, `model-failed`, `transport-error`, `invalid-review`, `fields-changed`, `timed-out`, `detector-error`, `samples-apart`, `exclusion-kept`, `records-dropped`, `no-tighter-record`, `no-looser-record`, `no-table`, `samples-lost`
 - `lastEndpoint.scrapeErrorCode`: one of `NO_ACTIVE_SESSION`, `TAB_UNAVAILABLE`, `TAB_NOT_SCRAPABLE`, `RECORDING_CONFLICT`, `FIELD_NAME_IN_USE`, `FIELD_NOT_FOUND`, `NOT_URL_LINK_FIELD`, `NO_SAMPLE_URL`, `NEXT_DETAIL_SAMPLE_UNAVAILABLE`, `SUBPAGE_CONTEXT_FAILED`, `DETAIL_DOCUMENT_UNSUPPORTED`, `PICKER_NOT_ACTIVE`, `BLOCK_NOT_FOUND`, `INVALID_INPUT`, `OPERATION_FAILED`, `SUBPAGE_NAVIGATION_TIMEOUT`, `PAGINATION_NOT_SET`, `NEXT_PAGE_BUTTON_NOT_SELECTED`, `PAGE_QUERY_PARAM_NOT_SET`, `RECORD_LIMIT_NOT_SET`, `FIELDS_REQUIRED`, `SESSION_STOPPED_DURING_START`, `CONTENT_UNAVAILABLE`, `STRUCTURE_DETECTION_TIMED_OUT`, `STRUCTURE_DETECTION_FAILED`, `STRUCTURE_DETECTION_BUDGET_EXCEEDED`, `STRUCTURE_DETECTION_ALL_FRAMES_FAILED`, `NO_REPEATING_BLOCK`, `SAMPLE_ELEMENT_INVISIBLE`, `WORKFLOW_COMPILE_FAILED`, `FINISH_IN_PROGRESS`
 - `lastEndpoint.fallbacks[]`: one of `detect-again`, `detect-with-ai`, `detect-form-fields`, `pick-sample-record`, `pick-page-fields`, `pick-detail-fields`, `page-content-only`, `next-detail-sample`, `choose-pagination-type`, `pick-again`, `back`, `wait-for-person`, `reopen-page`, `retry-save`, `agent-read`, `pick-next-control`, `add-sample-record`, `exclude-record`, `pick-tighter-record`, `pick-looser-record`, `pick-table`, `review-fields-with-ai`
+- `auto.stoppedAt`: same values as `pendingChoice.choiceId`
+- `auto.reason`: one of `wall`, `awaiting-page`, `taken-over`, `step-failed`, `detection-endpoint`, `no-data`, `no-recommendation`, `ambiguous-source`, `no-fields`, `fields-truncated`, `detail-pages-requested`, `name-required`, `not-auto-choice`, `changed`, `no-progress`, `time-budget`
+- `auto.answered[].choiceId`: same values as `pendingChoice.choiceId`
+- `auto.preview.fields[].labelSource`: same values as `pendingChoice.options[].labelSource`
 
 ## Guidance
 

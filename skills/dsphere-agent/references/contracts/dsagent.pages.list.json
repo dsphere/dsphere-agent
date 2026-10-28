@@ -1,5 +1,6 @@
 {
   "method": "dsagent.pages.list",
+  "pageEvidence": true,
   "version": 1,
   "title": "List browser pages",
   "description": "List bounded, automatable browser pages using opaque page context IDs.",

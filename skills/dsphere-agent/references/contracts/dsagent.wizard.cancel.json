@@ -1,6 +1,7 @@
 {
   "method": "dsagent.wizard.cancel",
   "version": 1,
+  "pageEvidence": true,
   "title": "Cancel a guided wizard",
   "description": "End the wizard without saving, as the SidePanel's Cancel does: the scrape session closes and highlights clear; a recording stops and is discarded. Call when the person wants to stop. Requires an idempotency key.",
   "inputSchema": {
@@ -372,6 +373,14 @@
                       "type": "integer",
                       "minimum": 0,
                       "description": "data-block / data-table: records the structure shows on the page (items or rows)."
+                    },
+                    "chrome": {
+                      "type": "string",
+                      "enum": [
+                        "navigation",
+                        "related"
+                      ],
+                      "description": "data-block / data-table: the detection reads it as page chrome (navigation: a menu, a header or footer link list) or as related items beside an opened record (related), not the page's own data. Never recommended; collect it only when the task asks for exactly that."
                     },
                     "labelSource": {
                       "type": "string",

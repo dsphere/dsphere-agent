@@ -24,7 +24,7 @@ The page to bring forward.
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
-| `pageContextId` | string (8–128 chars) | yes | Opaque page context from dsagent.pages.list, dsagent.page.open, or a receipt's destinationPageContextId. |
+| `pageContextId` | string (2–128 chars) | yes | Opaque page context from dsagent.pages.list, dsagent.page.open, or a receipt's destinationPageContextId. |
 
 ## Result fields (data.data)
 

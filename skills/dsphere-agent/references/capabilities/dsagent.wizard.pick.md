@@ -42,7 +42,7 @@ Complete value lists and id patterns for the fields above (the contract file is 
 - `wizardId`: matches `^wiz_[a-f0-9]{32}$`
 - `wizardToken`: matches `^[A-Za-z0-9]{16,128}$`
 - `expectedRevision`: matches `^[a-f0-9]{16}$`
-- `pageContextId`: matches `^[A-Za-z0-9_.:-]{8,128}$`
+- `pageContextId`: matches `^[A-Za-z0-9_.:-]{2,128}$`
 - `targetId`: matches `^[A-Za-z0-9_.:-]{1,128}$`
 - `targetRevision`: matches `^[A-Za-z0-9_.:-]{1,128}$`
 

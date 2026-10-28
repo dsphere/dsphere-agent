@@ -26,6 +26,8 @@ Workflow launch request. Use an idempotency key and inspect workflow inputs befo
 |---|---|---|---|
 | `workflowId` | string (0–128 chars) | yes | Opaque workflow identifier returned by dsagent.workflows.list. |
 | `taskDescription` | string (1–2000 chars) |  | The person’s request in detail (what to do, on which site, with which data), as you would tell them; DSphere shows it a… |
+| `taskMode` | enum: auto, continue |  | continue when you follow your own skill, workflow or plan of several steps (open, act, run, collect, …): the task then… |
+| `taskSteps` | array of string (1–160 chars) (≤ 30) |  | With taskMode continue: your steps in order, as your skill lists them; DSphere shows them as the task checklist and you… |
 | `variables` | object |  | Optional bounded workflow variable object accepted by the workflow runtime. |
 | `fieldValues` | array of object {fieldId, value} (≤ 100) |  | Optional run-time field substitutions obtained from dsagent.workflow.inputs.get. |
 | `accountMode` | enum: default, specified |  | Use default account selection or require the opaque accountId supplied by the caller. |
@@ -34,6 +36,7 @@ Workflow launch request. Use an idempotency key and inspect workflow inputs befo
 | `sessionName` | string (0–40 chars, pattern under Constraints) |  | The session's name (lowercase letters, digits, dashes): optional with new, required with previous, not allowed with def… |
 | `agentRepairHandoff` | boolean |  | Whether a block that fails after the run's own retries and in-run recovery pauses the run for you to repair (lifecycle… |
 | `windowPlacement` | enum: shared-window, new-window |  | Where a named session's tab group goes when it has no open page yet: shared-window (the person's window; the default) o… |
+| `pageContextId` | string (0–128 chars) |  | Optional page of your task (from dsagent.page.open or a run) the run starts beside: its tabs open in that page's window… |
 
 ## Input constraints
 

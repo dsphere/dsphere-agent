@@ -23,7 +23,7 @@ The page to scan and how much of the list to return.
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
-| `pageContextId` | string (8–128 chars) | yes | Opaque page context from dsagent.pages.list or dsagent.page.open. |
+| `pageContextId` | string (2–128 chars) | yes | Opaque page context from dsagent.pages.list or dsagent.page.open. |
 | `group` | enum: all, images, files |  | images: pictures only; files: linked files only; all (default): both. |
 | `kind` | enum: pdf, excel, csv, zip, video, image |  | Only this file type. |
 | `offset` | integer (0…∞) |  | Entries to skip, for the next page of a long list. |
@@ -35,7 +35,7 @@ The files and images found.
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
-| `pageContextId` | string (8–128 chars) |  | Opaque page context from dsagent.pages.list or dsagent.page.open. |
+| `pageContextId` | string (2–128 chars) |  | Opaque page context from dsagent.pages.list or dsagent.page.open. |
 | `counts` | object {images, files} |  | How many of each group the whole page has, before group, kind and paging. |
 | `total` | integer (0…∞) |  | Entries matching group and kind, before paging. |
 | `files` | array of object {fileId, fileName, kind, source, url, inFrame} (≤ 200) |  | The matching entries in page order, from offset. |

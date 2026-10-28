@@ -45,7 +45,6 @@ Complete value lists and id patterns for the fields above (the contract file is 
 - `value.dailyTime`: matches `^([01]\d|2[0-3]):[0-5]\d$`
 - `value.dateTime`: matches `^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])T([01]\d|2[0-3]):[0-5]\d$`
 - `value.cronExpression`: matches `\S`
-- `value.scheduleType`: one of `daily`, `interval`, `date`, `cron`
 - `value.dailyTime`: matches `^([01]\d|2[0-3]):[0-5]\d$`
 - `value.dateTime`: matches `^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])T([01]\d|2[0-3]):[0-5]\d$`
 - `value.cronExpression`: matches `\S`
@@ -58,7 +57,6 @@ Complete value lists and id patterns for the fields above (the contract file is 
 - `value.name`: matches `\S`
 - `value.pollIntervalMs`: one of `60000`, `300000`, `900000`, `1800000`, `3600000`, `21600000`, `86400000`
 - `value.name`: matches `\S`
-- `value.pollIntervalMs`: one of `60000`, `300000`, `900000`, `1800000`, `3600000`, `21600000`, `86400000`
 
 ## Result fields (data.data)
 
@@ -76,7 +74,7 @@ The applied change and the section's value afterwards.
 
 Complete value lists and id patterns for the fields above (the contract file is authoritative).
 
-- `section`: one of `export-directory`, `dom-training-export`, `trace-logs`, `intent-interpreter`, `ad-blocker-default`, `fallback-model`, `execution-memory`, `site-memory`, `site-notes`, `resource-pressure`, `professional-mode`, `identity-providers`, `run-window-focus`, `agent-challenge-walls`, `browser-monitor`, `file-release-consent`, `notification-channels`, `schedules`, `llm-models`, `chat-model`, `mail`, `dashboard-url`, `workflow-favorite`, `workflow-run-environment`, `workflow-name`, `workflow-sheet-binding`, `workflow-record-limits`, `workflow-monitors`
+- `section`: same values as input `section`
 
 ## Guidance
 

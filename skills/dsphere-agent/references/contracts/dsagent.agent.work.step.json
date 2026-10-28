@@ -1,0 +1,116 @@
+{
+  "method": "dsagent.agent.work.step",
+  "version": 1,
+  "title": "Report a step of my continue task",
+  "description": "For a task that follows your own skill or plan of several steps. Report succeeded, failed or skipped when you decide a step is done: that also starts your next listed step still pending, and the first listed step starts with the task, so one report per step is enough.",
+  "guidance": "Report started only for a step out of order or one you did not list; DSphere shows your steps as the task checklist in the SidePanel and groups the page actions of each step under it in the live panel. Reporting a step makes the task a continue task: a finished run, a saved or canceled wizard or your last closed page no longer ends it, and it waits for your next step until you call dsagent.agent.work.finish (the person can still stop it; 30 idle minutes end it as interrupted). Name the task by one of its pages; without pageContextId the report goes to your latest task.",
+  "inputSchema": {
+    "description": "The step and the state you decided for it.",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "step",
+      "status"
+    ],
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "A page belonging to the task; omit to report on your latest task."
+      },
+      "step": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 160,
+        "description": "The step in your skill's own words, a few words long; the same title every time you report this step."
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "started",
+          "succeeded",
+          "failed",
+          "skipped"
+        ],
+        "description": "started when you begin the step; succeeded, failed or skipped once you decided its outcome."
+      },
+      "taskSteps": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 30,
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160,
+          "description": "One step title."
+        },
+        "description": "The full list of your steps, in order, when you did not list them when the task started or your plan changed; steps already reported keep their state."
+      }
+    }
+  },
+  "outputSchema": {
+    "description": "The task, still running, and its steps as recorded.",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "taskStatus",
+      "steps"
+    ],
+    "properties": {
+      "taskStatus": {
+        "type": "string",
+        "enum": [
+          "running"
+        ],
+        "description": "The task keeps running until you finish it with dsagent.agent.work.finish."
+      },
+      "steps": {
+        "type": "array",
+        "description": "The task's steps in order.",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "title",
+            "state"
+          ],
+          "description": "One step.",
+          "properties": {
+            "title": {
+              "type": "string",
+              "description": "The step title."
+            },
+            "state": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "running",
+                "succeeded",
+                "failed",
+                "skipped"
+              ],
+              "description": "The state last reported."
+            },
+            "current": {
+              "type": "boolean",
+              "description": "True for the step started last."
+            }
+          }
+        }
+      }
+    }
+  },
+  "risk": "reversible-write",
+  "targetKinds": [
+    "page"
+  ],
+  "requiredPermissions": [
+    "page.read"
+  ],
+  "timeoutMs": 10000,
+  "maxInlineResultBytes": 8192,
+  "concurrency": "exclusive-target",
+  "retry": "never",
+  "exposure": "exposed"
+}

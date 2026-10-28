@@ -15,7 +15,27 @@
         "type": "string",
         "minLength": 1,
         "maxLength": 2000,
-        "description": "The person’s request in detail (what to do, on which site, with which data), as you would tell them; DSphere shows it as the task in the SidePanel Chat. Required when the run starts work on a task that has no description yet (refused with INVALID_REQUEST, businessCode task-description-required, otherwise); later calls of the same task need not repeat it. Presentation context only, never delegated planning. Do not include credentials."
+        "description": "The person’s request in detail (what to do, on which site, with which data), as you would tell them; DSphere shows it as the task in the SidePanel Chat. Required when the run starts work on a task that has no description yet (refused with INVALID_REQUEST, businessCode TASK-DESCRIPTION-REQUIRED, otherwise); later calls of the same task need not repeat it. Presentation context only, never delegated planning. Do not include credentials. When you follow a skill or plan of several steps, describe the whole request here once (not its current step) and pass taskMode continue; a later call with a different taskDescription starts a separate task."
+      },
+      "taskMode": {
+        "type": "string",
+        "enum": [
+          "auto",
+          "continue"
+        ],
+        "description": "continue when you follow your own skill, workflow or plan of several steps (open, act, run, collect, …): the task then stays running across all of them, and only your dsagent.agent.work.finish (or the person's Stop, or 30 idle minutes) ends it; a finished run, a saved or canceled wizard or your last closed page no longer ends it, and your next step needs no new taskDescription. Pass it on the call that starts the task, with taskDescription naming the whole request, not its first step; report each step with dsagent.agent.work.step. auto (the default): DSphere ends the task when its work ends, for a request of one step."
+      },
+      "taskSteps": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 30,
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160,
+          "description": "One step in your skill's own words, a few words long."
+        },
+        "description": "With taskMode continue: your steps in order, as your skill lists them; DSphere shows them as the task checklist and you report each with dsagent.agent.work.step. Presentation only: DSphere never runs a step itself."
       },
       "variables": {
         "type": "object",
@@ -87,6 +107,11 @@
           "new-window"
         ],
         "description": "Where a named session's tab group goes when it has no open page yet: shared-window (the person's window; the default) or new-window (a browser window of its own). DSphere keeps a session in one window: new-window for a session whose pages are in a window shared with other sessions is refused (businessCode BROWSER_SESSION_WINDOW_SHARED). Only with sessionGroup new or previous."
+      },
+      "pageContextId": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "Optional page of your task (from dsagent.page.open or a run) the run starts beside: its tabs open in that page's window, in the person's own session. Omitted: beside the active tab of the focused window, which follows whatever tab the person is using. Only with sessionGroup default."
       }
     },
     "required": [

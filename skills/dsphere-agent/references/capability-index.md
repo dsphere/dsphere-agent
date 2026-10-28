@@ -4,7 +4,7 @@ Build provenance is recorded in assets/capability-build.json; it does not establ
 
 Read only the reference for the method you need: `references/capabilities/<method>.md` (invocation, inputs with every enum value and id pattern, result fields; at most 12 KB), the lossless contract `references/contracts/<method>.json`, and the owner guidance for a family the first time a task needs it, `references/guidance/<family>.md`. These are build-time usage references; the live Extension remains authoritative.
 
-Known methods are invoked directly. Look a contract up with `dsagent_list_capabilities` (`method` plus `detail=invoke`) only on INVALID_REQUEST or CAPABILITY_UNAVAILABLE; `detail=index` lists every live method on one page.
+Known methods are invoked directly. Look a contract up with `dsagent_list_capabilities` (`method` plus `detail=invoke`) only on CAPABILITY_UNAVAILABLE, or on an INVALID_REQUEST whose hint names no field (it usually names the field, what it accepts and corrected args); `detail=index` lists every live method on one page.
 
 | Method | Purpose | Risk | Key |
 |---|---|---|---|
@@ -23,8 +23,9 @@ Known methods are invoked directly. Look a contract up with `dsagent_list_capabi
 | `dsagent.accounts.pages.list` | Read current tabs belonging to this visible account: pageContextId, tabId, wind… | read-sensitive |  |
 | `dsagent.accounts.set-enabled` | Set the desired enabled state using at most one existing toggle request. | external-effect | yes |
 | `dsagent.accounts.update` | Update permitted account fields using the current Work complete save format. | reversible-write | yes |
-| `dsagent.agent.work.finish` | Call before your final answer when an ordinary browser task has ended. | reversible-write | yes |
+| `dsagent.agent.work.finish` | Ends your task with its verified outcome, and with keep closes its pages in the… | reversible-write | yes |
 | `dsagent.agent.work.list` | What this browser still holds for you between calls (decision F4, failure-endpo… | read-sensitive |  |
+| `dsagent.agent.work.step` | For a task that follows your own skill or plan of several steps. | reversible-write | yes |
 | `dsagent.app.accounts.list` | List bounded application-account labels using opaque account IDs. | read-sensitive |  |
 | `dsagent.artifact.read` | Read a listed artifact. | read-sensitive |  |
 | `dsagent.artifacts.list` | List logical execution result and generated binary artifacts; an agent-read cap… | read-sensitive |  |
@@ -62,9 +63,10 @@ Known methods are invoked directly. Look a contract up with `dsagent_list_capabi
 | `dsagent.monitor.snapshot` | Every page and task of the browser, whoever started it: your own and other agen… | read-sensitive |  |
 | `dsagent.page.account.detect` | Read which account the web application on this page shows as signed in, from wh… | read-sensitive |  |
 | `dsagent.page.action` | Execute one planned atomic action (see the action enum: click, input, hover, sc… | external-effect | yes |
-| `dsagent.page.actions` | Execute up to 8 planned atomic actions in order on one page, each validated aga… | external-effect | yes |
+| `dsagent.page.actions` | Up to 12 planned steps on one page, in order: actions on a targetId or on the c… | external-effect | yes |
 | `dsagent.page.ask` | Ask a task clarification or confirmation in DSphere using the same runtime shee… | reversible-write | yes |
 | `dsagent.page.ask.wait` | Read or wait up to 30 seconds for the person to answer the question in DSphere. | read-sensitive |  |
+| `dsagent.page.ask.withdraw` | Withdraw your own pending dsagent.page.ask question on this page once it is out… | reversible-write | yes |
 | `dsagent.page.close` | Close a browser tab opened for you, once you are done with it (for example when… | reversible-write | yes |
 | `dsagent.page.emulation.clear` | Stop re-applying the script device preset after navigation. | reversible-write | yes |
 | `dsagent.page.emulation.set` | Install an android, iphone, ipad or desktop script device preset on an agent-ow… | reversible-write | yes |

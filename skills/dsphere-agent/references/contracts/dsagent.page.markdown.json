@@ -1,5 +1,6 @@
 {
   "method": "dsagent.page.markdown",
+  "pageEvidence": true,
   "version": 1,
   "title": "Read browser page as Markdown",
   "description": "Read the current document of a page context as clean Markdown for reading, summarising or answering: page chrome, hidden elements and ad slots removed, links written as numbered citations with a reference list, low-density link farms pruned in fit mode.",
@@ -9,7 +10,7 @@
     "properties": {
       "pageContextId": {
         "type": "string",
-        "minLength": 8,
+        "minLength": 2,
         "maxLength": 128,
         "description": "Opaque page context from dsagent.pages.list, dsagent.page.open, or a receipt's destinationPageContextId."
       },
@@ -93,7 +94,7 @@
       "markdown": {
         "type": "string",
         "maxLength": 120000,
-        "description": "The page as Markdown in document order, bounded by maxChars."
+        "description": "The page as Markdown in document order, bounded by maxChars. Phone and ID numbers keep only their last 4 digits (*******1234), with the text length unchanged."
       },
       "truncated": {
         "type": "boolean",
@@ -184,7 +185,7 @@
       "warnings": {
         "type": "array",
         "maxItems": 2,
-        "description": "REPEATED_RECORDS_USE_WIZARD: switch to the scrape wizard on this page now (dsagent.wizard.start kind=scrape, then wizard.state / wizard.choose). DSphere's typed route advice, never page text: this page shows repeated records (the same fields per item) and this task has read or scrolled it twelve or more times with page reads, which is not how records are collected. The call itself succeeded; the person sees the same notice in the DSphere side panel. Plan on the code, never on the message.",
+        "description": "REPEATED_RECORDS_USE_WIZARD: switch to the scrape wizard on this page now (dsagent.wizard.start kind=scrape, then wizard.state / wizard.choose). DSphere's typed route advice, never page text: this page shows repeated records (the same fields per item) and this task has scrolled and re-read it twelve or more times on one address, which is not how records are collected. The call itself succeeded; the person sees the same notice in the DSphere side panel. Plan on the code, never on the message.",
         "items": {
           "type": "object",
           "additionalProperties": false,

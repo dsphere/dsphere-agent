@@ -44,13 +44,13 @@ The requested settings with their current values.
 
 Complete value lists and id patterns for the fields above (the contract file is authoritative).
 
-- `sections[].section`: one of `export-directory`, `dom-training-export`, `trace-logs`, `intent-interpreter`, `ad-blocker-default`, `fallback-model`, `execution-memory`, `site-memory`, `site-notes`, `resource-pressure`, `professional-mode`, `identity-providers`, `run-window-focus`, `agent-challenge-walls`, `browser-monitor`, `file-release-consent`, `notification-channels`, `schedules`, `llm-models`, `chat-model`, `mail`, `dashboard-url`, `workflow-favorite`, `workflow-run-environment`, `workflow-name`, `workflow-sheet-binding`, `workflow-record-limits`, `workflow-monitors`
+- `sections[].section`: same values as input `sections[]`
 - `sections[].value.hosts[]`: matches `^[A-Za-z0-9.-]+$`
 - `sections[].value.channels[].name`: matches `\S`
 - `sections[].value.schedules[].dailyTime`: matches `^([01]\d|2[0-3]):[0-5]\d$`
 - `sections[].value.schedules[].cronExpression`: matches `\S`
 - `sections[].value.models[].provider`: one of `openai`, `anthropic`, `deepseek`, `gemini`, `kimi`, `doubao`, `minimax`, `moonshot`, `qwen`, `zhipu`, `custom`
-- `sections[].value.options[].provider`: one of `openai`, `anthropic`, `deepseek`, `gemini`, `kimi`, `doubao`, `minimax`, `moonshot`, `qwen`, `zhipu`, `custom`
+- `sections[].value.options[].provider`: same values as `sections[].value.models[].provider`
 
 ## Guidance
 

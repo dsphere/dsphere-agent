@@ -3,7 +3,7 @@
   "version": 1,
   "title": "Ask the person in the live execution panel",
   "description": "Ask a task clarification or confirmation in DSphere using the same runtime sheet as semantic execution. The external agent still plans. Do not ask these browser-task questions in the caller chat. Returns pending immediately; use page.ask.wait until answered or cancelled.",
-  "guidance": "Do not enter secrets, grant yourself consent, or continue page actions while pending or declined. Clarifications have no automatic answer; unanswered confirmations decline after the runtime countdown. No action is executed by this method.",
+  "guidance": "Take back an outdated question with dsagent.page.ask.withdraw. Do not enter secrets, grant yourself consent, or continue page actions while pending or declined. Clarifications have no automatic answer; unanswered confirmations decline after the runtime countdown. No action is executed by this method.",
   "inputSchema": {
     "type": "object",
     "description": "A task-scoped runtime question or wait request.",
@@ -16,7 +16,7 @@
     "properties": {
       "pageContextId": {
         "type": "string",
-        "minLength": 8,
+        "minLength": 2,
         "maxLength": 128,
         "description": "The task page context from dsagent.page.open, dsagent.pages.list or a receipt's destinationPageContextId."
       },
@@ -72,9 +72,10 @@
         "enum": [
           "pending",
           "answered",
-          "cancelled"
+          "cancelled",
+          "withdrawn"
         ],
-        "description": "Pending waits for the person in DSphere. Only an answered accepted response permits the requested continuation."
+        "description": "Pending waits for the person in DSphere. Only an answered accepted response permits the requested continuation. Withdrawn: you took the question back with dsagent.page.ask.withdraw before the person answered; like cancelled, it never authorizes an action."
       },
       "publishedAt": {
         "type": "number",

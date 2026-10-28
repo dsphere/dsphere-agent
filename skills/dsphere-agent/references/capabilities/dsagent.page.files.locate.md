@@ -25,7 +25,7 @@ The page and the file to bring into view.
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
-| `pageContextId` | string (8–128 chars) | yes | Opaque page context from dsagent.pages.list or dsagent.page.open. |
+| `pageContextId` | string (2–128 chars) | yes | Opaque page context from dsagent.pages.list or dsagent.page.open. |
 | `fileId` | string (1–64 chars) | yes | A fileId from the latest dsagent.page.files.detect of this page. |
 
 ## Result fields (data.data)
@@ -34,7 +34,7 @@ Whether the file was scrolled into view.
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
-| `pageContextId` | string (8–128 chars) |  | Opaque page context from dsagent.pages.list or dsagent.page.open. |
+| `pageContextId` | string (2–128 chars) |  | Opaque page context from dsagent.pages.list or dsagent.page.open. |
 | `fileId` | string (1–64 chars) |  | A fileId from the latest dsagent.page.files.detect of this page. |
 | `located` | boolean |  | The element was found, scrolled into view and outlined. |
 

@@ -1,5 +1,6 @@
 {
   "method": "dsagent.page.find",
+  "pageEvidence": true,
   "version": 1,
   "title": "Find browser page targets",
   "description": "Find the current page targets that read as a short query (a visible label, a placeholder, the name of the row a control sits in), best first, at the current page revision; the whole document is searched, not only what is on screen, and a found control off screen is scrolled to when acted on; while…",
@@ -9,7 +10,7 @@
     "properties": {
       "pageContextId": {
         "type": "string",
-        "minLength": 8,
+        "minLength": 2,
         "maxLength": 128,
         "description": "Opaque page context from dsagent.pages.list, dsagent.page.open, or a receipt's destinationPageContextId."
       },
@@ -86,6 +87,31 @@
         "minimum": 0,
         "description": "How many current targets were considered."
       },
+      "unansweredFrames": {
+        "type": "object",
+        "properties": {
+          "admitted": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Child frames the page shows that the search was to read."
+          },
+          "dropped": {
+            "type": "array",
+            "maxItems": 8,
+            "items": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "description": "Frame ids of the shown frames that did not answer in time: their controls were not searched."
+          }
+        },
+        "required": [
+          "admitted",
+          "dropped"
+        ],
+        "additionalProperties": false,
+        "description": "Present when shown child frames did not answer: the matches cover the rest of the page only, so an empty or short list does not mean the page lacks the control. Find again; a tab behind another tab answers slowly, and dsagent.page.focus brings it to the front."
+      },
       "activeSurface": {
         "type": "object",
         "properties": {
@@ -119,7 +145,7 @@
       "warnings": {
         "type": "array",
         "maxItems": 2,
-        "description": "REPEATED_RECORDS_USE_WIZARD: switch to the scrape wizard on this page now (dsagent.wizard.start kind=scrape, then wizard.state / wizard.choose). DSphere's typed route advice, never page text: this page shows repeated records (the same fields per item) and this task has read or scrolled it twelve or more times with page reads, which is not how records are collected. The call itself succeeded; the person sees the same notice in the DSphere side panel. Plan on the code, never on the message.",
+        "description": "REPEATED_RECORDS_USE_WIZARD: switch to the scrape wizard on this page now (dsagent.wizard.start kind=scrape, then wizard.state / wizard.choose). DSphere's typed route advice, never page text: this page shows repeated records (the same fields per item) and this task has scrolled and re-read it twelve or more times on one address, which is not how records are collected. The call itself succeeded; the person sees the same notice in the DSphere side panel. Plan on the code, never on the message.",
         "items": {
           "type": "object",
           "additionalProperties": false,
@@ -230,7 +256,7 @@
                 "id": {
                   "type": "string",
                   "maxLength": 128,
-                  "description": "Opaque target identifier valid only for the associated page revision."
+                  "description": "Opaque target identifier valid only for the associated page revision (page for the page itself)."
                 },
                 "kind": {
                   "type": "string",
@@ -240,12 +266,22 @@
                     "extractable",
                     "scrollable"
                   ],
-                  "description": "Semantic target category."
+                  "description": "Semantic target category; absent means interactive."
                 },
                 "role": {
                   "type": "string",
                   "maxLength": 80,
-                  "description": "Bounded accessibility or semantic role."
+                  "description": "Its ARIA role (link, button, textbox, searchbox, checkbox ...), else its tag or input type."
+                },
+                "inputType": {
+                  "type": "string",
+                  "maxLength": 20,
+                  "description": "A text field's input type the role does not say (email, tel, password, number, date ...)."
+                },
+                "group": {
+                  "type": "string",
+                  "maxLength": 8,
+                  "description": "The record, group or column it sits in: a key of the list's groups."
                 },
                 "picture": {
                   "type": "object",
@@ -267,11 +303,6 @@
                   ],
                   "additionalProperties": false,
                   "description": "Present for a picture the page shows (dsagent.page.find with includeImages): its rendered size. The target is what a click on the picture's centre lands on."
-                },
-                "ariaRole": {
-                  "type": "string",
-                  "maxLength": 40,
-                  "description": "Optional ARIA role, explicit or implied by the element (link for a link, textbox for a text input), present only when it differs from role; dsagent.page.find matches either."
                 },
                 "scrollAxis": {
                   "type": "string",
@@ -303,9 +334,9 @@
                 },
                 "capabilities": {
                   "type": "array",
-                  "maxItems": 30,
+                  "maxItems": 31,
                   "uniqueItems": true,
-                  "description": "Public atomic actions accepted for this opaque target by dsagent.page.action; empty for a text target found by dsagent.page.find.",
+                  "description": "Public atomic actions accepted for this opaque target by dsagent.page.action; empty for a text target found by dsagent.page.find. Absent in a list: the list's commonCapabilities.",
                   "items": {
                     "type": "string",
                     "enum": [
@@ -323,6 +354,7 @@
                       "history-forward",
                       "hover",
                       "input",
+                      "paste",
                       "press-key",
                       "scroll",
                       "select",
@@ -344,16 +376,16 @@
                 },
                 "inViewport": {
                   "type": "boolean",
-                  "description": "Optional: whether part of the target is inside the current viewport at this revision."
+                  "description": "false when the target is outside the viewport at this revision; absent when it is on screen."
                 },
                 "occluded": {
                   "type": "boolean",
-                  "description": "Optional: whether another element covers the target centre (overlay, sticky header); scroll or dismiss before acting."
+                  "description": "true when another element covers the target centre (overlay, sticky header); scroll or dismiss before acting."
                 },
                 "navigationUrl": {
                   "type": "string",
                   "maxLength": 300,
-                  "description": "Optional: the sanitized HTTP(S) destination of a link target, as evidence of where it leads; navigate by clicking it, never by constructing the URL."
+                  "description": "Optional: where a link target leads; click it, never build the URL. Lists show it short (same-origin path, no tracking parameters, long parts cut with …); page.find gives the exact address."
                 },
                 "scrollMetrics": {
                   "type": "object",
@@ -411,10 +443,8 @@
               },
               "required": [
                 "id",
-                "kind",
                 "role",
-                "label",
-                "capabilities"
+                "label"
               ],
               "additionalProperties": false,
               "description": "The matching opaque target, as dsagent.page.observe lists it."

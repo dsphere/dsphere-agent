@@ -2,6 +2,7 @@
   "method": "dsagent.page.account.detect",
   "version": 1,
   "title": "Detect the signed-in account",
+  "pageEvidence": true,
   "description": "Read which account the web application on this page shows as signed in, from where applications show it: the top-left and top-right corners of the header and the bottom-left corner (a sidebar foot), using the avatar, the name beside it, account menus and accessible labels.",
   "guidance": "Use it after a sign-in, before acting for a task that names an application account, or to check which account a reused session holds. status signed-in with account names the likely account; signed-out means a sign-in control shows. signed-in without account means only an avatar shows: open the account menu to read the name, then call this again. accountMenu names the avatar control: dsagent.page.action with action hover on accountMenu.targetId and accountMenu.expectedRevision (click instead when hovering does not open it; never when the control is a link to another page), then dsagent.page.account.detect again, which reads the open menu (accountMenu.open true, signals account-menu), then close the menu again with a dismiss page action on one of its items (it clicks outside the menu, then presses its control, then Escape, until the menu closes, and says which closed it), and check with this call that accountMenu.open is false; close a page you opened only for this instead. Without accountMenu.targetId observe the page and find the avatar control first. The label is what the page shows, evidence of the account rather than proof, and is recorded for the page's browser session and site (dsagent.browser.sessions.list reports observedAccountLabel and a switch when the page later shows another account). Read-only: nothing on the page is clicked or changed.",
   "inputSchema": {
@@ -14,7 +15,7 @@
     "properties": {
       "pageContextId": {
         "type": "string",
-        "minLength": 8,
+        "minLength": 2,
         "maxLength": 128,
         "description": "Opaque page context from dsagent.pages.list or dsagent.page.open."
       }
@@ -34,7 +35,7 @@
     "properties": {
       "pageContextId": {
         "type": "string",
-        "minLength": 8,
+        "minLength": 2,
         "maxLength": 128,
         "description": "Opaque page context from dsagent.pages.list or dsagent.page.open."
       },

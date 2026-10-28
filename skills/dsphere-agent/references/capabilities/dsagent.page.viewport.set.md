@@ -24,7 +24,7 @@ The page and requested geometry.
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
-| `pageContextId` | string (8–128 chars) | yes | Opaque context of a page opened for this agent or in its named browser session. |
+| `pageContextId` | string (2–128 chars) | yes | Opaque context of a page opened for this agent or in its named browser session. |
 | `width` | integer (200…8192) |  | Requested width; required unless a preset supplies it. |
 | `height` | integer (200…8192) |  | Requested height; required unless a preset supplies it. |
 | `preset` | enum: mobile, tablet, laptop, desktop |  | Optional mobile, tablet, laptop or desktop dimensions; explicit width/height override the preset. |
@@ -35,7 +35,7 @@ Verified sizing receipt, including constrained results.
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
-| `pageContextId` | string (8–128 chars) |  | Opaque context of a page opened for this agent or in its named browser session. |
+| `pageContextId` | string (2–128 chars) |  | Opaque context of a page opened for this agent or in its named browser session. |
 | `target` | enum: viewport |  | Which geometry was requested. |
 | `requested` | object {width, height} |  | Requested dimensions. |
 | `before` | object {window, viewport, devicePixelRatio} |  | Measured browser and page geometry. |

@@ -117,13 +117,13 @@ Result preview: `pageContextId`, `until`, `outcome`, `waitedMs`; complete result
 
 ### dsagent.agent.work.finish
 
-Finish my ordinary browser task. Gateway: `dsagent_invoke`; risk: `reversible-write`; concurrency: `exclusive-target`.
+Finish my browser task. Gateway: `dsagent_invoke`; risk: `reversible-write`; concurrency: `exclusive-target`.
 
 ```json
 {"method":"dsagent.agent.work.finish","args":{"pageContextId":"<pageContextId>","status":"succeeded"},"idempotencyKey":"<fresh-key>"}
 ```
 
-Result preview: `status`; complete result in the linked contract.
+Result preview: `status`, `closedPages`, `keptPages`; complete result in the linked contract.
 
 [Options and constraints](capabilities/dsagent.agent.work.finish.md) · [Lossless contract](contracts/dsagent.agent.work.finish.json)
 
@@ -143,6 +143,6 @@ Result preview: `pageContextId`, `closed`, `alreadyClosed`; complete result in t
 
 Repeated records always use the [wizard](guidance/dsagent.wizard.md), including small lists. Do not build a read/scroll collection loop. [Page guidance](guidance/dsagent.page.md) covers forms, visual inspection, uploads and downloads. [Accounts](account-management.md), [saved workflows](wizard-mode.en.md), and the [full index](capability-index.md) retain the wider API.
 
-Known methods use shipped references directly; discover the exact live contract only after INVALID_REQUEST or CAPABILITY_UNAVAILABLE. Omit expectedGeneration. Discovery never authorizes resending an effect.
+Known methods use shipped references directly. An INVALID_REQUEST hint names the wrong field, what it accepts and corrected args: fix them and call once more; discover the exact live contract only when it names no field, or after CAPABILITY_UNAVAILABLE. Omit expectedGeneration. Discovery never authorizes resending an effect.
 
 Caller bookkeeping: [guide](atomic-caller-state.md) and [optional helpers](../scripts/atomic-client-state.mjs). They do not select targets, dispatch or retry.

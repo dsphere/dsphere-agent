@@ -1,5 +1,6 @@
 {
   "method": "dsagent.page.target.inspect",
+  "pageEvidence": true,
   "version": 1,
   "title": "Inspect browser page target",
   "description": "Inspect one opaque target at an exact page revision. Returns bounded local structure and geometry; never returns selectors, action coordinates, scripts, or unbounded DOM.",
@@ -9,7 +10,7 @@
     "properties": {
       "pageContextId": {
         "type": "string",
-        "minLength": 8,
+        "minLength": 2,
         "maxLength": 128,
         "description": "Opaque page context from dsagent.pages.list, dsagent.page.open, or a receipt's destinationPageContextId."
       },
@@ -283,6 +284,118 @@
         },
         "additionalProperties": false,
         "description": "Fixed computed color evidence for this target only. No arbitrary CSS, custom properties, URLs, pixels or private field values. Absent when unavailable."
+      },
+      "fieldLabelSearch": {
+        "type": "object",
+        "properties": {
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "labelled",
+              "unlabelled"
+            ],
+            "description": "labelled: a label element, a heading or a kept hint names the field; unlabelled: none."
+          },
+          "stop": {
+            "type": "string",
+            "enum": [
+              "own-label",
+              "heading",
+              "hint-kept",
+              "fieldset",
+              "list-entry",
+              "readout",
+              "other-field-heading",
+              "section-fields",
+              "section-size",
+              "depth",
+              "body",
+              "control-strip"
+            ],
+            "description": "Why the search ended: own-label (a <label>/aria-labelledby), heading (a short label before the field or its column), hint-kept (a long line above, no short label beside), fieldset (its legend), list-entry, readout (a value, not words), other-field-heading, section-fields (an ancestor holds more than three fields), section-size (an ancestor holds more than 250 elements), depth (eight levels with earlier siblings read, or 24 ancestors climbed), body, control-strip."
+          },
+          "depth": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 24,
+            "description": "The ancestor level where the search ended (0 is the field's parent)."
+          },
+          "labelChars": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 400,
+            "description": "Rendered characters of the attached label, when there is one."
+          },
+          "levels": {
+            "type": "array",
+            "maxItems": 24,
+            "description": "Each ancestor level climbed, nearest first.",
+            "items": {
+              "type": "object",
+              "properties": {
+                "depth": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 24,
+                  "description": "The ancestor level."
+                },
+                "siblings": {
+                  "type": "array",
+                  "maxItems": 3,
+                  "description": "The earlier siblings read at this level, nearest first.",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "type": "string",
+                        "enum": [
+                          "label",
+                          "long-line",
+                          "readout",
+                          "control-inside",
+                          "too-long",
+                          "empty",
+                          "hidden",
+                          "list-entry",
+                          "field",
+                          "field-block",
+                          "control-strip"
+                        ],
+                        "description": "What the sibling read as: label (short words), long-line, readout, control-inside (holds a button, link or other control, so it is no label), too-long, empty, hidden, list-entry, field, field-block, control-strip."
+                      },
+                      "chars": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 400,
+                        "description": "Rendered characters of the sibling."
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "chars"
+                    ],
+                    "additionalProperties": false,
+                    "description": "One earlier sibling, as the search read it."
+                  }
+                }
+              },
+              "required": [
+                "depth",
+                "siblings"
+              ],
+              "additionalProperties": false,
+              "description": "One ancestor level of the search."
+            }
+          }
+        },
+        "required": [
+          "outcome",
+          "stop",
+          "depth",
+          "levels"
+        ],
+        "additionalProperties": false,
+        "description": "For a value field: why its label search (the fieldLabel find and observe report) ended where it did. Typed facts, no text."
       },
       "guidance": {
         "type": "object",

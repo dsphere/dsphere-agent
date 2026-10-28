@@ -46,7 +46,7 @@ Build-time DSphere Agent user manual section response.
 
 Complete value lists and id patterns for the fields above (the contract file is authoritative).
 
-- `section`: one of `index`, `overview`, `console`, `welcome`, `agreement`, `workflows`, `recording`, `scraping`, `build`, `autonomous`, `running`, `schedules`, `monitor`, `plan`, `datasheet`, `files`, `templates`, `authenticator`, `llm-config`, `email`, `settings`, `chat`, `skill`, `mcp`
+- `section`: same values as input `section`
 - `sections[]`: one of `overview`, `console`, `welcome`, `agreement`, `workflows`, `recording`, `scraping`, `build`, `autonomous`, `running`, `schedules`, `monitor`, `plan`, `datasheet`, `files`, `templates`, `authenticator`, `llm-config`, `email`, `settings`, `chat`, `skill`, `mcp`
 
 ## Guidance

@@ -25,7 +25,7 @@ Opaque target binding and revision guard for one bounded structure inspection.
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
-| `pageContextId` | string (8–128 chars) | yes | Opaque page context from dsagent.pages.list, dsagent.page.open, or a receipt's destinationPageContextId. |
+| `pageContextId` | string (2–128 chars) | yes | Opaque page context from dsagent.pages.list, dsagent.page.open, or a receipt's destinationPageContextId. |
 | `targetId` | string (1–128 chars) | yes | Opaque target identifier returned by dsagent.page.observe. |
 | `expectedRevision` | string (1–128 chars) | yes | Observed revision associated with the target; local identity and context must remain valid. |
 
@@ -49,6 +49,7 @@ Revision-bound target-local structure and geometry evidence.
 | `localDom` | object {format, content, truncated} |  | Bounded local structure without selectors, values, script, style, or arbitrary attributes. |
 | `value` | string (0–2000 chars) |  | The field's current text when it is readable: a page-produced field (read-only, disabled, output) or one you typed into… |
 | `appearance` | object {textColor, backgroundColor} |  | Fixed computed color evidence for this target only. No arbitrary CSS, custom properties, URLs, pixels or private field… |
+| `fieldLabelSearch` | object {outcome, stop, depth, labelChars, levels} |  | For a value field: why its label search (the fieldLabel find and observe report) ended where it did. Typed facts, no te… |
 | `guidance` | object {evidenceGaps, recommendedObservation} |  | Optional owner-derived read-only evidence escalation guidance. |
 | `authentication` | object {status, type, confidence, waitingOn, attemptsLeft} |  | The sign-in monitor's verdict on the page: status no-wall when it checked and found none (absent when it could not chec… |
 
@@ -58,6 +59,8 @@ Complete value lists and id patterns for the fields above (the contract file is 
 
 - `appearance.textColor`: matches `^(?:(?:rgba?|(?:ok)?lab|(?:ok)?lch|color)\([a-zA-Z0-9.,%/+\s-]+\)|transparent|currentcolor)$`
 - `appearance.backgroundColor`: matches `^(?:(?:rgba?|(?:ok)?lab|(?:ok)?lch|color)\([a-zA-Z0-9.,%/+\s-]+\)|transparent|currentcolor)$`
+- `fieldLabelSearch.stop`: one of `own-label`, `heading`, `hint-kept`, `fieldset`, `list-entry`, `readout`, `other-field-heading`, `section-fields`, `section-size`, `depth`, `body`, `control-strip`
+- `fieldLabelSearch.levels[].siblings[].kind`: one of `label`, `long-line`, `readout`, `control-inside`, `too-long`, `empty`, `hidden`, `list-entry`, `field`, `field-block`, `control-strip`
 
 ## Guidance
 

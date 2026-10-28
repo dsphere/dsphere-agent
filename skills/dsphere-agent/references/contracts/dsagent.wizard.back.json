@@ -1,6 +1,7 @@
 {
   "method": "dsagent.wizard.back",
   "version": 1,
+  "pageEvidence": true,
   "title": "Go back one wizard choice",
   "description": "Undo the last answered choice so the agent or person can decide again, as the SidePanel's Back does: the earlier choice becomes pending again with the current selections kept. A stopped recording cannot be resumed. Requires an idempotency key.",
   "inputSchema": {
@@ -379,6 +380,14 @@
                       "type": "integer",
                       "minimum": 0,
                       "description": "data-block / data-table: records the structure shows on the page (items or rows)."
+                    },
+                    "chrome": {
+                      "type": "string",
+                      "enum": [
+                        "navigation",
+                        "related"
+                      ],
+                      "description": "data-block / data-table: the detection reads it as page chrome (navigation: a menu, a header or footer link list) or as related items beside an opened record (related), not the page's own data. Never recommended; collect it only when the task asks for exactly that."
                     },
                     "labelSource": {
                       "type": "string",

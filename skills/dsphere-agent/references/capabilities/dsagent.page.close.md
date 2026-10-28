@@ -24,7 +24,7 @@ The page to close.
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
-| `pageContextId` | string (8–128 chars) | yes | The pageContextId dsagent.page.open returned or a guided wizard reported as pagePick.pageContextId for a page it opened… |
+| `pageContextId` | string (2–128 chars) | yes | The pageContextId dsagent.page.open returned or a guided wizard reported as pagePick.pageContextId for a page it opened… |
 
 ## Result fields (data.data)
 

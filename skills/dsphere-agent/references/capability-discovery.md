@@ -1,8 +1,8 @@
 # Bounded capability discovery / 有界能力发现
 
-Known method: invoke it directly from `references/capabilities/<method>.md` (the same rule as SKILL.md); no discovery call comes before the first call. Query the live contract only after `INVALID_REQUEST` or `CAPABILITY_UNAVAILABLE`, and then only that exact method. The current runtime descriptor determines capability version, inputs, outputs and constraints. Cache a fetched descriptor by instanceId, generation and method; refresh after instance/generation changes or contract rejection. Do not compare Extension build versions to decide compatibility.
+Known method: invoke it directly from `references/capabilities/<method>.md` (the same rule as SKILL.md); no discovery call comes before the first call. An `INVALID_REQUEST` hint names the wrong field, what it accepts and corrected args: fix them and call once more. Query the live contract only when that hint names no field, or after `CAPABILITY_UNAVAILABLE`, and then only that exact method. The current runtime descriptor determines capability version, inputs, outputs and constraints. Cache a fetched descriptor by instanceId, generation and method; refresh after instance/generation changes or contract rejection. Do not compare Extension build versions to decide compatibility.
 
-已知方法直接按 `references/capabilities/<method>.md` 调用（与 SKILL.md 同一规则），第一次调用前不做发现；只有收到 `INVALID_REQUEST` 或 `CAPABILITY_UNAVAILABLE` 后才查询该 method 的实时契约，并按 instanceId、generation、method 缓存；实例或 generation 变化、契约被拒绝时刷新。构建来源清单仅供追溯，不能证明兼容性。不要反复查询全量目录或猜测参数。
+已知方法直接按 `references/capabilities/<method>.md` 调用（与 SKILL.md 同一规则），第一次调用前不做发现；`INVALID_REQUEST` 的 hint 会指出出错字段、允许的取值和一份改正后的 args，按它改正后再调用一次；只有 hint 没有指出字段，或收到 `CAPABILITY_UNAVAILABLE` 时，才查询该 method 的实时契约，并按 instanceId、generation、method 缓存；实例或 generation 变化、契约被拒绝时刷新。构建来源清单仅供追溯，不能证明兼容性。不要反复查询全量目录或猜测参数。
 
 ```json
 {"instanceId":"<selected live instance>","method":"dsagent.page.action","limit":1}

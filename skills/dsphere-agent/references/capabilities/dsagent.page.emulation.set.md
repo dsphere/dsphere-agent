@@ -25,7 +25,7 @@ The page and bounded device preset.
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
-| `pageContextId` | string (8–128 chars) | yes | Opaque context of an agent-owned page. |
+| `pageContextId` | string (2–128 chars) | yes | Opaque context of an agent-owned page. |
 | `preset` | enum: android, iphone, ipad, desktop | yes | Named script-visible device profile; no native device emulation is implied. |
 
 ## Result fields (data.data)
@@ -34,7 +34,7 @@ Current-document verification and explicit device-emulation limits.
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
-| `pageContextId` | string (8–128 chars) |  | Opaque context of an agent-owned page. |
+| `pageContextId` | string (2–128 chars) |  | Opaque context of an agent-owned page. |
 | `preset` | enum: android, iphone, ipad, desktop |  | The requested script device preset. |
 | `applied` | boolean |  | Whether the requested navigator values were verified in the current document. |
 | `scope` | enum: script-only |  | Bounded emulation scope. |

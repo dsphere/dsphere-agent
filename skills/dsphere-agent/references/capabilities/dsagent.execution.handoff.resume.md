@@ -36,7 +36,7 @@ Complete value lists and id patterns for the fields above (the contract file is 
 
 - `handoffId`: matches `^handoff_[a-f0-9]{32}$`
 - `runToken`: matches `^[A-Za-z0-9_-]{16,128}$`
-- `retarget.pageContextId`: matches `^[A-Za-z0-9_.:-]{8,128}$`
+- `retarget.pageContextId`: matches `^[A-Za-z0-9_.:-]{2,128}$`
 - `retarget.targetId`: matches `^[A-Za-z0-9_.:-]{1,128}$`
 - `retarget.targetRevision`: matches `^[A-Za-z0-9_.:-]{1,128}$`
 

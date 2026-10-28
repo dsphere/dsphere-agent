@@ -1,5 +1,6 @@
 {
   "method": "dsagent.page.observe",
+  "pageEvidence": true,
   "version": 1,
   "title": "Observe browser page",
   "description": "Read bounded live evidence for the browser steps you plan. Consume the targets and revision already returned by page.action before reading again. For a needed refresh, pass that revision as baseRevision; unchanged means retain the prior targets and semantic text.",
@@ -9,7 +10,7 @@
     "properties": {
       "pageContextId": {
         "type": "string",
-        "minLength": 8,
+        "minLength": 2,
         "maxLength": 128,
         "description": "Opaque page context from dsagent.pages.list, dsagent.page.open, or a receipt's destinationPageContextId."
       },
@@ -25,7 +26,7 @@
         "type": "string",
         "minLength": 1,
         "maxLength": 128,
-        "description": "Optional, only with observationMode dom: an opaque target from dsagent.page.observe or dsagent.page.find (a result card, a sort control, a filter row). dom then holds the sanitized markup of the largest container around that target that fits the bound, with class tokens and data-* attribute names as in the document read. Requires expectedRevision."
+        "description": "Optional region, with expectedRevision: an opaque target (a result card, a form section, a list). compact lists only the targets inside its box (region); dom holds the sanitized markup of the largest container around it that fits the bound."
       },
       "expectedRevision": {
         "type": "string",
@@ -106,7 +107,7 @@
       "semanticText": {
         "type": "string",
         "maxLength": 6000,
-        "description": "Bounded visible semantic summary for planning."
+        "description": "Bounded visible semantic summary for planning. Phone and ID numbers keep only their last 4 digits (*******1234): page evidence is masked, not misread."
       },
       "semanticTextKind": {
         "type": "string",
@@ -889,6 +890,96 @@
               true
             ],
             "description": "Present when the field's value is private (a person's entry, a credential): offsets only, no text."
+          },
+          "formatting": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "bold": {
+                "anyOf": [
+                  {
+                    "type": "boolean",
+                    "description": "true: all the selection is bold (a computed weight of 600 or more, or a b/strong element); false: none of it."
+                  },
+                  {
+                    "type": "string",
+                    "enum": [
+                      "mixed"
+                    ],
+                    "description": "Part of the selection is bold (a computed weight of 600 or more, or a b/strong element)."
+                  }
+                ],
+                "description": "Whether the text under the caret or selection is bold (a computed weight of 600 or more, or a b/strong element)."
+              },
+              "italic": {
+                "anyOf": [
+                  {
+                    "type": "boolean",
+                    "description": "true: all the selection is italic; false: none of it."
+                  },
+                  {
+                    "type": "string",
+                    "enum": [
+                      "mixed"
+                    ],
+                    "description": "Part of the selection is italic."
+                  }
+                ],
+                "description": "Whether the text under the caret or selection is italic."
+              },
+              "underline": {
+                "anyOf": [
+                  {
+                    "type": "boolean",
+                    "description": "true: all the selection is underlined; false: none of it."
+                  },
+                  {
+                    "type": "string",
+                    "enum": [
+                      "mixed"
+                    ],
+                    "description": "Part of the selection is underlined."
+                  }
+                ],
+                "description": "Whether the text under the caret or selection is underlined."
+              },
+              "block": {
+                "type": "string",
+                "enum": [
+                  "p",
+                  "h1",
+                  "h2",
+                  "h3",
+                  "h4",
+                  "h5",
+                  "h6",
+                  "li",
+                  "blockquote",
+                  "pre",
+                  "td",
+                  "th",
+                  "div",
+                  "section"
+                ],
+                "description": "The block the caret stands in: a paragraph, a heading level, a list item, a quote."
+              },
+              "color": {
+                "type": "string",
+                "maxLength": 40,
+                "description": "The text colour at the caret, as the page computes it (rgb)."
+              },
+              "fontSizePx": {
+                "type": "number",
+                "minimum": 0,
+                "description": "The font size at the caret in CSS pixels."
+              }
+            },
+            "required": [
+              "bold",
+              "italic",
+              "underline"
+            ],
+            "description": "In an editor: the formatting under the caret or selection, as the page renders it. Read it before changing formatting, and use edit-text set-format rather than a toolbar toggle."
           }
         },
         "required": [
@@ -1216,7 +1307,7 @@
                 "id": {
                   "type": "string",
                   "maxLength": 128,
-                  "description": "Opaque target identifier valid only for the associated page revision."
+                  "description": "Opaque target identifier valid only for the associated page revision (page for the page itself)."
                 },
                 "kind": {
                   "type": "string",
@@ -1226,12 +1317,22 @@
                     "extractable",
                     "scrollable"
                   ],
-                  "description": "Semantic target category."
+                  "description": "Semantic target category; absent means interactive."
                 },
                 "role": {
                   "type": "string",
                   "maxLength": 80,
-                  "description": "Bounded accessibility or semantic role."
+                  "description": "Its ARIA role (link, button, textbox, searchbox, checkbox ...), else its tag or input type."
+                },
+                "inputType": {
+                  "type": "string",
+                  "maxLength": 20,
+                  "description": "A text field's input type the role does not say (email, tel, password, number, date ...)."
+                },
+                "group": {
+                  "type": "string",
+                  "maxLength": 8,
+                  "description": "The record, group or column it sits in: a key of the list's groups."
                 },
                 "picture": {
                   "type": "object",
@@ -1253,11 +1354,6 @@
                   ],
                   "additionalProperties": false,
                   "description": "Present for a picture the page shows (dsagent.page.find with includeImages): its rendered size. The target is what a click on the picture's centre lands on."
-                },
-                "ariaRole": {
-                  "type": "string",
-                  "maxLength": 40,
-                  "description": "Optional ARIA role, explicit or implied by the element (link for a link, textbox for a text input), present only when it differs from role; dsagent.page.find matches either."
                 },
                 "scrollAxis": {
                   "type": "string",
@@ -1289,9 +1385,9 @@
                 },
                 "capabilities": {
                   "type": "array",
-                  "maxItems": 30,
+                  "maxItems": 31,
                   "uniqueItems": true,
-                  "description": "Public atomic actions accepted for this opaque target by dsagent.page.action; empty for a text target found by dsagent.page.find.",
+                  "description": "Public atomic actions accepted for this opaque target by dsagent.page.action; empty for a text target found by dsagent.page.find. Absent in a list: the list's commonCapabilities.",
                   "items": {
                     "type": "string",
                     "enum": [
@@ -1309,6 +1405,7 @@
                       "history-forward",
                       "hover",
                       "input",
+                      "paste",
                       "press-key",
                       "scroll",
                       "select",
@@ -1330,16 +1427,16 @@
                 },
                 "inViewport": {
                   "type": "boolean",
-                  "description": "Optional: whether part of the target is inside the current viewport at this revision."
+                  "description": "false when the target is outside the viewport at this revision; absent when it is on screen."
                 },
                 "occluded": {
                   "type": "boolean",
-                  "description": "Optional: whether another element covers the target centre (overlay, sticky header); scroll or dismiss before acting."
+                  "description": "true when another element covers the target centre (overlay, sticky header); scroll or dismiss before acting."
                 },
                 "navigationUrl": {
                   "type": "string",
                   "maxLength": 300,
-                  "description": "Optional: the sanitized HTTP(S) destination of a link target, as evidence of where it leads; navigate by clicking it, never by constructing the URL."
+                  "description": "Optional: where a link target leads; click it, never build the URL. Lists show it short (same-origin path, no tracking parameters, long parts cut with …); page.find gives the exact address."
                 },
                 "scrollMetrics": {
                   "type": "object",
@@ -1397,10 +1494,8 @@
               },
               "required": [
                 "id",
-                "kind",
                 "role",
-                "label",
-                "capabilities"
+                "label"
               ],
               "additionalProperties": false
             }
@@ -1477,7 +1572,7 @@
                 "id": {
                   "type": "string",
                   "maxLength": 128,
-                  "description": "Opaque target identifier valid only for the associated page revision."
+                  "description": "Opaque target identifier valid only for the associated page revision (page for the page itself)."
                 },
                 "kind": {
                   "type": "string",
@@ -1487,12 +1582,22 @@
                     "extractable",
                     "scrollable"
                   ],
-                  "description": "Semantic target category."
+                  "description": "Semantic target category; absent means interactive."
                 },
                 "role": {
                   "type": "string",
                   "maxLength": 80,
-                  "description": "Bounded accessibility or semantic role."
+                  "description": "Its ARIA role (link, button, textbox, searchbox, checkbox ...), else its tag or input type."
+                },
+                "inputType": {
+                  "type": "string",
+                  "maxLength": 20,
+                  "description": "A text field's input type the role does not say (email, tel, password, number, date ...)."
+                },
+                "group": {
+                  "type": "string",
+                  "maxLength": 8,
+                  "description": "The record, group or column it sits in: a key of the list's groups."
                 },
                 "picture": {
                   "type": "object",
@@ -1514,11 +1619,6 @@
                   ],
                   "additionalProperties": false,
                   "description": "Present for a picture the page shows (dsagent.page.find with includeImages): its rendered size. The target is what a click on the picture's centre lands on."
-                },
-                "ariaRole": {
-                  "type": "string",
-                  "maxLength": 40,
-                  "description": "Optional ARIA role, explicit or implied by the element (link for a link, textbox for a text input), present only when it differs from role; dsagent.page.find matches either."
                 },
                 "scrollAxis": {
                   "type": "string",
@@ -1550,9 +1650,9 @@
                 },
                 "capabilities": {
                   "type": "array",
-                  "maxItems": 30,
+                  "maxItems": 31,
                   "uniqueItems": true,
-                  "description": "Public atomic actions accepted for this opaque target by dsagent.page.action; empty for a text target found by dsagent.page.find.",
+                  "description": "Public atomic actions accepted for this opaque target by dsagent.page.action; empty for a text target found by dsagent.page.find. Absent in a list: the list's commonCapabilities.",
                   "items": {
                     "type": "string",
                     "enum": [
@@ -1570,6 +1670,7 @@
                       "history-forward",
                       "hover",
                       "input",
+                      "paste",
                       "press-key",
                       "scroll",
                       "select",
@@ -1591,16 +1692,16 @@
                 },
                 "inViewport": {
                   "type": "boolean",
-                  "description": "Optional: whether part of the target is inside the current viewport at this revision."
+                  "description": "false when the target is outside the viewport at this revision; absent when it is on screen."
                 },
                 "occluded": {
                   "type": "boolean",
-                  "description": "Optional: whether another element covers the target centre (overlay, sticky header); scroll or dismiss before acting."
+                  "description": "true when another element covers the target centre (overlay, sticky header); scroll or dismiss before acting."
                 },
                 "navigationUrl": {
                   "type": "string",
                   "maxLength": 300,
-                  "description": "Optional: the sanitized HTTP(S) destination of a link target, as evidence of where it leads; navigate by clicking it, never by constructing the URL."
+                  "description": "Optional: where a link target leads; click it, never build the URL. Lists show it short (same-origin path, no tracking parameters, long parts cut with …); page.find gives the exact address."
                 },
                 "scrollMetrics": {
                   "type": "object",
@@ -1658,10 +1759,8 @@
               },
               "required": [
                 "id",
-                "kind",
                 "role",
-                "label",
-                "capabilities"
+                "label"
               ],
               "additionalProperties": false
             }
@@ -1674,6 +1773,44 @@
               "type": "string",
               "maxLength": 128
             }
+          },
+          "commonCapabilities": {
+            "type": "array",
+            "maxItems": 64,
+            "items": {
+              "type": "string",
+              "maxLength": 64
+            },
+            "description": "The capabilities of every listed target that carries none of its own."
+          },
+          "groups": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "type": "string",
+                  "maxLength": 160,
+                  "description": "The record, group or column text."
+                },
+                "source": {
+                  "type": "string",
+                  "enum": [
+                    "record",
+                    "group",
+                    "column"
+                  ],
+                  "description": "What kind of container it is."
+                }
+              },
+              "required": [
+                "text",
+                "source"
+              ],
+              "additionalProperties": false,
+              "description": "One container."
+            },
+            "description": "The containers the listed targets name by group key: which controls belong to one result card, form group or column."
           }
         },
         "required": [
@@ -1820,10 +1957,31 @@
         "additionalProperties": false,
         "description": "Optional bounded sanitized DOM evidence returned only in dom mode."
       },
+      "region": {
+        "type": "object",
+        "properties": {
+          "targetId": {
+            "type": "string",
+            "maxLength": 128,
+            "description": "The region target the read was limited to."
+          },
+          "targets": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "How many targets lie inside it."
+          }
+        },
+        "required": [
+          "targetId",
+          "targets"
+        ],
+        "additionalProperties": false,
+        "description": "Present for a compact read limited to a region target: targets and semanticText are of that region only."
+      },
       "warnings": {
         "type": "array",
         "maxItems": 2,
-        "description": "REPEATED_RECORDS_USE_WIZARD: switch to the scrape wizard on this page now (dsagent.wizard.start kind=scrape, then wizard.state / wizard.choose). DSphere's typed route advice, never page text: this page shows repeated records (the same fields per item) and this task has read or scrolled it twelve or more times with page reads, which is not how records are collected. The call itself succeeded; the person sees the same notice in the DSphere side panel. Plan on the code, never on the message.",
+        "description": "REPEATED_RECORDS_USE_WIZARD: switch to the scrape wizard on this page now (dsagent.wizard.start kind=scrape, then wizard.state / wizard.choose). DSphere's typed route advice, never page text: this page shows repeated records (the same fields per item) and this task has scrolled and re-read it twelve or more times on one address, which is not how records are collected. The call itself succeeded; the person sees the same notice in the DSphere side panel. Plan on the code, never on the message.",
         "items": {
           "type": "object",
           "additionalProperties": false,

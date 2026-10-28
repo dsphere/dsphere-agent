@@ -48,7 +48,7 @@ Complete value lists and id patterns for the fields above (the contract file is 
 - `wizardId`: matches `^wiz_[a-f0-9]{32}$`
 - `wizardToken`: matches `^[A-Za-z0-9]{16,128}$`
 - `endpoint`: matches `^[A-Za-z0-9_:.-]{3,80}$`
-- `pageContextId`: matches `^[A-Za-z0-9_.:-]{8,128}$`
+- `pageContextId`: matches `^[A-Za-z0-9_.:-]{2,128}$`
 - `captureId`: matches `^agent-read:[A-Za-z0-9-]{8,64}$`
 - `captureToken`: matches `^[A-Za-z0-9-]{16,64}$`
 - `coverage.stoppedBecause`: one of `end-of-data`, `requested-count-reached`, `page-limit`, `time-limit`, `page-blocked`, `agent-limit`, `reading`
@@ -72,7 +72,7 @@ The saved capture and its label.
 
 Complete value lists and id patterns for the fields above (the contract file is authoritative).
 
-- `provenance.coverage.stoppedBecause`: one of `end-of-data`, `requested-count-reached`, `page-limit`, `time-limit`, `page-blocked`, `agent-limit`, `reading`
+- `provenance.coverage.stoppedBecause`: same values as input `coverage.stoppedBecause`
 
 ## Guidance
 

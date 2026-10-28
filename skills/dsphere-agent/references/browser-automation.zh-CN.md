@@ -14,18 +14,18 @@
 
 ## 原子执行路径
 
-1. 保持同一 control session。用 `dsagent.pages.list` 找到页面，或用 `dsagent.page.open` 打开用户给出的 HTTP(S) 地址，并使用返回的 `pageContextId`。开始工作的第一个调用必须传 `taskDescription`（详细写出用户的请求，不含凭据）：`dsagent.page.open`，或在非自己打开的页面上的第一个 `dsagent.page.action` / `dsagent.page.actions`。DSphere 在 SidePanel Chat 中把它显示为任务；未描述任务上的工作会以 `INVALID_REQUEST` + `businessCode=task-description-required` 被拒绝。
+1. 保持同一 control session。用 `dsagent.pages.list` 找到页面，或用 `dsagent.page.open` 打开用户给出的 HTTP(S) 地址，并使用返回的 `pageContextId`。开始工作的第一个调用必须传 `taskDescription`（详细写出用户的请求，不含凭据）：`dsagent.page.open`，或在非自己打开的页面上的第一个 `dsagent.page.action` / `dsagent.page.actions`。DSphere 在 SidePanel Chat 中把它显示为任务；未描述任务上的工作会以 `INVALID_REQUEST` + `businessCode=TASK-DESCRIPTION-REQUIRED` 被拒绝。按照 Skill、工作流或多步计划执行时，不要只传第一步：`taskDescription` 写整个请求，同时传 `taskMode: "continue"` 和 `taskSteps`（各步骤），每一步用 `dsagent.agent.work.step` 报告一次（`succeeded`、`failed` 或 `skipped`：第一个列出的步骤随任务开始，每个结果会开始下一个列出的步骤；只有不按顺序执行的步骤才报告 `started`），最后一步完成后调用 `dsagent.agent.work.finish`。continue 任务在运行结束、向导保存或取消、页面关闭后仍保持运行；后续调用无需再传 `taskDescription`，传入不同的描述会开始另一个任务。
 2. 用 `dsagent.page.observe` 观察，根据证据决定下一步，再用 `dsagent.page.action` 对一个 opaque 目标执行动作：`expectedRevision` 传最新 revision，并带新的 `idempotencyKey`。
 3. 规划下一步前，先根据动作返回的目标和 revision 核验效果；这些证据不够时才重新观察。
 4. 保留 opaque ID 和精确 revision；不得重复可能已完成的效果。遇到不确定结果立即停止，先只读核验再决定是否继续。
-5. 任务完成后，用 `dsagent.page.close` 和对应的 `pageContextId` 关闭你用 `dsagent.page.open` 打开的每个页面。只能关闭这些页面；用户自己的标签页保持打开。
+5. 任务完成后，用一次 `dsagent.agent.work.finish` 结束任务：传任务的一个 `pageContextId`、核实过的 `status` 和 `keep: []`，或需要留给用户查看的页面。它在同一个调用里关闭任务的其他页面。只会关闭你这个任务自己的页面；用户自己的标签页和其他任务的页面保持打开。只关闭单个页面，或任务已经结束时，用 `dsagent.page.close` 和对应的 `pageContextId`。
 
 ### 观察证据升级
 
 - 没有当前观察时才先调用 `dsagent.page.observe` 的 compact 模式。动作已返回 targets 和 revision 时先消费这些证据；需要刷新时，以最新已知 revision 传入 `baseRevision`，合并新增、更新目标与 `removedTargetIds`。`change=unchanged` 时保留已有证据，此时空 `semanticText` 表示没有更新。
-- 用目标的 `labelContext` 区分不同父记录中的同名控件；含义或邻域仍不清楚时，才用同一 revision 的 `dsagent.page.target.inspect`，不要逐个检查所有重复按钮。局部证据足够时不要请求整页 DOM；DOM 仅是有界结构证据，不是完整采集导出。
+- 用目标的 `group`（记录文本在 `groups` 下；`page.find` 的匹配项给 `labelContext`）区分不同父记录中的同名控件；含义或邻域仍不清楚时，才用同一 revision 的 `dsagent.page.target.inspect`，不要逐个检查所有重复按钮。局部证据足够时不要请求整页 DOM；DOM 仅是有界结构证据，不是完整采集导出。
 - 要按页面显示的文字找某个控件（“关注”“下一页”、搜索框）或某条记录内的控件（`context`），用 `dsagent.page.find` 传入页面上的原话，而不是翻阅整份观察或猜测：它返回当前 `revision` 和按匹配度排序的 opaque 目标（`matches[].target.id`），可直接交给 `dsagent.page.action`。只读，不返回选择器；结果为空表示控件在视口外、被其他面板遮住或叫法不同，并不说明它不存在。
-- 目标的 `ariaRole`（例如 `<a>` 的 `link`）仅在与 `role` 不同时出现；`dsagent.page.find` 的 role 过滤两者都能匹配。`state` 列出 `checked`、`pressed`、`disabled`、`required`、`readonly`、`expanded=false` 等状态词。
+- 目标的 `role` 是其 ARIA 角色（例如 `<a>` 的 `link`），没有时为标签名或输入类型；角色掩盖文本框类型时另给 `inputType`（email、tel、password 等）。默认值字段不出现（`kind` 为 interactive、在视口内、未被遮挡）；列表把多数目标共有的能力集合写一次为 `commonCapabilities`，把每条记录的文本写一次在 `groups` 下（目标以 `group` 引用）。页面本身的目标是 `page`；页面句柄是 `p` 加五个字母或数字（此前签发的 `page_<uuid>` 仍可用）。列表中链接的 `navigationUrl` 为简短显示形式：同源链接只写路径，去掉跟踪参数，过长部分以 `…` 截断；`dsagent.page.find` 给出完整地址。`state` 列出 `checked`、`pressed`、`disabled`、`required`、`readonly`、`expanded=false` 等状态词。
 - `dsagent.page.observe` 还返回 `structure`（带标签的地标、标题）作为页面大纲：先据此定位区域或列表，再取目标；其中不含任何取值。要阅读或总结页面文字，`dsagent.page.markdown` 返回文档的有界 Markdown 前缀。
 - 只有 catalog 发布 `dsagent.page.visual.observe`，并且当前客户端及其所选模型能够消费 MCP `ImageContent` 时，才可显式请求视觉证据。已知目标传 opaque `targetId` 获取目标裁片；目标未知或需要判断全局布局、弹窗、遮挡时请求当前视口。
 - `page.observe` 和 `target.inspect` 不会隐式截图。不得读取、打印或要求 Base64 图片正文；图片由 MCP 客户端直接交给多模态模型。
@@ -88,7 +88,7 @@
 - 优先使用工作流运行（采集向导或已保存工作流）产生的托管采集产物和导出；不要从页面观察重建已持久化的数据集，也不要为同一采集创建第二条执行路径。
 - 仅当你自己的遍历必须保存记录且没有工作流持久化这些记录时，在第一个业务记录产生前，使用外部客户端的本地文件或数据库能力创建 JSONL 或 SQLite 检查点，记录目标标识、完成数量、游标、EOF 和失败原因；每处理一个记录或有界批次立即追加。
 - CSV 用于最终交换或导出，不是唯一恢复状态。客户端没有本地持久化工具时，应明确说明长任务不可恢复，不能只把全部记录留在模型上下文。本地文件和数据库 API 属于外部客户端；不通过 `dsagent_invoke` 传递物理路径、任意 SQL 或数据库句柄。要用邮件发送本机文件时，先用 `dsagent_upload_file` 工具暂存，再传返回的 uploadId。
-- 要把本机文件上传到网页时，先用 `dsagent_upload_file` 暂存（有多个实例在线时传 `instanceId`），再以 action `upload-file`、返回的 `uploadId` 和页面目标调用 `dsagent.page.action`：Extension 检测页面的上传位并把文件放入唯一的上传位（报告 `candidate-ambiguous` 时，对目标上传控件的目标调用它）。只有它报告未检测到上传位时，才找到页面自己的上传按钮，对该目标调用 `upload-file` 作为回退。不要自行点击上传按钮打开系统文件选择框，那样只能由用户手动选择文件。可上传不超过 1 GiB 的文件：大文件分块传入页面，传输未完成时 `upload-file` 返回 `TARGET_BUSY`、businessCode `FILE_TRANSFER_IN_PROGRESS` 与 `details.transferredBytes`，应立即以相同 `idempotencyKey` 重复同一调用，直到返回上传结果。超过 1 GiB 的文件会被拒绝（暂存时 `CONTENT_TOO_LARGE`，网页上 `FILE_TOO_LARGE_FOR_PAGE_UPLOAD`）：告诉用户它需要浏览器自身的上传支持。
+- 要把本机文件上传到网页时，先用 `dsagent_upload_file` 暂存（有多个实例在线时传 `instanceId`），再以 action `upload-file`、返回的 `uploadId` 和页面目标调用 `dsagent.page.action`：Extension 检测页面的上传位并把文件放入唯一的上传位（报告 `candidate-ambiguous` 时，对目标上传控件的目标调用它）。只有它报告未检测到上传位时，才找到页面自己的上传按钮，对该目标调用 `upload-file` 作为回退。不要自行点击上传按钮打开系统文件选择框，那样只能由用户手动选择文件。能用 `path` 暂存时就用 `path`：按引用暂存，不复制，Native Agent 不设大小上限（content 分块会被复制，合计不超过 16 GiB）。上传完成前不要改动该文件：暂存后被修改或移走的文件返回 `UPLOAD_CHANGED`，需重新暂存。大文件尚未全部传入页面时 `upload-file` 返回 `TARGET_BUSY`、businessCode `FILE_TRANSFER_IN_PROGRESS` 与 `details.transferredBytes`，应立即以相同 `idempotencyKey` 重复同一调用，直到返回上传结果。页面上传无法承载该文件时 `upload-file` 返回 `FILE_TOO_LARGE_FOR_PAGE_UPLOAD`：告诉用户。
 - 要填写表单时，先在页面目标上以 action `detect-form-fields` 调用 `dsagent.page.action`：Extension 的表单检测器列出页面的可编辑字段（有打开的对话框时为对话框中的表单），给出不透明的 `fieldId`、标签、类型、必填标记、当前值和原生下拉框的选项。然后在页面目标上以 action `fill-form` 和 `formFields` 调用（每项为一个 `fieldId` 加 `value`、`checked` 或 `selections`）：写入前先检查所有条目，每个字段都由常规的输入与表单 owner 填写并校验，后面的字段在写入前会重新检测。只有 `detect-form-fields` 未列出的字段（位于 iframe 或 shadow root 中）才以其观察到的 `targetId` 代替 `fieldId`，作为回退。密码和一次性验证码列为敏感字段，不会被填写，由用户自行输入。`fill-form` 不会提交表单；只有任务要求时才点击表单的提交按钮。
 
 ## 结果处理
@@ -106,4 +106,4 @@
 - 不向 MCP 传递 Backend URL、token、header、cookie、凭据、DOM selector、JavaScript、任意 SQL、物理文件路径、账号标签或 `sessionGroupId`。
 - 不记录用户请求、工作流参数、账号 ID、artifact 正文或业务数据。
 - 产生外部效果仍需用户明确意图。确认、凭据、登录和同意都由用户本人处理。
-- 用户会在 DSphere 侧边栏的对话中看到你的每次调用（页面主机、动作和控件标签，绝不包含输入的内容），并可在那里停止你的会话。此后进行中的调用以 `CANCELED` 结束，之后的每次调用都返回 `APPROVAL_DENIED` 且 `businessCode=stopped-by-person`：立即停止并告知用户，未经用户同意不要新开控制会话继续。
+- 用户会在 DSphere 侧边栏的对话中看到你的每次调用（页面主机、动作和控件标签，绝不包含输入的内容），并可在那里停止你的会话。此后进行中的调用以 `CANCELED` 结束，之后的每次调用都返回 `APPROVAL_DENIED` 且 `businessCode=STOPPED-BY-PERSON`：立即停止并告知用户，未经用户同意不要新开控制会话继续。

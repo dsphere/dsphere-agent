@@ -2,7 +2,7 @@
 
 **Open Account** · risk `reversible-write` · timeout 300000 ms · inline result ≤ 65536 bytes · concurrency `exclusive-target`
 
-Open the account using its existing browser environment and fill owner.
+Open the account using its existing browser environment and fill owner. At the plan's limit on app accounts open at once, a new account is refused with POLICY_DENIED / APP_ACCOUNTS_OPEN_LIMIT and nothing opens: tell the person; do not retry.
 
 ## Invocation
 
@@ -20,7 +20,7 @@ Call `dsagent_invoke` with this shape. Replace every placeholder with a value fr
 
 ## Inputs
 
-Open the account using its existing browser environment and fill owner.
+Open the account using its existing browser environment and fill owner. At the plan's limit on app accounts open at onc…
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|

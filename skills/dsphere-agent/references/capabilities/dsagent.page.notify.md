@@ -25,7 +25,7 @@ The page and the short message for the person.
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
-| `pageContextId` | string (8–128 chars) | yes | The task page context returned by page.open; the notification brings this page forward when clicked. |
+| `pageContextId` | string (2–128 chars) | yes | The task page context returned by page.open; the notification brings this page forward when clicked. |
 | `message` | string (1–200 chars) | yes | What the person is asked to do on the page, in their language; plain text, no links. |
 
 ## Result fields (data.data)
@@ -34,7 +34,7 @@ Whether the notification was shown.
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
-| `pageContextId` | string (8–128 chars) |  | The task page context returned by page.open; the notification brings this page forward when clicked. |
+| `pageContextId` | string (2–128 chars) |  | The task page context returned by page.open; the notification brings this page forward when clicked. |
 | `shown` | boolean |  | True when the notification was shown; false when one for this page was shown less than 30 seconds ago. |
 | `retryAfterMs` | integer (0…30000) |  | When not shown: how long until a notice for this page may be shown again. |
 | `challengeHandedToPerson` | enum: true |  | Present and true when a verification challenge you held on this page was handed to the person by this call: read the pa… |

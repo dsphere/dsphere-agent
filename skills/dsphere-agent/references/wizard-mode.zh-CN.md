@@ -6,7 +6,7 @@
 
 ## 开始之前
 
-- 向导运行在当前聚焦的 DSphere 窗口的活动标签页上。页面尚未打开时，用 `dsagent.page.open` 打开（`url`：用户给出的地址，仅限 http/https），或请用户打开。把返回的 `pageContextId` 传给 `dsagent.wizard.start`，并传 `taskDescription`：详细写出用户的请求（采集或录制什么、在哪个网站），DSphere 在 SidePanel Chat 中把它显示为任务。启动未描述任务的向导会以 `INVALID_REQUEST` + `businessCode=task-description-required` 被拒绝。
+- 向导运行在当前聚焦的 DSphere 窗口的活动标签页上。页面尚未打开时，用 `dsagent.page.open` 打开（`url`：用户给出的地址，仅限 http/https），或请用户打开。把返回的 `pageContextId` 传给 `dsagent.wizard.start`，并传 `taskDescription`：详细写出用户的请求（采集或录制什么、在哪个网站），DSphere 在 SidePanel Chat 中把它显示为任务。启动未描述任务的向导会以 `INVALID_REQUEST` + `businessCode=TASK-DESCRIPTION-REQUIRED` 被拒绝。
 - 如果用户已经在 SidePanel 中对该页面启动了向导或录制，传 `adoptActive=true` 接管引导，不要新建；否则这种情况会返回 `TARGET_BUSY`。
 
 ## 循环
@@ -16,6 +16,8 @@
 ```
 
 保留 `wizardId` 和 `wizardToken`，每次调用 `dsagent.wizard.*` 都同时传入。token 只返回一次。浏览器连接可能在你无感知时被续接（新的控制会话），此时只有 token 能证明向导属于你；续接后数分钟内未再收到调用方请求的向导会被释放。然后重复：
+
+**列表的自动模式。** 在 `dsagent.wizard.start`（`kind=scrape`）中加入 `"auto":{"maxRecords":<数量，0 为全部>,"workflowName":"<名称>"}`。向导会在同一次调用中回答所有默认值明确的选择（唯一推荐的分页方式、页面主体上唯一清楚的列表、其已勾选字段、不采集详情页、不保存页面内容或输出文件、名称），并在 `phase=ready-to-save` 返回 `auto.outcome=ready-to-save`、`auto.answered` 与 `auto.preview`（数据源、样本记录、字段）。核对它们符合任务后再保存并运行。遇到需要决定的选择（没有或有多个推荐、推荐列表旁还有另一个主体列表、需要在页面上点选、登录墙或人机验证、检测失败）时，返回 `auto.outcome=stopped`、`auto.reason`，以及停在 `auto.stoppedAt` 的普通状态：由你自己回答该选择，并在这次 `dsagent.wizard.choose` 中加入 `"auto":{}` 让向导继续。任务需要详情页时传 `"detailPages":true`，自动模式会停在 `detail-pages`。自动模式从不保存或运行，所有选择仍可由你修改（`dsagent.wizard.back`）。
 
 1. **读取。** `busy` 有值时等待变化；有 `pagePick` 时按下文点选，录制阶段执行已获授权的步骤。仅在确实需要用户操作时等待本人：
    ```json

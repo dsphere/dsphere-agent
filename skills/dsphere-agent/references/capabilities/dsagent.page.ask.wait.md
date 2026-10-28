@@ -24,7 +24,7 @@ A task-scoped runtime question or wait request.
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
-| `pageContextId` | string (8–128 chars) | yes | The task page context from dsagent.page.open, dsagent.pages.list or a receipt's destinationPageContextId. |
+| `pageContextId` | string (2–128 chars) | yes | The task page context from dsagent.page.open, dsagent.pages.list or a receipt's destinationPageContextId. |
 | `requestId` | string (1–128 chars) | yes | The opaque runtime question identity returned by page.ask. |
 | `timeoutMs` | integer (0…30000) |  | Long-poll duration; default 30000. Zero reads immediately. |
 
@@ -35,7 +35,7 @@ Runtime question state and its answer when settled.
 | Field | Type | Required | Meaning |
 |---|---|---|---|
 | `requestId` | string (1–128 chars) |  | The opaque runtime question identity returned by page.ask. |
-| `status` | enum: pending, answered, cancelled |  | Pending waits for the person in DSphere. Only an answered accepted response permits the requested continuation. |
+| `status` | enum: pending, answered, cancelled, withdrawn |  | Pending waits for the person in DSphere. Only an answered accepted response permits the requested continuation. Withdra… |
 | `publishedAt` | number (0…∞) |  | Runtime question publication boundary in epoch milliseconds. |
 | `answeredAt` | number (0…∞) |  | Runtime validated response boundary in epoch milliseconds; use with answeredBy to distinguish person response from a sa… |
 | `response` | object {requestId, accepted, answer, optionIndex, answeredBy} |  | The runtime answer, available only after the question settles. |

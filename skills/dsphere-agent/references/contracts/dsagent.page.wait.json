@@ -2,8 +2,9 @@
   "method": "dsagent.page.wait",
   "version": 1,
   "title": "Wait for a page condition",
-  "description": "Wait, bounded, for one condition on the page instead of polling dsagent.page.observe: the revision to change (sinceRevision), a target to appear or go (targetId + expectedRevision), text to show, the address to change, the page to settle, a surface to close (surfaceId from pageSurfaces), the…",
-  "guidance": "Wait, bounded, for one condition on the page instead of polling dsagent.page.observe: the revision to change (sinceRevision), a target to appear or go (targetId + expectedRevision), text to show, the address to change, the page to settle, a surface to close (surfaceId from pageSurfaces), the sign-in wall to clear, or a file the page saves to finish downloading. Returns met or timed-out with the latest revision; then observe with baseRevision. Read-only: no idempotency key, nothing is dispatched. Use it after an action whose receipt said pageSettled false, after a navigation the page performs itself, while the person signs in (authentication-cleared), or before acting on a panel that is still opening. A timed-out wait is not a failure of the page: read it and decide. A page the browser is not drawing is refused with PAGE_NOT_RENDERED before waiting: dsagent.page.focus, then wait again.",
+  "pageEvidence": true,
+  "description": "Wait, bounded, for one condition on the page instead of polling dsagent.page.observe: the revision to change (sinceRevision), a target to appear, go, become enabled or become disabled (targetId + expectedRevision), text to show or to go, the address to change, the page to settle, a surface to…",
+  "guidance": "Wait, bounded, for one condition on the page instead of polling dsagent.page.observe: the revision to change (sinceRevision), a target to appear, go, become enabled or become disabled (targetId + expectedRevision), text to show or to go, the address to change, the page to settle, a surface to close (surfaceId from pageSurfaces), the sign-in wall to clear, or a file the page saves to finish downloading. Returns met or timed-out with the latest revision; then observe with baseRevision. Read-only: no idempotency key, nothing is dispatched. Use it after an action whose receipt said pageSettled false, after a navigation the page performs itself, while the person signs in (authentication-cleared), or before acting on a panel that is still opening. A timed-out wait is not a failure of the page: read it and decide. A page the browser is not drawing is refused with PAGE_NOT_RENDERED before waiting: dsagent.page.focus, then wait again. A tab showing no web page yet keeps its pageContextId; reads refuse it (PAGE_NOT_WEB_DOCUMENT): wait until url-changed. authentication-cleared is never met there.",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -15,7 +16,7 @@
     "properties": {
       "pageContextId": {
         "type": "string",
-        "minLength": 8,
+        "minLength": 2,
         "maxLength": 128,
         "description": "Opaque page context from dsagent.pages.list, dsagent.page.open, or a receipt's destinationPageContextId."
       },
@@ -25,14 +26,17 @@
           "revision-changed",
           "target-present",
           "target-absent",
+          "target-enabled",
+          "target-disabled",
           "text-present",
+          "text-absent",
           "url-changed",
           "settled",
           "surface-closed",
           "authentication-cleared",
           "download"
         ],
-        "description": "revision-changed: the page revision differs from sinceRevision. target-present / target-absent: the target (targetId at expectedRevision, from the latest observation) is visible / gone. text-present: the page shows the text (labels or visible text). url-changed: the address differs from the one at the start of the wait. settled: the page went quiet (no control-relevant mutations, its own requests finished). surface-closed: the surface with surfaceId is no longer open. authentication-cleared: the sign-in or verification wall is gone. download: a file the page started saving since your latest action on it (or since the wait began) finished downloading, or the browser stopped it (download.state says which); use it after a click whose page saves the file later: an export it builds first, a \"your download will start\" countdown, a document the server renders."
+        "description": "revision-changed: the page revision differs from sinceRevision. target-present / target-absent: the target (targetId at expectedRevision, from the latest observation) is visible / gone. target-enabled / target-disabled: the target is shown and takes input / is shown disabled (its observed state disabled: a disabled control or aria-disabled), for a Next or Publish button that enables once an upload or a required field is done. text-present: the page shows the text anywhere in the document, frames included. text-absent: the page no longer shows the text anywhere (a \"uploading\" or \"saving\" note that goes away). url-changed: the address differs from the one at the start of the wait. settled: the page went quiet (no control-relevant mutations, its own requests finished). surface-closed: the surface with surfaceId is no longer open. authentication-cleared: the sign-in or verification wall is gone. download: a file the page started saving since your latest action on it (or since the wait began) finished downloading, or the browser stopped it (download.state says which); use it after a click whose page saves the file later: an export it builds first, a \"your download will start\" countdown, a document the server renders."
       },
       "timeoutMs": {
         "type": "integer",
@@ -50,7 +54,7 @@
         "type": "string",
         "minLength": 1,
         "maxLength": 128,
-        "description": "With target-present / target-absent: the opaque target."
+        "description": "With target-present / target-absent / target-enabled / target-disabled: the opaque target."
       },
       "expectedRevision": {
         "type": "string",
@@ -62,7 +66,7 @@
         "type": "string",
         "minLength": 1,
         "maxLength": 200,
-        "description": "With text-present: the words the page should show, as it prints them."
+        "description": "With text-present / text-absent: the words the page should show (or stop showing), as it prints them."
       },
       "surfaceId": {
         "type": "string",
@@ -85,7 +89,7 @@
     "properties": {
       "pageContextId": {
         "type": "string",
-        "minLength": 8,
+        "minLength": 2,
         "maxLength": 128,
         "description": "Opaque page context from dsagent.pages.list, dsagent.page.open, or a receipt's destinationPageContextId."
       },
@@ -95,7 +99,10 @@
           "revision-changed",
           "target-present",
           "target-absent",
+          "target-enabled",
+          "target-disabled",
           "text-present",
+          "text-absent",
           "url-changed",
           "settled",
           "surface-closed",
@@ -120,7 +127,7 @@
       "revision": {
         "type": "string",
         "maxLength": 128,
-        "description": "The page revision when the wait ended (a met wait reads the page again if its condition did not), current enough to act at; pass it as baseRevision to the next observe."
+        "description": "The page revision when the wait ended (a met wait reads the page again if its condition did not), current enough to act at; pass it as baseRevision to the next observe. Absent when text-present was met without a page read: observe next."
       },
       "url": {
         "type": "string",

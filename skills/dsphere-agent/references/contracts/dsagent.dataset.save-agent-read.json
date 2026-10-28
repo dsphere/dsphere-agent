@@ -31,7 +31,7 @@
       "pageContextId": {
         "type": "string",
         "description": "First save: the page the records were read on (the wizard's page or a sample page it opened), from dsagent.page.observe.",
-        "pattern": "^[A-Za-z0-9_.:-]{8,128}$",
+        "pattern": "^[A-Za-z0-9_.:-]{2,128}$",
         "maxLength": 128
       },
       "captureId": {

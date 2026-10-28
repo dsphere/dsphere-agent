@@ -1,6 +1,7 @@
 {
   "method": "dsagent.wizard.save",
   "version": 1,
+  "pageEvidence": true,
   "title": "Save the guided wizard as a workflow",
   "description": "At phase ready-to-save, create the workflow through the wizard's own save chain (the scrape session compiler, or the recording builder and recorded-workflow save), exactly as the SidePanel's Create does, in the person's current environment.",
   "guidance": "Verify the summary matches the authorized task; the agent may supply the name and save without asking for separate naming confirmation. Returns workflowId; the wizard is then saved and its session closed. Plan limits apply (POLICY_DENIED). Requires an idempotency key; repeating a key returns the same workflow.",
@@ -380,6 +381,14 @@
                       "type": "integer",
                       "minimum": 0,
                       "description": "data-block / data-table: records the structure shows on the page (items or rows)."
+                    },
+                    "chrome": {
+                      "type": "string",
+                      "enum": [
+                        "navigation",
+                        "related"
+                      ],
+                      "description": "data-block / data-table: the detection reads it as page chrome (navigation: a menu, a header or footer link list) or as related items beside an opened record (related), not the page's own data. Never recommended; collect it only when the task asks for exactly that."
                     },
                     "labelSource": {
                       "type": "string",

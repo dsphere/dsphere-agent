@@ -14,7 +14,7 @@
     "properties": {
       "pageContextId": {
         "type": "string",
-        "minLength": 8,
+        "minLength": 2,
         "maxLength": 128,
         "description": "The task page context from dsagent.page.open, dsagent.pages.list or a receipt's destinationPageContextId."
       },
@@ -52,9 +52,10 @@
         "enum": [
           "pending",
           "answered",
-          "cancelled"
+          "cancelled",
+          "withdrawn"
         ],
-        "description": "Pending waits for the person in DSphere. Only an answered accepted response permits the requested continuation."
+        "description": "Pending waits for the person in DSphere. Only an answered accepted response permits the requested continuation. Withdrawn: you took the question back with dsagent.page.ask.withdraw before the person answered; like cancelled, it never authorizes an action."
       },
       "publishedAt": {
         "type": "number",

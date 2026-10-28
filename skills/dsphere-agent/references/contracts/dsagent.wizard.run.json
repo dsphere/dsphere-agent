@@ -1,6 +1,7 @@
 {
   "method": "dsagent.wizard.run",
   "version": 1,
+  "pageEvidence": true,
   "title": "Run the workflow the wizard saved",
   "description": "Run the workflow this wizard saved, once, in the person's current browser environment on the wizard's page, the same launch as the SidePanel's run-after-create (START_WORKFLOW_BATCH through the standard workflow path). A request to collect a dataset already authorizes its collection run.",
   "guidance": "A recording-only request does not authorize replay or unrelated external effects. Returns executionId; follow it with dsagent.execution.wait, then export the collected records as CSV with dsagent.execution.data.export or read them with dsagent.artifact.*. Requires an idempotency key; repeating a key returns the same execution.",
@@ -380,6 +381,14 @@
                       "type": "integer",
                       "minimum": 0,
                       "description": "data-block / data-table: records the structure shows on the page (items or rows)."
+                    },
+                    "chrome": {
+                      "type": "string",
+                      "enum": [
+                        "navigation",
+                        "related"
+                      ],
+                      "description": "data-block / data-table: the detection reads it as page chrome (navigation: a menu, a header or footer link list) or as related items beside an opened record (related), not the page's own data. Never recommended; collect it only when the task asks for exactly that."
                     },
                     "labelSource": {
                       "type": "string",

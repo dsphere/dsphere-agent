@@ -1,20 +1,20 @@
 # Example 4 — a verification wall mid-task
 
-**Task:** the continuation of [example 2](02-search-open-and-read.md): the clicked result opened behind a Cloudflare check. Route: the wall pauses the task; it never ends it and you never try to pass it yourself.
-**Recorded:** 2026-10-21 on DsWorkspace (Extension 1.1.25.5). Values already held from example 2:
+**Task:** the same search as [example 2](02-search-open-and-read.md), as recorded on 2026-10-21, when the clicked result opened behind a Cloudflare check. Route: the wall pauses the task; it never ends it and you never try to pass it yourself.
+**Recorded:** 2026-10-21 on DsWorkspace (Extension 1.1.25.5). Values already held from example 2: Targets re-encoded 2026-10-28 to the compact target contract (one role, no default fields, `page` for the page itself).
 
 ```json context
 {"searchPageContextId":"page_21463d51-cb70-4bea-91f9-f2a6d2497bec","resultTargetId":"target-3cf64e97-e4af-4ab8-9124-9aac23db3a20-17","revision":"q5kxkv"}
 ```
 
-## 1. The click whose destination is a wall (from example 2, step 5)
+## 1. The click whose destination is a wall (the 2026-10-21 run of example 2)
 
 ```json request
 {"method":"dsagent.page.action","args":{"pageContextId":"page_21463d51-cb70-4bea-91f9-f2a6d2497bec","targetId":"target-3cf64e97-e4af-4ab8-9124-9aac23db3a20-17","expectedRevision":"q5kxkv","action":"click"},"idempotencyKey":"click-ex2-result1-2413b7e5-02"}
 ```
 
 ```json result
-{"ok":true,"data":{"operationId":"op_8f06e18df92e77d86a519e8ccf5a2d0e","status":"succeeded","data":{"pageContextId":"page_05954b3d-d308-4912-b5a2-3be0e5eef927","destinationPageContextId":"page_05954b3d-d308-4912-b5a2-3be0e5eef927","action":"click","success":true,"effect":{"kind":"navigated","confidence":"observed","evidence":["clickOpenedNewTab","urlChanged"]},"revision":"nrax4x","url":"https://medium.com/coding-nexus/local-ds4-agent-for-browser-automation-and-unrestricted-access-9e3e5bde7955","title":"Just a moment...","authentication":{"status":"sign-in-required","type":"BOT_PROTECTION","confidence":80,"waitingOn":"agent","attemptsLeft":12},"targets":{"mode":"full","added":[{"id":"target-4b886f0e-0f44-4701-b000-8ca4683d9dbe-1","kind":"interactive","role":"a","ariaRole":"link","label":"Cloudflare, opens in a new tab","capabilities":["click","hover"],"inViewport":true,"occluded":false}],"changed":[],"removedTargetIds":[]}}}}
+{"ok":true,"data":{"operationId":"op_8f06e18df92e77d86a519e8ccf5a2d0e","status":"succeeded","data":{"pageContextId":"page_05954b3d-d308-4912-b5a2-3be0e5eef927","destinationPageContextId":"page_05954b3d-d308-4912-b5a2-3be0e5eef927","action":"click","success":true,"effect":{"kind":"navigated","confidence":"observed","evidence":["clickOpenedNewTab","urlChanged"]},"revision":"nrax4x","url":"https://medium.com/coding-nexus/local-ds4-agent-for-browser-automation-and-unrestricted-access-9e3e5bde7955","title":"Just a moment...","authentication":{"status":"sign-in-required","type":"BOT_PROTECTION","confidence":80,"waitingOn":"agent","attemptsLeft":12},"targets":{"mode":"full","added":[{"id":"target-4b886f0e-0f44-4701-b000-8ca4683d9dbe-1","role":"link","label":"Cloudflare, opens in a new tab","capabilities":["click","hover"]}],"changed":[],"removedTargetIds":[]}}}}
 ```
 
 Notice: the click itself succeeded; the **page** is the problem. `authentication.status=sign-in-required`, `type=BOT_PROTECTION`, `waitingOn=agent`, `attemptsLeft=12`: a verification challenge **you** hold and try to pass first, as a person would — `dsagent.page.visual.observe` to see it, `dsagent.page.observe` / `dsagent.page.find` for its controls, then click a checkbox or tile, drag a slider, or type a code, and read again after each try. Here the only targets are Cloudflare's own links: a non-interactive check with nothing to act on, so this recording went straight to waiting (step 2) without a `visual.observe`. A sign-in wall is the other case (`waitingOn=person`, LOGIN_FORM / PHONE_LOGIN / SSO): no effects and no `dsagent.page.ask`; open the page through the saved application account first when the user named one (`dsagent.page.open` with its `accountId`), otherwise DSphere shows the wall to the person and you tell the user once to sign in and click Resume in the DSphere side panel.

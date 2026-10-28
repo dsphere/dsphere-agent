@@ -1,6 +1,7 @@
 {
   "method": "dsagent.wizard.pick",
   "version": 1,
+  "pageEvidence": true,
   "title": "Pick the waited-for element on the page",
   "description": "Make the click the wizard waits for on the page yourself, instead of the person: one record of the list when no detected data source fits (pick-sample-record, awaitingPerson click-one-record or click-one-detail-record), another record of the same list, a record that does not belong, or one smaller…",
   "guidance": "Make the click the wizard waits for on the page yourself, instead of the person: one record of the list when no detected data source fits (pick-sample-record, awaitingPerson click-one-record or click-one-detail-record), another record of the same list, a record that does not belong, or one smaller / larger record when a list's records are wrong (add-sample-record, exclude-record awaitingPerson click-record-to-exclude, pick-tighter-record, pick-looser-record), anywhere in a table to collect it whole (pick-table, awaitingPerson click-table), one field of a main or detail page (pick-page-fields/click-page-fields, then answer fields; pick-detail-fields/click-detail-fields, then answer detail-fields: pick once per field), a field inside a selected block (pick-block-fields, awaitingPerson click-block-fields: pick each field, then answer fields/detail-fields), the next-page control (pick-next-control), or for collect-option-combinations the product panel (awaitingPerson click-option-panel: pick one option of the product, a colour or size chip, and the picker takes the panel around it holding every option group and the price; option-groups follows) or one option of a group the detection missed (click-option-group). Only while state.pagePick is present. Observe that page with dsagent.page.observe or dsagent.page.find (pagePick.pageContextId), choose the observed target matching the requested task (for a record, a link or control inside one record of the list; for a field of the main page, a detail page or a block, the heading, paragraph, date or link that shows it: pagePick.includeText is then true, and dsagent.page.find with includeText returns such text as a target, which dsagent.page.observe does not), and pass its targetId with the observation revision as targetRevision. The click goes through the page's element picker exactly as the person's click: the same sample detection builds the data block, and the wizard then moves on as after the person's click and \"picked\" (fields next, or busy while detection runs; wait with dsagent.wizard.state). Refusals leave the wizard unchanged: STALE_OBSERVATION when the target or its revision is outdated (observe again), INVALID_REQUEST with businessCode WIZARD_PICK_FOREIGN_PAGE for a target on another page, TARGET_BUSY with businessCode TARGET_NOT_ACTIONABLE for a hidden, covered or disabled target. Requires an idempotency key; repeating a key replays its result.",
@@ -30,7 +31,7 @@
       },
       "pageContextId": {
         "type": "string",
-        "pattern": "^[A-Za-z0-9_.:-]{8,128}$",
+        "pattern": "^[A-Za-z0-9_.:-]{2,128}$",
         "maxLength": 128,
         "description": "pagePick.pageContextId: the page the target was observed on."
       },
@@ -401,6 +402,14 @@
                       "type": "integer",
                       "minimum": 0,
                       "description": "data-block / data-table: records the structure shows on the page (items or rows)."
+                    },
+                    "chrome": {
+                      "type": "string",
+                      "enum": [
+                        "navigation",
+                        "related"
+                      ],
+                      "description": "data-block / data-table: the detection reads it as page chrome (navigation: a menu, a header or footer link list) or as related items beside an opened record (related), not the page's own data. Never recommended; collect it only when the task asks for exactly that."
                     },
                     "labelSource": {
                       "type": "string",

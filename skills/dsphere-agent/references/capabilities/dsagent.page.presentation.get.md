@@ -23,7 +23,7 @@ The page whose geometry to read.
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
-| `pageContextId` | string (8–128 chars) | yes | Opaque context of a page opened for this agent or in its named browser session. |
+| `pageContextId` | string (2–128 chars) | yes | Opaque context of a page opened for this agent or in its named browser session. |
 
 ## Result fields (data.data)
 
@@ -31,7 +31,7 @@ Actual page and browser geometry.
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
-| `pageContextId` | string (8–128 chars) |  | Opaque context of a page opened for this agent or in its named browser session. |
+| `pageContextId` | string (2–128 chars) |  | Opaque context of a page opened for this agent or in its named browser session. |
 | `window` | object {width, height} |  | Outer browser window geometry in browser screen pixels. |
 | `viewport` | object {width, height} |  | Page layout viewport geometry in CSS pixels, excluding browser chrome and the side panel. |
 | `devicePixelRatio` | number (0…∞) |  | Actual device pixel ratio; normal sizing does not override it. |

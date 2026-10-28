@@ -24,7 +24,7 @@ The page whose future script overrides to stop.
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
-| `pageContextId` | string (8–128 chars) | yes | Opaque context of an agent-owned page. |
+| `pageContextId` | string (2–128 chars) | yes | Opaque context of an agent-owned page. |
 
 ## Result fields (data.data)
 
@@ -32,7 +32,7 @@ Cleanup receipt; a navigation is still needed to reset current globals.
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
-| `pageContextId` | string (8–128 chars) |  | Opaque context of an agent-owned page. |
+| `pageContextId` | string (2–128 chars) |  | Opaque context of an agent-owned page. |
 | `cleared` | boolean |  | Whether a registered future-navigation preset was removed. |
 | `currentDocumentRequiresReload` | enum: true |  | Current script globals reset only when the page navigates or reloads; the call does not reload. |
 

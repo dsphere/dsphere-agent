@@ -6,7 +6,7 @@ Use the scrape wizard (`kind=scrape`) whenever the deliverable is a dataset (col
 
 ## Before starting
 
-- The wizard runs on the active tab of the focused DSphere window. If the page is not open yet, open it with `dsagent.page.open` (`url`: the address the user gave, http/https only), or ask the user to open it. Pass the returned `pageContextId` to `dsagent.wizard.start`, with `taskDescription`: the user's request in detail (what to collect or record, on which site), which DSphere shows as the task in the SidePanel Chat. A wizard that starts an undescribed task is refused with `INVALID_REQUEST` + `businessCode=task-description-required`.
+- The wizard runs on the active tab of the focused DSphere window. If the page is not open yet, open it with `dsagent.page.open` (`url`: the address the user gave, http/https only), or ask the user to open it. Pass the returned `pageContextId` to `dsagent.wizard.start`, with `taskDescription`: the user's request in detail (what to collect or record, on which site), which DSphere shows as the task in the SidePanel Chat. A wizard that starts an undescribed task is refused with `INVALID_REQUEST` + `businessCode=TASK-DESCRIPTION-REQUIRED`.
 - If the user already started the wizard or a recording on that page in the SidePanel, pass `adoptActive=true` to guide it instead of starting a new one. Otherwise that case returns `TARGET_BUSY`.
 
 ## The loop
@@ -16,6 +16,8 @@ Use the scrape wizard (`kind=scrape`) whenever the deliverable is a dataset (col
 ```
 
 Keep `wizardId` and `wizardToken`, and pass both with every `dsagent.wizard.*` call. The token is shown only once. Your browser connection can be renewed without notice (a new control session), and then only the token proves the wizard is yours; a wizard whose caller is not heard from within minutes of a renewal is released. Then repeat:
+
+**Auto mode for a list.** Add `"auto":{"maxRecords":<n, 0 for all>,"workflowName":"<name>"}` to `dsagent.wizard.start` (`kind=scrape`). In the same call the wizard answers every choice whose default is unambiguous (the one recommended pagination type, the single clear list on the page body, its checked fields, no detail pages, no page content or output files, the name) and returns at `phase=ready-to-save` with `auto.outcome=ready-to-save`, `auto.answered` and `auto.preview` (source, sample records, fields). Check them against the task, then save and run. When a choice needs a decision (no or several recommendations, a second list beside the recommended one, a pick on the page, a wall, a failed detection), it returns `auto.outcome=stopped` with `auto.reason` and the ordinary state at `auto.stoppedAt`: decide that choice yourself and add `"auto":{}` to that `dsagent.wizard.choose` so the wizard goes on. Pass `"detailPages":true` when the task needs detail pages; auto then stops at `detail-pages`. Auto never saves or runs, and everything stays yours to change (`dsagent.wizard.back`).
 
 1. **Read.** When `busy` is set, wait for a change; when `pagePick` is present use the picker below, and perform authorized recording steps when recording. Wait for the person only when their action is needed:
    ```json
