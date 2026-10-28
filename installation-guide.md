@@ -54,7 +54,7 @@ Verify Skill identity/version, bundled program size and SHA-256, executable mode
 安装后加载包中 `SKILL.md`，按用户语言只读取当前操作系统的 `references/guide.*.md`、`references/setup-windows.*.md` 或 `references/setup-macos.*.md`，再读取 `references/client-setup.*.md`；不要混用平台步骤。
 Load the installed SKILL.md and only the current OS/language setup references. Follow their browser detection and Native Host registration exactly; do not invent paths, registry roots or permission grants.
 
-Windows 为检测到的 DSphere 浏览器执行用户级 install 与只读回验；macOS 执行 configure --user-brand Dsphere，应用包只读。Native Host 为 `com.dsworkspace.agent`，仅维护本通道；其他浏览器不配置，DSphere 浏览器未安装时按上方前提给出下载页，不扩展授权。
+Windows 为检测到的 DSphere 浏览器执行用户级 install 与只读回验；macOS 执行同一 install（无注册表，直接写 DSphere 用户目录的 manifest，不读取应用包），写入被系统拒绝时由 Agent 按 Skill 指引自行写入并回读。Native Host 为 `com.dsworkspace.agent`，仅维护本通道；其他浏览器不配置，DSphere 浏览器未安装时按上方前提给出下载页，不扩展授权。
 用**同一个包内程序**的 `mcp serve --stdio` 配置本地 MCP，名称 `dsphere-agent`。按客户端支持方式重新加载 Skill 与重连 MCP，不伪造 descriptor、command 或“已连接”状态。
 Configure local stdio MCP `dsphere-agent` with the same verified bundled program; register only this channel's Native Host. No fabricated descriptor or success state.
 

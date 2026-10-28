@@ -16,14 +16,14 @@ Windows integrations native-host install 返回 schemaVersion 1，含 status、m
 
 受限客户端无法完成 HKCU 写入/回读时，`scripts/complete-windows-registration.ps1` 会重新扫描 DSphere 浏览器，仅在执行时已安装时完成安装和最终检查；未安装时 helper 停止并给出下载页。它输出单行回执，新增 `verification=passed`、调用方生成的 `challenge`、`manifestSha256`，以及每个已安装品牌一项的 `registrations`；同时给出共享的 `status=registered`、`manifestPath`、`nativeAgentPath` 与 `descriptor`。只有品牌/注册根集合与最新扫描完全一致，且其余值全部匹配已验证 Skill 程序时，回执才构成配置证据。
 
-## macOS schema 2
+## macOS schema 3
 
 ```json
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "os": "macos",
-  "status": "browser-not-installed | upgrade-required | manifest-ready",
-  "nextAction": "install-browser | upgrade-browser | configure-skill-native-host",
+  "status": "browser-not-installed | registration-blocked | manifest-ready",
+  "nextAction": "install-browser | repair-user-registration | install-user-native-host",
   "downloadUrl": "https://work.dsphereai.com/download/index.html",
   "websiteUrl": "https://www.dsphereai.com/",
   "selectionRequired": false,
@@ -33,12 +33,12 @@ Windows integrations native-host install 返回 schemaVersion 1，含 status、m
 }
 ```
 
-macOS 检测器只读，只查找 DSphere 浏览器（`/Applications/Dsphere.app`）。候选字段为 brand（始终为 Dsphere）、installed、running、appPath、version、versionDir、hostDir、manifestPath、nativeAgentPath、manifestCompatible 和 issue；macOS 的 hostDir/manifestPath 优先指向 Dsphere 用户目录下的直接 manifest，不存在时才回退到应用版本目录；Windows 使用前述 schema 3，不全盘搜索。
+macOS 检测器只读，只查找 DSphere 浏览器（`/Applications/Dsphere.app`），不查看应用包内部（新版应用包不再提供 Native Host manifest）。候选字段为 brand（始终为 Dsphere）、installed、running、appPath、version、hostDir、manifestPath、sourceManifestPath、manifestSource（new 或 user-file）、extensionId（内置 dkpedeeoceglnpignjhiblgfgofpmmik，仅供诊断）、nativeAgentPath、registrationCompatible、registrationIssue、manifestCompatible 和 issue。hostDir/manifestPath 始终为 `~/Library/Application Support/Dsphere/NativeMessagingHosts/com.dsworkspace.agent.json`：macOS 没有注册表，浏览器从自身用户数据目录下的这个文件夹读取 Native Messaging host。没有 registryRoot 或 registrationTargets，不全盘搜索。
 
-nativeAgentPath 描述旧 manifest 配置；Windows 相对值以 manifest 目录解析。它允许为空或指向不存在文件，且绝不执行。manifestCompatible 仅校验 host name、stdio type 和扩展 Origin。浏览器未启动或旧程序不存在不改变检测结果。manifest-ready 只表示可注册 Skill 程序，不表示 runtime 已运行。
+manifestCompatible 表示可进入安装，即使尚无 manifest；`manifestSource=new` 时，接入 Agent 不再询问确认，直接按默认路径先检查再安装。已有用户 manifest 无效、是符号链接或未授权内置扩展时返回 user-registration-invalid / registration-blocked，只报告、不替换。nativeAgentPath 描述现有 manifest 的 path，允许为空或指向不存在文件，且绝不执行。浏览器未启动不改变检测结果。manifest-ready 只表示可注册 Skill 程序，不表示 runtime 已运行。
 
-issue 取值为 not-installed、version-unavailable、active-version-directory-missing、native-host-manifest-missing、native-host-manifest-invalid。不受支持的系统返回 unsupported-platform 并非零退出。
+issue 取值为 not-installed、user-registration-invalid。不受支持的系统返回 unsupported-platform 并非零退出。
 
-schemaVersion 2 不再返回 agentCompatible 或 descriptor。Skill 程序的 integrations native-host configure 命令返回 schemaVersion 1 配置结果，包括 status、manifestPath、previousPath、nativeAgentPath、descriptor。只读检查状态为 registration-required 或 registered；写入状态为 registered 或 unchanged。MCP descriptor 只从该验证结果取得；非零退出表示失败，不能当成成功。
+macOS 的 integrations native-host install 返回与 Windows 相同的 schemaVersion 1 配置结果（不含 registryRoot）：status、manifestPath、previousPath、nativeAgentPath、descriptor。新建文件只授权内置扩展；已有文件保留授权和其他字段，只改 path。DSphere 用户目录之外的 `--manifest` 和任何 `--registry-root` 都被拒绝。只读检查状态为 registration-required 或 registered；写入状态为 registered 或 unchanged。MCP descriptor 只从该验证结果取得，或在 Agent 自行写入的回退之后从 `integrations descriptor --json` 取得；非零退出表示失败，不能当成成功。已移除的 `configure --user-brand` 会非零退出并提示改用 install。
 
-macOS 配置时必须传入选定品牌 `--user-brand`。检测的 `manifestPath` 在用户文件缺失时仅作为读取来源；配置结果的 `manifestPath` 才是实际用户级写入位置。已有用户文件优先且保留其授权字段。
+以 `user-manifest-write-blocked:` 开头的错误表示操作系统拒绝创建、写入或读取 manifest（权限拒绝、客户端沙箱、只读卷）；`browser-manifest-write-blocked:` 表示现有文件只读。macOS 上两者都让接入 Agent 进入安装指引中的回退步骤，由它自行写入同样的 manifest 并验证；其他错误不进入回退。

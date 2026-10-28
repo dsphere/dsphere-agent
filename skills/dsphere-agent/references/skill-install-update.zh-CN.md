@@ -33,7 +33,7 @@
 - 用户未确认：不写文件、不删除当前版本、不修改 MCP。
 - 版本指针非法、tag 不存在或 Skill 结构/版本不符：保留当前版本并说明可恢复错误，不降级到 `main` 或未确认的复制方式。
 
-Skill 同时拥有浏览器 runtime 和 MCP Connector 的可执行文件。将完整新发布包（包括 `assets/native/` 下四平台真实文件）安装到稳定目录，无需 Go 或额外下载程序。验证后按当前平台说明注册：Windows 使用 install 写用户 manifest 与 HKCU，macOS 使用 configure --user-brand 写用户 manifest；MCP command 指向同一 Skill 程序。更新完成后必须按[通用指引](client-setup.zh-CN.md)主动提示用户重启浏览器并等待确认。浏览器重启和 MCP 重连验证成功前保留上一份已验证 Skill；不得使用或复制浏览器安装目录中的旧程序。浏览器升级后重新检测；Windows 用户级注册不随浏览器版本目录迁移。旧进程占用文件时保留两个版本并安排安全重启，不强杀进程。
+Skill 同时拥有浏览器 runtime 和 MCP Connector 的可执行文件。将完整新发布包（包括 `assets/native/` 下四平台真实文件）安装到稳定目录，无需 Go 或额外下载程序。验证后按当前平台说明注册：Windows 使用 install 写用户 manifest 与 HKCU，macOS 使用 install 写用户 manifest（浏览器不再提供 manifest）；MCP command 指向同一 Skill 程序。更新完成后必须按[通用指引](client-setup.zh-CN.md)主动提示用户重启浏览器并等待确认。浏览器重启和 MCP 重连验证成功前保留上一份已验证 Skill；不得使用或复制浏览器安装目录中的旧程序。浏览器升级后重新检测；Windows 用户级注册不随浏览器版本目录迁移。旧进程占用文件时保留两个版本并安排安全重启，不强杀进程。
 
 ## 渠道一致性
 
