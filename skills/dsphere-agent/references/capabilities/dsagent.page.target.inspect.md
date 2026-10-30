@@ -2,7 +2,7 @@
 
 **Inspect browser page target** · risk `read-sensitive` · timeout 15000 ms · inline result ≤ 16384 bytes · concurrency `shared-read`
 
-Inspect one opaque target at an exact page revision. Returns bounded local structure and geometry; never returns selectors, action coordinates, scripts, or unbounded DOM.
+Inspect one opaque target at a page revision. Returns bounded local structure and geometry; never returns selectors, action coordinates, scripts, or unbounded DOM.
 
 ## Invocation
 
@@ -13,21 +13,20 @@ Call `dsagent_read` with this shape (a read: no idempotencyKey, may run beside o
   "method": "dsagent.page.target.inspect",
   "args": {
     "pageContextId": "<pageContextId: supply a value matching the schema>",
-    "targetId": "<targetId: supply a value matching the schema>",
-    "expectedRevision": "<expectedRevision: supply a value matching the schema>"
+    "targetId": "<targetId: supply a value matching the schema>"
   }
 }
 ```
 
 ## Inputs
 
-Opaque target binding and revision guard for one bounded structure inspection.
+Opaque target binding and optional revision guard for one bounded structure inspection.
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
 | `pageContextId` | string (2–128 chars) | yes | Opaque page context from dsagent.pages.list, dsagent.page.open, or a receipt's destinationPageContextId. |
 | `targetId` | string (1–128 chars) | yes | Opaque target identifier returned by dsagent.page.observe. |
-| `expectedRevision` | string (1–128 chars) | yes | Observed revision associated with the target; local identity and context must remain valid. |
+| `expectedRevision` | string (1–128 chars) |  | Optional: revision of the read that returned targetId; omitted, your newest read listing it. |
 
 ## Result fields (data.data)
 

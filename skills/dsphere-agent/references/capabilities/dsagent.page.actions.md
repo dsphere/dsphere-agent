@@ -13,7 +13,6 @@ Call `dsagent_invoke` with this shape. Replace every placeholder with a value fr
   "method": "dsagent.page.actions",
   "args": {
     "pageContextId": "<pageContextId: supply a value matching the schema>",
-    "expectedRevision": "<expectedRevision: supply a value matching the schema>",
     "actions": [
       {
         "targetId": "<targetId>",
@@ -27,15 +26,15 @@ Call `dsagent_invoke` with this shape. Replace every placeholder with a value fr
 
 ## Inputs
 
-One page context, the revision the sequence starts from, and the ordered actions.
+One page context, the optional revision the sequence starts from, and the ordered actions.
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
-| `taskDescription` | string (1–2000 chars) |  | The person’s request in detail (what to do, on which site, with which d… |
-| `taskMode` | enum: auto, continue |  | continue when you follow your own skill, workflow or plan of several st… |
-| `taskSteps` | array of string (1–160 chars) (≤ 30) |  | With taskMode continue: your steps in order, as your skill lists them;… |
-| `pageContextId` | string (2–128 chars) | yes | Opaque page context from dsagent.pages.list, dsagent.page.open, or a re… |
-| `expectedRevision` | string (1–128 chars) | yes | The revision the first step was planned at. |
+| `taskDescription` | string (1–2000 chars) |  | The person’s request in detail (what to do, on… |
+| `taskMode` | enum: auto, continue |  | continue when you follow your own skill, workfl… |
+| `taskSteps` | array of string (1–160 chars) (≤ 30) |  | With taskMode continue: your steps in order, as… |
+| `pageContextId` | string (2–128 chars) | yes | Opaque page context from dsagent.pages.list, ds… |
+| `expectedRevision` | string (1–128 chars) |  | Optional. The revision the first step was plann… |
 | `actions` | array of object {targetId, target, action, clickType, modifiers, offset, …} (≤ 12) | yes | The steps, in order. |
 
 ## Input constraints
@@ -55,6 +54,7 @@ Complete value lists and id patterns for the fields above (the contract file is 
 - `actions[].scrollTo`: one of `top`, `bottom`, `next-viewport`, `previous-viewport`
 - `actions[].axis`: one of `y`, `x`
 - `actions[].selectBy`: one of `value`, `text`, `index`
+- `actions[].slotEffect`: one of `replace`
 - `actions[].level`: one of `basic`, `standard`, `aggressive`
 - `actions[].waitFor.until`: one of `text-present`, `text-absent`, `target-present`, `target-absent`, `url-changed`, `revision-changed`, `settled`
 - `actions[].waitAfter.until`: one of `revision-changed`, `target-present`, `target-absent`, `target-enabled`, `target-disabled`, `text-present`, `text-absent`, `url-changed`, `settled`, `surface-closed`, `authentication-cleared`, `download`
@@ -65,15 +65,17 @@ Receipts of the executed steps and the compact view of the page the sequence end
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
-| `pageContextId` | string (0–128 chars) |  | The page context the sequence ended on (another one after a navigated s… |
+| `pageContextId` | string (0–128 chars) |  | The page context the sequence ended on (another… |
 | `previousRevision` | string (0–128 chars) |  | The revision the sequence started from. |
-| `revision` | string (0–128 chars) |  | The page revision after the last executed action. |
-| `executed` | integer (0…12) |  | How many steps executed (actions verified, waits ended). |
+| `revision` | string (0–128 chars) |  | The page revision after the last executed actio… |
+| `executed` | integer (0…12) |  | How many steps executed (actions verified, wait… |
 | `receipts` | array of object {index, targetId, action, resolved, waitFor, success, …} (≤ 12) |  | One receipt per executed step, in order. |
-| `stopped` | object {reason, index, targetId, code, businessCode, failureCode, …} |  | Present when the sequence ended before its last step. |
-| `warnings` | array of object {code, message, nextActions} (≤ 2) |  | REPEATED_RECORDS_USE_WIZARD: switch to the scrape wizard on this page n… |
-| `final` | object {pageSurfaces, motion, focusedCaret, framePageSurfaces, timing, operationResult, …} |  | Verified action receipt: a delta of the page the action left in place,… |
-| `authentication` | object {status, type, confidence, waitingOn, attemptsLeft} |  | The sign-in monitor's verdict on the page: status no-wall when it check… |
+| `stopped` | object {reason, index, targetId, code, businessCode, failureCode, …} |  | Present when the sequence ended before its last… |
+| `uploads` | array of object {index, fileName, success, uploadState, networkUpload, failureCode, …} (≤ 12) |  | Present when an upload-file step had later step… |
+| `recheck` | object {checked, changed, hint} |  | Present when fields were filled while an upload… |
+| `warnings` | array of object {code, message, nextActions} (≤ 2) |  | REPEATED_RECORDS_USE_WIZARD: switch to the scra… |
+| `final` | object {pageSurfaces, motion, focusedCaret, framePageSurfaces, pageSurfacesUnchanged, timing, …} |  | Verified action receipt: a delta of the page th… |
+| `authentication` | object {status, type, confidence, waitingOn, attemptsLeft} |  | The sign-in monitor's verdict on the page: stat… |
 
 ## Result constraints
 

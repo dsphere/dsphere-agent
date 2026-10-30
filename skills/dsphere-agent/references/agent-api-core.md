@@ -84,7 +84,7 @@ Result preview: `pageContextId`, `revision`, `url`, `title`; complete result in 
 Act on browser page target. Gateway: `dsagent_invoke`; risk: `external-effect`; concurrency: `exclusive-target`.
 
 ```json
-{"method":"dsagent.page.action","args":{"pageContextId":"<pageContextId>","targetId":"<targetId>","expectedRevision":"<expectedRevision>","action":"click"},"idempotencyKey":"<fresh-key>"}
+{"method":"dsagent.page.action","args":{"pageContextId":"<pageContextId>","targetId":"<targetId>","action":"click"},"idempotencyKey":"<fresh-key>"}
 ```
 
 Result preview: `pageSurfaces`, `motion`, `focusedCaret`, `framePageSurfaces`; complete result in the linked contract.
@@ -96,7 +96,7 @@ Result preview: `pageSurfaces`, `motion`, `focusedCaret`, `framePageSurfaces`; c
 Act on browser page targets in sequence. Gateway: `dsagent_invoke`; risk: `external-effect`; concurrency: `exclusive-target`.
 
 ```json
-{"method":"dsagent.page.actions","args":{"pageContextId":"<pageContextId>","expectedRevision":"<expectedRevision>","actions":[{"targetId":"<targetId>","action":"click"}]},"idempotencyKey":"<fresh-key>"}
+{"method":"dsagent.page.actions","args":{"pageContextId":"<pageContextId>","actions":[{"targetId":"<targetId>","action":"click"}]},"idempotencyKey":"<fresh-key>"}
 ```
 
 Result preview: `pageContextId`, `previousRevision`, `revision`, `executed`; complete result in the linked contract.
@@ -123,7 +123,7 @@ Finish my browser task. Gateway: `dsagent_invoke`; risk: `reversible-write`; con
 {"method":"dsagent.agent.work.finish","args":{"pageContextId":"<pageContextId>","status":"succeeded"},"idempotencyKey":"<fresh-key>"}
 ```
 
-Result preview: `status`, `closedPages`, `keptPages`; complete result in the linked contract.
+Result preview: `status`, `closedPages`, `keptPages`, `run`; complete result in the linked contract.
 
 [Options and constraints](capabilities/dsagent.agent.work.finish.md) · [Lossless contract](contracts/dsagent.agent.work.finish.json)
 

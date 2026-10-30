@@ -1024,6 +1024,26 @@
       "timedOut": {
         "type": "boolean",
         "description": "Whether the bounded wait ended before the execution reached a terminal state."
+      },
+      "rows": {
+        "type": "array",
+        "maxItems": 20,
+        "items": {},
+        "description": "Terminal wait with a local dataset: its first records (at most 20, at most 16 KiB), as dsagent.artifact.read returns them."
+      },
+      "rowCount": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "With rows: how many records the dataset holds."
+      },
+      "artifactId": {
+        "type": "string",
+        "maxLength": 256,
+        "description": "With rows: the dataset rows came from; read the rest with dsagent.artifact.read."
+      },
+      "rowsTruncated": {
+        "type": "boolean",
+        "description": "With rows: true when rows holds fewer records than rowCount."
       }
     },
     "required": [
@@ -1036,7 +1056,7 @@
       "timedOut"
     ],
     "additionalProperties": false,
-    "description": "Execution state after the bounded wait."
+    "description": "Execution state after the bounded wait; a terminal run with a local dataset carries its first rows."
   },
   "risk": "read-sensitive",
   "targetKinds": [

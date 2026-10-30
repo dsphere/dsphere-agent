@@ -23,9 +23,9 @@ Execution and maximum duration for one bounded status wait.
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
-| `executionId` | string (0–128 chars) | yes | Opaque workflow execution ident… |
-| `timeoutMs` | integer (100…30000) |  | Bounded wait duration in millis… |
-| `runToken` | string (0–128 chars, pattern under Constraints) |  | The run's ownership token, as d… |
+| `executionId` | string (0–128 chars) | yes | Opaque workflow exe… |
+| `timeoutMs` | integer (100…30000) |  | Bounded wait durati… |
+| `runToken` | string (0–128 chars, pattern under Constraints) |  | The run's ownership… |
 
 ## Input constraints
 
@@ -35,39 +35,43 @@ Complete value lists and id patterns for the fields above (the contract file is 
 
 ## Result fields (data.data)
 
-Execution state after the bounded wait.
+Execution state after the bounded wait; a terminal run with a local dataset carries its first rows.
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
-| `executionId` | string (0–128 chars) |  | Opaque workflow execution ident… |
-| `workflowId` | string (0–128 chars) |  | Opaque workflow identifier. |
-| `workflowName` | string (0–500 chars) |  | Optional workflow display name. |
-| `status` | string (0–100 chars) |  | Current execution lifecycle sta… |
-| `startedAt` | string (0–100 chars) |  | Optional execution start timest… |
-| `finishedAt` | string (0–100 chars) |  | Optional execution finish times… |
-| `durationMs` | integer (0…∞) |  | Optional execution duration in… |
-| `error` | string (0–500 chars) |  | Optional bounded execution erro… |
-| `endpoint` | enum (52 values, listed under Constraints) |  | The typed place the failure of… |
-| `endpointFallback` | enum: none, recovery, agent-handoff, person |  | The last fallback tier the endp… |
-| `endpointDetails` | object {kind, wallType, failureClass, netError, transient, phase, …} |  | Bounded, value-free detail of t… |
-| `endpointProvenance` | enum: typed, code, message |  | How the endpoint was known: typ… |
-| `errorCode` | string (0–100 chars) |  | The terminal error code of the… |
-| `errorNodeId` | string (0–128 chars) |  | The workflow node the run faile… |
-| `outcomeSource` | enum: local, backend |  | Where how-it-ended was read fro… |
-| `stopSource` | enum (7 values, listed under Constraints) |  | A stopped run: who stopped it.… |
-| `handoffEnding` | enum: aborted, timed-out, budget-exhausted, handoff-disabled, handoff-occupied |  | How a run that took the agent r… |
-| `recovery` | object {decline} |  | The in-run recovery the run tri… |
-| `coverage` | object {rowsSaved, rowsUnsaved, rowsRecovered, collectionFulfillment, fieldsMissing, chartsIncomplete, …} |  | What the run collected and wher… |
-| `toleratedFailures` | object {count, firstError} |  | Failures the policies of the ru… |
-| `hasResult` | boolean |  | Whether at least one execution… |
-| `artifactCount` | integer (0…∞) |  | Number of listed artifacts when… |
-| `lifecycle` | enum (7 values, listed under Constraints) |  | The lifecycle to plan on, whate… |
-| `pause` | object {kind, waitingOn, openedFor, sinceMs, deadline, wall, …} |  | Present while the run is paused… |
-| `terminal` | boolean |  | true: the run has ended (comple… |
-| `resultDelivery` | enum: pending |  | Present when the run ended in t… |
-| `runPageContextIds` | array of string (0–128 chars) (≤ 32) |  | The pages of the tabs this run… |
-| `progress` | object {currentNode, nodeIndex, nodeCount, recordsSoFar, listRecordsSoFar, authInterrupt, …} |  | Present while the run executes… |
-| `timedOut` | boolean |  | Whether the bounded wait ended… |
+| `executionId` | string (0–128 chars) |  | Opaque workflow exe… |
+| `workflowId` | string (0–128 chars) |  | Opaque workflow ide… |
+| `workflowName` | string (0–500 chars) |  | Optional workflow d… |
+| `status` | string (0–100 chars) |  | Current execution l… |
+| `startedAt` | string (0–100 chars) |  | Optional execution… |
+| `finishedAt` | string (0–100 chars) |  | Optional execution… |
+| `durationMs` | integer (0…∞) |  | Optional execution… |
+| `error` | string (0–500 chars) |  | Optional bounded ex… |
+| `endpoint` | enum (52 values, listed under Constraints) |  | The typed place the… |
+| `endpointFallback` | enum: none, recovery, agent-handoff, person |  | The last fallback t… |
+| `endpointDetails` | object {kind, wallType, failureClass, netError, transient, phase, …} |  | Bounded, value-free… |
+| `endpointProvenance` | enum: typed, code, message |  | How the endpoint wa… |
+| `errorCode` | string (0–100 chars) |  | The terminal error… |
+| `errorNodeId` | string (0–128 chars) |  | The workflow node t… |
+| `outcomeSource` | enum: local, backend |  | Where how-it-ended… |
+| `stopSource` | enum (7 values, listed under Constraints) |  | A stopped run: who… |
+| `handoffEnding` | enum: aborted, timed-out, budget-exhausted, handoff-disabled, handoff-occupied |  | How a run that took… |
+| `recovery` | object {decline} |  | The in-run recovery… |
+| `coverage` | object {rowsSaved, rowsUnsaved, rowsRecovered, collectionFulfillment, fieldsMissing, chartsIncomplete, …} |  | What the run collec… |
+| `toleratedFailures` | object {count, firstError} |  | Failures the polici… |
+| `hasResult` | boolean |  | Whether at least on… |
+| `artifactCount` | integer (0…∞) |  | Number of listed ar… |
+| `lifecycle` | enum (7 values, listed under Constraints) |  | The lifecycle to pl… |
+| `pause` | object {kind, waitingOn, openedFor, sinceMs, deadline, wall, …} |  | Present while the r… |
+| `terminal` | boolean |  | true: the run has e… |
+| `resultDelivery` | enum: pending |  | Present when the ru… |
+| `runPageContextIds` | array of string (0–128 chars) (≤ 32) |  | The pages of the ta… |
+| `progress` | object {currentNode, nodeIndex, nodeCount, recordsSoFar, listRecordsSoFar, authInterrupt, …} |  | Present while the r… |
+| `timedOut` | boolean |  | Whether the bounded… |
+| `rows` | array of any (≤ 20) |  | Terminal wait with… |
+| `rowCount` | integer (0…∞) |  | With rows: how many… |
+| `artifactId` | string (0–256 chars) |  | With rows: the data… |
+| … | 1 more fields in the contract | | |
 
 ## Result constraints
 

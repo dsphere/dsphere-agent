@@ -1,6 +1,6 @@
 # dsagent.agent.work.finish
 
-**Finish my browser task** · risk `reversible-write` · timeout 30000 ms · inline result ≤ 8192 bytes · concurrency `exclusive-target`
+**Finish my browser task** · risk `reversible-write` · timeout 30000 ms · inline result ≤ 65536 bytes · concurrency `exclusive-target`
 
 Ends your task with its verified outcome, and with keep closes its pages in the same call: pass keep [] to close every page the task opened, or name the pages to leave open for the person.
 
@@ -28,6 +28,7 @@ The page identifying your task, its verified terminal outcome, and the pages to 
 | `pageContextId` | string (1–128 chars) | yes | A page reference belonging to the task you are finishing. |
 | `status` | enum: succeeded, failed, cancelled | yes | The outcome you verified for this task. |
 | `keep` | array of string (1–128 chars) (≤ 32) |  | Close the task's other pages now: [] closes them all, listed pages stay open for the person. Omit for the 60-second cou… |
+| `compileRun` | boolean |  | Return run: this task's verified page steps compiled into Playwright-style scripts for dsagent.page.script, one per pag… |
 
 ## Result fields (data.data)
 
@@ -38,6 +39,7 @@ The recorded terminal outcome of this task, and what keep closed.
 | `status` | enum: succeeded, failed, cancelled, interrupted |  | The terminal status recorded for this task. |
 | `closedPages` | integer (0…∞) |  | With keep: how many of the task's pages this call closed. |
 | `keptPages` | array of string (0–128 chars) (≤ 32) |  | With keep: the kept pages that are this task's and still open; a name that is not one is left out. |
+| `run` | object {pages, steps, notes} |  | With compileRun: the task's verified steps as replay scripts. |
 
 ## Guidance
 

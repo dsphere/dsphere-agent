@@ -2,7 +2,7 @@
 
 **Act on browser page target** · risk `external-effect` · timeout 45000 ms · inline result ≤ 131072 bytes · concurrency `exclusive-target`
 
-Execute one planned atomic action (see the action enum: click, input, hover, scroll, press-key, select, …) on an opaque target at the latest revision. A stale expectedRevision is refused before dispatch; the receipt carries the page delta to plan the next step from.
+Execute one planned atomic action (see the action enum: click, input, hover, scroll, press-key, select, …) on an opaque target you read; expectedRevision is optional. A target that changed since your read is refused before dispatch; the receipt carries the page delta to plan the next step from.
 
 ## Invocation
 
@@ -14,7 +14,6 @@ Call `dsagent_invoke` with this shape. Replace every placeholder with a value fr
   "args": {
     "pageContextId": "<pageContextId: supply a value matching the schema>",
     "targetId": "<targetId: supply a value matching the schema>",
-    "expectedRevision": "<expectedRevision: supply a value matching the schema>",
     "action": "click"
   },
   "idempotencyKey": "<fresh 8-128 character key you choose; reuse it only for an identical retry>"
@@ -23,7 +22,7 @@ Call `dsagent_invoke` with this shape. Replace every placeholder with a value fr
 
 ## Inputs
 
-Opaque target binding, revision guard, and bounded parameters for one external atomic page action.
+Opaque target binding, optional revision, and bounded parameters for one external atomic page action.
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
@@ -32,7 +31,7 @@ Opaque target binding, revision guard, and bounded parameters for one external a
 | `taskSteps` | array of string (1–160 chars) (≤ 30) |  | With taskMode conti… |
 | `pageContextId` | string (2–128 chars) | yes | Opaque page context… |
 | `targetId` | string (1–128 chars) | yes | Opaque target ident… |
-| `expectedRevision` | string (1–128 chars) | yes | Observed revision a… |
+| `expectedRevision` | string (1–128 chars) |  | Optional. The revis… |
 | `action` | enum (31 values, listed under Constraints) | yes | Atomic action dynam… |
 | `waitAfter` | object {until, timeoutMs, targetId, text, surfaceId} |  | Optional: a dsagent… |
 | `clickType` | enum: click, dblclick, rightclick, middleclick |  | Optional click vari… |
@@ -59,7 +58,7 @@ Opaque target binding, revision guard, and bounded parameters for one external a
 | `repeat` | integer (1…20) |  | Press the same key… |
 | `scrollTo` | enum: top, bottom, next-viewport, previous-viewport |  | Bounded destination… |
 | `viewportRatio` | number (-∞…1) |  | Optional fraction o… |
-| … | 9 more fields in the contract | | |
+| … | 10 more fields in the contract | | |
 
 ## Input constraints
 
@@ -73,6 +72,7 @@ Complete value lists and id patterns for the fields above (the contract file is 
 - `key`: one of `Enter`, `Escape`, `Tab`, `Backspace`, `Delete`, `Space`, `ArrowUp`, `ArrowDown`, `ArrowLeft`, `ArrowRight`, `Home`, `End`, `PageUp`, `PageDown`, `Control+0`, `Control+1`, `Control+2`, `Control+3`, `Control+4`, `Control+5`, `Control+6`, `Control+7`, `Control+8`, `Control+9`, `Meta+0`, `Meta+1`, `Meta+2`, `Meta+3`, `Meta+4`, `Meta+5`, `Meta+6`, `Meta+7`, `Meta+8`, `Meta+9`, `Shift+Tab`, `Control+a`, `Control+c`, `Control+v`, `Control+x`, `Control+z`, `Control+Enter`, `Shift+Enter`, `Shift+ArrowLeft`, `Shift+ArrowRight`, `Shift+ArrowUp`, `Shift+ArrowDown`, `Shift+Home`, `Shift+End`, `Control+ArrowLeft`, `Control+ArrowRight`, `Control+Home`, `Control+End`, `Control+Shift+ArrowLeft`, `Control+Shift+ArrowRight`, `Control+Shift+Home`, `Control+Shift+End`, `Control+Backspace`, `Control+Delete`, `Control+b`, `Control+i`, `Control+u`, `Control+Shift+z`, `Control+y`, `/`, `?`
 - `axis`: one of `y`, `x`
 - `selectBy`: one of `value`, `text`, `index`
+- `slotEffect`: one of `replace`
 - `level`: one of `basic`, `standard`, `aggressive`
 
 ## Result fields (data.data)
@@ -85,6 +85,7 @@ Verified action receipt: a delta of the page the action left in place, or the co
 | `motion` | object {scope, animationCount, marqueeCount, carouselCount, heldCount, unpausableCount, …} |  | Current motion stat… |
 | `focusedCaret` | object {surface, textLength, selectionStart, selectionEnd, caret, selectedText, …} |  | Where the caret sta… |
 | `framePageSurfaces` | array of object {frameId, observed} (≤ 8) |  | Admitted child-fram… |
+| `pageSurfacesUnchanged` | enum: true |  | The open surfaces a… |
 | `timing` | object {startedAt, durationMs, stages} |  | Measured shared own… |
 | `operationResult` | one of 13: object {fields, fieldCount, truncated} / object {filled, requiredEmpty, fieldCount} / object {pasted, handledBy, caretPlacement, elementsAdded, imagesInserted, textAdded, …} / object {uploadState, path, fileDelivery, fileName, sizeBytes, slotIndex, …} / object {options, reclassifyAs} / object {operation, animationCount, marqueeCount, carouselCount, heldCount, runningCount, …} / object {operation, videoCount, playingCount, truncated} / object {operation, animationCount, marqueeCount, carouselCount, heldCount, runningCount, …} / object {operation, videoCount, playingCount, pausedCount, truncated} / object {operation, videoCount, playingCount, playedCount, truncated} / object {operation, animationCount, marqueeCount, carouselCount, heldCount, runningCount, …} / object {operation, count, protectedSkips, truncated} / object {operation, removedCount, remaining, protectedSkips, truncated, persistent, …} |  | Bounded result publ… |
 | `pageContextId` | string (0–128 chars) |  | Page context on whi… |
@@ -112,8 +113,7 @@ Verified action receipt: a delta of the page the action left in place, or the co
 | `pageUnchanged` | enum: true |  | Present and true wh… |
 | `consumedByDismissal` | object {surfaceId, kind} |  | Present when the pa… |
 | `omittedRemovedTargets` | integer (1…∞) |  | Present when the ac… |
-| `omittedTargets` | integer (1…∞) |  | Present when the ac… |
-| … | 21 more fields in the contract | | |
+| … | 22 more fields in the contract | | |
 
 ## Result constraints
 

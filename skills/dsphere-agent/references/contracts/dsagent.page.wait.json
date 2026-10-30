@@ -122,7 +122,7 @@
       "waitedMs": {
         "type": "integer",
         "minimum": 0,
-        "description": "How long the wait took."
+        "description": "How long the wait took for its condition, not counting the read of the page that names the revision after it."
       },
       "revision": {
         "type": "string",

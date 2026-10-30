@@ -3,7 +3,7 @@
   "version": 1,
   "title": "Finish my browser task",
   "description": "Ends your task with its verified outcome, and with keep closes its pages in the same call: pass keep [] to close every page the task opened, or name the pages to leave open for the person.",
-  "guidance": "Pages the person opened, other tasks' pages and pages a wizard, run, question or sign-in wall holds are never closed. Without keep, a 60-second countdown the person can stop closes the task's pages. For an ordinary task, dsagent.page.close on its last page also ends it as succeeded; a continue task (taskMode continue or step reports) ends only by this call. Name one page of the task. Active work must be resolved first. Without a finish, ten idle minutes end an unattended task as interrupted, never as successful.",
+  "guidance": "Pages the person opened, other tasks' pages and pages a wizard, run, question or sign-in wall holds are never closed. Without keep, a 60-second countdown the person can stop closes the task's pages. For an ordinary task, dsagent.page.close on its last page also ends it as succeeded; a continue task (taskMode continue or step reports) ends only by this call. Name one page of the task. Active work must be resolved first. Without a finish, ten idle minutes end an unattended task as interrupted, never as successful. compileRun true also returns the task's verified steps as replay scripts for dsagent.page.script: keep them beside the person's skill and run them next time.",
   "inputSchema": {
     "description": "The page identifying your task, its verified terminal outcome, and the pages to keep.",
     "type": "object",
@@ -39,6 +39,10 @@
           "description": "A pageContextId of this task to leave open."
         },
         "description": "Close the task's other pages now: [] closes them all, listed pages stay open for the person. Omit for the 60-second countdown instead."
+      },
+      "compileRun": {
+        "type": "boolean",
+        "description": "Return run: this task's verified page steps compiled into Playwright-style scripts for dsagent.page.script, one per page, typed values as input fields. Save them beside the skill you followed and run them next time instead of planning each step again."
       }
     }
   },
@@ -74,6 +78,73 @@
           "description": "A kept pageContextId."
         },
         "description": "With keep: the kept pages that are this task's and still open; a name that is not one is left out."
+      },
+      "run": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "pages",
+          "steps",
+          "notes"
+        ],
+        "description": "With compileRun: the task's verified steps as replay scripts.",
+        "properties": {
+          "pages": {
+            "type": "array",
+            "maxItems": 32,
+            "description": "One script per page, in order: open url with dsagent.page.open, then run source with dsagent.page.script and input.",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "url",
+                "steps",
+                "source",
+                "input"
+              ],
+              "description": "One page of the run.",
+              "properties": {
+                "url": {
+                  "type": "string",
+                  "maxLength": 2048,
+                  "description": "The address the script starts on."
+                },
+                "steps": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Page calls in the script."
+                },
+                "source": {
+                  "type": "string",
+                  "maxLength": 16384,
+                  "description": "The script, Playwright-style; review it before reuse."
+                },
+                "input": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "description": "Input fields with the values typed in this run; sensitive fields are empty."
+                }
+              }
+            }
+          },
+          "steps": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Verified steps the run recorded."
+          },
+          "notes": {
+            "type": "array",
+            "maxItems": 20,
+            "items": {
+              "type": "string",
+              "maxLength": 300,
+              "description": "One note."
+            },
+            "description": "Steps the scripts leave to single calls or could not name."
+          }
+        }
       }
     }
   },
@@ -85,7 +156,7 @@
     "page.close"
   ],
   "timeoutMs": 30000,
-  "maxInlineResultBytes": 8192,
+  "maxInlineResultBytes": 65536,
   "concurrency": "exclusive-target",
   "retry": "never",
   "exposure": "exposed"

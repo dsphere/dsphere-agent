@@ -28,6 +28,7 @@ Which wizard's workflow to run.
 | `wizardId` | string (0–36 chars, pattern under Constraints) | yes | Opaque wizard id re… |
 | `wizardToken` | string (16–128 chars, pattern under Constraints) |  | Ownership token ret… |
 | `expectedRevision` | string (0–16 chars, pattern under Constraints) | yes | revision of the sta… |
+| `once` | boolean |  | At ready-to-save: c… |
 
 ## Input constraints
 

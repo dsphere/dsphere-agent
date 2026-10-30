@@ -32,7 +32,7 @@ A task-grounded answer to the pending choice.
 | `choiceId` | enum (29 values, listed under Constraints) | yes | pendingChoice.choic… |
 | `optionIds` | array of string (0–16 chars, pattern under Constraints) (≤ 200) |  | Current opaque opti… |
 | `values` | object {collectHint, maxRecords, stopBefore, detailUrlSuffix, pageQueryParam, fieldLabels, …} |  | Values listed in pe… |
-| `auto` | object {maxRecords, detailPages, workflowName, workflowDescription} |  | Auto mode for a lis… |
+| `auto` | object {maxRecords, detailPages, workflowName, workflowDescription, once} |  | Auto mode for a lis… |
 
 ## Input constraints
 
@@ -78,7 +78,7 @@ The wizard state after the answer (with auto, the state where auto ended).
 | `lastEndpoint` | object {endpoint, group, outcome, scope, reason, scrapeErrorCode, …} |  | The typed endpoint… |
 | `warnings` | array of object {code, message} (≤ 8) |  | What the saved work… |
 | `personTookOver` | boolean |  | True when the perso… |
-| `auto` | object {outcome, stoppedAt, reason, answered, preview} |  | Present when the ca… |
+| `auto` | object {outcome, stoppedAt, executionId, reason, answered, preview} |  | Present when the ca… |
 
 ## Result constraints
 

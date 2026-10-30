@@ -3,7 +3,7 @@ name: dsphere-agent
 description: "Drive DSphere browser via MCP: read pages, act on controls, collect data with the wizard, and replay workflows."
 metadata:
   author: "dsphere"
-  version: "1.11.1"
+  version: "1.12.0"
   specification: "https://agentskills.io/specification"
 ---
 
@@ -13,7 +13,25 @@ Use the user's language. Install/update or missing tools: [English guide](refere
 
 Windows: use the verified installer; follow the Windows guide for refused contexts. Never write registry keys directly.
 
-## Orientation (read first)
+## One-time task: start here
+
+A one-off task (open, find, click, type, choose from a menu, read, collect one list) needs only this section and [quick shapes](references/quick-task.md); the form sheet is for uploads, downloads, rich text, drag and custom widgets.
+
+```text
+invoke dsagent.page.open      {url, taskDescription}               -> pageContextId, targets
+read   dsagent.page.find      {pageContextId, query}               -> matches[].target.id
+invoke dsagent.page.actions   {pageContextId, actions: [...]}      -> receipts, final view
+invoke dsagent.wizard.start   {kind: "scrape", auto: {once: true}} -> auto.executionId
+read   dsagent.execution.wait {executionId, timeoutMs: 30000}      -> rows, artifactId
+invoke dsagent.agent.work.finish {pageContextId, status, keep: []}
+```
+
+- `expectedRevision` is optional: left out, your newest read listing the target is used; a changed element is still refused (`STALE_OBSERVATION`: find it again).
+- Name a control by its words: `{"target":{"name":"Search"},"action":"click"}`.
+- Hover menu in one call (hover first): hover the opener, `{"waitFor":{"until":"target-present","target":{"name":"<option>"}}}`, then click `{"target":{"name":"<option>"}}`.
+- `auto.once` collects the page as it shows now (sorts and filters stay) and keeps no workflow; the wait returns the first rows and `artifactId`.
+
+## Orientation
 
 Use `dsagent_read` for read-sensitive methods (observe/find/list/read/wait), `dsagent_invoke` for effects, including open/close. `method` is **not** a tool name; `args` follows its contract:
 
@@ -23,7 +41,7 @@ Use `dsagent_read` for read-sensitive methods (observe/find/list/read/wait), `ds
 
 Read `structuredContent`: replies are `{ok:true,data:{operationId,status,data}}`, business payload at `data.data`. Errors are `{ok:false,error:{code,dispatchStatus,hint,nextActions}}`, with `isError`. Preserve the envelope and warnings; never recursively unwrap a business field named `data`.
 
-Copy handles from results: `instanceId` only with several browsers online (`INSTANCE_REQUIRED` error.instances); `pageContextId` from `dsagent.page.open` / `dsagent.pages.list`; `revision` from observe/find/action → `expectedRevision`; `targets[].id` from `targets.added`/`changed` or find's `matches[].target.id` → `targetId`. Keep each page's evidence separate.
+Copy handles from results: `instanceId` only with several browsers online (`INSTANCE_REQUIRED` error.instances); `pageContextId` from `dsagent.page.open` / `dsagent.pages.list`; `revision` from observe/find/action → optional `expectedRevision` (omitted: your newest read listing the target); `targets[].id` from `targets.added`/`changed` or find's `matches[].target.id` → `targetId`. Keep each page's evidence separate.
 
 **Route.** Questions and ordinary interactions → page loop below. Repeated records with the same fields per item → **always** the scrape wizard, whether 5 or 5,000: comments, replies, cards, posts, rows and search results. Never an observe → scroll → read collection loop with `page.action` / `page.markdown`, including after `detect-again`, `pick-sample-record` or `detect-with-ai`. `warnings[].code=REPEATED_RECORDS_USE_WIZARD` means switch now. The only exception, `dsagent.dataset.save-agent-read`, requires the wizard's typed detection failure; it is not an alternative first attempt. Reusable workflow recording → `kind=record`; saved workflow → replay; accounts/fingerprints → [account tools](references/account-management.md), never settings pages or passwords in chat.
 
@@ -39,23 +57,25 @@ Call tools directly, no list first: one online browser is used. `EXTENSION_OFFLI
 
 You plan every browser task yourself. First page.open, page.action(s) on an existing page, wizard.start or execution.run includes the user's detailed request as `taskDescription`. Use the default user session: omit `sessionGroup` or pass `default`, without `sessionName`. Use `new` only when the user explicitly requests it or the task requires another website account, then reuse with `previous`; retries and parallel agents do not justify isolation.
 
-**Skill or multi-step plan:** never send only its first step. Pass `taskMode:"continue"`, `taskSteps` and the whole request as `taskDescription`; report each step once with `dsagent.agent.work.step` (`succeeded`/`failed`/`skipped`; each outcome starts the next listed step, `started` only out of order); repeat no `taskDescription` (a new one starts another task); after the last step, `dsagent.agent.work.finish`.
+**Skill or multi-step plan:** never send only its first step. Pass `taskMode:"continue"`, `taskSteps` and the whole request as `taskDescription`; report each step once with `dsagent.agent.work.step` (`succeeded`/`failed`/`skipped`; each outcome starts the next listed step, `started` only out of order); repeat no `taskDescription` (a new one starts another task); after the last step, `dsagent.agent.work.finish`. Running a person's own skill: follow the [skill sheet](references/requests/skills.md); finish it with `compileRun: true` and keep the returned scripts beside that skill, so the next run is one script call.
 
 **Page loop.** `dsagent.page.open` (act on its targets) or `pages.list` → `dsagent.page.observe`/`find` for more → `page.action(s)` → verify returned evidence → end the task with one `dsagent.agent.work.finish`: a task `pageContextId`, verified `status` and `keep: []` (or pages to leave for the person); it closes the rest and you close only pages you opened. Else ten idle minutes end it interrupted. First resolve active wizards/runs/questions. `dsagent.page.markdown` reads prose. Later observations use `baseRevision`; retain unchanged targets and remove removedTargetIds.
 
 ```json
-{"method":"dsagent.page.action","args":{"pageContextId":"<id>","targetId":"<target.id>","expectedRevision":"<revision>","action":"click"},"idempotencyKey":"act-<uuid>"}
+{"method":"dsagent.page.action","args":{"pageContextId":"<id>","targetId":"<target.id>","action":"click"},"idempotencyKey":"act-<uuid>"}
 ```
 
 Use `dsagent.page.actions` for up to 8 already-decided steps from current evidence. Never guess unopened options' IDs. Consume final receipts and stop on failure/navigation; a failed batch's earlier success is not current evidence. waitAfter folds a bounded wait into an action; otherwise use `dsagent.page.wait`. Verify search submission, selection, validation, reveal, destination and pagination separately from gesture success. `OUTCOME_UNKNOWN`: read-only reconciliation, never automatic replay.
 
+**Scripts.** When the next 3+ page calls are clear now and the choices between them are mechanical (text present, target found, how many results), `dsagent.page.script` runs them in one call in a sandbox; read the [script sheet](references/requests/script.md) first; a person's Playwright script converts with the [Playwright sheet](references/requests/playwright.md). Stay with single calls on a new page, for judgment about content, before an action that cannot be undone, and to collect data.
+
 Open only the exact user-provided URL or their named site's entry page; thereafter use observed controls/links. Never probe network endpoints, infer APIs, replay requests, or construct/edit URL paths, queries or fragments for search, filtering, sorting, pagination or collection.
 
-Before the first form, batch or sort/filter panel (opener: hover first) read the [form sheet](references/requests/form.md) (page.actions inputs and page-action owner rules); [page guidance](references/guidance/dsagent.page.md) only before an upload, download, account check or emulation. Optional [core API](references/agent-api-core.md), [EN](references/browser-automation.en.md) / [中文](references/browser-automation.zh-CN.md), [state](references/atomic-caller-state.md) / [script](scripts/atomic-client-state.mjs).
+Rows from Feishu (lark-cli, Base/Sheets/Docs) → pages: [Feishu sheet](references/feishu-data-sources.md); stage files by `path` (only OS folders refused). Before an upload, rich text, drag, custom widget or a form or panel the quick shapes do not cover, read the [form sheet](references/requests/form.md) (page.actions inputs and page-action owner rules); [page guidance](references/guidance/dsagent.page.md) only before an upload, download, account check or emulation. Optional [core API](references/agent-api-core.md), [EN](references/browser-automation.en.md) / [中文](references/browser-automation.zh-CN.md), [state](references/atomic-caller-state.md) / [script](scripts/atomic-client-state.mjs).
 
 **Wizard.** Read [owner guidance](references/guidance/dsagent.wizard.md) and the [wizard/dataset request sheet](references/requests/wizard.md) before `dsagent.wizard.start` (`kind=scrape` for datasets, `kind=record` for recording). The sheet holds every wizard, run and artifact request shape and choose value; skip their separate contracts. Let the wizard detect pagination and records; do not inspect them with page tools first.
 
-Pass wizardId + wizardToken every time. `dsagent.wizard.state` → `dsagent.wizard.choose` from pendingChoice → consume its returned state; poll only while waiting or missing evidence. `timedOut=true` is a heartbeat. Choose and name autonomously from the task; credentials, sign-ins and consents remain the person's. For pagePick use find + wizard.pick. At `phase=ready-to-save`, verify summary then `dsagent.wizard.save`. `dsagent.wizard.run` only when the user asks for execution/dataset; `dsagent.execution.wait` until `terminal` (`timeoutMs`, not waitMs); `dsagent.artifacts.list` / `dsagent.artifact.read`, on `RESULT_LIMIT_EXCEEDED` page with `format: csv` or `jsonl` to `eof`. [EN wizard](references/wizard-mode.en.md) / [中文](references/wizard-mode.zh-CN.md).
+Pass wizardId + wizardToken every time. `dsagent.wizard.state` → `dsagent.wizard.choose` from pendingChoice → consume its returned state; poll only while waiting or missing evidence. `timedOut=true` is a heartbeat. Choose and name autonomously from the task; credentials, sign-ins and consents remain the person's. For pagePick use find + wizard.pick. At `phase=ready-to-save`, verify summary then `dsagent.wizard.save`. One-time dataset: `auto: {once: true}` on start/choose (or `dsagent.wizard.run` with `once: true` at ready-to-save) runs once without saving a workflow. Otherwise `dsagent.wizard.run` only when the user asks for execution/dataset; `dsagent.execution.wait` until `terminal` (`timeoutMs`, not waitMs); `dsagent.artifacts.list` / `dsagent.artifact.read`, on `RESULT_LIMIT_EXCEEDED` page with `format: csv` or `jsonl` to `eof`. [EN wizard](references/wizard-mode.en.md) / [中文](references/wizard-mode.zh-CN.md).
 
 Saved workflow: workflows.list → workflow.inputs.get → execution.run → execution.wait → artifacts. Website exploration only on explicit request: [guide](references/website-exploration.md). Never integrate exploration into an ordinary atomic task.
 
@@ -74,6 +94,7 @@ Retain operationId; rule (5) applies.
 | Condition | Next step |
 |---|---|
 | `INSTANCE_REQUIRED` | Select error.instances; keep instanceId. |
+| `DISCOVERY_UNAVAILABLE` | Local setup (details.cause), not offline: never launch; report, then list again after the repair. |
 | `EXTENSION_OFFLINE` / INSTANCE_NOT_FOUND | Launch once; list. Still offline / BROWSER_NOT_INSTALLED / BROWSER_LAUNCH_FAILED: report, use setup; no task retries. |
 | APPROVAL_DENIED + STOPPED-BY-PERSON | Stop; tell them what is left; resume only once they agree, with a new `taskDescription`. |
 | `APPROVAL_REQUIRED` / other APPROVAL_DENIED / POLICY_DENIED | Report refusal; no loop. |

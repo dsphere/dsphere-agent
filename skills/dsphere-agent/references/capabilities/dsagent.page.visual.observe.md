@@ -12,8 +12,7 @@ Call `dsagent_read` with this shape (a read: no idempotencyKey, may run beside o
 {
   "method": "dsagent.page.visual.observe",
   "args": {
-    "pageContextId": "<pageContextId: supply a value matching the schema>",
-    "expectedRevision": "<expectedRevision: supply a value matching the schema>"
+    "pageContextId": "<pageContextId: supply a value matching the schema>"
   }
 }
 ```
@@ -25,7 +24,7 @@ Revision-bound request for one owner-controlled viewport or target image.
 | Field | Type | Required | Meaning |
 |---|---|---|---|
 | `pageContextId` | string (2–128 chars) | yes | Opaque page context from dsagent.pages.list, dsagent.page.open, or a receipt's destinationPageContextId. |
-| `expectedRevision` | string (1–128 chars) | yes | Exact page revision to which the requested image must be bound. |
+| `expectedRevision` | string (1–128 chars) |  | Optional revision the image is bound to; omitted, your newest read (listing targetId, if given), else the current page. |
 | `targetId` | string (1–128 chars) |  | Optional opaque target ID. When present, the Extension computes a target-local crop; callers cannot provide coordinates. |
 
 ## Result fields (data.data)

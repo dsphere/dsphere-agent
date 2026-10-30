@@ -335,7 +335,7 @@
       "auto": {
         "type": "object",
         "additionalProperties": false,
-        "description": "Auto mode for a list, scrape wizards only (on dsagent.wizard.choose: once you answer the choice auto stopped at, the same call goes on): after this call's own step, the wizard answers each pending choice with the answer the SidePanel's Next would submit (the one recommended pagination type, the one clear data source, the checked fields, the recommended nested scope, no detail pages, no page content or output files, the name) while that answer is unambiguous, up to ready-to-save, within this call. It stops and returns the ordinary state, with the pending choice yours to answer, at the first choice that needs a decision: no or several recommendations, another list on the page body beside the recommended one, a pick on the page, a sign-in or verification wall, a failed detection. It never saves or runs: check auto.answered and auto.preview against the task, then dsagent.wizard.save. {} uses every default.",
+        "description": "Auto mode for a list, scrape wizards only (on dsagent.wizard.choose: once you answer the choice auto stopped at, the same call goes on): after this call's own step, the wizard answers each pending choice with the answer the SidePanel's Next would submit (the one recommended pagination type, the one clear data source, the checked fields, the recommended nested scope, no detail pages, no page content or output files, the name) while that answer is unambiguous, up to ready-to-save, within this call. It stops and returns the ordinary state, with the pending choice yours to answer, at the first choice that needs a decision: no or several recommendations, another list on the page body beside the recommended one, a pick on the page, a sign-in or verification wall, a failed detection. Without once it never saves or runs: check auto.answered and auto.preview against the task, then dsagent.wizard.save. {} uses every default.",
         "properties": {
           "maxRecords": {
             "type": "integer",
@@ -357,6 +357,10 @@
             "type": "string",
             "maxLength": 500,
             "description": "workflow-details description; omitted, the wizard's suggested one."
+          },
+          "once": {
+            "type": "boolean",
+            "description": "true: collect once, keeping no workflow: at ready-to-save the wizard runs once on this tab (outcome run-started, executionId); page-changes is answered collect-once-as-shown."
           }
         },
         "required": []
@@ -1236,6 +1240,39 @@
               "matches",
               "sourceSteered"
             ]
+          },
+          "pageChangesNotRepeated": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "After collect-page-as-loaded: a saved workflow opens the page's address and does not repeat these changes (a sort or filter is lost). dsagent.wizard.run with once true keeps them.",
+            "properties": {
+              "count": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Page actions not repeated."
+              },
+              "changes": {
+                "type": "array",
+                "maxItems": 8,
+                "items": {
+                  "type": "string",
+                  "maxLength": 80,
+                  "description": "One change: the action and its control's label (page text)."
+                },
+                "description": "The changes, first ones first."
+              }
+            },
+            "required": [
+              "count",
+              "changes"
+            ]
+          },
+          "oneTime": {
+            "type": "boolean",
+            "enum": [
+              true
+            ],
+            "description": "Collected once without keeping a workflow."
           }
         },
         "required": [
@@ -1576,9 +1613,10 @@
             "type": "string",
             "enum": [
               "ready-to-save",
-              "stopped"
+              "stopped",
+              "run-started"
             ],
-            "description": "ready-to-save: every choice was answered; verify, then dsagent.wizard.save. stopped: the state is the ordinary one at the choice auto left (stoppedAt) or at what it waits for; continue step by step (dsagent.wizard.choose, optionally with auto again)."
+            "description": "run-started (auto.once): every choice was answered and the one-time run started (executionId): dsagent.execution.wait. ready-to-save: every choice was answered; verify, then dsagent.wizard.save. stopped: the state is the ordinary one at the choice auto left (stoppedAt) or at what it waits for; continue step by step (dsagent.wizard.choose, optionally with auto again)."
           },
           "stoppedAt": {
             "type": "string",
@@ -1615,6 +1653,11 @@
             ],
             "description": "The pending choice auto left to you."
           },
+          "executionId": {
+            "type": "string",
+            "maxLength": 128,
+            "description": "With run-started: the one-time run."
+          },
           "reason": {
             "type": "string",
             "enum": [
@@ -1635,7 +1678,7 @@
               "no-progress",
               "time-budget"
             ],
-            "description": "Why auto stopped. wall: a sign-in or verification wall (authentication, pass-page-check); awaiting-page: a pick or step on the page; taken-over: the person took the wizard; step-failed / detection-endpoint: a step failed or a detection found nothing (lastError / lastEndpoint); no-data: no list or table, or the search page reports no results; no-recommendation: the wizard recommends no single answer (pagination detection inconclusive); ambiguous-source: no single clear list (another list on the page body, several pages of sources, a recommended one that is page chrome or holds fewer than 2 records); no-fields / fields-truncated: nothing checked, or more fields than listed; detail-pages-requested: auto.detailPages true; name-required: no name to give; not-auto-choice: a choice auto never answers (page-changes, pick by example, detail-page, option-combination and recording choices); changed: the wizard changed under auto (the person acted); no-progress: the flow came back to a choice already answered; time-budget: the call's time ran out (a step may still be busy: wait with dsagent.wizard.state)."
+            "description": "Why auto stopped. wall: a sign-in or verification wall (authentication, pass-page-check); awaiting-page: a pick or step on the page; taken-over: the person took the wizard; step-failed / detection-endpoint: a step failed or a detection found nothing (lastError / lastEndpoint); no-data: no list or table, or the search page reports no results; no-recommendation: the wizard recommends no single answer (pagination detection inconclusive); ambiguous-source: no single clear list (another list on the page body, several pages of sources, a recommended one that is page chrome or holds fewer than 2 records); no-fields / fields-truncated: nothing checked, or more fields than listed; detail-pages-requested: auto.detailPages true; name-required: no name to give; not-auto-choice: a choice auto never answers (page-changes without once, pick by example, detail-page, option-combination and recording choices); changed: the wizard changed under auto (the person acted); no-progress: the flow came back to a choice already answered; time-budget: the call's time ran out (a step may still be busy: wait with dsagent.wizard.state)."
           },
           "answered": {
             "type": "array",

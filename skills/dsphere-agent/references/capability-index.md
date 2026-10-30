@@ -80,7 +80,8 @@ Known methods are invoked directly. Look a contract up with `dsagent_list_capabi
 | `dsagent.page.observe` | Read bounded live evidence for the browser steps you plan. | read-sensitive |  |
 | `dsagent.page.open` | Use the default user session for every agent task, preserving the person's exis… | reversible-write | yes |
 | `dsagent.page.presentation.get` | Read actual window, viewport and device pixel ratio of an agent-owned page. | read-sensitive |  |
-| `dsagent.page.target.inspect` | Inspect one opaque target at an exact page revision. | read-sensitive |  |
+| `dsagent.page.script` | Runs a short JavaScript program in a sandbox in the extension on one page you o… | external-effect | yes |
+| `dsagent.page.target.inspect` | Inspect one opaque target at a page revision. | read-sensitive |  |
 | `dsagent.page.viewport.set` | Set the viewport size of an agent-owned page using normal browser APIs. | reversible-write | yes |
 | `dsagent.page.visual.observe` | Return one bounded JPEG as MCP image content for the current viewport or one op… | read-sensitive |  |
 | `dsagent.page.wait` | Wait, bounded, for one condition on the page instead of polling dsagent.page.ob… | read-sensitive |  |

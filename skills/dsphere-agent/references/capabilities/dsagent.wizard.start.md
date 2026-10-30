@@ -31,7 +31,7 @@ Which wizard to start and on which page.
 | `taskMode` | enum: auto, continue |  | continue when you f… |
 | `taskSteps` | array of string (1–160 chars) (≤ 30) |  | With taskMode conti… |
 | `collectHint` | string (1–300 chars) |  | kind=scrape only: W… |
-| `auto` | object {maxRecords, detailPages, workflowName, workflowDescription} |  | Auto mode for a lis… |
+| `auto` | object {maxRecords, detailPages, workflowName, workflowDescription, once} |  | Auto mode for a lis… |
 
 ## Input constraints
 
@@ -64,7 +64,7 @@ The started wizard and its first state (with auto, the state where auto ended).
 | `warnings` | array of object {code, message} (≤ 8) |  | What the saved work… |
 | `personTookOver` | boolean |  | True when the perso… |
 | `wizardToken` | string (0–128 chars) |  | Ownership token, re… |
-| `auto` | object {outcome, stoppedAt, reason, answered, preview} |  | Present when the ca… |
+| `auto` | object {outcome, stoppedAt, executionId, reason, answered, preview} |  | Present when the ca… |
 
 ## Result constraints
 

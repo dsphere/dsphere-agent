@@ -3,7 +3,7 @@
   "version": 1,
   "title": "Read Extension settings",
   "description": "Read the settings a person can change in the SidePanel and Options page, with their current values.",
-  "guidance": "Without workflowId: the Extension settings (export-directory, dom-training-export, trace-logs, intent-interpreter, ad-blocker-default, fallback-model, execution-memory, site-memory, site-notes, resource-pressure, professional-mode, identity-providers, run-window-focus, agent-challenge-walls, browser-monitor, file-release-consent, notification-channels, schedules, llm-models, chat-model, mail, dashboard-url). With workflowId from dsagent.workflows.list: that workflow's card settings (workflow-favorite, workflow-run-environment, workflow-name, workflow-sheet-binding, workflow-record-limits, workflow-monitors). Each section lists the operations dsagent.settings.update accepts and the parts only the person may change; a section the person lacks the SidePanel permission for, or whose owner is unreachable, reports unavailable instead of a value. API keys, secrets and account tags are never returned.",
+  "guidance": "Without workflowId: the Extension settings (export-directory, dom-training-export, trace-logs, intent-interpreter, ad-blocker-default, fallback-model, execution-memory, site-memory, site-notes, resource-pressure, professional-mode, identity-providers, run-window-focus, agent-challenge-walls, browser-monitor, agent-scripts, chat-plan-approval, file-release-consent, chat-memory, notification-channels, schedules, llm-models, chat-model, mail, dashboard-url). With workflowId from dsagent.workflows.list: that workflow's card settings (workflow-favorite, workflow-run-environment, workflow-name, workflow-sheet-binding, workflow-record-limits, workflow-monitors). Each section lists the operations dsagent.settings.update accepts and the parts only the person may change; a section the person lacks the SidePanel permission for, or whose owner is unreachable, reports unavailable instead of a value. API keys, secrets and account tags are never returned.",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -35,7 +35,10 @@
             "run-window-focus",
             "agent-challenge-walls",
             "browser-monitor",
+            "agent-scripts",
+            "chat-plan-approval",
             "file-release-consent",
+            "chat-memory",
             "notification-channels",
             "schedules",
             "llm-models",
@@ -52,7 +55,7 @@
           "description": "One section id."
         },
         "minItems": 1,
-        "maxItems": 28,
+        "maxItems": 31,
         "uniqueItems": true,
         "description": "Only these sections, all of the same scope; every section of the scope when absent."
       }
@@ -101,7 +104,10 @@
                 "run-window-focus",
                 "agent-challenge-walls",
                 "browser-monitor",
+                "agent-scripts",
+                "chat-plan-approval",
                 "file-release-consent",
+                "chat-memory",
                 "notification-channels",
                 "schedules",
                 "llm-models",
@@ -955,6 +961,65 @@
             },
             {
               "type": "object",
+              "description": "Value shape of section agent-scripts.",
+              "properties": {
+                "section": {
+                  "const": "agent-scripts",
+                  "description": "Section agent-scripts."
+                },
+                "value": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "description": "The agent scripts switch.",
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean",
+                      "description": "Whether a connected agent (an MCP client of dsphere-agent) may run a short script of page actions with dsagent.page.script; off, the call is refused with AGENT_SCRIPTS_DISABLED and the agent acts with single page actions (default true)."
+                    }
+                  },
+                  "required": [
+                    "enabled"
+                  ]
+                }
+              },
+              "required": [
+                "section"
+              ]
+            },
+            {
+              "type": "object",
+              "description": "Value shape of section chat-plan-approval.",
+              "properties": {
+                "section": {
+                  "const": "chat-plan-approval",
+                  "description": "Section chat-plan-approval."
+                },
+                "value": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "description": "The Chat plan approval mode.",
+                  "properties": {
+                    "mode": {
+                      "type": "string",
+                      "enum": [
+                        "always",
+                        "when-site-changes",
+                        "never"
+                      ],
+                      "description": "When a SidePanel Chat browser task shows its plan and waits for the person to start it before it changes any page: always (every task), when-site-changes (only a plan with a step that leaves a result on a website), or never (default always)."
+                    }
+                  },
+                  "required": [
+                    "mode"
+                  ]
+                }
+              },
+              "required": [
+                "section"
+              ]
+            },
+            {
+              "type": "object",
               "description": "Value shape of section file-release-consent.",
               "properties": {
                 "section": {
@@ -973,6 +1038,33 @@
                   },
                   "required": [
                     "required"
+                  ]
+                }
+              },
+              "required": [
+                "section"
+              ]
+            },
+            {
+              "type": "object",
+              "description": "Value shape of section chat-memory.",
+              "properties": {
+                "section": {
+                  "const": "chat-memory",
+                  "description": "Section chat-memory."
+                },
+                "value": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "description": "The Chat memory switch.",
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean",
+                      "description": "Whether SidePanel Chat browser tasks read the person's cross-task memory (their remembered preferences, corrections and site notes, kept only in this browser) and offer to remember what the person said; off, tasks read none and \"remember\" requests are declined, while saved memories stay (default true)."
+                    }
+                  },
+                  "required": [
+                    "enabled"
                   ]
                 }
               },
@@ -2176,7 +2268,7 @@
             }
           ]
         },
-        "maxItems": 28,
+        "maxItems": 31,
         "description": "Sections in the order the person meets them in the SidePanel."
       }
     },

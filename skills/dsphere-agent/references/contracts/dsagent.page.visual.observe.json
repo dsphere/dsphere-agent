@@ -17,7 +17,7 @@
         "type": "string",
         "minLength": 1,
         "maxLength": 128,
-        "description": "Exact page revision to which the requested image must be bound."
+        "description": "Optional revision the image is bound to; omitted, your newest read (listing targetId, if given), else the current page."
       },
       "targetId": {
         "type": "string",
@@ -27,8 +27,7 @@
       }
     },
     "required": [
-      "pageContextId",
-      "expectedRevision"
+      "pageContextId"
     ],
     "additionalProperties": false,
     "description": "Revision-bound request for one owner-controlled viewport or target image."

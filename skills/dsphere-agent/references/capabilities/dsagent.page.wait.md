@@ -48,7 +48,7 @@ Whether the condition was met within the bound, and where the page is now.
 | `pageContextId` | string (2–128 chars) |  | Opaque page context from dsagent.pages.list, dsagent.page.open, or a receipt's destinationPageContextId. |
 | `until` | enum (12 values, listed under Constraints) |  | The condition waited for. |
 | `outcome` | enum: met, timed-out |  | met: the condition held; timed-out: it did not within timeoutMs (read the page and decide; it is not an error). |
-| `waitedMs` | integer (0…∞) |  | How long the wait took. |
+| `waitedMs` | integer (0…∞) |  | How long the wait took for its condition, not counting the read of the page that names the revision after it. |
 | `revision` | string (0–128 chars) |  | The page revision when the wait ended (a met wait reads the page again if its condition did not), current enough to act… |
 | `url` | string (0–2048 chars) |  | The page address as last read. |
 | `change` | enum: changed, unchanged |  | With sinceRevision: whether the latest revision differs from it. |

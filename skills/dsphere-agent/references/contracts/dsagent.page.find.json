@@ -332,6 +332,14 @@
                   "maxLength": 160,
                   "description": "Optional bounded state tokens, comma separated, such as checked, selected, expanded=true, pressed or unpressed, mixed, current, disabled, required, invalid, readonly, busy, haspopup=menu, valuenow=<n>, sort=<direction>, filled or empty."
                 },
+                "slotEffect": {
+                  "type": "string",
+                  "enum": [
+                    "add",
+                    "replace"
+                  ],
+                  "description": "Optional, on a target that takes upload-file and says what its file does: add (it joins the files the page holds, such as 继续添加 or Add more) or replace (it takes their place, such as 清空并重新上传; upload-file refuses it unless the call sets slotEffect replace)."
+                },
                 "capabilities": {
                   "type": "array",
                   "maxItems": 31,

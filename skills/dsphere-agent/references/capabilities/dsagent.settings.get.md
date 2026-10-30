@@ -22,13 +22,13 @@ Which settings to read: the Extension settings, or the card settings of one save
 | Field | Type | Required | Meaning |
 |---|---|---|---|
 | `workflowId` | string (1–128 chars) |  | Opaque workflow id from dsagent.workflows.list; required for workflow-* sections and refused for the others. |
-| `sections` | array of enum (28 values, listed under Constraints) (≤ 28) |  | Only these sections, all of the same scope; every section of the scope when absent. |
+| `sections` | array of enum (31 values, listed under Constraints) (≤ 31) |  | Only these sections, all of the same scope; every section of the scope when absent. |
 
 ## Input constraints
 
 Complete value lists and id patterns for the fields above (the contract file is authoritative).
 
-- `sections[]`: one of `export-directory`, `dom-training-export`, `trace-logs`, `intent-interpreter`, `ad-blocker-default`, `fallback-model`, `execution-memory`, `site-memory`, `site-notes`, `resource-pressure`, `professional-mode`, `identity-providers`, `run-window-focus`, `agent-challenge-walls`, `browser-monitor`, `file-release-consent`, `notification-channels`, `schedules`, `llm-models`, `chat-model`, `mail`, `dashboard-url`, `workflow-favorite`, `workflow-run-environment`, `workflow-name`, `workflow-sheet-binding`, `workflow-record-limits`, `workflow-monitors`
+- `sections[]`: one of `export-directory`, `dom-training-export`, `trace-logs`, `intent-interpreter`, `ad-blocker-default`, `fallback-model`, `execution-memory`, `site-memory`, `site-notes`, `resource-pressure`, `professional-mode`, `identity-providers`, `run-window-focus`, `agent-challenge-walls`, `browser-monitor`, `agent-scripts`, `chat-plan-approval`, `file-release-consent`, `chat-memory`, `notification-channels`, `schedules`, `llm-models`, `chat-model`, `mail`, `dashboard-url`, `workflow-favorite`, `workflow-run-environment`, `workflow-name`, `workflow-sheet-binding`, `workflow-record-limits`, `workflow-monitors`
 
 ## Result fields (data.data)
 
@@ -38,7 +38,7 @@ The requested settings with their current values.
 |---|---|---|---|
 | `scope` | enum: extension, workflow |  | extension for the Extension settings, workflow for one workflow's card settings. |
 | `workflowId` | string (0–128 chars) |  | The workflow whose card settings were read. |
-| `sections` | array of one of 28: object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} (≤ 28) |  | Sections in the order the person meets them in the SidePanel. |
+| `sections` | array of one of 31: object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} / object {section, value} (≤ 31) |  | Sections in the order the person meets them in the SidePanel. |
 
 ## Result constraints
 

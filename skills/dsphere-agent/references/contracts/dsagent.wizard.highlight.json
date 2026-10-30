@@ -909,6 +909,39 @@
               "matches",
               "sourceSteered"
             ]
+          },
+          "pageChangesNotRepeated": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "After collect-page-as-loaded: a saved workflow opens the page's address and does not repeat these changes (a sort or filter is lost). dsagent.wizard.run with once true keeps them.",
+            "properties": {
+              "count": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Page actions not repeated."
+              },
+              "changes": {
+                "type": "array",
+                "maxItems": 8,
+                "items": {
+                  "type": "string",
+                  "maxLength": 80,
+                  "description": "One change: the action and its control's label (page text)."
+                },
+                "description": "The changes, first ones first."
+              }
+            },
+            "required": [
+              "count",
+              "changes"
+            ]
+          },
+          "oneTime": {
+            "type": "boolean",
+            "enum": [
+              true
+            ],
+            "description": "Collected once without keeping a workflow."
           }
         },
         "required": [

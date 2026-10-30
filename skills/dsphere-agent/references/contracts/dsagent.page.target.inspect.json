@@ -3,7 +3,7 @@
   "pageEvidence": true,
   "version": 1,
   "title": "Inspect browser page target",
-  "description": "Inspect one opaque target at an exact page revision. Returns bounded local structure and geometry; never returns selectors, action coordinates, scripts, or unbounded DOM.",
+  "description": "Inspect one opaque target at a page revision. Returns bounded local structure and geometry; never returns selectors, action coordinates, scripts, or unbounded DOM.",
   "guidance": "A text field's value is returned only when the page produced it (a read-only or disabled field, an output) or you typed into the field with dsagent.page.action in this page, which the page may since have rewritten with its result; never a credential, one-time code or payment field.",
   "inputSchema": {
     "type": "object",
@@ -24,16 +24,15 @@
         "type": "string",
         "minLength": 1,
         "maxLength": 128,
-        "description": "Observed revision associated with the target; local identity and context must remain valid."
+        "description": "Optional: revision of the read that returned targetId; omitted, your newest read listing it."
       }
     },
     "required": [
       "pageContextId",
-      "targetId",
-      "expectedRevision"
+      "targetId"
     ],
     "additionalProperties": false,
-    "description": "Opaque target binding and revision guard for one bounded structure inspection."
+    "description": "Opaque target binding and optional revision guard for one bounded structure inspection."
   },
   "outputSchema": {
     "type": "object",
