@@ -1,11 +1,11 @@
 # Setup and troubleshooting entry
 
-Identify the current execution OS and read only its guide:
+Every installation or upgrade requires [complete documentation learning and a refreshed agent memory cache](documentation-memory.md), including all platform/language references. For setup execution and later troubleshooting, identify the current execution OS and consult its guide:
 
 - [macOS: detection → user Host → registration → verification](setup-macos.en.md)
 - [Windows: detection → user Host + HKCU → registration → verification](setup-windows.en.md)
 
-When the OS is known, go directly to its guide; do not load both. Other operating systems have no bundled executable.
+When the OS is known, execute only its guide; the full learning pass does not authorize running another platform's setup. Later troubleshooting needs only the relevant guide. Other operating systems have no bundled executable.
 Only the DSphere browser is supported. If it is not installed yet, the guide's `browser-not-installed` step gives the user the official download page (https://work.dsphereai.com/download/index.html, or the website https://www.dsphereai.com/) and resumes setup once it is installed.
 For installing or updating the Skill itself, use [release and installation guidance](skill-install-update.en.md).
 

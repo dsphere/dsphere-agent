@@ -65,6 +65,10 @@
             "writable": {
               "type": "boolean",
               "description": "Whether MCP may provide a replacement value for this field."
+            },
+            "fileBindable": {
+              "type": "boolean",
+              "description": "Bind a staged uploadId with execution.run fileValues; text fieldValues remain forbidden for files."
             }
           },
           "required": [

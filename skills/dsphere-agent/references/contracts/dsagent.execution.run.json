@@ -6,6 +6,33 @@
   "inputSchema": {
     "type": "object",
     "properties": {
+      "fileValues": {
+        "type": "array",
+        "maxItems": 100,
+        "description": "Run-local file bindings for upload-file inputs. Stage each file with dsagent_upload_file. All empty upload inputs must be bound before replay; never pass paths.",
+        "items": {
+          "type": "object",
+          "description": "One file supplied to one saved upload input for this run only.",
+          "additionalProperties": false,
+          "required": [
+            "fieldId",
+            "uploadId"
+          ],
+          "properties": {
+            "fieldId": {
+              "type": "string",
+              "maxLength": 128,
+              "description": "The upload-file fieldId returned by workflow.inputs.get."
+            },
+            "uploadId": {
+              "type": "string",
+              "pattern": "^upl_[a-f0-9]{32}$",
+              "maxLength": 36,
+              "description": "A distinct, unconsumed file reference returned by dsagent_upload_file for this browser."
+            }
+          }
+        }
+      },
       "workflowId": {
         "type": "string",
         "maxLength": 128,

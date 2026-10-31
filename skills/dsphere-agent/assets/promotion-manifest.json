@@ -2,41 +2,57 @@
   "schemaVersion": 3,
   "channel": "production",
   "hashing": {
-    "canonical": "SHA-256 of the file bytes, with every CRLF replaced by LF except in the four Native executables, after rewriting the channel wrappers (SKILL.md, agents/openai.yaml, the install/setup guides and the detector scripts) to the production identity; identical in the test and the production package of one release and in any Git checkout of them. Used by promotion.",
-    "shipped": "SHA-256 of the file bytes exactly as published in this package, with every CRLF replaced by LF except in the four Native executables (assets/native/<platform>/dsphere-native-agent[.exe]), which are hashed as they are. Used to verify an installed copy."
+    "canonical": "SHA-256 of the file bytes, with every CRLF replaced by LF except in the declared Native executables, after rewriting the channel wrappers (SKILL.md, agents/openai.yaml, the install/setup guides and the detector scripts) to the production identity; identical in the test and the production package of one release and in any Git checkout of them. Used by promotion.",
+    "shipped": "SHA-256 of the file bytes exactly as published in this package, with every CRLF replaced by LF except in the declared Native executables (assets/native/<platform>/dsphere-native-agent[.exe] and connector.exe), which are hashed as they are. Used to verify an installed copy."
   },
   "files": {
     "SKILL.md": {
-      "canonical": "0a78b1eee558c9c8a5573c34fe76925bbf56db1891bf911ae9ea0648209a01bd",
-      "shipped": "0a78b1eee558c9c8a5573c34fe76925bbf56db1891bf911ae9ea0648209a01bd"
+      "canonical": "ca6754a9d5abb78312b9ae98559751a6fcef8bfc51c5419db20a1dc2e9f00ccf",
+      "shipped": "ca6754a9d5abb78312b9ae98559751a6fcef8bfc51c5419db20a1dc2e9f00ccf"
     },
     "agents/openai.yaml": {
       "canonical": "f6fff9c7b537d15e1ee2a39ce3f50e8a4925539f814637bf26d82b532c189cbf",
       "shipped": "f6fff9c7b537d15e1ee2a39ce3f50e8a4925539f814637bf26d82b532c189cbf"
     },
     "assets/capability-build.json": {
-      "canonical": "436ab2500470b0e7c59d67ac87b6b2b6aef2df82c355888977358c34b210ce01",
-      "shipped": "436ab2500470b0e7c59d67ac87b6b2b6aef2df82c355888977358c34b210ce01"
+      "canonical": "01e284b9083c40d2e529cc17ab8d9f13175d61102fff53299c3e3cb5bda00c94",
+      "shipped": "01e284b9083c40d2e529cc17ab8d9f13175d61102fff53299c3e3cb5bda00c94"
     },
     "assets/native/macos-arm64/dsphere-native-agent": {
-      "canonical": "d18c5e3e3a47b9fc9f013f150177b202ee3aec6281f601b4714287ec79cb3c60",
-      "shipped": "d18c5e3e3a47b9fc9f013f150177b202ee3aec6281f601b4714287ec79cb3c60"
+      "canonical": "20b94c4d0ad905ef50858c8d3d7853e286dc75af8fbbfb96726ed31bc513ed25",
+      "shipped": "20b94c4d0ad905ef50858c8d3d7853e286dc75af8fbbfb96726ed31bc513ed25"
     },
     "assets/native/macos-x64/dsphere-native-agent": {
-      "canonical": "1708d879937ff96b4adb27be7a28643ee460095bd7acfc3d0a195ca2e0ba73a2",
-      "shipped": "1708d879937ff96b4adb27be7a28643ee460095bd7acfc3d0a195ca2e0ba73a2"
+      "canonical": "45d314e6ee190ddfef86d87f9f3d81724f3cabef71b01563cc7b24938464d520",
+      "shipped": "45d314e6ee190ddfef86d87f9f3d81724f3cabef71b01563cc7b24938464d520"
     },
     "assets/native/manifest.json": {
-      "canonical": "960f809f446eaf4ed2a079c4feffcbc192a0f399ca77f280490ef7e9290b42cd",
-      "shipped": "960f809f446eaf4ed2a079c4feffcbc192a0f399ca77f280490ef7e9290b42cd"
+      "canonical": "89b51bdcf22ae1e2c4aa7d7cbd1cc8b6ad27cf06e954c4c371a5b002c627845c",
+      "shipped": "89b51bdcf22ae1e2c4aa7d7cbd1cc8b6ad27cf06e954c4c371a5b002c627845c"
+    },
+    "assets/native/windows-arm64/connector.exe": {
+      "canonical": "db0b384648bef25f5efcbb45aea79ba16c00d9581f7cde7eadf777cdd2f26a8b",
+      "shipped": "db0b384648bef25f5efcbb45aea79ba16c00d9581f7cde7eadf777cdd2f26a8b"
+    },
+    "assets/native/windows-arm64/dsphere-native-agent.exe": {
+      "canonical": "cf24f0b9b001f164ac15943fe1f04659515d271787d0428a38ea5493553760ee",
+      "shipped": "cf24f0b9b001f164ac15943fe1f04659515d271787d0428a38ea5493553760ee"
+    },
+    "assets/native/windows-x64/connector.exe": {
+      "canonical": "73e37c19b3d29effdb29324d120ae676f0f27a8f3372ec68d43afb5483baf36d",
+      "shipped": "73e37c19b3d29effdb29324d120ae676f0f27a8f3372ec68d43afb5483baf36d"
     },
     "assets/native/windows-x64/dsphere-native-agent.exe": {
-      "canonical": "f00caf6576bdf2e726d5d471edad3feab87fc1eb510242c00222df73e1cc60e2",
-      "shipped": "f00caf6576bdf2e726d5d471edad3feab87fc1eb510242c00222df73e1cc60e2"
+      "canonical": "7abda429569220c94ede8e925ae027cadc3b9a5f5f857aa38cc598a4606365fe",
+      "shipped": "7abda429569220c94ede8e925ae027cadc3b9a5f5f857aa38cc598a4606365fe"
+    },
+    "assets/native/windows-x86/connector.exe": {
+      "canonical": "1d187c1bcdbd1046391a84d6cc79b5161418115b3e2a3f84511ddb7dea20ddb7",
+      "shipped": "1d187c1bcdbd1046391a84d6cc79b5161418115b3e2a3f84511ddb7dea20ddb7"
     },
     "assets/native/windows-x86/dsphere-native-agent.exe": {
-      "canonical": "7215d5bff09bf6d359fb5be4b57000645dd36d8654989c0659049a391550a0a1",
-      "shipped": "7215d5bff09bf6d359fb5be4b57000645dd36d8654989c0659049a391550a0a1"
+      "canonical": "6d5a303ec60d8a0df44c58e2e3dfa817cfeaede967e793fb4fbfe990003e3ba4",
+      "shipped": "6d5a303ec60d8a0df44c58e2e3dfa817cfeaede967e793fb4fbfe990003e3ba4"
     },
     "references/account-management.md": {
       "canonical": "0802fcedf40dbb1dd1a27878450f2a71b8280e2514b9d41ade497855d1fe80db",
@@ -125,6 +141,18 @@
     "references/capabilities/dsagent.agent.work.list.md": {
       "canonical": "5bcbd3d43f0691ffb336501dc550d3fee427a8f93fe5d9c6a9cefacb9f10946e",
       "shipped": "5bcbd3d43f0691ffb336501dc550d3fee427a8f93fe5d9c6a9cefacb9f10946e"
+    },
+    "references/capabilities/dsagent.agent.work.recording.choose.md": {
+      "canonical": "f3f3da18af6cfb3897abdbccc389f964e7f218366630804d54053f9a7bfc7363",
+      "shipped": "f3f3da18af6cfb3897abdbccc389f964e7f218366630804d54053f9a7bfc7363"
+    },
+    "references/capabilities/dsagent.agent.work.recording.md": {
+      "canonical": "de48132a7869ea9ed2501065b32053c4daae96688492f5f38615155abdd2864d",
+      "shipped": "de48132a7869ea9ed2501065b32053c4daae96688492f5f38615155abdd2864d"
+    },
+    "references/capabilities/dsagent.agent.work.recording.state.md": {
+      "canonical": "3b8ad57547eec7a31a967992b68ced55cf50b9cd449e6c9caeb01148811cec3d",
+      "shipped": "3b8ad57547eec7a31a967992b68ced55cf50b9cd449e6c9caeb01148811cec3d"
     },
     "references/capabilities/dsagent.agent.work.step.md": {
       "canonical": "ae1df492de5db943b0ed9ab5af6fe584275970d5a06df2d9a90104fff427d8a1",
@@ -219,8 +247,8 @@
       "shipped": "2f2d901ff9a87db815f5c04e9e9313327eba775087df4ee5dd6ff9f4f5c34e10"
     },
     "references/capabilities/dsagent.execution.run.md": {
-      "canonical": "3d520727530fcba8ce895f5a2d80e11385ac5e2b9a265b2e13a3b38ae874fc3f",
-      "shipped": "3d520727530fcba8ce895f5a2d80e11385ac5e2b9a265b2e13a3b38ae874fc3f"
+      "canonical": "7b9d245e79af862674df3563e41fe99f21319a890f12d0b87986d1420fe5f5eb",
+      "shipped": "7b9d245e79af862674df3563e41fe99f21319a890f12d0b87986d1420fe5f5eb"
     },
     "references/capabilities/dsagent.execution.stop.md": {
       "canonical": "609d20660f5c6ae449d1dfea88cc550c7f3c223562bb3042253fe6325cd9ffb3",
@@ -339,8 +367,8 @@
       "shipped": "11ccea97ed497cbffd8d164b44ff750c57c16be173c00e4870b83cec25751129"
     },
     "references/capabilities/dsagent.page.open.md": {
-      "canonical": "b518b5683836025300f1181bb48c724cb81a1918175398bb14275cdc60edcfa3",
-      "shipped": "b518b5683836025300f1181bb48c724cb81a1918175398bb14275cdc60edcfa3"
+      "canonical": "af4b6a7756738567d83958461e0460e8d95b9763636b0f47457a70c9059d7d6d",
+      "shipped": "af4b6a7756738567d83958461e0460e8d95b9763636b0f47457a70c9059d7d6d"
     },
     "references/capabilities/dsagent.page.presentation.get.md": {
       "canonical": "eba5e419012990ac1cb6818e2460f89226f0d3deeeff3f16dbb06c6b167521cc",
@@ -410,6 +438,14 @@
       "canonical": "8d3d2bdbd33053cd1a1d2a37df745f7c4c598444ca71262133c3f34f55e991fa",
       "shipped": "8d3d2bdbd33053cd1a1d2a37df745f7c4c598444ca71262133c3f34f55e991fa"
     },
+    "references/capabilities/dsagent.wizard.recording.edit.md": {
+      "canonical": "a7d0fc3ee3554132d432ae1294de84e884115f038f03271fed3e4ae432028869",
+      "shipped": "a7d0fc3ee3554132d432ae1294de84e884115f038f03271fed3e4ae432028869"
+    },
+    "references/capabilities/dsagent.wizard.recording.steps.md": {
+      "canonical": "455ed2fb03a91ce215916ae008584b0c0f6531085528e4f6b8200f17769b8eba",
+      "shipped": "455ed2fb03a91ce215916ae008584b0c0f6531085528e4f6b8200f17769b8eba"
+    },
     "references/capabilities/dsagent.wizard.run.md": {
       "canonical": "4e711378422e132a43a13f40c1b64661dec30c5fe92a660d0edbf894a6c163d6",
       "shipped": "4e711378422e132a43a13f40c1b64661dec30c5fe92a660d0edbf894a6c163d6"
@@ -431,8 +467,8 @@
       "shipped": "72380747c8ee96d9206953e05375c63b85947513bc90b57bb21314e3eb7f8143"
     },
     "references/capabilities/dsagent.workflow.inputs.get.md": {
-      "canonical": "4ecfcf3f24d2ad37d70ba9666d68aa695b5cebc5ba4b5553e655def0acedb54a",
-      "shipped": "4ecfcf3f24d2ad37d70ba9666d68aa695b5cebc5ba4b5553e655def0acedb54a"
+      "canonical": "fbda64cf1950dde8a21b89230c611b51aff5815ffb1fa7f062eed68a844efd90",
+      "shipped": "fbda64cf1950dde8a21b89230c611b51aff5815ffb1fa7f062eed68a844efd90"
     },
     "references/capabilities/dsagent.workflows.list.md": {
       "canonical": "21b3fc1f45d8408e2b5f4c5ea61f2e5d4bdc01cb2cd26e3530775e0d52896f5a",
@@ -443,16 +479,16 @@
       "shipped": "8536a8d2c8a52a4d4acd8a4a62c4dd317a4a19ed680d3d23499cc1bfdd8c628a"
     },
     "references/capability-index.md": {
-      "canonical": "0d7f52e33edc39835d9495a33a10e4d344b096aa2a45e860dbcb337b9d52db47",
-      "shipped": "0d7f52e33edc39835d9495a33a10e4d344b096aa2a45e860dbcb337b9d52db47"
+      "canonical": "3eff7fbfe05ce10fcf19ddf1b1061af188c7a458cf8dac1f403bdd5a4031ca3c",
+      "shipped": "3eff7fbfe05ce10fcf19ddf1b1061af188c7a458cf8dac1f403bdd5a4031ca3c"
     },
     "references/client-setup.en.md": {
-      "canonical": "0dd7059da059da9113b7a4bb42713bb4dec8850fe38a0f00885d24481ec3c2cf",
-      "shipped": "0dd7059da059da9113b7a4bb42713bb4dec8850fe38a0f00885d24481ec3c2cf"
+      "canonical": "5a035d0e4ca5f140a356c575ffc38451e9738a906fe7469824632621bb833671",
+      "shipped": "5a035d0e4ca5f140a356c575ffc38451e9738a906fe7469824632621bb833671"
     },
     "references/client-setup.zh-CN.md": {
-      "canonical": "5a3d68ca61bb71ce53a1e41117c02479bb62c3c7d9b18956239d260064422eee",
-      "shipped": "5a3d68ca61bb71ce53a1e41117c02479bb62c3c7d9b18956239d260064422eee"
+      "canonical": "b0dd82b6962185cf14c1df8d59cce97829856d2807517a0a71dc0dcc7d4c98b3",
+      "shipped": "b0dd82b6962185cf14c1df8d59cce97829856d2807517a0a71dc0dcc7d4c98b3"
     },
     "references/contracts/dsagent.accounts.close.json": {
       "canonical": "c4a9ab5de68d657fc63335d989e87daa43141d52165954ccb3281cfffb565785",
@@ -521,6 +557,18 @@
     "references/contracts/dsagent.agent.work.list.json": {
       "canonical": "ad23546741f02dcc436a3f919b81668cdafb8d0ec635606a16d5a8a5d9a44dd9",
       "shipped": "ad23546741f02dcc436a3f919b81668cdafb8d0ec635606a16d5a8a5d9a44dd9"
+    },
+    "references/contracts/dsagent.agent.work.recording.choose.json": {
+      "canonical": "9e6eb32fb617fde13afdf925a9d972cbe6e8dd4ad2ecead551e4ec4f8daef3c3",
+      "shipped": "9e6eb32fb617fde13afdf925a9d972cbe6e8dd4ad2ecead551e4ec4f8daef3c3"
+    },
+    "references/contracts/dsagent.agent.work.recording.json": {
+      "canonical": "adea35342d595e99ffe162218ef78cda60f83447edc528427f951ab714f76151",
+      "shipped": "adea35342d595e99ffe162218ef78cda60f83447edc528427f951ab714f76151"
+    },
+    "references/contracts/dsagent.agent.work.recording.state.json": {
+      "canonical": "6b62195f430c6d96656137492b6c37bb82b79dab8afbe03cccac3f06167bc73f",
+      "shipped": "6b62195f430c6d96656137492b6c37bb82b79dab8afbe03cccac3f06167bc73f"
     },
     "references/contracts/dsagent.agent.work.step.json": {
       "canonical": "bdf0d46a329d39e2bf96241b6de69a26f01f6c65ed2bf850fbac12c7b96ad85c",
@@ -615,8 +663,8 @@
       "shipped": "2e4c9db4eca5ce51c5c09bc9f9ec1145dee5f1aeec86762c0908f193d4f9a156"
     },
     "references/contracts/dsagent.execution.run.json": {
-      "canonical": "75c65e56be5ab9fd3db0ff3752e1dabdbef9eaeef625baf59d54c8801bc7a44c",
-      "shipped": "75c65e56be5ab9fd3db0ff3752e1dabdbef9eaeef625baf59d54c8801bc7a44c"
+      "canonical": "795c2d125de84e04945252a56e70a256a0be5e19e2f38a42b8c15edb6b99f086",
+      "shipped": "795c2d125de84e04945252a56e70a256a0be5e19e2f38a42b8c15edb6b99f086"
     },
     "references/contracts/dsagent.execution.stop.json": {
       "canonical": "3eacea538499c555b1c852f9e2c3ca67cbd83a63a1705d42eb77675de0a6d170",
@@ -735,8 +783,8 @@
       "shipped": "1b26b0217a46adac47fbce897368019cf8a0397f9ad9dc32f4e31e9e6253ab6f"
     },
     "references/contracts/dsagent.page.open.json": {
-      "canonical": "e0e69ba6bb80e711e3ceaf11a72055ccb5005fa3d3d042a3bdcde82e7840429e",
-      "shipped": "e0e69ba6bb80e711e3ceaf11a72055ccb5005fa3d3d042a3bdcde82e7840429e"
+      "canonical": "cdd6a7f2f2bce640f47cc68b0fc63720ed6401b7224588de2bdf0b85f3b15b70",
+      "shipped": "cdd6a7f2f2bce640f47cc68b0fc63720ed6401b7224588de2bdf0b85f3b15b70"
     },
     "references/contracts/dsagent.page.presentation.get.json": {
       "canonical": "19484045ee6be097d7bace6cb9ba13ff40aa649957d341d1cc596f3d0abc3a53",
@@ -771,8 +819,8 @@
       "shipped": "a51bdabbdb58a1d5ab18afbf288e58d241c057b77d92dabf8d9c6e36da6bec39"
     },
     "references/contracts/dsagent.settings.get.json": {
-      "canonical": "ac96766e8092cdcfeb65f2aab5d1a6bbbcb2a1e4be2929ac09400e2bc05d4293",
-      "shipped": "ac96766e8092cdcfeb65f2aab5d1a6bbbcb2a1e4be2929ac09400e2bc05d4293"
+      "canonical": "ef0d39409b083a51c1697037b136c28006f70699ba8e290a84ec7c053cf26efc",
+      "shipped": "ef0d39409b083a51c1697037b136c28006f70699ba8e290a84ec7c053cf26efc"
     },
     "references/contracts/dsagent.settings.update.json": {
       "canonical": "c314aef4ea2c4d972fbc08f9d82299365cf1fd37f06d965db075b308cfdeebbb",
@@ -806,6 +854,14 @@
       "canonical": "caa3bad8472e8ae673ecb354ca75b1d694710d1c34f82b3db7f87bbfcf7371f1",
       "shipped": "caa3bad8472e8ae673ecb354ca75b1d694710d1c34f82b3db7f87bbfcf7371f1"
     },
+    "references/contracts/dsagent.wizard.recording.edit.json": {
+      "canonical": "449152ea9a30633988483dbed0a94759069ef10275d89ee490d25d5c486a8cd3",
+      "shipped": "449152ea9a30633988483dbed0a94759069ef10275d89ee490d25d5c486a8cd3"
+    },
+    "references/contracts/dsagent.wizard.recording.steps.json": {
+      "canonical": "d151e4a3207663cf4647f1d6321e574d68d811cacf10bbf5ee7a460d0a92a1b3",
+      "shipped": "d151e4a3207663cf4647f1d6321e574d68d811cacf10bbf5ee7a460d0a92a1b3"
+    },
     "references/contracts/dsagent.wizard.run.json": {
       "canonical": "6ade1dbc653d6c3101167aaff848c88b610271e3de9d96eed195d5875fb193ca",
       "shipped": "6ade1dbc653d6c3101167aaff848c88b610271e3de9d96eed195d5875fb193ca"
@@ -815,8 +871,8 @@
       "shipped": "7bff9fd32eee883a22a6331700c92ff574f7acf91a0666b1c48121c3d2f41464"
     },
     "references/contracts/dsagent.wizard.start.json": {
-      "canonical": "e0a479ad66485330bfec2adc065a66a58289a3acca7619c7a0a6ef9de9d675ad",
-      "shipped": "e0a479ad66485330bfec2adc065a66a58289a3acca7619c7a0a6ef9de9d675ad"
+      "canonical": "bb85e73f4a25b5cb2ca653c9e8041ba0dd2297abc3d391d7f8cf8a66271a26f0",
+      "shipped": "bb85e73f4a25b5cb2ca653c9e8041ba0dd2297abc3d391d7f8cf8a66271a26f0"
     },
     "references/contracts/dsagent.wizard.state.json": {
       "canonical": "9ce7eb6b58f4a2d2d373a4a717df0ddf416d189cb2bb471427cd81c6721ebcee",
@@ -827,8 +883,8 @@
       "shipped": "56ea2322dac3180f6ef6da730f8256b48f482895d841b0555cae45326049d106"
     },
     "references/contracts/dsagent.workflow.inputs.get.json": {
-      "canonical": "32ded44e17b0cf9231205620d9d3098a18cb21d7686077b94a5c4e08e81bf683",
-      "shipped": "32ded44e17b0cf9231205620d9d3098a18cb21d7686077b94a5c4e08e81bf683"
+      "canonical": "f81608d6264f4d818d40ee9ca27ede419fa8960b3972360e72ffaf8f919cc800",
+      "shipped": "f81608d6264f4d818d40ee9ca27ede419fa8960b3972360e72ffaf8f919cc800"
     },
     "references/contracts/dsagent.workflows.list.json": {
       "canonical": "8c7d770175f76d474dbb8796cba41e3773e680362076b01fc0599be55d5e683a",
@@ -841,6 +897,10 @@
     "references/diagnostic-schema.zh-CN.md": {
       "canonical": "c166a7ba859355c34dd7a2eee4a92aa21417b83eedfe5a8e4d330e7fe7de10a5",
       "shipped": "c166a7ba859355c34dd7a2eee4a92aa21417b83eedfe5a8e4d330e7fe7de10a5"
+    },
+    "references/documentation-memory.md": {
+      "canonical": "46857e8cdccf4d02f9a4fb8ad7f5af736ce6f1cd9d50fe757e94c3a740ce1684",
+      "shipped": "46857e8cdccf4d02f9a4fb8ad7f5af736ce6f1cd9d50fe757e94c3a740ce1684"
     },
     "references/examples/01-read-a-page-and-answer.md": {
       "canonical": "0af4aeb1a6e5682240d3d7a1db8d2df370c5b08f7cc30ca1ee034766031f9e31",
@@ -867,8 +927,8 @@
       "shipped": "9da16d23755802709031b4d078a34f4e67d04ae17ebe01728472660b5dc805dc"
     },
     "references/guidance/dsagent.agent.md": {
-      "canonical": "77e6d7385de91972b68112e91be3da7a855f0002af04c01283e93434c2672a76",
-      "shipped": "77e6d7385de91972b68112e91be3da7a855f0002af04c01283e93434c2672a76"
+      "canonical": "5072b7314dd07acca59edb50402a4bc43e8e3880a228b79f86f4f8386689a311",
+      "shipped": "5072b7314dd07acca59edb50402a4bc43e8e3880a228b79f86f4f8386689a311"
     },
     "references/guidance/dsagent.artifact.md": {
       "canonical": "adbce62955f3042e8b56c99c90881ffbb7f0d8046c39ddb1441110eacf3b353f",
@@ -923,20 +983,20 @@
       "shipped": "87c52390cfa01a58227b75cfc1b45eda3b8a7c40ef164f97ed7d9ffd99752922"
     },
     "references/guidance/dsagent.wizard.md": {
-      "canonical": "314d7786d3d6923545eed32bc4738ce3bb55292600615646c3b5bca1f26d523a",
-      "shipped": "314d7786d3d6923545eed32bc4738ce3bb55292600615646c3b5bca1f26d523a"
+      "canonical": "928d39573d594fedd1453d49a56e81b35a8586f9f42d542156401e36f73b82f3",
+      "shipped": "928d39573d594fedd1453d49a56e81b35a8586f9f42d542156401e36f73b82f3"
     },
     "references/guidance/dsagent.workflow.md": {
       "canonical": "7b2754f2df6f3bddf9f10809c8684ea0308706812bfdb074d903cff14c95afd5",
       "shipped": "7b2754f2df6f3bddf9f10809c8684ea0308706812bfdb074d903cff14c95afd5"
     },
     "references/guide.en.md": {
-      "canonical": "0772f13b2cba20857ce76b22182d37642ca8097b1d2322d2bf4ff4af4bd26a29",
-      "shipped": "0772f13b2cba20857ce76b22182d37642ca8097b1d2322d2bf4ff4af4bd26a29"
+      "canonical": "5045a7e16849675887b6fdd27212b218ab51dd14f616b08aa504211b8540230a",
+      "shipped": "5045a7e16849675887b6fdd27212b218ab51dd14f616b08aa504211b8540230a"
     },
     "references/guide.zh-CN.md": {
-      "canonical": "e348064e27b1a70e73f96e9b0ed538d6110d35bbcb16901c10fd50f210959f58",
-      "shipped": "e348064e27b1a70e73f96e9b0ed538d6110d35bbcb16901c10fd50f210959f58"
+      "canonical": "bc9cc0789d2b435dd43da6bd92de1f2797f45ce1700c9d7529f5805fa0cd56d7",
+      "shipped": "bc9cc0789d2b435dd43da6bd92de1f2797f45ce1700c9d7529f5805fa0cd56d7"
     },
     "references/native-executables.md": {
       "canonical": "3be88d190bc39bbe9edf6731427455bb380276c3b1f6d7131badfd793cd4e7db",
@@ -975,20 +1035,24 @@
       "shipped": "1739b5a2e4aacee9959bcff9a1d845276bb59c4b1b03d6deb8651b1bf99ba517"
     },
     "references/setup-windows.en.md": {
-      "canonical": "285d5ba244ab508cc2c23e20b18eef6b324bfaac99e560a053d9c3d74531a90b",
-      "shipped": "285d5ba244ab508cc2c23e20b18eef6b324bfaac99e560a053d9c3d74531a90b"
+      "canonical": "476d60d23398e5ac5eb3806cdcebf75ff15b3ead78b62563163916c38679d33e",
+      "shipped": "476d60d23398e5ac5eb3806cdcebf75ff15b3ead78b62563163916c38679d33e"
     },
     "references/setup-windows.zh-CN.md": {
-      "canonical": "bf8ce09208c5e30a74e0333d07c04f244d4b15b00e3c895bdd82ac7fd4d49ee0",
-      "shipped": "bf8ce09208c5e30a74e0333d07c04f244d4b15b00e3c895bdd82ac7fd4d49ee0"
+      "canonical": "43928e575939c3fcd29a6d4909c278eba5c653c16f44b7bafa94975502e9a8aa",
+      "shipped": "43928e575939c3fcd29a6d4909c278eba5c653c16f44b7bafa94975502e9a8aa"
     },
     "references/skill-install-update.en.md": {
-      "canonical": "f8d2166e2e536d9fc05a23a0089bb22b5775380ee0398a51e2e523e8e5a4243e",
-      "shipped": "5b71d1e1fd6447fd8320d985c421243343083b3a8a39f2bea2ad4d1e1317621a"
+      "canonical": "808df0b3512d7b65237a651ca4222ae4eac906c7723f9e812af2e340fc127b7a",
+      "shipped": "45da1aabe8405a6f1af43c10cbdd1a093f3f28beb58764950f94155447bdc0fd"
     },
     "references/skill-install-update.zh-CN.md": {
-      "canonical": "d4cb72c79793b95082d05c03a9e199a4b968d740c63c5d8f708b3a9008b9dead",
-      "shipped": "8d3fbc5730177946d6c0495cf91f6460c0bd8e30fb41da5e26c607e563c679bd"
+      "canonical": "3b8a459a561a69c1377a966dae5743dd09b3e795947b88a0dcd6386ddb0450e7",
+      "shipped": "fa460d8a75fe90224d79067e1419863b66e202bf315ff0c12b33a58619b2f3aa"
+    },
+    "references/task-recording.md": {
+      "canonical": "53a8a8eff22cf102cc9dab4eab1ea2d4e3fd0a85bfead4116d5cd6acf34ee543",
+      "shipped": "53a8a8eff22cf102cc9dab4eab1ea2d4e3fd0a85bfead4116d5cd6acf34ee543"
     },
     "references/website-exploration.md": {
       "canonical": "6d965460886614f22562b2439cd9212d0d9760631f53ab2feefe037cdd04a0e8",
@@ -1022,9 +1086,13 @@
       "canonical": "7659a04fad6a2ad3c65caabcaa9dcd36616f18b94499f77649f3e73edd3120c8",
       "shipped": "7659a04fad6a2ad3c65caabcaa9dcd36616f18b94499f77649f3e73edd3120c8"
     },
+    "scripts/verify-connect-result.mjs": {
+      "canonical": "ae5fa96cb0afaa98d2c0cef271f30f1cddf93a64a4d63eb2c40920f8fbcb429a",
+      "shipped": "ae5fa96cb0afaa98d2c0cef271f30f1cddf93a64a4d63eb2c40920f8fbcb429a"
+    },
     "scripts/verify-package.mjs": {
-      "canonical": "758ac09b52566d57a8f8b3f602d5035a58e61718e37997bde2ca321a304fe446",
-      "shipped": "758ac09b52566d57a8f8b3f602d5035a58e61718e37997bde2ca321a304fe446"
+      "canonical": "7c616c7aba2d893931ccf0ff2d639e2cce5d5dced460fab38abaf368fe02c162",
+      "shipped": "7c616c7aba2d893931ccf0ff2d639e2cce5d5dced460fab38abaf368fe02c162"
     }
   }
 }

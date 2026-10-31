@@ -32,7 +32,7 @@ Editable run-time fields for one workflow.
 | Field | Type | Required | Meaning |
 |---|---|---|---|
 | `workflowId` | string (0–128 chars) |  | Workflow whose run-time fields were inspected. |
-| `fields` | array of object {fieldId, label, alias, fieldType, value, writable} (≤ 100) |  | Editable workflow fields; use writable field IDs in dsagent.execution.run.fieldValues. |
+| `fields` | array of object {fieldId, label, alias, fieldType, value, writable, …} (≤ 100) |  | Editable workflow fields; use writable field IDs in dsagent.execution.run.fieldValues. |
 
 ## Contract
 

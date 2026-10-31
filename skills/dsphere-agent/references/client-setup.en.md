@@ -74,6 +74,8 @@ Do not run `dsagent_invoke` or `dsagent_read` during connection setup verificati
 
 ## Upgrade completion
 
+Installation and upgrade completion also require the [full documentation read and memory rebuild](documentation-memory.md). Report its coverage and cache persistence separately from the runtime checks below; neither result substitutes for the other.
+
 After install/update/rebinding, call `dsagent_get_runtime_status` through the client's **current MCP connection** and save its structured response. Never launch a fresh test Connector as proof that the current connection upgraded. If the tool is absent, reconnect MCP and restart the client if needed.
 
 Confirm the intended browser's online instanceId with `dsagent_list_instances`, then run:

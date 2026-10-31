@@ -1,0 +1,112 @@
+{
+  "method": "dsagent.wizard.recording.steps",
+  "version": 1,
+  "title": "Read Recorded Steps",
+  "description": "Read all recorded steps in pages of 50, including the stopped draft before saving. No selectors or entered values are exposed. Finish recording before editing; use recording.edit to remove exploration, change form values and reorder steps within a page. Saving the draft does not run it.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "wizardId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "The recording wizard id."
+      },
+      "wizardToken": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "Its ownership token; pass it after a connection renewal."
+      },
+      "offset": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 100000,
+        "description": "Zero-based step offset; defaults to zero."
+      }
+    },
+    "required": [
+      "wizardId"
+    ],
+    "description": "The recording and page of steps."
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "revision": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 16,
+        "description": "The current recording draft revision; an outdated revision refuses the edit."
+      },
+      "total": {
+        "type": "integer",
+        "description": "Total editable steps."
+      },
+      "offset": {
+        "type": "integer",
+        "description": "The returned offset."
+      },
+      "steps": {
+        "type": "array",
+        "maxItems": 50,
+        "description": "This page of recorded steps in order.",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "stepId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 16,
+              "description": "An opaque stepId returned by recording.steps, never an action id or selector."
+            },
+            "kind": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "description": "Recorded action kind."
+            },
+            "target": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160,
+              "description": "Bounded captured control label."
+            },
+            "editableValue": {
+              "type": "boolean",
+              "description": "Whether set-value can change this form input or anchored text insertion."
+            }
+          },
+          "required": [
+            "stepId",
+            "kind",
+            "editableValue"
+          ],
+          "description": "A recorded step."
+        }
+      }
+    },
+    "required": [
+      "revision",
+      "total",
+      "offset",
+      "steps"
+    ],
+    "description": "A bounded recording draft view."
+  },
+  "risk": "read-sensitive",
+  "targetKinds": [
+    "workflow"
+  ],
+  "requiredPermissions": [
+    "wizard.guide"
+  ],
+  "timeoutMs": 10000,
+  "maxInlineResultBytes": 16000,
+  "concurrency": "shared-read",
+  "retry": "pre-dispatch-read-only",
+  "exposure": "exposed"
+}

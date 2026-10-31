@@ -1,0 +1,83 @@
+{
+  "method": "dsagent.agent.work.recording.state",
+  "version": 1,
+  "title": "Wait For Task Recording Choice",
+  "description": "Wait for the person to choose whether to record this task. Read-only: it never answers the question or starts a new task. With recording, keep wizardId/token and use the ordinary wizard to finish, clean and save at task completion, without running it.",
+  "guidance": "Once recording, use wizard.state with wizardId and wizardToken, perform the task, finish-recording, read every page of wizard.recording.steps, clean the draft with wizard.recording.edit, answer workflow-details and wizard.save. Do not call wizard.run: the task has already executed. Then agent.work.finish ends the task. Collections: purpose collection; create-workflow keeps the collection wizard's workflow, else collect once (wizard.run once true). A cancelled choice never permits page actions.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "The task page and bounded wait.",
+    "required": [
+      "pageContextId"
+    ],
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "A page belonging to this task."
+      },
+      "waitMs": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 25000,
+        "description": "Wait for a decision, up to 25 seconds; defaults to 25000."
+      }
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "The person's choice (in the sheet, or passed on with recording.choose) and the recording it started.",
+    "required": [
+      "status"
+    ],
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "starting",
+          "recording",
+          "not-recording",
+          "cancelled",
+          "failed"
+        ],
+        "description": "Wait while pending or starting; only recording and not-recording permit task actions. Failed means recording could not be started or its start was interrupted; stop and report it."
+      },
+      "recordingActive": {
+        "type": "boolean",
+        "description": "False after recording stops; further task page actions are refused."
+      },
+      "keepWorkflow": {
+        "type": "boolean",
+        "description": "False: collect once (wizard.run once true), never save."
+      },
+      "requestId": {
+        "type": "string",
+        "description": "The pending side panel question."
+      },
+      "wizardId": {
+        "type": "string",
+        "description": "The standard guided recording wizard; finish, clean and save this draft."
+      },
+      "wizardToken": {
+        "type": "string",
+        "description": "Ownership token; keep it with the wizard id."
+      }
+    }
+  },
+  "risk": "read-sensitive",
+  "targetKinds": [
+    "page"
+  ],
+  "requiredPermissions": [
+    "wizard.guide"
+  ],
+  "timeoutMs": 60000,
+  "maxInlineResultBytes": 2000,
+  "concurrency": "shared-read",
+  "retry": "pre-dispatch-read-only",
+  "exposure": "exposed"
+}

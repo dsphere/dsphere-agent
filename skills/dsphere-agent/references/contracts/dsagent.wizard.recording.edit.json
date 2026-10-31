@@ -1,0 +1,155 @@
+{
+  "method": "dsagent.wizard.recording.edit",
+  "version": 1,
+  "title": "Edit Recorded Steps",
+  "description": "Atomically clean a stopped single-recording draft before save: remove incorrect exploration or redundant steps, change recorded form values or anchored inserted text, and move a step before another step on the same page. Targets remain those captured by the recorder.",
+  "guidance": "Navigation effects stay attached to their gesture. Cross-page moves, arbitrary selectors, scripts, paths and URLs are not accepted. No page action or workflow execution occurs. Read the steps again after each edit; finish naming and save only after the original task is done. Do not run the newly saved workflow.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "wizardId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "The recording wizard id."
+      },
+      "wizardToken": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "Its ownership token; pass it after a connection renewal."
+      },
+      "expectedRevision": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 16,
+        "description": "The current recording draft revision; an outdated revision refuses the edit."
+      },
+      "edits": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 50,
+        "description": "Ordered edits applied as one atomic batch.",
+        "items": {
+          "description": "A removal, move or form value change.",
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "operation": {
+                  "type": "string",
+                  "const": "remove",
+                  "description": "Remove this step and its navigation effects."
+                },
+                "stepId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 16,
+                  "description": "An opaque stepId returned by recording.steps, never an action id or selector."
+                }
+              },
+              "required": [
+                "operation",
+                "stepId"
+              ],
+              "description": "Remove one step."
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "operation": {
+                  "type": "string",
+                  "const": "move-before",
+                  "description": "Move the step before another step."
+                },
+                "stepId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 16,
+                  "description": "An opaque stepId returned by recording.steps, never an action id or selector."
+                },
+                "beforeStepId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 16,
+                  "description": "An opaque stepId returned by recording.steps, never an action id or selector."
+                }
+              },
+              "required": [
+                "operation",
+                "stepId",
+                "beforeStepId"
+              ],
+              "description": "Move within one page."
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "operation": {
+                  "type": "string",
+                  "const": "set-value",
+                  "description": "Change a recorded form value."
+                },
+                "stepId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 16,
+                  "description": "An opaque stepId returned by recording.steps, never an action id or selector."
+                },
+                "value": {
+                  "type": "string",
+                  "maxLength": 8000,
+                  "description": "The corrected value from the user task; empty clears the field on replay."
+                }
+              },
+              "required": [
+                "operation",
+                "stepId",
+                "value"
+              ],
+              "description": "Change an entered value."
+            }
+          ]
+        }
+      }
+    },
+    "required": [
+      "wizardId",
+      "expectedRevision",
+      "edits"
+    ],
+    "description": "The draft revision and edits."
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "revision": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 16,
+        "description": "The current recording draft revision; an outdated revision refuses the edit."
+      }
+    },
+    "required": [
+      "revision"
+    ],
+    "description": "The new draft revision; no workflow was run."
+  },
+  "risk": "reversible-write",
+  "targetKinds": [
+    "workflow"
+  ],
+  "requiredPermissions": [
+    "wizard.guide"
+  ],
+  "timeoutMs": 10000,
+  "maxInlineResultBytes": 1000,
+  "concurrency": "exclusive-target",
+  "retry": "never",
+  "exposure": "exposed"
+}

@@ -58,6 +58,14 @@
         "maxLength": 2000,
         "description": "The person’s request in detail (what to do, on which site, with which data), as you would tell them; DSphere shows it as the task in the SidePanel Chat and the live execution panel, and its first line, shortened, names the browser tab group the pages you open in the person’s session are gathered in (one group per task: a page.open without it stays in your current task’s group). Required on the first call that starts work in a task (dsagent.page.open, or the first page.action / page.actions on a page you did not open): such a call on a task that has no description yet is refused with INVALID_REQUEST, businessCode TASK-DESCRIPTION-REQUIRED. Later calls of the same task need not repeat it. Presentation context only, never delegated planning. Do not include credentials. When you follow a skill or plan of several steps, describe the whole request here once (not its current step) and pass taskMode continue; a later call with a different taskDescription starts a separate task."
       },
+      "taskKind": {
+        "type": "string",
+        "enum": [
+          "browser",
+          "collection"
+        ],
+        "description": "browser (default) or collection; both ask whether to keep a workflow (see dsagent.agent.work.recording)."
+      },
       "taskMode": {
         "type": "string",
         "enum": [
@@ -132,6 +140,32 @@
       "settled": {
         "type": "boolean",
         "description": "With waitUntil settled: whether the page went quiet within the bound (false: it was still changing; the revision is the latest anyway)."
+      },
+      "recording": {
+        "type": "object",
+        "description": "Task recording choice. While pending or starting, wait for the person in the side panel with the read dsagent.agent.work.recording.state (pageContextId, waitMs); once recording, it returns the wizard to clean and save at task completion. Never run the newly saved task workflow.",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "pending, starting, recording, not-recording, cancelled or failed. Only recording and not-recording permit task actions; on cancelled or failed end the task failed."
+          },
+          "keepWorkflow": {
+            "type": "boolean",
+            "description": "With not-recording: whether to keep a workflow (false: collect once)."
+          },
+          "requestId": {
+            "type": "string",
+            "description": "The side panel question."
+          },
+          "wizardId": {
+            "type": "string",
+            "description": "The recording wizard."
+          },
+          "wizardToken": {
+            "type": "string",
+            "description": "The wizard ownership token, when first created."
+          }
+        }
       },
       "browserSession": {
         "type": "object",

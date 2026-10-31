@@ -74,6 +74,8 @@ codex mcp add dsphere-agent -- "<descriptor.command>" mcp serve --stdio
 
 ## 升级完成判定
 
+安装和升级完成还要求[完整阅读文档并重建记忆缓存](documentation-memory.md)。学习覆盖率及缓存是否持久化须与下方运行版本检查分别报告，两者不能互相替代。
+
 安装、更新或重新绑定后，从**当前客户端实际连接的 MCP 服务**调用 `dsagent_get_runtime_status`，保存完整结构化返回。不要另启动新 Connector 自检来代替当前连接。工具缺失表示 Connector 过旧或工具列表未刷新，先重连 MCP，必要时重启客户端。
 
 从 `dsagent_list_instances` 确认所选浏览器的在线 instanceId，然后运行：

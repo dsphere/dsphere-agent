@@ -24,6 +24,7 @@ Workflow launch request. Use an idempotency key and inspect workflow inputs befo
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
+| `fileValues` | array of object {fieldId, uploadId} (≤ 100) |  | Run-local file bindings for upload-file inputs. Stage each file with dsagent_upload_file. All empty upload inputs must… |
 | `workflowId` | string (0–128 chars) | yes | Opaque workflow identifier returned by dsagent.workflows.list. |
 | `taskDescription` | string (1–2000 chars) |  | The person’s request in detail (what to do, on which site, with which data), as you would tell them; DSphere shows it a… |
 | `taskMode` | enum: auto, continue |  | continue when you follow your own skill, workflow or plan of several steps (open, act, run, collect, …): the task then… |
@@ -42,6 +43,7 @@ Workflow launch request. Use an idempotency key and inspect workflow inputs befo
 
 Complete value lists and id patterns for the fields above (the contract file is authoritative).
 
+- `fileValues[].uploadId`: matches `^upl_[a-f0-9]{32}$`
 - `sessionName`: matches `^[a-z0-9][a-z0-9-]{0,39}$`
 
 ## Result fields (data.data)

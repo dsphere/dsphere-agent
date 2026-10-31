@@ -1,0 +1,15 @@
+# Record an ordinary task for reuse
+
+Every task is asked at its start, a collection too. page.open returns its recording choice. On an attached page, invoke `dsagent.agent.work.recording` with `pageContextId` before effects; a scrape `wizard.start` asks by itself when nothing asked yet and is refused `TASK_RECORDING_CHOICE_PENDING` until the person answered. For a collection, pass `taskKind: "collection"` to page.open (or `purpose: "collection"` on an attached page): create-workflow then keeps the collection wizard's own workflow and starts no recorder (`not-recording`, `keepWorkflow: true`: `wizard.save`, then `wizard.run`; a one-time run is refused `TASK_RECORDING_WORKFLOW_CHOSEN`), and continue-without-recording collects once (`keepWorkflow: false`: `wizard.run` with `once: true`; `wizard.save` is refused `TASK_RECORDING_WORKFLOW_DECLINED`). A task already recording collects inside its recording with recording-control `scrape-here` (a second wizard is refused `TASK_RECORDING_COLLECT_IN_RECORDING`); never cancel the recording for it.
+
+While status is pending or starting, read `dsagent.agent.work.recording.state` with `pageContextId` and optional `waitMs` (0–25000). The person answers the standard bottom sheet. When they are talking with you, you may also ask it in your own chat. If they give you their answer there (record the task as a workflow, or not), pass it on with `dsagent.agent.work.recording.choose` (`pageContextId`, the pending `requestId`, `choice` `create-workflow` or `continue-without-recording`): the sheet closes and the settled choice comes back, with the recording wizard for create-workflow. An answer they already gave in the sheet stands. Never choose for them or infer it from the task. Continue with normal page tools after recording or not-recording; stop on cancelled or failed. Keep the returned wizardId and wizardToken.
+
+If recording was chosen:
+
+1. Perform and verify the user's task. The ordinary recorder captures its actions.
+2. Read wizard.state and choose finish-recording using the returned choice and option IDs.
+3. Read `dsagent.wizard.recording.steps` with wizardId/token and offset. Read all pages (50 steps each); use total to know when complete.
+4. Invoke `dsagent.wizard.recording.edit` with wizardId/token, expectedRevision and an edits array. Operations are `remove {stepId}`, `move-before {stepId, beforeStepId}`, and `set-value {stepId, value}`. Use the opaque step IDs; targets and text anchors stay as captured. Moves cannot cross navigation or page-input boundaries. Value changes require editableValue=true. Read again after edits; stale revisions require a fresh read.
+5. Answer workflow-details and save through wizard.save. Never call wizard.run for this newly saved task recording. Then end the task with agent.work.finish.
+
+Saving uses the existing recorder compiler; no second execution is needed. Saved workflows can be reused on later matching requests. Read the generated capability references when field meanings are unclear.

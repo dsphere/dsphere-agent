@@ -1,0 +1,93 @@
+{
+  "method": "dsagent.agent.work.recording.choose",
+  "version": 1,
+  "title": "Pass On The Recording Choice",
+  "description": "Pass on the person's answer to this task's pending recording question when the person gave it to you in your own chat (they said to record the task as a workflow, or not to). Never answer it yourself or infer it from the task.",
+  "guidance": "The DSphere sheet closes as if they had answered there; an answer they already gave there stands and is returned. Returns the settled choice, with create-workflow the recording wizard to use.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "The task page, the pending question and the person's answer.",
+    "required": [
+      "pageContextId",
+      "requestId",
+      "choice"
+    ],
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "A page belonging to this task."
+      },
+      "requestId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "The pending question's requestId from recording or recording.state."
+      },
+      "choice": {
+        "type": "string",
+        "enum": [
+          "create-workflow",
+          "continue-without-recording"
+        ],
+        "description": "create-workflow: the person wants the task recorded as a workflow. continue-without-recording: they do not."
+      }
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "The person's choice (in the sheet, or passed on with recording.choose) and the recording it started.",
+    "required": [
+      "status"
+    ],
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "starting",
+          "recording",
+          "not-recording",
+          "cancelled",
+          "failed"
+        ],
+        "description": "Wait while pending or starting; only recording and not-recording permit task actions. Failed means recording could not be started or its start was interrupted; stop and report it."
+      },
+      "recordingActive": {
+        "type": "boolean",
+        "description": "False after recording stops; further task page actions are refused."
+      },
+      "keepWorkflow": {
+        "type": "boolean",
+        "description": "False: collect once (wizard.run once true), never save."
+      },
+      "requestId": {
+        "type": "string",
+        "description": "The pending side panel question."
+      },
+      "wizardId": {
+        "type": "string",
+        "description": "The standard guided recording wizard; finish, clean and save this draft."
+      },
+      "wizardToken": {
+        "type": "string",
+        "description": "Ownership token; keep it with the wizard id."
+      }
+    }
+  },
+  "risk": "reversible-write",
+  "targetKinds": [
+    "page"
+  ],
+  "requiredPermissions": [
+    "wizard.guide"
+  ],
+  "timeoutMs": 60000,
+  "maxInlineResultBytes": 2000,
+  "concurrency": "exclusive-target",
+  "retry": "never",
+  "exposure": "exposed"
+}

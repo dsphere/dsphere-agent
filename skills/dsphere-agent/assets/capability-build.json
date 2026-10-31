@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "sourceExtensionVersion": "1.1.14.1",
-  "catalogSha256": "8303362344a8f18497e4850eb464ef1b714baaf2ab771562eac9bbd350700f8e",
+  "sourceExtensionVersion": "1.1.14.22",
+  "catalogSha256": "e639e267e592af1f01f89c8a6a7eb7111926ef164ff8f6d237dfc6deeab6898f",
   "hashing": {
     "sha256": "SHA-256 of JSON.stringify(descriptor) with no whitespace, where descriptor is references/contracts/<method>.json parsed as JSON (key order as in the file).",
     "fileSha256": "SHA-256 of the bytes of references/contracts/<method>.json after replacing every CRLF with LF.",
@@ -109,6 +109,24 @@
       "version": 1,
       "sha256": "19dea99112b322d05ddbd6f6e85c771d24a0849113dd8881b97277f83f3febe0",
       "fileSha256": "ad23546741f02dcc436a3f919b81668cdafb8d0ec635606a16d5a8a5d9a44dd9"
+    },
+    {
+      "method": "dsagent.agent.work.recording",
+      "version": 1,
+      "sha256": "21d00b66098f0e4c33f108848a5dde6a2bdb472d89c6a1014230437ed74bace9",
+      "fileSha256": "adea35342d595e99ffe162218ef78cda60f83447edc528427f951ab714f76151"
+    },
+    {
+      "method": "dsagent.agent.work.recording.choose",
+      "version": 1,
+      "sha256": "1ccae89b6ccdeb368845758a4a287a1e063585d984322ed29c25adbeef01b708",
+      "fileSha256": "9e6eb32fb617fde13afdf925a9d972cbe6e8dd4ad2ecead551e4ec4f8daef3c3"
+    },
+    {
+      "method": "dsagent.agent.work.recording.state",
+      "version": 1,
+      "sha256": "13cf78fbccf98f1768875dc12896740ff74b03ede53c1620efdcf110138cdc43",
+      "fileSha256": "6b62195f430c6d96656137492b6c37bb82b79dab8afbe03cccac3f06167bc73f"
     },
     {
       "method": "dsagent.agent.work.step",
@@ -251,8 +269,8 @@
     {
       "method": "dsagent.execution.run",
       "version": 1,
-      "sha256": "695ec400de1d92e1cbe806cd76b8691a763d8117dcc09a6e00688e13b4de4ba7",
-      "fileSha256": "75c65e56be5ab9fd3db0ff3752e1dabdbef9eaeef625baf59d54c8801bc7a44c"
+      "sha256": "136dc2bb55b39c1514992fb420a7b887a090b59d04e78d439ccfd3202710986d",
+      "fileSha256": "795c2d125de84e04945252a56e70a256a0be5e19e2f38a42b8c15edb6b99f086"
     },
     {
       "method": "dsagent.execution.stop",
@@ -431,8 +449,8 @@
     {
       "method": "dsagent.page.open",
       "version": 1,
-      "sha256": "c166b137bae2d63d2ff1f4a9752beb2340631edeb930545ae7de2e07e577dcf8",
-      "fileSha256": "e0e69ba6bb80e711e3ceaf11a72055ccb5005fa3d3d042a3bdcde82e7840429e"
+      "sha256": "1059059dab0750f028aba413e408b4145e9c2efe247ed62762d22bee56fdc9a1",
+      "fileSha256": "cdd6a7f2f2bce640f47cc68b0fc63720ed6401b7224588de2bdf0b85f3b15b70"
     },
     {
       "method": "dsagent.page.presentation.get",
@@ -485,8 +503,8 @@
     {
       "method": "dsagent.settings.get",
       "version": 1,
-      "sha256": "77ac3ac445c98f3fe261d8764e13434652596d548ae59e23c926b52df5be4107",
-      "fileSha256": "ac96766e8092cdcfeb65f2aab5d1a6bbbcb2a1e4be2929ac09400e2bc05d4293"
+      "sha256": "fc4e23c22ce4bf8ca1104b820999f7a42c7c145e12882ad1a4ee0562faf2ffc7",
+      "fileSha256": "ef0d39409b083a51c1697037b136c28006f70699ba8e290a84ec7c053cf26efc"
     },
     {
       "method": "dsagent.settings.update",
@@ -537,6 +555,18 @@
       "fileSha256": "caa3bad8472e8ae673ecb354ca75b1d694710d1c34f82b3db7f87bbfcf7371f1"
     },
     {
+      "method": "dsagent.wizard.recording.edit",
+      "version": 1,
+      "sha256": "67a60b730dba5fba6ff1f42151a7758f61cc292f9e4e2251dc1084d43e3b368e",
+      "fileSha256": "449152ea9a30633988483dbed0a94759069ef10275d89ee490d25d5c486a8cd3"
+    },
+    {
+      "method": "dsagent.wizard.recording.steps",
+      "version": 1,
+      "sha256": "64a14bc4ae488e7062df6bfe7338a03582b01aafe17ec42d8b6f2c1a1f91be5b",
+      "fileSha256": "d151e4a3207663cf4647f1d6321e574d68d811cacf10bbf5ee7a460d0a92a1b3"
+    },
+    {
       "method": "dsagent.wizard.run",
       "version": 1,
       "sha256": "e1566c9ed96798cd15ada53563caa7ee4fdca16e3c9932b034929531e5e30a23",
@@ -551,8 +581,8 @@
     {
       "method": "dsagent.wizard.start",
       "version": 1,
-      "sha256": "33106089e8f0db671435e92d79d2fbc5dedb6d411d1f326295223a36d2661a3b",
-      "fileSha256": "e0a479ad66485330bfec2adc065a66a58289a3acca7619c7a0a6ef9de9d675ad"
+      "sha256": "50b362538577735fda0be68cfaf0a3bbf08f95e761a93bb2cc88e5c11633dfc7",
+      "fileSha256": "bb85e73f4a25b5cb2ca653c9e8041ba0dd2297abc3d391d7f8cf8a66271a26f0"
     },
     {
       "method": "dsagent.wizard.state",
@@ -569,8 +599,8 @@
     {
       "method": "dsagent.workflow.inputs.get",
       "version": 1,
-      "sha256": "0fbfcfb855fba953e5b0d2cced2f15d3bcbbddeedea5e6ba3d5fb1f95c99c8b3",
-      "fileSha256": "32ded44e17b0cf9231205620d9d3098a18cb21d7686077b94a5c4e08e81bf683"
+      "sha256": "bb6065a8619d86ef2bdc99ef736d512e5144a103315f2fe08b9f63e3611cf755",
+      "fileSha256": "f81608d6264f4d818d40ee9ca27ede419fa8960b3972360e72ffaf8f919cc800"
     },
     {
       "method": "dsagent.workflows.list",

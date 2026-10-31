@@ -1,11 +1,11 @@
 # 安装与排障入口
 
-先根据当前执行环境确认操作系统，只读取对应平台的一份说明：
+每次安装或升级必须[完整学习文档并更新 Agent 记忆缓存](documentation-memory.md)，包括全部平台和语言的参考文件。执行安装或后续排障时，根据当前执行环境确认操作系统，使用对应平台的说明：
 
 - [macOS：检测 → 用户级 Host → 注册 → 验连](setup-macos.zh-CN.md)
 - [Windows：检测 → 用户级 Host + HKCU → 注册 → 验连](setup-windows.zh-CN.md)
 
-系统已知时直接进入对应文件，不同时读取两套流程。其他系统暂不提供随包程序。
+系统已知时只执行对应平台的流程；完整学习文档不授权运行另一平台的安装操作。后续排障只需回读相关说明。其他系统暂不提供随包程序。
 只支持 DSphere 浏览器。尚未安装时，对应说明的 `browser-not-installed` 步骤会给用户官方下载页（https://work.dsphereai.com/download/index.html，或官网 https://www.dsphereai.com/），安装完成后继续 setup。
 仅需要安装或更新 Skill 本身时，读取[版本与分发说明](skill-install-update.zh-CN.md)。
 

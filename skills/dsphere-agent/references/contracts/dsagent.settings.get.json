@@ -974,7 +974,7 @@
                   "properties": {
                     "enabled": {
                       "type": "boolean",
-                      "description": "Whether a connected agent (an MCP client of dsphere-agent) may run a short script of page actions with dsagent.page.script; off, the call is refused with AGENT_SCRIPTS_DISABLED and the agent acts with single page actions (default true)."
+                      "description": "Whether agents may run a short script of page actions with dsagent.page.script: connected agents (MCP clients of dsphere-agent) and the DSphere Chat; off, the call is refused with AGENT_SCRIPTS_DISABLED and the agent acts with single page actions (default true)."
                     }
                   },
                   "required": [

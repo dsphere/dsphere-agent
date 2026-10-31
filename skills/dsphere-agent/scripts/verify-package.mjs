@@ -12,7 +12,7 @@
 //   JSON.stringify(parsed contract) and (schema 2) `fileSha256` = SHA-256 of the
 //   contract file bytes with CRLF→LF.
 // - assets/promotion-manifest.json: schema 2 and 3 `shipped` = SHA-256 of each file
-//   as published, with CRLF→LF for every file except the four executables
+//   as published, with CRLF→LF for every file except the declared executables
 //   (assets/native/<platform>/dsphere-native-agent[.exe]), so a Git checkout on any
 //   platform verifies; a schema 1 receipt only carries the production-identity
 //   hash, so its channel-wrapper files are reported, not failed.
@@ -23,7 +23,7 @@ import { fileURLToPath } from 'node:url'
 
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex')
 const lf = bytes => Buffer.from(bytes.toString('utf8').replaceAll('\r\n', '\n'))
-const EXECUTABLE = /^assets\/native\/[^/]+\/dsphere-native-agent(?:\.exe)?$/
+const EXECUTABLE = /^assets\/native\/[^/]+\/(?:dsphere-native-agent(?:\.exe)?|connector\.exe)$/
 const WRAPPERS =/^(?:SKILL\.md|agents\/openai\.yaml|references\/(?:guide|setup-macos|setup-windows|client-setup|skill-install-update)\.(?:en|zh-CN)\.md|scripts\/(?:detect-macos\.sh|detect-windows\.ps1|complete-windows-registration\.ps1))$/
 
 function listFiles(root) {
@@ -68,7 +68,7 @@ export function verifyPackage(skillDir) {
       if (bytes.length !== artifact.size) problems.push(`${artifact.path}: size ${bytes.length} ≠ ${artifact.size}`)
       if (sha256(bytes) !== artifact.sha256) problems.push(`${artifact.path}: sha256 differs`)
     }
-    check('native-manifest', problems.length === 0 && (native.artifacts ?? []).length === 4, { artifacts: (native.artifacts ?? []).length, problems })
+    check('native-manifest', problems.length === 0 && [4, 8].includes((native.artifacts ?? []).length), { artifacts: (native.artifacts ?? []).length, problems })
   } catch (error) { check('native-manifest', false, { error: error.message }) }
 
   try {

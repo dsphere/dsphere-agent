@@ -4,7 +4,7 @@
 
 ## 执行顺序
 
-已知打包应用、沙箱或不同用户上下文时，在检测浏览器前直接进入外部人工完成流程。其他情况也只能使用已校验的包内安装器：install 和 `--check` 在访问 manifest/注册表前有界检查当前进程及祖先进程的包身份、受限 token，以及当前进程 SID 是否等于本桌面 shell 的用户 SID。打包桌面应用启动的中间进程即使自身没有包身份，也不能证明其注册对浏览器可见，仍须由外部正常 PowerShell 完成。桌面身份缺失或读取失败（包括无桌面的会话）必须拒绝。环境变量用户名与 Full Access 不构成身份依据。禁止改用 `reg add`、注册表 API、`configure`、Agent 启动的另一个 shell、HKLM/HKEY_USERS、冒用身份或关闭安全设置；旧包缺少这些检查时也适用。
+已知打包应用、沙箱或不同用户上下文时，在检测浏览器前直接进入外部人工完成流程。其他情况也只能使用已校验的包内安装器：install 和 `--check` 在访问 manifest/注册表前有界检查当前进程及祖先进程的包身份、受限 token，以及当前进程 SID 是否等于本桌面 shell 的用户 SID。打包桌面应用启动的中间进程即使自身没有包身份，也不能证明其注册对浏览器可见，仍须由外部用户完成（Codex 使用下文 Connect；其他客户端保留原流程）。桌面身份缺失或读取失败（包括无桌面的会话）必须拒绝。环境变量用户名与 Full Access 不构成身份依据。禁止改用 `reg add`、注册表 API、`configure`、Agent 启动的另一个 shell、HKLM/HKEY_USERS、冒用身份或关闭安全设置；旧包缺少这些检查时也适用。
 
 现在就执行检测、注册与回读，再配置 MCP；这些都是初始化的一部分，不推迟到用户重启之后。先自动执行，只有客户端安全边界阻止注册表写入或回读时才进入下述人工完成流程；不因工具存在就跳过。读取本文件不代表配置已经完成。
 
@@ -43,7 +43,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts\detect-windows.ps1
 
 ## 2. 验证 Skill 程序
 
-用 `[Environment]::Is64BitOperatingSystem` 选择 `assets/native/windows-x64/dsphere-native-agent.exe` 或 `assets/native/windows-x86/dsphere-native-agent.exe`，按系统位数而不是 PowerShell 位数。用 `Get-FileHash -Algorithm SHA256` 对照 `assets/native/manifest.json` 的对应大小与 SHA-256。
+按操作系统架构选择程序，不按进程位数：优先读取 `PROCESSOR_ARCHITEW6432`，否则读取 `PROCESSOR_ARCHITECTURE`；AMD64/x86/ARM64 分别对应 windows-x64/windows-x86/windows-arm64，选择 `assets/native/<platform>/dsphere-native-agent.exe`。环境变量仅用于选取文件，不是身份或权限证据；Connect 会通过 Windows API 独立确认原生架构。用 `Get-FileHash -Algorithm SHA256` 对照 `assets/native/manifest.json` 的对应大小与 SHA-256。
 
 保持完整 Skill 在稳定目录。缺文件、版本或摘要不符时恢复可信同版本完整包；校验和用于检查损坏，不能代替发布源可信性。不要复制程序到浏览器目录或使用浏览器旧程序。
 
@@ -79,6 +79,20 @@ for ($Index = 0; $Index -lt $Targets.Count; $Index++) {
 `registration-user-mismatch`、`registration-context-restricted`、`registration-context-unverified` 同样进入本流程，禁止在客户端内重试。桌面用户必须也是运行浏览器的账号；本流程不支持特意以另一用户运行的浏览器。
 
 仅当自动安装或某次最后 `--check` 因当前客户端沙箱/权限限制而无法写入或读取一个或多个已安装浏览器的 HKCU 注册时使用。任一 install 或 `--check` 返回 `packaged-client-virtualized` 也进入本流程：当前客户端是 Windows 打包应用（MSIX，例如 Codex Desktop），其 AppData 与 HKCU 写入会被重定向到私有存储，浏览器看不到，因此在该客户端内既不能安装也不能回读；不要重试或改用其他写入方式。配置校验失败、manifest 冲突、Origin 不匹配或并发变化不是权限回退；报告后停止。
+
+#### Windows/Codex：本地图形化兜底
+
+仅 **Windows 10/11 桌面版的 Codex** 用随包 GUI 替换原 PowerShell 交接。正常自动安装和其他客户端保持原流程；不支持 Windows 7/8/8.1、Server，x86 仅支持 Windows 10。Connect 不是统一安装前置条件。
+
+1. 公开安装指南第 2 步已安装完整 Skill。验证可信发布源及对应文件哈希后，用已验证 Native 程序执行 `integrations native-host prepare-connect`。命令不注册、不启动 GUI，通过系统原生架构选择、签名与哈希检查后返回 `connectorPath` 和有效期 30 分钟的 `request`。将完整 JSON 保存在包外临时 `prepared.json`，不手工改写或传入沙箱 manifest 路径。
+2. 给用户返回的 **connector.exe 绝对本地路径**（支持时使用本地文件链接）和所在文件夹。请用户在文件资源管理器打开该文件夹，用浏览器所在 Windows 账号自行双击程序，点击“设置 / 修复”，再“复制结果”粘贴回当前对话。Agent 不启动程序，不要求找 PowerShell，不让用户重复下载。文件不可访问或缺失时先报告阻塞，恢复可信完整 Skill 到用户可访问位置后重新准备；不提供单个替代 exe，不要求关闭安全保护。
+3. `HANDOFF_BUSY` 表示已有未过期交接：使用该对话保存的原请求继续，或等待过期；不删除其他尝试的请求。不支持的系统、签名失败、包不完整或请求无法写入时，停止提供可运行路径。旧版无 Connect 时保持其文档化支持流程，不假装文件存在；只有签名、外部启动和真实客户端验收通过的发布版才能推广 Connect。
+4. 将用户复制的 JSON 保存为包外 `copied-result.json`，从已安装 Skill 执行 `node scripts/verify-connect-result.mjs <prepared.json> <copied-result.json>`，必须返回 `ok=true`、`configured-awaiting-client-verification`。过期 challenge、错误通道/哈希/路径、注册不完整、重复检查或错误均保持阻塞。口头“完成”不算证据；回执是有界配置证据，不是实时 MCP 已连接的密码学证明。
+5. 使用校验后的 descriptor 继续第 4 步。必须验证当前 Codex MCP 重连、`dsagent_get_runtime_status`、目标在线 DSphere 实例和共享指南的 capability 检查。C4 允许待检查，GUI 的 C5 始终是“请在 Codex 中验证”，不得只凭回执宣称端到端成功。
+
+#### 其他客户端与旧版支持：保留 PowerShell 流程
+
+以下仅用于其他客户端或明确选用的旧版支持，不是 Windows/Codex Connect 的自动兜底。
 
 1. 生成一个 16–64 字符、只含 `[A-Za-z0-9_-]` 的新 challenge。解析已验证 `$SkillExe` 与 `scripts\complete-windows-registration.ps1` 的绝对路径。完整 Skill 必须能被桌面用户访问，否则先在其普通 PowerShell 安装并验证完整发布包。禁止传入沙箱检测得到的 `-ManifestPath`、`-TemplatePath` 或 `-RegistryRoots`。helper 在外部用户上下文独立重新检测 DSphere 浏览器，并保留该上下文发现的现有 manifest/来源；不能采信沙箱路径或沙箱内的空浏览器列表。
 2. 用下列模板生成一条可直接复制的命令。显示前替换所有尖括号值；PowerShell 单引号值中的 `'` 必须写成 `''`。绝不把占位符或环境变量留给用户：

@@ -24,6 +24,10 @@
 
 安装后、注册前先核验副本：在 Skill 目录运行 `node scripts/verify-package.mjs`，它对照 `assets/release-channel.json` 检查 `SKILL.md`（本包所属通道——`dsphere-agent` 为正式通道，`dsphere-agent` 为测试通道；名称与通道不符的包必须拒绝），对照 `assets/native/manifest.json` 检查每个可执行文件，对照 `assets/capability-build.json` 检查每份契约，对照 `assets/promotion-manifest.json` 检查每个文件。每份清单都写明了自己的哈希算法。退出码 0 表示核验通过；否则从不可变 tag 重新安装同一版本。
 
+## 每次安装或升级后完整学习文档
+
+安装包校验通过后，执行[文档学习与 Agent 记忆](documentation-memory.md)：完整阅读包内全部文档和参考文件，包括嵌套契约、所有平台及语言版本，再在 Skill 包外重建自己的版本化记忆缓存。每次安装、重装和升级都必须执行，不能只在首次使用时执行。报告已读覆盖率及缓存是持久化还是仅当前会话有效；未读完不得宣称学习完成。实际安装操作仍只执行当前平台的流程。后续浏览器任务复用匹配当前安装包的缓存，按任务需要回读具体规则。
+
 ## 更新
 
 读取本地 `SKILL.md` 的 `metadata.version`，按 SemVer 与 `latest-version.json.version` 比较：
@@ -33,7 +37,7 @@
 - 用户未确认：不写文件、不删除当前版本、不修改 MCP。
 - 版本指针非法、tag 不存在或 Skill 结构/版本不符：保留当前版本并说明可恢复错误，不降级到 `main` 或未确认的复制方式。
 
-Skill 同时拥有浏览器 runtime 和 MCP Connector 的可执行文件。将完整新发布包（包括 `assets/native/` 下四平台真实文件）安装到稳定目录，无需 Go 或额外下载程序。验证后按当前平台说明注册：Windows 使用 install 写用户 manifest 与 HKCU，macOS 使用 install 写用户 manifest（浏览器不再提供 manifest）；MCP command 指向同一 Skill 程序。更新完成后必须按[通用指引](client-setup.zh-CN.md)主动提示用户重启浏览器并等待确认。浏览器重启和 MCP 重连验证成功前保留上一份已验证 Skill；不得使用或复制浏览器安装目录中的旧程序。浏览器升级后重新检测；Windows 用户级注册不随浏览器版本目录迁移。旧进程占用文件时保留两个版本并安排安全重启，不强杀进程。
+Skill 同时拥有浏览器 runtime 和 MCP Connector 的可执行文件。将完整新发布包（包括 `assets/native/` 下全部声明的可执行文件）安装到稳定目录，无需 Go 或额外下载程序。验证后按当前平台说明注册：Windows 使用 install 写用户 manifest 与 HKCU，macOS 使用 install 写用户 manifest（浏览器不再提供 manifest）；MCP command 指向同一 Skill 程序。更新完成后必须按[通用指引](client-setup.zh-CN.md)主动提示用户重启浏览器并等待确认。浏览器重启和 MCP 重连验证成功前保留上一份已验证 Skill；不得使用或复制浏览器安装目录中的旧程序。浏览器升级后重新检测；Windows 用户级注册不随浏览器版本目录迁移。旧进程占用文件时保留两个版本并安排安全重启，不强杀进程。
 
 ## 渠道一致性
 

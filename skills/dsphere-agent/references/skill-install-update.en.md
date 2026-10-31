@@ -24,6 +24,10 @@ The official Git clone URL is `https://github.com/dsphere/dsphere-agent.git`. Do
 
 After installing, verify the copy before registering it: `node scripts/verify-package.mjs` in the Skill directory checks `SKILL.md` against `assets/release-channel.json` (the channel this package was built for — a `dsphere-agent` package is production, `dsphere-agent` is the test channel; refuse a package whose name and channel disagree), every executable against `assets/native/manifest.json`, every contract against `assets/capability-build.json`, and every file against `assets/promotion-manifest.json`. Each manifest states how its hashes are computed. Exit code 0 means verified; otherwise reinstall the same release from its immutable tag.
 
+## Documentation learning after every installation or upgrade
+
+After verifying the installed package, follow [documentation learning and agent memory](documentation-memory.md): read all bundled documentation and references completely, including nested contracts and every platform/language guide, then rebuild your own versioned cache outside the Skill package. This is required for every installation, reinstallation and upgrade, not just the first use. Report coverage and whether memory is durable or session-only; incomplete reading must not be reported as complete. Execute only the current platform's setup. Future browser tasks reuse the matching cache and read task-specific details as needed.
+
 ## Update
 
 Read the installed `metadata.version` from `SKILL.md` and compare it with `latest-version.json.version` using SemVer:
@@ -33,7 +37,7 @@ Read the installed `metadata.version` from `SKILL.md` and compare it with `lates
 - Without confirmation, do not write files, remove the installed version, or change MCP.
 - If the version pointer is invalid, the tag is absent, or the Skill shape/version is invalid, keep the current version and report a recoverable error. Do not fall back to `main` or an unconfirmed copy.
 
-The Skill owns the executable for both browser runtime and MCP connector. Install the complete new Skill release, including all four real files under `assets/native/`, at a stable location. No Go compiler or separate executable download is required. Validate and follow platform setup: Windows install writes the user manifest and HKCU; macOS install writes the user manifest (the browser ships none). MCP uses the same Skill executable. After installation or update, follow the [shared guide](client-setup.en.md) to explicitly request a full browser restart and wait for confirmation. Keep the previous verified Skill until browser restart and MCP reconnection succeed. Never use or copy an executable from the browser installation. Rerun detection after browser upgrades; Windows user registration does not move with version directories. If an old process prevents replacing files, retain both releases and arrange a safe restart; never forcibly kill it.
+The Skill owns the executable for both browser runtime and MCP connector. Install the complete new Skill release, including all declared executable files under `assets/native/`, at a stable location. No Go compiler or separate executable download is required. Validate and follow platform setup: Windows install writes the user manifest and HKCU; macOS install writes the user manifest (the browser ships none). MCP uses the same Skill executable. After installation or update, follow the [shared guide](client-setup.en.md) to explicitly request a full browser restart and wait for confirmation. Keep the previous verified Skill until browser restart and MCP reconnection succeed. Never use or copy an executable from the browser installation. Rerun detection after browser upgrades; Windows user registration does not move with version directories. If an old process prevents replacing files, retain both releases and arrange a safe restart; never forcibly kill it.
 
 ## Channel consistency
 

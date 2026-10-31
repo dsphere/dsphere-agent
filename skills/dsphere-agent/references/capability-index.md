@@ -25,6 +25,9 @@ Known methods are invoked directly. Look a contract up with `dsagent_list_capabi
 | `dsagent.accounts.update` | Update permitted account fields using the current Work complete save format. | reversible-write | yes |
 | `dsagent.agent.work.finish` | Ends your task with its verified outcome, and with keep closes its pages in the… | reversible-write | yes |
 | `dsagent.agent.work.list` | What this browser still holds for you between calls (decision F4, failure-endpo… | read-sensitive |  |
+| `dsagent.agent.work.recording` | Read or begin this task's recording choice, the person's question in the standa… | reversible-write | yes |
+| `dsagent.agent.work.recording.choose` | Pass on the person's answer to this task's pending recording question when the… | reversible-write | yes |
+| `dsagent.agent.work.recording.state` | Wait for the person to choose whether to record this task. | read-sensitive |  |
 | `dsagent.agent.work.step` | For a task that follows your own skill or plan of several steps. | reversible-write | yes |
 | `dsagent.app.accounts.list` | List bounded application-account labels using opaque account IDs. | read-sensitive |  |
 | `dsagent.artifact.read` | Read a listed artifact. | read-sensitive |  |
@@ -96,6 +99,8 @@ Known methods are invoked directly. Look a contract up with `dsagent_list_capabi
 | `dsagent.wizard.choose` | Choose wizard options autonomously from the requested task and current wizard/p… | reversible-write | yes |
 | `dsagent.wizard.highlight` | Highlight one option of the pending choice on the page (a data block or table a… | reversible-write | yes |
 | `dsagent.wizard.pick` | Make the click the wizard waits for on the page yourself, instead of the person… | reversible-write | yes |
+| `dsagent.wizard.recording.edit` | Atomically clean a stopped single-recording draft before save: remove incorrect… | reversible-write | yes |
+| `dsagent.wizard.recording.steps` | Read all recorded steps in pages of 50, including the stopped draft before savi… | read-sensitive |  |
 | `dsagent.wizard.run` | Run the workflow this wizard saved, once, in the person's current browser envir… | external-effect | yes |
 | `dsagent.wizard.save` | At phase ready-to-save, create the workflow through the wizard's own save chain… | reversible-write | yes |
 | `dsagent.wizard.start` | Choose wizard options autonomously from the requested task and current wizard/p… | reversible-write | yes |
