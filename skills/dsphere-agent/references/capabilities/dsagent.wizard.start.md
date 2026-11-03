@@ -6,14 +6,11 @@ Choose wizard options autonomously from the requested task and current wizard/pa
 
 ## Invocation
 
-Call `dsagent_invoke` with this shape. Replace every placeholder with a value from the user or a preceding result; add `instanceId` when more than one browser is online. Opaque ids and revisions come only from results.
+Call `dsagent_wizard_start` with this shape: the arguments flat, no method/args wrapper. Replace every placeholder with a value from the user or a preceding result; add `instanceId` when more than one browser is online. Opaque ids and revisions come only from results.
 
 ```json
 {
-  "method": "dsagent.wizard.start",
-  "args": {
-    "kind": "scrape"
-  },
+  "kind": "scrape",
   "idempotencyKey": "<fresh 8-128 character key you choose; reuse it only for an identical retry>"
 }
 ```
@@ -61,7 +58,7 @@ The started wizard and its first state (with auto, the state where auto ended).
 | `executionId` | string (0–128 chars) |  | Execution started b… |
 | `lastError` | object {code, message} |  | The last step that… |
 | `lastEndpoint` | object {endpoint, group, outcome, scope, reason, scrapeErrorCode, …} |  | The typed endpoint… |
-| `warnings` | array of object {code, message} (≤ 8) |  | What the saved work… |
+| `warnings` | array of object {code, message, workflows, nextActions} (≤ 8) |  | What the saved work… |
 | `personTookOver` | boolean |  | True when the perso… |
 | `wizardToken` | string (0–128 chars) |  | Ownership token, re… |
 | `auto` | object {outcome, stoppedAt, executionId, reason, answered, preview} |  | Present when the ca… |
@@ -80,14 +77,15 @@ Complete value lists and id patterns for the fields above (the contract file is 
 - `pendingChoice.options[].kind`: one of `pagination-type`, `data-block`, `data-table`, `form-group`, `option-group`, `form-field`, `upload-slot`, `field`, `link-field`, `nested-scope`, `page-content`, `output-destination`, `action`
 - `pendingChoice.options[].labelSource`: one of `page`, `role`, `shape`, `fallback`, `user`, `api`, `ai`
 - `pendingChoice.values[].name`: one of `maxRecords`, `collectHint`, `stopBefore`, `detailUrlSuffix`, `pageQueryParam`, `fieldLabels`, `fieldRules`, `maxChildrenPerParent`, `maxConcurrency`, `maxItems`, `maxPages`, `swapLabelValue`, `sampleUploads`, `pageMarkdown`, `name`, `description`, `stepIds`
+- `pendingChoice.autoAnswer.optionIds[]`: matches `^opt_[a-f0-9]{12}$`
 - `nextActions[]`: one of `choose`, `pick`, `back`, `save`, `run`, `cancel`, `wait`
-- `lastEndpoint.endpoint`: one of `page-unreadable`, `content-unavailable`, `wall`, `session-start-refused`, `page-not-scrapable`, `structure-none`, `structure-search-empty`, `structure-detection-failed`, `structure-budget-exhausted`, `form-none`, `form-detection-failed`, `ai-model-unavailable`, `ai-detection-failed`, `ai-found-nothing`, `pagination-inconclusive`, `pagination-unavailable`, `nested-detection-timeout`, `nested-detection-failed`, `field-naming-timeout`, `field-review-model-unavailable`, `field-review-failed`, `detail-sample-unavailable`, `sample-not-repeating`, `sample-invisible`, `field-pick-not-landed`, `next-control-not-taken`, `next-control-not-advancing`, `option-pick-not-taken`, `pick-not-dispatched`, `compile-rejected`, `save-duplicate`, `save-failed`, `plan-limit`, `step-rejected`, `step-crashed`
+- `lastEndpoint.endpoint`: one of `page-unreadable`, `content-unavailable`, `wall`, `session-start-refused`, `page-not-scrapable`, `structure-none`, `structure-search-empty`, `structure-detection-failed`, `structure-budget-exhausted`, `form-none`, `form-detection-failed`, `ai-model-unavailable`, `ai-detection-failed`, `ai-found-nothing`, `pagination-inconclusive`, `pagination-unavailable`, `nested-detection-timeout`, `nested-detection-failed`, `field-naming-timeout`, `field-review-model-unavailable`, `field-review-failed`, `field-mapping-model-unavailable`, `field-mapping-failed`, `region-unreadable`, `detail-sample-unavailable`, `sample-not-repeating`, `sample-invisible`, `field-pick-not-landed`, `next-control-not-taken`, `next-control-not-advancing`, `option-pick-not-taken`, `pick-not-dispatched`, `compile-rejected`, `save-duplicate`, `save-failed`, `plan-limit`, `step-rejected`, `step-crashed`
 - `lastEndpoint.group`: one of `readiness`, `structure`, `form`, `ai-detection`, `pagination`, `follow-up`, `detail`, `pick`, `finishing`, `step`
-- `lastEndpoint.reason`: one of `content-unavailable`, `main-frame-timed-out`, `main-frame-failed`, `processing-budget`, `all-frames-failed`, `content-error`, `no-session`, `low-confidence`, `unknown-kind`, `unmappable`, `document-replaced`, `no-model`, `snapshot-unavailable`, `model-failed`, `transport-error`, `invalid-review`, `fields-changed`, `timed-out`, `detector-error`, `samples-apart`, `exclusion-kept`, `records-dropped`, `no-tighter-record`, `no-looser-record`, `no-table`, `samples-lost`
+- `lastEndpoint.reason`: one of `content-unavailable`, `main-frame-timed-out`, `main-frame-failed`, `processing-budget`, `all-frames-failed`, `content-error`, `no-session`, `low-confidence`, `unknown-kind`, `unmappable`, `document-replaced`, `no-model`, `snapshot-unavailable`, `model-failed`, `transport-error`, `invalid-review`, `fields-changed`, `invalid-mapping`, `timed-out`, `detector-error`, `samples-apart`, `exclusion-kept`, `records-dropped`, `no-tighter-record`, `no-looser-record`, `no-table`, `samples-lost`
 - `lastEndpoint.scrapeErrorCode`: one of `NO_ACTIVE_SESSION`, `TAB_UNAVAILABLE`, `TAB_NOT_SCRAPABLE`, `RECORDING_CONFLICT`, `FIELD_NAME_IN_USE`, `FIELD_NOT_FOUND`, `NOT_URL_LINK_FIELD`, `NO_SAMPLE_URL`, `NEXT_DETAIL_SAMPLE_UNAVAILABLE`, `SUBPAGE_CONTEXT_FAILED`, `DETAIL_DOCUMENT_UNSUPPORTED`, `PICKER_NOT_ACTIVE`, `BLOCK_NOT_FOUND`, `INVALID_INPUT`, `OPERATION_FAILED`, `SUBPAGE_NAVIGATION_TIMEOUT`, `PAGINATION_NOT_SET`, `NEXT_PAGE_BUTTON_NOT_SELECTED`, `PAGE_QUERY_PARAM_NOT_SET`, `RECORD_LIMIT_NOT_SET`, `FIELDS_REQUIRED`, `SESSION_STOPPED_DURING_START`, `CONTENT_UNAVAILABLE`, `STRUCTURE_DETECTION_TIMED_OUT`, `STRUCTURE_DETECTION_FAILED`, `STRUCTURE_DETECTION_BUDGET_EXCEEDED`, `STRUCTURE_DETECTION_ALL_FRAMES_FAILED`, `NO_REPEATING_BLOCK`, `SAMPLE_ELEMENT_INVISIBLE`, `WORKFLOW_COMPILE_FAILED`, `FINISH_IN_PROGRESS`
 - `lastEndpoint.fallbacks[]`: one of `detect-again`, `detect-with-ai`, `detect-form-fields`, `pick-sample-record`, `pick-page-fields`, `pick-detail-fields`, `page-content-only`, `next-detail-sample`, `choose-pagination-type`, `pick-again`, `back`, `wait-for-person`, `reopen-page`, `retry-save`, `agent-read`, `pick-next-control`, `add-sample-record`, `exclude-record`, `pick-tighter-record`, `pick-looser-record`, `pick-table`, `review-fields-with-ai`
 - `auto.stoppedAt`: same values as `pendingChoice.choiceId`
-- `auto.reason`: one of `wall`, `awaiting-page`, `taken-over`, `step-failed`, `detection-endpoint`, `no-data`, `no-recommendation`, `ambiguous-source`, `no-fields`, `fields-truncated`, `detail-pages-requested`, `name-required`, `not-auto-choice`, `changed`, `no-progress`, `time-budget`
+- `auto.reason`: one of `wall`, `awaiting-page`, `taken-over`, `step-failed`, `detection-endpoint`, `no-data`, `no-recommendation`, `ambiguous-source`, `no-fields`, `fields-truncated`, `detail-pages-requested`, `name-required`, `not-auto-choice`, `changed`, `no-progress`, `time-budget`, `fields-not-found`, `fields-ambiguous`, `region-mismatch`, `choose-source`
 - `auto.answered[].choiceId`: same values as `pendingChoice.choiceId`
 - `auto.preview.fields[].labelSource`: same values as `pendingChoice.options[].labelSource`
 

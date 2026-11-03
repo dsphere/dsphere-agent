@@ -6,14 +6,11 @@ Find the current page targets that read as a short query (a visible label, a pla
 
 ## Invocation
 
-Call `dsagent_read` with this shape (a read: no idempotencyKey, may run beside other reads; `dsagent_invoke` accepts it too). Replace every placeholder with a value from the user or a preceding result; add `instanceId` when more than one browser is online. Opaque ids and revisions come only from results.
+Call `dsagent_page_find` with this shape: the arguments flat, no method/args wrapper. Replace every placeholder with a value from the user or a preceding result; add `instanceId` when more than one browser is online. Opaque ids and revisions come only from results.
 
 ```json
 {
-  "method": "dsagent.page.find",
-  "args": {
-    "pageContextId": "<pageContextId: supply a value matching the schema>"
-  }
+  "pageContextId": "<pageContextId: supply a value matching the schema>"
 }
 ```
 

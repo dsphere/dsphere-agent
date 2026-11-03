@@ -8,6 +8,7 @@ Known methods are invoked directly. Look a contract up with `dsagent_list_capabi
 
 | Method | Purpose | Risk | Key |
 |---|---|---|---|
+| `dsagent.accounts.application.create` | Create a custom web application by name and HTTP(S) address, including before i… | external-effect | yes |
 | `dsagent.accounts.close` | Synchronize and close only the selected account environment. | reversible-write | yes |
 | `dsagent.accounts.create` | Create a DSphere account record. | external-effect | yes |
 | `dsagent.accounts.delete` | Delete the selected account and clear its environment directly on explicit user… | external-effect | yes |
@@ -39,13 +40,16 @@ Known methods are invoked directly. Look a contract up with `dsagent_list_capabi
 | `dsagent.development.chat.send` | Development only: open the SidePanel of the person's focused window on the Chat… | external-effect | yes |
 | `dsagent.development.chat.state` | Development only: the view the SidePanel of the person's focused window shows (… | read-sensitive |  |
 | `dsagent.development.inject-fault` | Development only: reproduce on demand a fault the release gate must see handled… | reversible-write | yes |
-| `dsagent.development.reload-extension` | Development only: reload this unpacked Extension from its dist folder so a fres… | reversible-write | yes |
 | `dsagent.development.restart-service-worker` | Development only: let this Extension's service worker end the way the browser e… | reversible-write | yes |
+| `dsagent.development.sidepanel.action` | Click or focus one observed permitted UI control using its current document and… | reversible-write | yes |
+| `dsagent.development.sidepanel.observe` | Read visible registered side-panel regions, control labels, layout bounds and c… | read-sensitive |  |
+| `dsagent.development.sidepanel.open` | Open the focused window side panel on a supported view; refuses while a dialog… | reversible-write | yes |
 | `dsagent.diagnostics.export` | Export current-user retained ActionEpisode, DecisionSpan and TaskRun facts as o… | reversible-write | yes |
 | `dsagent.events.close` | Close one owned browser event channel and release its bounded event buffer. | reversible-write | yes |
 | `dsagent.events.open` | Attach the current MCP control session to a bounded resumable channel for typed… | reversible-write | yes |
 | `dsagent.events.wait` | Wait for typed Extension events after an opaque cursor; returns immediately on… | read-sensitive |  |
 | `dsagent.execution.artifact.export` | Write an artifact to a local file in the export directory, for a client that ca… | reversible-write | yes |
+| `dsagent.execution.auth.resume` | Resume a run paused on a sign-in or verification wall (pause.kind auth, waiting… | external-effect | yes |
 | `dsagent.execution.data.export` | Write the records a finished execution collected (for example one started by ds… | reversible-write | yes |
 | `dsagent.execution.get` | Read current workflow execution status. | read-sensitive |  |
 | `dsagent.execution.handoff.abort` | End a run paused for your repair without resuming it: the run ends failed on th… | reversible-write | yes |
@@ -97,6 +101,7 @@ Known methods are invoked directly. Look a contract up with `dsagent_list_capabi
 | `dsagent.wizard.back` | Undo the last answered choice so the agent or person can decide again, as the S… | reversible-write | yes |
 | `dsagent.wizard.cancel` | End the wizard without saving, as the SidePanel's Cancel does: the scrape sessi… | reversible-write | yes |
 | `dsagent.wizard.choose` | Choose wizard options autonomously from the requested task and current wizard/p… | reversible-write | yes |
+| `dsagent.wizard.collect` | Read the records of one list, table or one-record page once with the fields you… | external-effect | yes |
 | `dsagent.wizard.highlight` | Highlight one option of the pending choice on the page (a data block or table a… | reversible-write | yes |
 | `dsagent.wizard.pick` | Make the click the wizard waits for on the page yourself, instead of the person… | reversible-write | yes |
 | `dsagent.wizard.recording.edit` | Atomically clean a stopped single-recording draft before save: remove incorrect… | reversible-write | yes |

@@ -6,14 +6,11 @@ Use the default user session for every agent task, preserving the person's exist
 
 ## Invocation
 
-Call `dsagent_invoke` with this shape. Replace every placeholder with a value from the user or a preceding result; add `instanceId` when more than one browser is online. Opaque ids and revisions come only from results.
+Call `dsagent_page_open` with this shape: the arguments flat, no method/args wrapper. Replace every placeholder with a value from the user or a preceding result; add `instanceId` when more than one browser is online. Opaque ids and revisions come only from results.
 
 ```json
 {
-  "method": "dsagent.page.open",
-  "args": {
-    "url": "<url: supply a value matching the schema>"
-  },
+  "url": "<url: supply a value matching the schema>",
   "idempotencyKey": "<fresh 8-128 character key you choose; reuse it only for an identical retry>"
 }
 ```

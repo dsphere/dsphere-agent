@@ -38,7 +38,7 @@ Account operation result. status/stage are for internal reconciliation, not user
 | `accountId` | string (0–100 chars) |  | Account reference when known. |
 | `pageContextId` | string (0–100 chars) |  | Actual opened/focused page reference when known. |
 | `warnings` | array of string (0–500 chars) (≤ 20) |  | Bounded warnings, including synchronization and unknown outcomes. |
-| `data` | object {configuration, configurationText, configurationSummary, records, account, total, …} |  | Only the selected account operation's public product fields. |
+| `data` | object {application, configuration, configurationText, configurationSummary, records, account, …} |  | Only the selected account operation's public product fields. |
 
 ## Result constraints
 
@@ -47,7 +47,7 @@ Complete value lists and id patterns for the fields above (the contract file is 
 - `status`: one of `not-dispatched`, `waiting-user`, `running`, `succeeded`, `partial`, `failed`, `cancelled`, `outcome-unknown`, `record-unavailable`, `available`
 - `data.configuration.fields[].control`: one of `text`, `select`, `multiselect`, `boolean`, `private`, `group`, `override`
 - `data.configuration.fields[].children[].control`: same values as `data.configuration.fields[].control`
-- `data.records[].allowedActions[]`: one of `options.get`, `list`, `get`, `create`, `update`, `delete`, `set-enabled`, `open`, `close`, `focus`, `fingerprint.get`, `fingerprint.update`, `fingerprint.regenerate`, `operations.get`, `pages.list`
+- `data.records[].allowedActions[]`: one of `options.get`, `list`, `get`, `create`, `update`, `delete`, `set-enabled`, `open`, `close`, `focus`, `fingerprint.get`, `fingerprint.update`, `fingerprint.regenerate`, `operations.get`, `pages.list`, `application.create`
 - `data.account.allowedActions[]`: same values as `data.records[].allowedActions[]`
 
 ## Contract

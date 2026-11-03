@@ -1,0 +1,64 @@
+{
+  "method": "dsagent.execution.auth.resume",
+  "version": 1,
+  "title": "Resume a run after the person signed in",
+  "description": "Resume a run paused on a sign-in or verification wall (pause.kind auth, waitingOn person, of dsagent.execution.wait) after the person told you they passed it.",
+  "guidance": "Sign-in walls are the person's: ask them to sign in on the paused page (pause.pageContextId) and wait for them; never sign in, type, click or accept anything there yourself. The Extension reads the paused page again and resumes the run, as the person's Resume on the sign-in sheet does, only when no wall stands there: with the wall still present it refuses (TARGET_BUSY, businessCode AUTHENTICATION_REQUIRED) and the run stays paused. A run usually resumes by itself a few seconds after the wall is gone, so a refusal with AUTH_PAUSE_NOT_OPEN often means it already did: follow it with dsagent.execution.wait. Only the agent that started the run may resume it (after a restart of your Connector pass runToken). The pause's deadline is unchanged. Requires an idempotency key.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "The run to resume.",
+    "required": [
+      "executionId"
+    ],
+    "properties": {
+      "executionId": {
+        "type": "string",
+        "maxLength": 128,
+        "pattern": "^[A-Za-z0-9_.:-]{1,128}$",
+        "description": "The paused run, as dsagent.execution.run or dsagent.wizard.run returned it."
+      },
+      "runToken": {
+        "type": "string",
+        "maxLength": 128,
+        "pattern": "^[A-Za-z0-9_-]{16,128}$",
+        "description": "The run's ownership token, as dsagent.execution.run or dsagent.wizard.run returned it (shown once). Pass it when your browser connection was renewed (a restarted Connector): the run, its open repair handoff and its pages follow you to the new connection. Not needed on the connection that started the run."
+      }
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "The resumed run.",
+    "required": [
+      "executionId",
+      "resumed"
+    ],
+    "properties": {
+      "executionId": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "The run, running again; follow it with dsagent.execution.wait."
+      },
+      "resumed": {
+        "type": "boolean",
+        "enum": [
+          true
+        ],
+        "description": "Always true: the wall was checked gone and the run resumed."
+      }
+    }
+  },
+  "risk": "external-effect",
+  "targetKinds": [
+    "workflow"
+  ],
+  "requiredPermissions": [
+    "workflow.execute"
+  ],
+  "timeoutMs": 20000,
+  "maxInlineResultBytes": 1024,
+  "concurrency": "exclusive-browser",
+  "retry": "never",
+  "exposure": "exposed"
+}

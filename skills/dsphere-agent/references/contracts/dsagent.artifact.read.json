@@ -105,7 +105,7 @@
           "maxLength": 500,
           "description": "One column name."
         },
-        "description": "The columns of the dataset (declared, else the keys of the records read so far), in the order csv cells follow."
+        "description": "The columns of the dataset (declared, else the keys of the records read so far), in the order csv cells follow. A dataset of several tables (for example posts, comments and replies) ends with three hierarchy columns: the record id, the parent record id (empty for a top-level row) and the level (0 for a top-level row); the jsonl records carry the same keys."
       },
       "header": {
         "type": "string",

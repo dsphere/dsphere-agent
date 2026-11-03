@@ -1,13 +1,19 @@
 {
   "schemaVersion": 2,
-  "sourceExtensionVersion": "1.1.14.22",
-  "catalogSha256": "e639e267e592af1f01f89c8a6a7eb7111926ef164ff8f6d237dfc6deeab6898f",
+  "sourceExtensionVersion": "1.1.14.33",
+  "catalogSha256": "0df15d034ddd94721f74af2194a9f8f75fdeded086f46025c966254e2cf0e401",
   "hashing": {
     "sha256": "SHA-256 of JSON.stringify(descriptor) with no whitespace, where descriptor is references/contracts/<method>.json parsed as JSON (key order as in the file).",
     "fileSha256": "SHA-256 of the bytes of references/contracts/<method>.json after replacing every CRLF with LF.",
     "catalogSha256": "SHA-256 of JSON.stringify of the array of all descriptors in this order, with no whitespace."
   },
   "capabilities": [
+    {
+      "method": "dsagent.accounts.application.create",
+      "version": 1,
+      "sha256": "a10c1aa8a0e44cc1f9d978a4a530cb2f38849f55209bc4d5da6c27a8a5eee3da",
+      "fileSha256": "93deb967d4911e8511358ffcab9d50e2770b52556cf62612763cab834e86f51b"
+    },
     {
       "method": "dsagent.accounts.close",
       "version": 1,
@@ -17,8 +23,8 @@
     {
       "method": "dsagent.accounts.create",
       "version": 1,
-      "sha256": "6c50036eb72e6fe0ae84c2a35254d908a73b08b1769f4ce2dca39fe9596553ed",
-      "fileSha256": "9a31f584c6f300c8b78672526d093c9529bd460eacc678355dc00e66e317bf69"
+      "sha256": "721c142da667e84c7ae9a986eef0b8d89dfc85374225f299240cfaa97464595a",
+      "fileSha256": "1803f3f4c6348903cc98743cef2f8fa50b31e078d62f6695fceb80f543a78d78"
     },
     {
       "method": "dsagent.accounts.delete",
@@ -53,38 +59,38 @@
     {
       "method": "dsagent.accounts.get",
       "version": 1,
-      "sha256": "39f09f3fcd8da4d0a073a35226da46236ea5d30e5bfc1be861d4e1f9885e889c",
-      "fileSha256": "5367586010a2e4df29db44100d9f26bcd422b39fe84169ff21c13c54dc130858"
+      "sha256": "f080f8ec3cbfe00ef4118e251a13549fd63f6d14222df3012d5e857a39381edf",
+      "fileSha256": "0f5bce09342cbdc71ba57feb090109a8263739890d2cb826d02dbb81f9a29f3f"
     },
     {
       "method": "dsagent.accounts.list",
       "version": 1,
-      "sha256": "266c55325487a43842cc4e46f4af75aa2a740585530375c63d8acf6c0225d699",
-      "fileSha256": "22b057532b2ed0ba5517216d6ae30027595b71d89c2bff2fb7f0019a7175053c"
+      "sha256": "2478d61c8b2e55891f001ad3044aa171ec95ab5f0cb3fc568567f80b9f426ce1",
+      "fileSha256": "63ab1d57798a9a5d112ca60a33c72237eb503d7a73b34559a6f3731ea919d5ec"
     },
     {
       "method": "dsagent.accounts.open",
       "version": 1,
-      "sha256": "8a0576eac711cde44321f2e05397db12ee88de3134b2a8b58294897e17d56aed",
-      "fileSha256": "70c999a25226aa3808ddf33abeeb1bbf13e18c2a6f1cc8094ea57f7214920a70"
+      "sha256": "e3fc27ed68a9cb57a9615cdb2c2c1f6528300577654ba4d442b84305b0e71bfd",
+      "fileSha256": "dd2dd7122201a8dd0c4dfc0978d1e808fef456db02ffae3710b4e400c3a9eaaa"
     },
     {
       "method": "dsagent.accounts.operations.get",
       "version": 1,
-      "sha256": "6a4472404c368aa2182cc584e60035efcbdb873fceedd033fe774c1aad8056b9",
-      "fileSha256": "cc5806c121a5f30c12128483e0109cb9893c71e68d58bacdfbb7b46ab3aef133"
+      "sha256": "cd504d10473437c34f94e60a13dd4dff4a7e3717bcd2d59d954d1c78789d6cb5",
+      "fileSha256": "afdc4384750c5cfeb8395ab01407296c0f26beaa252f690ae166c7275579970d"
     },
     {
       "method": "dsagent.accounts.options.get",
       "version": 1,
-      "sha256": "7b2d4e5f5d021664fbf40dbb2d02e5c2ceb781d5582666eac14bbd6ed7ec4eb6",
-      "fileSha256": "0f2ed9b1a11afabd9d8006cf902dead723889f3108c7538f32e58c853f290c9d"
+      "sha256": "973a8fbf963e818f146d732c0a1ac7ea71ca8b1f281ff3f3edf248e1d6d5d77d",
+      "fileSha256": "29ab2526112d7e56a9c5886f3e436a17511a684be740ea6d32034e03c9fc3ff5"
     },
     {
       "method": "dsagent.accounts.pages.list",
       "version": 1,
-      "sha256": "b9c4666278f94a6e4df1cfefb465d45bbe0fe4aa2bbfaba4e2772dd5b0242653",
-      "fileSha256": "931f4040998868950ca5153d10fb29eb5531ebe013f5b8ab28aacd942c4e0275"
+      "sha256": "54c7bb5dfc44808fa5217225627cf18b3cab011c8267a676cd2dae4096ee96ac",
+      "fileSha256": "2dcc79f6e1ad89582084a3f8b88bfa26ddde9076216ce05ed152b5e37b6e1928"
     },
     {
       "method": "dsagent.accounts.set-enabled",
@@ -113,8 +119,8 @@
     {
       "method": "dsagent.agent.work.recording",
       "version": 1,
-      "sha256": "21d00b66098f0e4c33f108848a5dde6a2bdb472d89c6a1014230437ed74bace9",
-      "fileSha256": "adea35342d595e99ffe162218ef78cda60f83447edc528427f951ab714f76151"
+      "sha256": "243481498229b92ca1eb6fe03096b964ef5d119b313c5c55ca87565ce80aa30b",
+      "fileSha256": "d3bf6d2658e3cba52ed6a39aed718fcfb4df8a51f100ba9cc7051751637683a4"
     },
     {
       "method": "dsagent.agent.work.recording.choose",
@@ -125,8 +131,8 @@
     {
       "method": "dsagent.agent.work.recording.state",
       "version": 1,
-      "sha256": "13cf78fbccf98f1768875dc12896740ff74b03ede53c1620efdcf110138cdc43",
-      "fileSha256": "6b62195f430c6d96656137492b6c37bb82b79dab8afbe03cccac3f06167bc73f"
+      "sha256": "76bd9baf0bc6c27afaef28a76bc7b7c2918b5db391b9a0918435507b3b20d1fb",
+      "fileSha256": "93b1c76ecef054743c79c1c2aa439550c21cb3ed9de03a75faaab187b3037804"
     },
     {
       "method": "dsagent.agent.work.step",
@@ -143,8 +149,8 @@
     {
       "method": "dsagent.artifact.read",
       "version": 1,
-      "sha256": "e45089acbd39cf1acdea588d4dde7dd7f54f64842c8c45860a2e619e4b48a210",
-      "fileSha256": "d9ba3d4c3e6fc289bb0d922b9ec88859ac5bd249e1727d20b72272dff8033aca"
+      "sha256": "f290eb0bacd9136b0cbb75fdf631d8fea094151c8230d5b7aa83e3236f370a86",
+      "fileSha256": "60306be6a50b1719de3fae9b2405fc10b1397873265beab3a2d85bd90ee6f683"
     },
     {
       "method": "dsagent.artifacts.list",
@@ -195,16 +201,28 @@
       "fileSha256": "e9a05134e8d7f8d334ee0392f316bf42d5437ce443a28dec52210365336ec72f"
     },
     {
-      "method": "dsagent.development.reload-extension",
-      "version": 1,
-      "sha256": "6214449cc21b1c7e590b4cbd43de55334c725c63ff36a36a91ad06c376c0c06e",
-      "fileSha256": "801b5651f6460973c2242fcfc7b7ba753a52b4cad1c418bdeec26bed5ccdfc7c"
-    },
-    {
       "method": "dsagent.development.restart-service-worker",
       "version": 1,
-      "sha256": "abf1bbb386e3557ec06fce439a3a63fd1fafa35b5f50f944198b87d673bf3a5b",
-      "fileSha256": "48a1b8f7e3c01aa78a0a9d0311612a99d598ee0788e6b88ad4fcf2aac0a93293"
+      "sha256": "272c4c7f2887f8561856185fa8cc4e2a26d81578e86675a5480253055f872101",
+      "fileSha256": "5efcf311b764502decd40637c80c8f6aba62db693286371b293aaa57a423c895"
+    },
+    {
+      "method": "dsagent.development.sidepanel.action",
+      "version": 1,
+      "sha256": "b9c005392dbad1c3660aa2b6950edac47a5939700f3a2198c745f623d1fcc376",
+      "fileSha256": "5e1d0875d2e1b3802c794373273ccea2b24dfb0bd32d4251ddcf8366e044ba6a"
+    },
+    {
+      "method": "dsagent.development.sidepanel.observe",
+      "version": 1,
+      "sha256": "ad3c9e76dbfabd3db6ee326aaa5761ce3d06b8f58fad1f9b4a34f5e54fc4907b",
+      "fileSha256": "1ee7c0894a9f36fab82ae0776d302cd7e3a90225ad2617496601d854e7d3da33"
+    },
+    {
+      "method": "dsagent.development.sidepanel.open",
+      "version": 1,
+      "sha256": "6ed98c70f602a85a79798830bf0558924073523adf0a71e9a8f60294e4b86f57",
+      "fileSha256": "a0738d84116a517dd0951d927cd2f649e11449a4a098f01119fca04d4dd12d23"
     },
     {
       "method": "dsagent.diagnostics.export",
@@ -221,8 +239,8 @@
     {
       "method": "dsagent.events.open",
       "version": 1,
-      "sha256": "3105ae48d276120829eda11cf04b51dd53bff3c3cfb80e80c68c3eeafad2307a",
-      "fileSha256": "0b09b266658879852489d26c0893a7e9dd0df058e7cec5faff7667d357996b4d"
+      "sha256": "db512499f3e76ae17382699634e6c70644835d1ce4275ec061b79268866c4141",
+      "fileSha256": "6be8c0eb0ebded3c32bbda3d1ad689b5853cbfe53d505687d224972b781bc570"
     },
     {
       "method": "dsagent.events.wait",
@@ -237,6 +255,12 @@
       "fileSha256": "c591e9e9b66c843e500647ba2cca2808520d763f4fd67315b692daacdaf2032a"
     },
     {
+      "method": "dsagent.execution.auth.resume",
+      "version": 1,
+      "sha256": "e136fabaecd063f73464b355f31cca9ec16b4a7a73b237791ca58a08a82cdf89",
+      "fileSha256": "fbccc8d54efea4b01f3e38508867882503120b6f73bce6d211935b4018d10280"
+    },
+    {
       "method": "dsagent.execution.data.export",
       "version": 1,
       "sha256": "1c1eadbe604c9e452854ca9a9573a188e850947129127b1bba2b96987f8d192d",
@@ -245,8 +269,8 @@
     {
       "method": "dsagent.execution.get",
       "version": 1,
-      "sha256": "fcf9184cb5431a96559340d97be16b1d4e8ca2d8ac6dbd2149feada3346ea5ed",
-      "fileSha256": "5cefd0d6cbf03d65ab48d6bf7e498f3cd48cf2f1b974ee0ead31ab8bae6ed599"
+      "sha256": "d776617ddb4813347e72d1c7df181c41295520e722500c27647fe27a4e614672",
+      "fileSha256": "6fe98da7d8eed28cc1d88447c4c5f73fe931ecdfc579ea831ab29913fecec929"
     },
     {
       "method": "dsagent.execution.handoff.abort",
@@ -281,20 +305,20 @@
     {
       "method": "dsagent.execution.wait",
       "version": 1,
-      "sha256": "79f5814485c51a58c47aedc20d9cfc47af947f7af3accfae0a632fa99393240d",
-      "fileSha256": "9c6f17edde1643da84ca1d56c01ddf472239b1ca6bbb98df5bb3744a58c58ce3"
+      "sha256": "07b1c39cbde3d02eb22d41ff8794f6014b9ab1d91c22dccc526e422054419c10",
+      "fileSha256": "05f5989563998a7cca05d9311e4ca5c05a9dacde8d90176fc303a3d3f41da9e3"
     },
     {
       "method": "dsagent.executions.list",
       "version": 1,
-      "sha256": "c9914bdbfb825682e70f2266e7dcf17b0224610b4e322e37b5ab14da273928f8",
-      "fileSha256": "3ff22350f1d039e87c7c17b57cbd41398dd3508d6938ec98449e97b22b0fcde5"
+      "sha256": "11df3ec738e85bed475ec762413ed45589b774c4380d7c45714c2e26dea29531",
+      "fileSha256": "96e33091ad9e469142785b972cc63fd5955a9383ba85d56e71ac2e608a95e3d1"
     },
     {
       "method": "dsagent.executions.running.list",
       "version": 1,
-      "sha256": "80c1a55abcd0f4f63d7abee84fbd5bbba1e577b0a8582f46be03df57637cb2a0",
-      "fileSha256": "73c24f4baa09ec01e7e09f63d92f68106bfd26605b324b6ff33686f55f2a3be8"
+      "sha256": "69c6896400de00f25a6c25032b7cc2131d5a82a862a920fc37c45f38eaf20794",
+      "fileSha256": "7f05677cc4709417b72bec0bd39be2d4721f8627304b2db9d22f32f47c4e86d6"
     },
     {
       "method": "dsagent.mail.account",
@@ -335,14 +359,14 @@
     {
       "method": "dsagent.monitor.assist",
       "version": 1,
-      "sha256": "a9ed10f2075c7ddd6894b8e9b2710d77a86f3bbc49186a3b9cf2f8d5c1d13e1c",
-      "fileSha256": "db70d300e4caaaef9eb1a817580660f7ac83fde7dc7a08ca6c8794b9308d6a5a"
+      "sha256": "d585cdde1c32dbe4aadb12a1cee09c9a9aed0526766d34512b1490e99da7f55b",
+      "fileSha256": "a61a73f8ccf92e0585e2875722887c995d7dc1c0ff51a72c0d3769a392056fdd"
     },
     {
       "method": "dsagent.monitor.snapshot",
       "version": 1,
-      "sha256": "d4ef3479aa5fc0d968c6ec27b378e16680ed0afe35abc55e8b32bedd0defdc14",
-      "fileSha256": "341d875d87aa415b4cc90e7c21c09a98a97cd61059cb0be31ff78d6135c48f24"
+      "sha256": "d5ada9b6397b07a11b7bcce42a5fb4600d58a59112c65d4ca288d237366c81a6",
+      "fileSha256": "607da2eb8937334262a91199f7c2120f7474a681aeace53486d5aedb498f99b7"
     },
     {
       "method": "dsagent.page.account.detect",
@@ -353,14 +377,14 @@
     {
       "method": "dsagent.page.action",
       "version": 1,
-      "sha256": "1492f994fff09dcdfe4193666743d6639afe5eada1621c2dcdbd658c5b6fcbcc",
-      "fileSha256": "4b9fc91c042442314735733446b8a282256cff6aba5213e50a655fb928889b51"
+      "sha256": "6af1c6c0366ac445cd922eb36651557a898bec8b3fd6048b7738f0bb22485bb3",
+      "fileSha256": "dbd2fe69718003eebb087e02371bd94f5cd7a73064b1cca0b3c3b41c03bccb12"
     },
     {
       "method": "dsagent.page.actions",
       "version": 1,
-      "sha256": "a5d5a9293d0b641d5927031b113860c364498526c483acb01d03d32d28aab259",
-      "fileSha256": "f82d39d5f7c0b3c22c74766abfb11a2465739826dbe9df522b71b55f9ab17d52"
+      "sha256": "6f8c20dacd9bc50fd1ba3904bc2c4da6a77febacdcb8e74b3132194ad29a4c90",
+      "fileSha256": "300760288881e41294b580c5a5de8eae49d5a4e69bf37a9a5f6ab2c2362b6c00"
     },
     {
       "method": "dsagent.page.ask",
@@ -419,8 +443,8 @@
     {
       "method": "dsagent.page.find",
       "version": 1,
-      "sha256": "64bdbfd7995fc5d47866befdd5200a5fbba311a6296bf1ee5129e22f8a148477",
-      "fileSha256": "7879d5fb9470fa0ca78ddf313ad606a8caf28fdc77131a68607cd9a31ef1e8a9"
+      "sha256": "a04e1a317439aa2c5b650fea1d06fdc55e02c0d61ef5166c9af64c6e1b2f4369",
+      "fileSha256": "ece02bf10cef94b41828fe0f35870841c985cfd2ded666e689ba0026515d54b2"
     },
     {
       "method": "dsagent.page.focus",
@@ -443,14 +467,14 @@
     {
       "method": "dsagent.page.observe",
       "version": 1,
-      "sha256": "1f9428876c36cfc77cfdad3426223200af92079fb1841f0cd8204e2f8a46356b",
-      "fileSha256": "1b26b0217a46adac47fbce897368019cf8a0397f9ad9dc32f4e31e9e6253ab6f"
+      "sha256": "f218339e6bd707ea3cc9c63ab3bbeacf0873e84c8516ec78e0a6c3639bafc29c",
+      "fileSha256": "20a174d50ff8e67179931832d9d3dba88ae5678c31793da33aafc842f52e7803"
     },
     {
       "method": "dsagent.page.open",
       "version": 1,
-      "sha256": "1059059dab0750f028aba413e408b4145e9c2efe247ed62762d22bee56fdc9a1",
-      "fileSha256": "cdd6a7f2f2bce640f47cc68b0fc63720ed6401b7224588de2bdf0b85f3b15b70"
+      "sha256": "f1e7afd0fb97270aab2e0f39188710e871a3c07fb9b34942d6129a6180d0397b",
+      "fileSha256": "e89d450939ec9ad5ad393fdd2b3d2054ddb7462041f095070274520fa4749ee4"
     },
     {
       "method": "dsagent.page.presentation.get",
@@ -461,8 +485,8 @@
     {
       "method": "dsagent.page.script",
       "version": 1,
-      "sha256": "c0e5c90c9bda1f13d54bdbe706e666514196ea8055d0df11017ffbf4705ccb77",
-      "fileSha256": "99fb041f359cf3f479167a4a017e786fd3f5c6b7e083a9c4b8f1faf5156b9ea1"
+      "sha256": "b700c9ffe42449c42c8915abeb0d5015f890be7261bdb205d7c6848f8f10b8a6",
+      "fileSha256": "7f270bc5763c35003f9df8942fc58f49ab58c6835f99826605f2469933dcc213"
     },
     {
       "method": "dsagent.page.target.inspect",
@@ -527,32 +551,38 @@
     {
       "method": "dsagent.wizard.back",
       "version": 1,
-      "sha256": "ccfcf3ddf9bad27918d0af14e2a86a072e342e5cbcbbdec25cdcfacecec9b34d",
-      "fileSha256": "134d6399cab081ee6d7c49ed7561dc31326c25a072abd5e293811b8a23b73289"
+      "sha256": "17b58f4fa696e55275278821b880e06384c5b27604132191a949cea694c8df0b",
+      "fileSha256": "9c2c84a1cfa3e0ab9deb2ee976e991b4c34d71284e5d7455218bc523714ec03c"
     },
     {
       "method": "dsagent.wizard.cancel",
       "version": 1,
-      "sha256": "745d2711b07e32e3bc0d406354e0bc9de5d7b300d6bc3ec1130b0c424e6ba37b",
-      "fileSha256": "ccaa7e1845c4abfbc5104e05c97826917f9be6c7b666bca712d9a628bbac8eaa"
+      "sha256": "066404ab51cd84dc76180f105197bd8a9cc9e6babd22addd05f1dae1fa20930c",
+      "fileSha256": "e84e287cc75b238eac297baf7e782a7276ec2349fb02cafcc75274da16c97b78"
     },
     {
       "method": "dsagent.wizard.choose",
       "version": 1,
-      "sha256": "76c35e6bc7aaa0a33f01572f37e5d78eed14d65ee4088338ad12301ed52dc59d",
-      "fileSha256": "894ceab51b2188afd6e4841cb6964bdc96d02efadd7943f0eebd19915fb18943"
+      "sha256": "c8b1e28f5697191ccdf996d8679530aed57db1a9b1375624bb9bab44a23a855f",
+      "fileSha256": "42dc54214b3b5b7bd19eb7d0c82d5680f2fd4891748709b7c7be990e264c7a71"
+    },
+    {
+      "method": "dsagent.wizard.collect",
+      "version": 1,
+      "sha256": "7b9edafaaa976d57c4647d0070517207a269ae8b6a43b7ec20fd49a37378a750",
+      "fileSha256": "7a89913e85a902d7965e313f4b4e19a47c93e3186902711edc59db9751073bf0"
     },
     {
       "method": "dsagent.wizard.highlight",
       "version": 1,
-      "sha256": "25bd0907bc38107465295c697678566fddd9ea5d004b0354f79e0a35b475031b",
-      "fileSha256": "a5bb00aed53896bb09065d9c4130d8e9cb364114dd9ecd5f731520994295a60e"
+      "sha256": "769084b5b2422a8d12a5988c1178bbd18f58875feeb3258a9d842e0facf850df",
+      "fileSha256": "7d1f95033d769ab28f643e8bdc219b577886d71fe31064907261ad4c77d2f275"
     },
     {
       "method": "dsagent.wizard.pick",
       "version": 1,
-      "sha256": "71c07effa5131deccd5261e83a0e3434f0f7ca1d0dc3aae0c5b5bf8984e7e9ac",
-      "fileSha256": "caa3bad8472e8ae673ecb354ca75b1d694710d1c34f82b3db7f87bbfcf7371f1"
+      "sha256": "a5f2a3e7a0b3efa39547b37089e21c552a0bd4dd4b4021e455c6ef4df4b349f3",
+      "fileSha256": "a5cc5aac479893d1563ba7f9838b250ef4aec012c896692e1bc744ce16e83600"
     },
     {
       "method": "dsagent.wizard.recording.edit",
@@ -569,26 +599,26 @@
     {
       "method": "dsagent.wizard.run",
       "version": 1,
-      "sha256": "e1566c9ed96798cd15ada53563caa7ee4fdca16e3c9932b034929531e5e30a23",
-      "fileSha256": "6ade1dbc653d6c3101167aaff848c88b610271e3de9d96eed195d5875fb193ca"
+      "sha256": "154de29875e019cc2bd8f79189a05c7b209e72fbec24d715712166288ca9c140",
+      "fileSha256": "be3197d4016e9ad28c9a8e8c444d0a90acb99304e4066ce468b2d4bed844945a"
     },
     {
       "method": "dsagent.wizard.save",
       "version": 1,
-      "sha256": "6b920b4735561c5fc5225b1c4258ba9a9d20021ab34341d472f90e551579c042",
-      "fileSha256": "7bff9fd32eee883a22a6331700c92ff574f7acf91a0666b1c48121c3d2f41464"
+      "sha256": "8a68d013dda0834fa33222d9717932dfac2cf8d417194be051227c2dabfb0317",
+      "fileSha256": "54bac5eb43b8c6abeb35b55ff1fe5ea7c573d927fa522596e167e733e67ba3f9"
     },
     {
       "method": "dsagent.wizard.start",
       "version": 1,
-      "sha256": "50b362538577735fda0be68cfaf0a3bbf08f95e761a93bb2cc88e5c11633dfc7",
-      "fileSha256": "bb85e73f4a25b5cb2ca653c9e8041ba0dd2297abc3d391d7f8cf8a66271a26f0"
+      "sha256": "a3b10a12877f9d26a38a53629dcf40e6e76c87ae83ce6a8977d330a15719d240",
+      "fileSha256": "e8475b19203d1a90f737919836969c627627575fefff262242260c7a3c9a76f5"
     },
     {
       "method": "dsagent.wizard.state",
       "version": 1,
-      "sha256": "b8ab1315df6da83a4069f6f2c5049e01649a4ff60d3144126a8970013b247ddf",
-      "fileSha256": "9ce7eb6b58f4a2d2d373a4a717df0ddf416d189cb2bb471427cd81c6721ebcee"
+      "sha256": "4b220886e58cd4df173941d4385b79c60b284d43eb1444805446c1b9e35e3847",
+      "fileSha256": "1ed9228ebdf639facd642477a751bf0c1b5c078a47415e07610a04bfdf498606"
     },
     {
       "method": "dsagent.workflow.definition.get",

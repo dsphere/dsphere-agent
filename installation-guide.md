@@ -19,7 +19,7 @@ The DSphere browser (Windows or macOS) is required; no other browser is supporte
 本指南可以从 main 读取，但 **Skill 必须从经校验的不可变 tag 安装，不从 main 安装**。
 Read the guide from main, but install the Skill only from the verified immutable release tag.
 
-使用表中同一仓库现有的 Git 权限。私有 GitLab 不要求匿名 HTTP，也不要索要或嵌入密码、token、Cookie。
+正式和测试仓库均使用表中的 HTTPS Git 地址，本机需安装 Git，无需配置 SSH 密钥。正式公开 GitHub 仓库无需 GitHub 账号；测试 GitLab 如要求认证，使用用户已有的 Git HTTPS 登录方式，不要索要或嵌入密码、token、Cookie。
 With existing Git access, fetch `main` into a temporary checkout and read:
 
 ```bash
@@ -29,7 +29,7 @@ git -C <temporary-directory> show FETCH_HEAD:latest-version.json
 ```
 
 正式公开源也可读取表中的 HTTPS pointer；私有 HTTP 登录页、重定向、403 或 HTML 不算版本数据。
-If direct HTTP access to the guide/pointer fails, read the same repository through existing Git SSH access. Missing access requires the user's action; never switch repositories/channels or collect credentials.
+If direct HTTP access to the guide/pointer fails, use the HTTPS Git URL in the table for either channel; do not switch to SSH. If the server requires authentication, use the user's existing Git HTTPS sign-in. Missing access requires the user's action; never switch repositories/channels or collect credentials.
 
 只接受 `version` 与 `tag`。version 必须是合法 SemVer，tag 必须精确等于 `dsphere-agent-v<version>`；不接受任意 tag、未发布版本或其他通道。主动检查必须重新 fetch，不能使用旧缓存。普通浏览器任务不因检查更新被中断，不启动后台静默升级。
 Validate SemVer and the exact tag prefix above. An explicit check fetches fresh metadata; no silent updates during ordinary tasks.

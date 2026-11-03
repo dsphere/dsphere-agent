@@ -6,20 +6,17 @@ Up to 12 planned steps on one page, in order: actions on a targetId or on the co
 
 ## Invocation
 
-Call `dsagent_invoke` with this shape. Replace every placeholder with a value from the user or a preceding result; add `instanceId` when more than one browser is online. Opaque ids and revisions come only from results.
+Call `dsagent_page_act_many` with this shape: the arguments flat, no method/args wrapper. Replace every placeholder with a value from the user or a preceding result; add `instanceId` when more than one browser is online. Opaque ids and revisions come only from results.
 
 ```json
 {
-  "method": "dsagent.page.actions",
-  "args": {
-    "pageContextId": "<pageContextId: supply a value matching the schema>",
-    "actions": [
-      {
-        "targetId": "<targetId>",
-        "action": "click"
-      }
-    ]
-  },
+  "pageContextId": "<pageContextId: supply a value matching the schema>",
+  "actions": [
+    {
+      "targetId": "<targetId>",
+      "action": "click"
+    }
+  ],
   "idempotencyKey": "<fresh 8-128 character key you choose; reuse it only for an identical retry>"
 }
 ```
@@ -54,6 +51,7 @@ Complete value lists and id patterns for the fields above (the contract file is 
 - `actions[].scrollTo`: one of `top`, `bottom`, `next-viewport`, `previous-viewport`
 - `actions[].axis`: one of `y`, `x`
 - `actions[].selectBy`: one of `value`, `text`, `index`
+- `actions[].uploadIds[]`: matches `^upl_[0-9a-f]{32}$`
 - `actions[].slotEffect`: one of `replace`
 - `actions[].level`: one of `basic`, `standard`, `aggressive`
 - `actions[].waitFor.until`: one of `text-present`, `text-absent`, `target-present`, `target-absent`, `url-changed`, `revision-changed`, `settled`

@@ -1,38 +1,32 @@
-# Release 1.13.0 - 2026-10-31
+# Release 1.15.0 - 2026-11-03
 
 Production distribution: https://github.com/dsphere/dsphere-agent
 
-Built once from clean Native source commit de02284ee95f47f9307b91ce6aa378b81d8dd86c with Go 1.25.14 at 2026-10-31T11:26:24.359Z. The user explicitly requested a new version from latest source and direct publication to Gitee and GitHub, skipping test-channel publication and acceptance this time. No dsphere-agent-test-v1.13.0 tag was published. A local test-identity wrapper was used only by the source-owned packager to produce integrity-preserving production packages; it is not an accepted test candidate.
+Promoted unchanged from the accepted test candidate dsphere-agent-test-v1.15.0 (tag object 2fbe8ccd0f20b99c679c03002178d0c7abc8e7f6, package commit 81d229192ba58272248d7400383676043d75db0a on the test channel). Janky accepted test versions 1.14.0 and 1.15.0 on 2026-11-03 and instructed "Promote 1.15.0". Nothing was rebuilt and no reference was regenerated: package-channel-release --channel production consumed the complete Skill from a fresh detached checkout of the test tag. Version, Native source d6692c99a5601c96a4c6583d9f7996451a024d89 (sourceDirty false), build time 2026-11-02T09:33:09Z, all eight executables and assets/native/manifest.json are byte-identical to the test candidate.
 
-Changes since 1.12.0:
-- Windows graphical browser connection setup, with package/user-context checks, registration readback and a verifiable result; DPI-aware UI and recovery location.
-- Windows ARM64 runtime plus x64/x86/ARM64 graphical connector executables.
-- Every browser task can ask whether to keep a workflow; task recording choices, state waits and recording draft editing are documented.
-- Complete documentation learning and versioned memory refresh after installation or upgrade.
-- Quota refusals name the relevant plan limit.
-- 100 current Extension capability contracts, including per-run staged-file bindings for replay and recording methods, sourced from Extension 44ad748aa606bb3cd0b95a359c5e812319979f87 (bundle 1.1.14.22).
+Changes since 1.13.0:
+- 1.14.0: one-call intent tools for outside agents (open a page, act on one or several targets, find, observe, read page text, start and answer the collect wizard, wait for a run), so a client no longer has to route every step through the generic invoke; SKILL.md back within its 15 KiB budget with wall and plan-quota detail moved to references.
+- 1.15.0: dsagent.wizard.collect and its dsagent_wizard_collect intent tool read records by named fields once, with inline rows and columns, typed field results, plan refusals as POLICY_DENIED / plan-restricted, and the recording question waited out inside the call. An outside agent ranks candidate sources itself (choose-source, then wizard.choose with auto once); a region that keeps one source is the agent's pick. Hand-back no longer reports a detection error. The Skill quick path documents the read.
+- 105 Extension capability contracts from Extension 21fb67a45 (bundle 1.1.14.33).
 
-Automated checks run for this release:
-- Official skills-ref validate and read-properties: passed for source and both production packages.
-- Bilingual detection contract and generated capability references: passed (100 methods).
-- Package verification: passed; all eight executable hashes and 272 inventory files verified.
-- Canonical inventory and Native manifest: identical across the local channel wrapper and both production distributions; no rebuild during packaging.
-- go vet ./...: passed.
-- node --test workbuddy/test/*.test.mjs: 27 passed.
-- node --test tests/skills/*.test.mjs: 149 passed, 5 failed, 13 skipped. The same five failures reproduce on the unchanged pre-release source: three entry-size assertions (17,252 bytes exceeds 15,360) and two assertions expecting superseded saved-workflow wording. Skips include platform-specific and packaged-client registration cases.
-- node --test scripts/skills/test/*.test.mjs: 18 passed, 1 failed because this Windows process cannot create the fixture symlink.
-- go test -count=1 -timeout=90s ./...: 34 packages passed; four tests failed in three packages (instancelease, localfs, session): three symlink fixtures require a privilege absent on this host, and one session fixture cannot resolve a C: temporary directory relative to the D: checkout. The bounded full rerun passed connectui; an earlier unbounded run was stopped in that package and is not counted as a pass.
+Checks for this promotion:
+- Eight executable SHA-256 values in the test tag checkout match the test release record; cmp shows the production package executables and Native manifest byte-identical to the test tag.
+- scripts/verify-package.mjs: ok for both production distributions and for fresh detached checkouts of each remote production tag.
+- Official skills-ref validate and read-properties: valid, dsphere-agent 1.15.0.
+- macOS executables and scripts/detect-macos.sh keep Git mode 100755.
 
-The automated suite is not fully green. These limitations are recorded, not waived by a fabricated pass. No browser acceptance, cross-platform runtime certification, code signing, notarization or race-detector validation is claimed. Test-channel publication and acceptance were explicitly skipped for this release at the user's request.
+Test-candidate gates (recorded at test release): skill budgets within limits; 105 capability references verified; detection contract passed; tests/skills 172 pass, 0 fail, 13 skipped; scripts/skills 22/23 (one Windows symlink-privilege fixture); workbuddy 27/27; Extension scraping-path 271 tests passed.
+
+Known limits: no install-from-tag, native-host registration or live browser run from an installed production package is claimed; the artifacts are unsigned and not notarized; an outside agent spends one or two extra turns ranking sources on lone-list pages; an existing pagination readiness pause on the first read after a page change is tracked separately.
 
 Native SHA-256:
-- windows-x64/dsphere-native-agent.exe 7abda429569220c94ede8e925ae027cadc3b9a5f5f857aa38cc598a4606365fe
-- windows-x86/dsphere-native-agent.exe 6d5a303ec60d8a0df44c58e2e3dfa817cfeaede967e793fb4fbfe990003e3ba4
-- windows-arm64/dsphere-native-agent.exe cf24f0b9b001f164ac15943fe1f04659515d271787d0428a38ea5493553760ee
-- macos-x64/dsphere-native-agent 45d314e6ee190ddfef86d87f9f3d81724f3cabef71b01563cc7b24938464d520
-- macos-arm64/dsphere-native-agent 20b94c4d0ad905ef50858c8d3d7853e286dc75af8fbbfb96726ed31bc513ed25
-- windows-x64/connector.exe 73e37c19b3d29effdb29324d120ae676f0f27a8f3372ec68d43afb5483baf36d
-- windows-x86/connector.exe 1d187c1bcdbd1046391a84d6cc79b5161418115b3e2a3f84511ddb7dea20ddb7
-- windows-arm64/connector.exe db0b384648bef25f5efcbb45aea79ba16c00d9581f7cde7eadf777cdd2f26a8b
+- windows-x64/dsphere-native-agent.exe 6cf59f59c2aae35e8c76214be28a3f0a6ff0ca028022189511fb2ef790d0e706
+- windows-x86/dsphere-native-agent.exe a5709b5aea6bbcf87d68a00d2d17a9a1b488c52f9a383d830eb1a5ec66891104
+- windows-arm64/dsphere-native-agent.exe cf618eb2c45d6dfcb59b121b687c59b76563d8983417b904cbe50e4a9b270215
+- macos-x64/dsphere-native-agent ec0e1560471498597e0010d82a96feda694db71824c75271683207640abd5ee6
+- macos-arm64/dsphere-native-agent 63908816a2989c1e0199990aff588e1fdc4fa4efe1b82832f1efd2320a1378be
+- windows-x64/connector.exe 31d55edbee9dba4210fa86f0f3d0fb74182cf8eb7c5b56bcc3c2e29322e7abf2
+- windows-x86/connector.exe 52f4f9be394c1990a30c15179521ba0596844f9820e16eaa425b3975bbcb9059
+- windows-arm64/connector.exe a5c02d4975964c897b84501d6fb08421d47e3d1e17bad45ad2d7d8d9ac158303
 
-The immutable tag is dsphere-agent-v1.13.0. The version pointer moves only after remote tag verification. Existing tags are preserved.
+The immutable tag is dsphere-agent-v1.15.0. The version pointer moves only after remote tag verification. Existing tags are preserved.

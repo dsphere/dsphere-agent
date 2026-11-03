@@ -1,0 +1,171 @@
+{
+  "method": "dsagent.accounts.application.create",
+  "version": 1,
+  "title": "Create Web Application",
+  "description": "Create a custom web application by name and HTTP(S) address, including before it has accounts. Returns appId for options.get and create; identical existing applications are reused. This saves application metadata, not a website login.",
+  "inputSchema": {
+    "type": "object",
+    "description": "Create a custom web application by name and HTTP(S) address, including before it has accounts. Returns appId for options.get and create; identical existing applications are reused. This saves application metadata, not a website login.",
+    "properties": {
+      "name": {
+        "type": "string",
+        "description": "Application display name, 1 to 20 characters.",
+        "minLength": 1,
+        "maxLength": 20
+      },
+      "address": {
+        "type": "string",
+        "description": "Absolute HTTP(S) homepage URL, without embedded username or password. Stored as application metadata, never used as an API endpoint.",
+        "minLength": 1,
+        "maxLength": 2048
+      }
+    },
+    "required": [
+      "name",
+      "address"
+    ],
+    "additionalProperties": false
+  },
+  "outputSchema": {
+    "type": "object",
+    "description": "Account operation result. status/stage are for internal reconciliation, not user-facing open-success/failure badges. Report the separate autofill receipt; a page being open never proves fill or sign-in.",
+    "properties": {
+      "autofill": {
+        "type": "object",
+        "description": "Separate Biz autofill receipt. Query accounts.operations.get with operationId while running; unknown must not be replayed. succeeded proves fill owner completion, never website sign-in.",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Observed autofill state.",
+            "maxLength": 40,
+            "enum": [
+              "running",
+              "succeeded",
+              "failed",
+              "skipped",
+              "unknown"
+            ]
+          },
+          "updatedAt": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Receipt observation time in milliseconds."
+          },
+          "reason": {
+            "type": "string",
+            "description": "Safe reason code; never credentials or page field values.",
+            "maxLength": 120
+          }
+        },
+        "required": [
+          "status",
+          "updatedAt"
+        ],
+        "additionalProperties": false
+      },
+      "operationId": {
+        "type": "string",
+        "description": "Local operation reference; not a Pangu request receipt.",
+        "maxLength": 100
+      },
+      "status": {
+        "type": "string",
+        "description": "Observed operation status.",
+        "maxLength": 40,
+        "enum": [
+          "not-dispatched",
+          "waiting-user",
+          "running",
+          "succeeded",
+          "partial",
+          "failed",
+          "cancelled",
+          "outcome-unknown",
+          "record-unavailable",
+          "available"
+        ]
+      },
+      "stage": {
+        "type": "string",
+        "description": "Completed or current account business stage.",
+        "maxLength": 100
+      },
+      "accountId": {
+        "type": "string",
+        "description": "Account reference when known.",
+        "maxLength": 100
+      },
+      "pageContextId": {
+        "type": "string",
+        "description": "Actual opened/focused page reference when known.",
+        "maxLength": 100
+      },
+      "warnings": {
+        "type": "array",
+        "description": "Bounded warnings, including synchronization and unknown outcomes.",
+        "items": {
+          "type": "string",
+          "description": "One safe product warning.",
+          "maxLength": 500
+        },
+        "maxItems": 20
+      },
+      "data": {
+        "type": "object",
+        "description": "Only the selected account operation's public product fields.",
+        "properties": {
+          "application": {
+            "type": "object",
+            "description": "Verified custom application. Use appId with options.get and create, including when it has no accounts.",
+            "properties": {
+              "appId": {
+                "type": "string",
+                "description": "Application reference.",
+                "maxLength": 100
+              },
+              "appName": {
+                "type": "string",
+                "description": "Application name.",
+                "maxLength": 200
+              }
+            },
+            "required": [
+              "appId",
+              "appName"
+            ],
+            "additionalProperties": false
+          },
+          "created": {
+            "type": "boolean",
+            "description": "Whether a new account was confirmed created."
+          },
+          "saved": {
+            "type": "boolean",
+            "description": "Whether configuration was confirmed saved."
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    "required": [
+      "status",
+      "stage",
+      "warnings"
+    ],
+    "additionalProperties": false
+  },
+  "guidance": "Create a custom application only on user intent. Supply a name of 1 to 20 characters and a full HTTP(S) homepage without credentials. This stores application metadata through the existing owner; it never fetches the caller URL as an API endpoint.\n\nAfter succeeded, use data.application.appId with accounts.options.get and accounts.create. An application can exist with zero accounts. Account configuration, assignment, confirmation and secure credential input still use the normal account creation owner.\n\nAn identical application is reused. After an unknown outcome, query accounts.operations.get and current application options; never replay the creation request.",
+  "risk": "external-effect",
+  "targetKinds": [
+    "managed-account"
+  ],
+  "requiredPermissions": [
+    "accounts.write"
+  ],
+  "timeoutMs": 300000,
+  "maxInlineResultBytes": 65536,
+  "concurrency": "exclusive-target",
+  "retry": "never",
+  "exposure": "exposed"
+}

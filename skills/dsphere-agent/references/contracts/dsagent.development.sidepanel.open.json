@@ -1,0 +1,275 @@
+{
+  "method": "dsagent.development.sidepanel.open",
+  "version": 1,
+  "title": "Open the extension side panel",
+  "description": "Open the focused window side panel on a supported view; refuses while a dialog is open. Development only. Inspect the actual side-panel DOM through owner-declared public labels and opaque controls.",
+  "guidance": "No selectors, scripts, field values, credentials, saves, permission changes or confirmation acceptance. Initially supports Accounts quick actions and creation sheets. Use only for UI checks requested by the person; not for the Chat planner.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "Closed side-panel verification input.",
+    "properties": {
+      "view": {
+        "type": "string",
+        "enum": [
+          "accounts"
+        ],
+        "description": "The supported panel view."
+      }
+    },
+    "required": [
+      "view"
+    ]
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "Bounded, current evidence from the actual extension side-panel document. Only registered public labels are exposed.",
+    "required": [
+      "panelId",
+      "revision",
+      "view",
+      "blockedByDialog",
+      "viewport",
+      "surfaces",
+      "truncated"
+    ],
+    "properties": {
+      "panelId": {
+        "type": "string",
+        "maxLength": 100,
+        "description": "Opaque document identity; changes on reload.",
+        "minLength": 1
+      },
+      "revision": {
+        "type": "string",
+        "maxLength": 100,
+        "description": "Evidence revision; pass to action.",
+        "minLength": 1
+      },
+      "view": {
+        "type": "string",
+        "maxLength": 160,
+        "description": "Current panel view."
+      },
+      "blockedByDialog": {
+        "type": "boolean",
+        "description": "A modal dialog is visible; navigation refuses while it is open."
+      },
+      "truncated": {
+        "type": "boolean",
+        "description": "More registered evidence exists than the bounded result can contain."
+      },
+      "viewport": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "Panel viewport.",
+        "required": [
+          "width",
+          "height"
+        ],
+        "properties": {
+          "width": {
+            "type": "number",
+            "description": "Width in CSS pixels."
+          },
+          "height": {
+            "type": "number",
+            "description": "Height in CSS pixels."
+          }
+        }
+      },
+      "surfaces": {
+        "type": "array",
+        "maxItems": 8,
+        "description": "Registered visible surfaces; at most 60 total controls.",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "A registered UI region or dialog.",
+          "required": [
+            "name",
+            "role",
+            "bounds",
+            "controls"
+          ],
+          "properties": {
+            "name": {
+              "type": "string",
+              "maxLength": 160,
+              "description": "Public surface label."
+            },
+            "role": {
+              "type": "string",
+              "maxLength": 160,
+              "description": "Region or dialog."
+            },
+            "bounds": {
+              "type": "object",
+              "additionalProperties": false,
+              "description": "Rendered viewport coordinates in CSS pixels.",
+              "required": [
+                "x",
+                "y",
+                "width",
+                "height"
+              ],
+              "properties": {
+                "x": {
+                  "type": "number",
+                  "description": "Left."
+                },
+                "y": {
+                  "type": "number",
+                  "description": "Top."
+                },
+                "width": {
+                  "type": "number",
+                  "description": "Width."
+                },
+                "height": {
+                  "type": "number",
+                  "description": "Height."
+                }
+              }
+            },
+            "controls": {
+              "type": "array",
+              "maxItems": 60,
+              "description": "Visible registered controls.",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "description": "An owner-declared visible control; no input values.",
+                "required": [
+                  "targetId",
+                  "name",
+                  "role",
+                  "disabled",
+                  "focused",
+                  "actions",
+                  "bounds",
+                  "presentation"
+                ],
+                "properties": {
+                  "targetId": {
+                    "type": "string",
+                    "maxLength": 100,
+                    "description": "Opaque control reference for this panel document.",
+                    "minLength": 1
+                  },
+                  "name": {
+                    "type": "string",
+                    "maxLength": 160,
+                    "description": "Bounded public control label."
+                  },
+                  "role": {
+                    "type": "string",
+                    "maxLength": 160,
+                    "description": "Element role."
+                  },
+                  "disabled": {
+                    "type": "boolean",
+                    "description": "Disabled or covered by another surface."
+                  },
+                  "focused": {
+                    "type": "boolean",
+                    "description": "Has keyboard focus."
+                  },
+                  "actions": {
+                    "type": "array",
+                    "maxItems": 2,
+                    "description": "Permitted reversible UI gestures; empty for read-only evidence.",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "click",
+                        "focus"
+                      ],
+                      "description": "Gesture."
+                    }
+                  },
+                  "bounds": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "description": "Rendered viewport coordinates in CSS pixels.",
+                    "required": [
+                      "x",
+                      "y",
+                      "width",
+                      "height"
+                    ],
+                    "properties": {
+                      "x": {
+                        "type": "number",
+                        "description": "Left."
+                      },
+                      "y": {
+                        "type": "number",
+                        "description": "Top."
+                      },
+                      "width": {
+                        "type": "number",
+                        "description": "Width."
+                      },
+                      "height": {
+                        "type": "number",
+                        "description": "Height."
+                      }
+                    }
+                  },
+                  "presentation": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "description": "Computed layout style.",
+                    "required": [
+                      "position",
+                      "borderRadius",
+                      "fontSize",
+                      "backgroundColor"
+                    ],
+                    "properties": {
+                      "position": {
+                        "type": "string",
+                        "maxLength": 160,
+                        "description": "CSS position."
+                      },
+                      "borderRadius": {
+                        "type": "string",
+                        "maxLength": 160,
+                        "description": "Corner radius."
+                      },
+                      "fontSize": {
+                        "type": "string",
+                        "maxLength": 160,
+                        "description": "Font size."
+                      },
+                      "backgroundColor": {
+                        "type": "string",
+                        "maxLength": 160,
+                        "description": "Background color."
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "risk": "reversible-write",
+  "targetKinds": [
+    "browser"
+  ],
+  "requiredPermissions": [
+    "development.sidepanel"
+  ],
+  "timeoutMs": 15000,
+  "maxInlineResultBytes": 48000,
+  "concurrency": "exclusive-browser",
+  "retry": "never",
+  "exposure": "exposed",
+  "pageEvidence": true
+}

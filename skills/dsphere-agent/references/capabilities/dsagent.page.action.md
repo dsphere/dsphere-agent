@@ -6,16 +6,13 @@ Execute one planned atomic action (see the action enum: click, input, hover, scr
 
 ## Invocation
 
-Call `dsagent_invoke` with this shape. Replace every placeholder with a value from the user or a preceding result; add `instanceId` when more than one browser is online. Opaque ids and revisions come only from results.
+Call `dsagent_page_act` with this shape: the arguments flat, no method/args wrapper. Replace every placeholder with a value from the user or a preceding result; add `instanceId` when more than one browser is online. Opaque ids and revisions come only from results.
 
 ```json
 {
-  "method": "dsagent.page.action",
-  "args": {
-    "pageContextId": "<pageContextId: supply a value matching the schema>",
-    "targetId": "<targetId: supply a value matching the schema>",
-    "action": "click"
-  },
+  "pageContextId": "<pageContextId: supply a value matching the schema>",
+  "targetId": "<targetId: supply a value matching the schema>",
+  "action": "click",
   "idempotencyKey": "<fresh 8-128 character key you choose; reuse it only for an identical retry>"
 }
 ```
@@ -58,7 +55,7 @@ Opaque target binding, optional revision, and bounded parameters for one externa
 | `repeat` | integer (1…20) |  | Press the same key… |
 | `scrollTo` | enum: top, bottom, next-viewport, previous-viewport |  | Bounded destination… |
 | `viewportRatio` | number (-∞…1) |  | Optional fraction o… |
-| … | 10 more fields in the contract | | |
+| … | 11 more fields in the contract | | |
 
 ## Input constraints
 
@@ -72,6 +69,7 @@ Complete value lists and id patterns for the fields above (the contract file is 
 - `key`: one of `Enter`, `Escape`, `Tab`, `Backspace`, `Delete`, `Space`, `ArrowUp`, `ArrowDown`, `ArrowLeft`, `ArrowRight`, `Home`, `End`, `PageUp`, `PageDown`, `Control+0`, `Control+1`, `Control+2`, `Control+3`, `Control+4`, `Control+5`, `Control+6`, `Control+7`, `Control+8`, `Control+9`, `Meta+0`, `Meta+1`, `Meta+2`, `Meta+3`, `Meta+4`, `Meta+5`, `Meta+6`, `Meta+7`, `Meta+8`, `Meta+9`, `Shift+Tab`, `Control+a`, `Control+c`, `Control+v`, `Control+x`, `Control+z`, `Control+Enter`, `Shift+Enter`, `Shift+ArrowLeft`, `Shift+ArrowRight`, `Shift+ArrowUp`, `Shift+ArrowDown`, `Shift+Home`, `Shift+End`, `Control+ArrowLeft`, `Control+ArrowRight`, `Control+Home`, `Control+End`, `Control+Shift+ArrowLeft`, `Control+Shift+ArrowRight`, `Control+Shift+Home`, `Control+Shift+End`, `Control+Backspace`, `Control+Delete`, `Control+b`, `Control+i`, `Control+u`, `Control+Shift+z`, `Control+y`, `/`, `?`
 - `axis`: one of `y`, `x`
 - `selectBy`: one of `value`, `text`, `index`
+- `uploadIds[]`: matches `^upl_[0-9a-f]{32}$`
 - `slotEffect`: one of `replace`
 - `level`: one of `basic`, `standard`, `aggressive`
 
@@ -87,7 +85,7 @@ Verified action receipt: a delta of the page the action left in place, or the co
 | `framePageSurfaces` | array of object {frameId, observed} (≤ 8) |  | Admitted child-fram… |
 | `pageSurfacesUnchanged` | enum: true |  | The open surfaces a… |
 | `timing` | object {startedAt, durationMs, stages} |  | Measured shared own… |
-| `operationResult` | one of 13: object {fields, fieldCount, truncated} / object {filled, requiredEmpty, fieldCount} / object {pasted, handledBy, caretPlacement, elementsAdded, imagesInserted, textAdded, …} / object {uploadState, path, fileDelivery, fileName, sizeBytes, slotIndex, …} / object {options, reclassifyAs} / object {operation, animationCount, marqueeCount, carouselCount, heldCount, runningCount, …} / object {operation, videoCount, playingCount, truncated} / object {operation, animationCount, marqueeCount, carouselCount, heldCount, runningCount, …} / object {operation, videoCount, playingCount, pausedCount, truncated} / object {operation, videoCount, playingCount, playedCount, truncated} / object {operation, animationCount, marqueeCount, carouselCount, heldCount, runningCount, …} / object {operation, count, protectedSkips, truncated} / object {operation, removedCount, remaining, protectedSkips, truncated, persistent, …} |  | Bounded result publ… |
+| `operationResult` | one of 13: object {fields, fieldCount, truncated} / object {filled, requiredEmpty, fieldCount} / object {pasted, handledBy, caretPlacement, elementsAdded, imagesInserted, textAdded, …} / object {uploadState, path, fileDelivery, fileName, sizeBytes, fileCount, …} / object {options, reclassifyAs} / object {operation, animationCount, marqueeCount, carouselCount, heldCount, runningCount, …} / object {operation, videoCount, playingCount, truncated} / object {operation, animationCount, marqueeCount, carouselCount, heldCount, runningCount, …} / object {operation, videoCount, playingCount, pausedCount, truncated} / object {operation, videoCount, playingCount, playedCount, truncated} / object {operation, animationCount, marqueeCount, carouselCount, heldCount, runningCount, …} / object {operation, count, protectedSkips, truncated} / object {operation, removedCount, remaining, protectedSkips, truncated, persistent, …} |  | Bounded result publ… |
 | `pageContextId` | string (0–128 chars) |  | Page context on whi… |
 | `targetId` | string (0–128 chars) |  | Opaque target selec… |
 | `action` | enum (31 values, listed under Constraints) |  | Atomic action that… |

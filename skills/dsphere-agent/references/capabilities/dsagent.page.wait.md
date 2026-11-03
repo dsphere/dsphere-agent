@@ -6,15 +6,12 @@ Wait, bounded, for one condition on the page instead of polling dsagent.page.obs
 
 ## Invocation
 
-Call `dsagent_read` with this shape (a read: no idempotencyKey, may run beside other reads; `dsagent_invoke` accepts it too). Replace every placeholder with a value from the user or a preceding result; add `instanceId` when more than one browser is online. Opaque ids and revisions come only from results.
+Call `dsagent_page_wait` with this shape: the arguments flat, no method/args wrapper. Replace every placeholder with a value from the user or a preceding result; add `instanceId` when more than one browser is online. Opaque ids and revisions come only from results.
 
 ```json
 {
-  "method": "dsagent.page.wait",
-  "args": {
-    "pageContextId": "<pageContextId: supply a value matching the schema>",
-    "until": "revision-changed"
-  }
+  "pageContextId": "<pageContextId: supply a value matching the schema>",
+  "until": "revision-changed"
 }
 ```
 

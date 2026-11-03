@@ -1,0 +1,385 @@
+{
+  "method": "dsagent.wizard.collect",
+  "version": 1,
+  "pageEvidence": true,
+  "title": "Read records by fields once",
+  "description": "Read the records of one list, table or one-record page once with the fields you name; no workflow is kept (the dataset stays in Data). Use it when you know the fields; otherwise, or for a reusable workflow, dsagent.wizard.start.",
+  "guidance": "You rank the sources (a region keeping one is your pick): it stops choose-source with the candidates in wizard.pendingChoice; answer by dsagent.wizard.choose with auto {once: true}, then dsagent.execution.wait. The person's model maps your field names. A required field not found, empty or ambiguous stops it before anything runs (reason, fieldResults); the wizard (wizardId, wizardToken) is then yours to choose on or cancel. completed: rows (at most 50, 32 KiB) keyed by your names; the rest via dsagent.artifact.read. running: dsagent.execution.wait. A run refused when it starts (POLICY_DENIED; a plan run limit such as daily executions names the limit and details.planCode) collected nothing and ended the wizard: tell the person, do not retry.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "records",
+      "fields"
+    ],
+    "description": "What to read, from where, and how long to wait for the run.",
+    "properties": {
+      "records": {
+        "type": "string",
+        "description": "Which records, as the person said it (\"every book in the list\", \"this product\").",
+        "minLength": 1,
+        "maxLength": 300
+      },
+      "fields": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 20,
+        "description": "The fields to read, at most 20, in the order the rows should carry them.",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "name"
+          ],
+          "description": "One field to read.",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Its name: the key in every row and the dataset column; unique (case-insensitive).",
+              "minLength": 1,
+              "maxLength": 60
+            },
+            "description": {
+              "type": "string",
+              "description": "What it holds when the name is unclear (\"stars out of five\").",
+              "maxLength": 200
+            },
+            "required": {
+              "type": "boolean",
+              "description": "Default true: the read stops when it is not found, empty or ambiguous. false: null where missing."
+            }
+          }
+        }
+      },
+      "region": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "pageContextId",
+          "targetId",
+          "targetRevision"
+        ],
+        "description": "Optional: a target from dsagent.page.observe or page.find around the records (or one record); only sources inside or around it count.",
+        "properties": {
+          "pageContextId": {
+            "type": "string",
+            "description": "The page the target was observed on.",
+            "pattern": "^[A-Za-z0-9_.:-]{2,128}$",
+            "maxLength": 128
+          },
+          "targetId": {
+            "type": "string",
+            "description": "Opaque target id.",
+            "pattern": "^[A-Za-z0-9_.:-]{1,128}$",
+            "maxLength": 128
+          },
+          "targetRevision": {
+            "type": "string",
+            "description": "revision of the observe or find result the target came from.",
+            "pattern": "^[A-Za-z0-9_.:-]{1,128}$",
+            "maxLength": 128
+          }
+        }
+      },
+      "pageContextId": {
+        "type": "string",
+        "description": "Optional page; default the region's page, else the active tab.",
+        "pattern": "^[A-Za-z0-9_.:-]{2,128}$",
+        "maxLength": 128
+      },
+      "maxRecords": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 500,
+        "description": "Records to read, following the list's pagination; default 50. A one-record page reads one."
+      },
+      "waitMs": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 100000,
+        "description": "How long this call waits for the run after it starts; default 45000. The call itself ends 120 s after it started, so a slow detection shortens the wait."
+      },
+      "taskDescription": {
+        "type": "string",
+        "description": "The person's request in detail, as you would tell them; DSphere shows it as the task in the SidePanel. When you follow a skill or plan of several steps, describe the whole request here once (not its current step) and pass taskMode continue; a later call with a different taskDescription starts a separate task.",
+        "minLength": 1,
+        "maxLength": 2000
+      },
+      "taskMode": {
+        "type": "string",
+        "enum": [
+          "auto",
+          "continue"
+        ],
+        "description": "continue when you follow your own skill, workflow or plan of several steps (open, act, run, collect, …): the task then stays running across all of them, and only your dsagent.agent.work.finish (or the person's Stop, or 30 idle minutes) ends it; a finished run, a saved or canceled wizard or your last closed page no longer ends it, and your next step needs no new taskDescription. Pass it on the call that starts the task, with taskDescription naming the whole request, not its first step; report each step with dsagent.agent.work.step. auto (the default): DSphere ends the task when its work ends, for a request of one step."
+      },
+      "taskSteps": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 30,
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160,
+          "description": "One step in your skill's own words, a few words long."
+        },
+        "description": "With taskMode continue: your steps in order, as your skill lists them; DSphere shows them as the task checklist and you report each with dsagent.agent.work.step. Presentation only: DSphere never runs a step itself."
+      }
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "outcome"
+    ],
+    "description": "The rows read, or why the read stopped or is still running.",
+    "properties": {
+      "outcome": {
+        "type": "string",
+        "description": "completed: the run succeeded (rows). ended: the run failed, stopped or saved only part (status; rows hold what was saved). running: the run outlasted the wait (executionId: dsagent.execution.wait). stopped: nothing ran (reason; the wizard is yours).",
+        "enum": [
+          "completed",
+          "ended",
+          "running",
+          "stopped"
+        ]
+      },
+      "rows": {
+        "type": "array",
+        "maxItems": 50,
+        "items": {
+          "type": "object",
+          "description": "One record: your field names to their values (null where it has none)."
+        },
+        "description": "The first records, keyed by your field names; key order is not kept in transport, so read them in the order of columns."
+      },
+      "columns": {
+        "type": "array",
+        "maxItems": 20,
+        "items": {
+          "type": "string",
+          "maxLength": 60,
+          "description": "One of your field names."
+        },
+        "description": "Your field names in your order: the order to read each row in. Present whenever rows is."
+      },
+      "rowCount": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Records in the dataset."
+      },
+      "rowsTruncated": {
+        "type": "boolean",
+        "description": "True when rows holds fewer records than the dataset: rowsRest reads them all."
+      },
+      "rowsRest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "method",
+          "args"
+        ],
+        "description": "Only when rowsTruncated: the call that reads every record. Send it as it is (dsagent_invoke method and args), then repeat it with args.cursor = nextCursor until eof.",
+        "properties": {
+          "method": {
+            "type": "string",
+            "const": "dsagent.artifact.read",
+            "description": "The method to call."
+          },
+          "args": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "artifactId",
+              "format"
+            ],
+            "description": "Its arguments.",
+            "properties": {
+              "artifactId": {
+                "type": "string",
+                "maxLength": 256,
+                "description": "The dataset."
+              },
+              "format": {
+                "type": "string",
+                "const": "jsonl",
+                "description": "JSON Lines pages of whole records."
+              }
+            }
+          }
+        }
+      },
+      "valuesTruncated": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Values cut at 2000 characters in rows; the dataset keeps them whole."
+      },
+      "artifactId": {
+        "type": "string",
+        "description": "The local dataset: dsagent.artifact.read reads every record.",
+        "maxLength": 256
+      },
+      "executionId": {
+        "type": "string",
+        "description": "The one-time run.",
+        "maxLength": 128
+      },
+      "status": {
+        "type": "string",
+        "description": "ended: the run's end status (failed, stopped, partial, …).",
+        "maxLength": 32
+      },
+      "paused": {
+        "type": "boolean",
+        "description": "running: the run paused for a repair or a sign-in wall; dsagent.execution.wait says what it needs."
+      },
+      "waitedMs": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "How long this call waited for the run."
+      },
+      "reason": {
+        "type": "string",
+        "description": "stopped: why (the wizard auto stop reasons; fields-not-found, fields-ambiguous, region-mismatch and choose-source are the read's own).",
+        "enum": [
+          "wall",
+          "awaiting-page",
+          "taken-over",
+          "step-failed",
+          "detection-endpoint",
+          "no-data",
+          "no-recommendation",
+          "ambiguous-source",
+          "no-fields",
+          "fields-truncated",
+          "detail-pages-requested",
+          "name-required",
+          "not-auto-choice",
+          "changed",
+          "no-progress",
+          "time-budget",
+          "fields-not-found",
+          "fields-ambiguous",
+          "region-mismatch",
+          "choose-source"
+        ]
+      },
+      "stoppedAt": {
+        "type": "string",
+        "description": "stopped: the pending wizard choice it stopped at.",
+        "maxLength": 64
+      },
+      "fieldResults": {
+        "type": "array",
+        "maxItems": 20,
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "name",
+            "status"
+          ],
+          "description": "How one wanted field mapped onto the detected fields of the chosen source.",
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "The wanted field, as you named it.",
+              "maxLength": 60
+            },
+            "status": {
+              "type": "string",
+              "description": "matched; not-found; empty-values (its field reads nothing on the samples); ambiguous (candidates).",
+              "enum": [
+                "matched",
+                "not-found",
+                "empty-values",
+                "ambiguous"
+              ]
+            },
+            "optionId": {
+              "type": "string",
+              "description": "Its option in the fields choice.",
+              "maxLength": 32
+            },
+            "matchedLabel": {
+              "type": "string",
+              "description": "The field's page label before it took your name.",
+              "maxLength": 120
+            },
+            "sample": {
+              "type": "string",
+              "description": "A bounded sample value.",
+              "maxLength": 260
+            },
+            "nullCount": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "completed: rows without a value for it."
+            },
+            "candidates": {
+              "type": "array",
+              "maxItems": 5,
+              "description": "ambiguous: fields it could be; choose with dsagent.wizard.choose.",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "optionId",
+                  "label"
+                ],
+                "description": "One candidate detected field.",
+                "properties": {
+                  "optionId": {
+                    "type": "string",
+                    "description": "The candidate's option of the fields choice.",
+                    "maxLength": 32
+                  },
+                  "label": {
+                    "type": "string",
+                    "description": "Its label on the page.",
+                    "maxLength": 120
+                  },
+                  "sample": {
+                    "type": "string",
+                    "description": "A bounded, redacted sample value.",
+                    "maxLength": 260
+                  }
+                }
+              }
+            }
+          }
+        },
+        "description": "How each wanted field mapped, once the fields were decided."
+      },
+      "wizardId": {
+        "type": "string",
+        "description": "stopped: the wizard, now yours to continue or cancel.",
+        "maxLength": 36
+      },
+      "wizardToken": {
+        "type": "string",
+        "description": "stopped: its ownership token; pass it with every dsagent.wizard.* call.",
+        "maxLength": 128
+      },
+      "wizard": {
+        "type": "object",
+        "description": "stopped: the wizard state as dsagent.wizard.state returns it (pendingChoice, lastEndpoint, authentication, nextActions)."
+      }
+    }
+  },
+  "risk": "external-effect",
+  "targetKinds": [
+    "browser",
+    "wizard"
+  ],
+  "requiredPermissions": [
+    "wizard.guide",
+    "workflow.execute"
+  ],
+  "timeoutMs": 125000,
+  "maxInlineResultBytes": 65536,
+  "concurrency": "exclusive-target",
+  "retry": "never",
+  "exposure": "exposed"
+}

@@ -162,7 +162,8 @@
                     "fingerprint.update",
                     "fingerprint.regenerate",
                     "operations.get",
-                    "pages.list"
+                    "pages.list",
+                    "application.create"
                   ]
                 },
                 "maxItems": 14

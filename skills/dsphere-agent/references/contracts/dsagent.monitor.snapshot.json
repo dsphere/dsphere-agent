@@ -208,7 +208,7 @@
                       "run-failed",
                       "stalled"
                     ],
-                    "description": "sign-in-wall: a sign-in, one-time-code, consent or block page that only the person can pass; verification-challenge: a CAPTCHA, slider, picture or bot check an agent may pass with page actions (dsagent.page.action under its challenge budget, while the person's Verification Challenges switch is on); waiting-for-answer: a task waits for the person's answer to its question; paused-for-repair: a run waits for the repair of a failed block (dsagent.execution.handoff.*, only its starting agent answers); paused-for-resources: a run waits for host memory or CPU; task-failed / task-interrupted / run-failed: the work ended without its result; stalled: a running task published no step for 3 minutes (reported only, it stays its owner's)."
+                    "description": "sign-in-wall: a sign-in, one-time-code, consent or block page that only the person can pass; verification-challenge: a CAPTCHA, slider, picture or bot check an agent may pass with page actions (dsagent.page.action under its challenge budget, while the person's Verification Challenges switch is on); waiting-for-answer: a task waits for the person's answer to its question; paused-for-repair: a run waits for the repair of a failed block (dsagent.execution.handoff.*, only its starting agent answers); paused-for-resources: a run waits for host memory or CPU; task-failed / task-interrupted / run-failed: the work ended without its result; stalled: a running task published no step (and, an outside agent's task, made no MCP call) for 3 minutes (reported only, it stays its owner's)."
                   },
                   "waitingOn": {
                     "type": "string",
@@ -328,12 +328,17 @@
             "lastActivityAt": {
               "type": "string",
               "maxLength": 40,
-              "description": "Its last published step (ISO 8601)."
+              "description": "Its last published step, or for an outside agent's task its last MCP call if later (ISO 8601)."
             },
             "executionId": {
               "type": "string",
               "maxLength": 128,
               "description": "The workflow run (dsagent.execution.get / wait / artifacts)."
+            },
+            "partOfTaskRef": {
+              "type": "string",
+              "maxLength": 40,
+              "description": "A workflow run started (or read) by an outside agent for one of its tasks: the taskRef of that agent task, listed beside it. The run keeps its own row and events; read the two as one task of the agent."
             },
             "pageContextIds": {
               "type": "array",
@@ -343,7 +348,7 @@
                 "maxLength": 128,
                 "description": "One page of the task."
               },
-              "description": "The task's open pages."
+              "description": "The task's open pages; empty for a run whose tab is gone, or for an agent task whose pages are closed while it still works (or just ended)."
             },
             "attention": {
               "type": "array",
@@ -367,7 +372,7 @@
                       "run-failed",
                       "stalled"
                     ],
-                    "description": "sign-in-wall: a sign-in, one-time-code, consent or block page that only the person can pass; verification-challenge: a CAPTCHA, slider, picture or bot check an agent may pass with page actions (dsagent.page.action under its challenge budget, while the person's Verification Challenges switch is on); waiting-for-answer: a task waits for the person's answer to its question; paused-for-repair: a run waits for the repair of a failed block (dsagent.execution.handoff.*, only its starting agent answers); paused-for-resources: a run waits for host memory or CPU; task-failed / task-interrupted / run-failed: the work ended without its result; stalled: a running task published no step for 3 minutes (reported only, it stays its owner's)."
+                    "description": "sign-in-wall: a sign-in, one-time-code, consent or block page that only the person can pass; verification-challenge: a CAPTCHA, slider, picture or bot check an agent may pass with page actions (dsagent.page.action under its challenge budget, while the person's Verification Challenges switch is on); waiting-for-answer: a task waits for the person's answer to its question; paused-for-repair: a run waits for the repair of a failed block (dsagent.execution.handoff.*, only its starting agent answers); paused-for-resources: a run waits for host memory or CPU; task-failed / task-interrupted / run-failed: the work ended without its result; stalled: a running task published no step (and, an outside agent's task, made no MCP call) for 3 minutes (reported only, it stays its owner's)."
                   },
                   "waitingOn": {
                     "type": "string",

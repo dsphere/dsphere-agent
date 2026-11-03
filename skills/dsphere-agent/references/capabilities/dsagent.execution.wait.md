@@ -6,14 +6,11 @@ Bounded wait (at most 30 s) until the execution is terminal, or until it pauses 
 
 ## Invocation
 
-Call `dsagent_read` with this shape (a read: no idempotencyKey, may run beside other reads; `dsagent_invoke` accepts it too). Replace every placeholder with a value from the user or a preceding result; add `instanceId` when more than one browser is online. Opaque ids and revisions come only from results.
+Call `dsagent_execution_wait` with this shape: the arguments flat, no method/args wrapper. Replace every placeholder with a value from the user or a preceding result; add `instanceId` when more than one browser is online. Opaque ids and revisions come only from results.
 
 ```json
 {
-  "method": "dsagent.execution.wait",
-  "args": {
-    "executionId": "<executionId: supply a value matching the schema>"
-  }
+  "executionId": "<executionId: supply a value matching the schema>"
 }
 ```
 
@@ -42,7 +39,7 @@ Execution state after the bounded wait; a terminal run with a local dataset carr
 | `executionId` | string (0–128 chars) |  | Opaque workflow exe… |
 | `workflowId` | string (0–128 chars) |  | Opaque workflow ide… |
 | `workflowName` | string (0–500 chars) |  | Optional workflow d… |
-| `status` | string (0–100 chars) |  | Current execution l… |
+| `status` | string (0–100 chars) |  | Current execution s… |
 | `startedAt` | string (0–100 chars) |  | Optional execution… |
 | `finishedAt` | string (0–100 chars) |  | Optional execution… |
 | `durationMs` | integer (0…∞) |  | Optional execution… |
@@ -62,16 +59,16 @@ Execution state after the bounded wait; a terminal run with a local dataset carr
 | `hasResult` | boolean |  | Whether at least on… |
 | `artifactCount` | integer (0…∞) |  | Number of listed ar… |
 | `lifecycle` | enum (7 values, listed under Constraints) |  | The lifecycle to pl… |
-| `pause` | object {kind, waitingOn, openedFor, sinceMs, deadline, wall, …} |  | Present while the r… |
+| `pause` | object {kind, waitingOn, openedFor, attemptsLeft, sinceMs, deadline, …} |  | Present while the r… |
 | `terminal` | boolean |  | true: the run has e… |
 | `resultDelivery` | enum: pending |  | Present when the ru… |
 | `runPageContextIds` | array of string (0–128 chars) (≤ 32) |  | The pages of the ta… |
 | `progress` | object {currentNode, nodeIndex, nodeCount, recordsSoFar, listRecordsSoFar, authInterrupt, …} |  | Present while the r… |
-| `timedOut` | boolean |  | Whether the bounded… |
+| `nextActions` | array of enum (10 values, listed under Constraints) (≤ 3) |  | What to call next,… |
+| `warnings` | array of object {code, message, nextActions} (≤ 1) |  | EXECUTION_ALREADY_T… |
+| `timedOut` | boolean |  | true: the wait used… |
 | `rows` | array of any (≤ 20) |  | Terminal wait with… |
-| `rowCount` | integer (0…∞) |  | With rows: how many… |
-| `artifactId` | string (0–256 chars) |  | With rows: the data… |
-| … | 1 more fields in the contract | | |
+| … | 4 more fields in the contract | | |
 
 ## Result constraints
 
@@ -83,6 +80,8 @@ Complete value lists and id patterns for the fields above (the contract file is 
 - `coverage.degradedOutcomes[].kind`: one of `kept-unreached`, `zero-iterations`, `continued-unverified`, `pagination-shortfall`, `rows-not-saved`, `rows-unverified`, `detail-field-missing`, `item-skipped`, `field-empty-all-rows`, `field-identity-refused`, `field-read-blanked`, `chart-sweep-incomplete`
 - `coverage.degradedOutcomes[].endpoint`: same values as `endpoint`
 - `lifecycle`: one of `pending`, `running`, `paused`, `completed`, `partial`, `failed`, `stopped`
+- `nextActions[]`: one of `dsagent.execution.wait`, `dsagent.execution.handoff.get`, `dsagent.execution.handoff.resume`, `dsagent.execution.handoff.abort`, `dsagent.execution.auth.resume`, `dsagent.artifact.read`, `dsagent.execution.data.export`, `dsagent.artifacts.list`, `dsagent.page.visual.observe`, `dsagent.page.observe`
+- `warnings[].nextActions[]`: same values as `nextActions[]`
 
 ## Guidance
 

@@ -43,22 +43,22 @@
             "status": {
               "type": "string",
               "maxLength": 100,
-              "description": "Current execution lifecycle status. partial: ended through the agent repair handoff after saving rows (terminal)."
+              "description": "Current execution status: the backend record's word (pending, running, success, completed, failed, cancelled, stopped, restricted, partial). dsagent.execution.get / wait of a run paused in this browser give its pause word instead: paused-agent-repair, paused-auth-interrupt or paused-resource-pressure. Plan on lifecycle and terminal. partial: ended through the agent repair handoff after saving rows (terminal)."
             },
             "startedAt": {
               "type": "string",
               "maxLength": 100,
-              "description": "Optional execution start timestamp."
+              "description": "Optional execution start time, UTC ISO 8601 (for example 2026-11-01T09:01:56.000Z)."
             },
             "finishedAt": {
               "type": "string",
               "maxLength": 100,
-              "description": "Optional execution finish timestamp."
+              "description": "Optional execution finish time, UTC ISO 8601."
             },
             "durationMs": {
               "type": "integer",
               "minimum": 0,
-              "description": "Optional execution duration in milliseconds."
+              "description": "Optional execution duration in milliseconds; absent while unknown."
             },
             "error": {
               "type": "string",

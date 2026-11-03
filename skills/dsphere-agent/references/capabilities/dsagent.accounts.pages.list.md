@@ -45,7 +45,7 @@ Account operation result. status/stage are for internal reconciliation, not user
 Complete value lists and id patterns for the fields above (the contract file is authoritative).
 
 - `status`: one of `not-dispatched`, `waiting-user`, `running`, `succeeded`, `partial`, `failed`, `cancelled`, `outcome-unknown`, `record-unavailable`, `available`
-- `data.account.allowedActions[]`: one of `options.get`, `list`, `get`, `create`, `update`, `delete`, `set-enabled`, `open`, `close`, `focus`, `fingerprint.get`, `fingerprint.update`, `fingerprint.regenerate`, `operations.get`, `pages.list`
+- `data.account.allowedActions[]`: one of `options.get`, `list`, `get`, `create`, `update`, `delete`, `set-enabled`, `open`, `close`, `focus`, `fingerprint.get`, `fingerprint.update`, `fingerprint.regenerate`, `operations.get`, `pages.list`, `application.create`
 
 ## Contract
 

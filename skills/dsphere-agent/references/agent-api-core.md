@@ -1,10 +1,10 @@
 # Core browser API
 
-Generated from Extension contracts. This is an optional quick reference, not a new API or a required read before every task. Use the existing method names through the named gateway. Read SKILL.md for routing, ownership and consent rules.
+Generated from Extension contracts. This is an optional quick reference, not a new API or a required read before every task. Call each method through the tool named under it: its step tool, or the named gateway. Read SKILL.md for routing, ownership and consent rules.
 
 ## Request and result
 
-Put method, args, instanceId and idempotencyKey beside each other in the gateway input. Omit instanceId only with one online browser. An effect needs a fresh 8–128 character idempotencyKey; only an identical retry reuses it. Never retry an uncertain effect automatically.
+A step tool takes the arguments flat, with instanceId and idempotencyKey beside them; the gateway takes method, args, instanceId and idempotencyKey beside each other. Omit instanceId only with one online browser. An effect needs a fresh 8–128 character idempotencyKey; only an identical retry reuses it. Never retry an uncertain effect automatically.
 
 Prefer structuredContent. Keep the complete {ok,data|error} envelope: operationId and status are in data; the business result is data.data. Do not recursively unwrap a business field named data. Preserve warnings, authentication, dispatchStatus, hint and nextActions. A successful transport is not proof that the user task finished.
 
@@ -33,10 +33,10 @@ Result preview: `pages`, `total`; complete result in the linked contract.
 
 ### dsagent.page.open
 
-Open a web page. Gateway: `dsagent_invoke`; risk: `reversible-write`; concurrency: `exclusive-target`.
+Open a web page. Tool: `dsagent_page_open` (arguments flat); risk: `reversible-write`; concurrency: `exclusive-target`.
 
 ```json
-{"method":"dsagent.page.open","args":{"url":"<url>"},"idempotencyKey":"<fresh-key>"}
+{"url":"<url>","idempotencyKey":"<fresh-key>"}
 ```
 
 Result preview: `pageContextId`, `url`, `title`, `sessionName`; complete result in the linked contract.
@@ -45,10 +45,10 @@ Result preview: `pageContextId`, `url`, `title`, `sessionName`; complete result 
 
 ### dsagent.page.observe
 
-Observe browser page. Gateway: `dsagent_read`; risk: `read-sensitive`; concurrency: `shared-read`.
+Observe browser page. Tool: `dsagent_page_observe` (arguments flat); risk: `read-sensitive`; concurrency: `shared-read`.
 
 ```json
-{"method":"dsagent.page.observe","args":{"pageContextId":"<pageContextId>"}}
+{"pageContextId":"<pageContextId>"}
 ```
 
 Result preview: `pageContextId`, `revision`, `baseRevision`, `change`; complete result in the linked contract.
@@ -57,10 +57,10 @@ Result preview: `pageContextId`, `revision`, `baseRevision`, `change`; complete 
 
 ### dsagent.page.find
 
-Find browser page targets. Gateway: `dsagent_read`; risk: `read-sensitive`; concurrency: `shared-read`.
+Find browser page targets. Tool: `dsagent_page_find` (arguments flat); risk: `read-sensitive`; concurrency: `shared-read`.
 
 ```json
-{"method":"dsagent.page.find","args":{"pageContextId":"<pageContextId>"}}
+{"pageContextId":"<pageContextId>"}
 ```
 
 Result preview: `pageContextId`, `revision`, `query`, `surfaceMissing`; complete result in the linked contract.
@@ -69,10 +69,10 @@ Result preview: `pageContextId`, `revision`, `query`, `surfaceMissing`; complete
 
 ### dsagent.page.markdown
 
-Read browser page as Markdown. Gateway: `dsagent_read`; risk: `read-sensitive`; concurrency: `shared-read`.
+Read browser page as Markdown. Tool: `dsagent_page_markdown` (arguments flat); risk: `read-sensitive`; concurrency: `shared-read`.
 
 ```json
-{"method":"dsagent.page.markdown","args":{"pageContextId":"<pageContextId>"}}
+{"pageContextId":"<pageContextId>"}
 ```
 
 Result preview: `pageContextId`, `revision`, `url`, `title`; complete result in the linked contract.
@@ -81,10 +81,10 @@ Result preview: `pageContextId`, `revision`, `url`, `title`; complete result in 
 
 ### dsagent.page.action
 
-Act on browser page target. Gateway: `dsagent_invoke`; risk: `external-effect`; concurrency: `exclusive-target`.
+Act on browser page target. Tool: `dsagent_page_act` (arguments flat); risk: `external-effect`; concurrency: `exclusive-target`.
 
 ```json
-{"method":"dsagent.page.action","args":{"pageContextId":"<pageContextId>","targetId":"<targetId>","action":"click"},"idempotencyKey":"<fresh-key>"}
+{"pageContextId":"<pageContextId>","targetId":"<targetId>","action":"click","idempotencyKey":"<fresh-key>"}
 ```
 
 Result preview: `pageSurfaces`, `motion`, `focusedCaret`, `framePageSurfaces`; complete result in the linked contract.
@@ -93,10 +93,10 @@ Result preview: `pageSurfaces`, `motion`, `focusedCaret`, `framePageSurfaces`; c
 
 ### dsagent.page.actions
 
-Act on browser page targets in sequence. Gateway: `dsagent_invoke`; risk: `external-effect`; concurrency: `exclusive-target`.
+Act on browser page targets in sequence. Tool: `dsagent_page_act_many` (arguments flat); risk: `external-effect`; concurrency: `exclusive-target`.
 
 ```json
-{"method":"dsagent.page.actions","args":{"pageContextId":"<pageContextId>","actions":[{"targetId":"<targetId>","action":"click"}]},"idempotencyKey":"<fresh-key>"}
+{"pageContextId":"<pageContextId>","actions":[{"targetId":"<targetId>","action":"click"}],"idempotencyKey":"<fresh-key>"}
 ```
 
 Result preview: `pageContextId`, `previousRevision`, `revision`, `executed`; complete result in the linked contract.
@@ -105,10 +105,10 @@ Result preview: `pageContextId`, `previousRevision`, `revision`, `executed`; com
 
 ### dsagent.page.wait
 
-Wait for a page condition. Gateway: `dsagent_read`; risk: `read-sensitive`; concurrency: `shared-read`.
+Wait for a page condition. Tool: `dsagent_page_wait` (arguments flat); risk: `read-sensitive`; concurrency: `shared-read`.
 
 ```json
-{"method":"dsagent.page.wait","args":{"pageContextId":"<pageContextId>","until":"revision-changed"}}
+{"pageContextId":"<pageContextId>","until":"revision-changed"}
 ```
 
 Result preview: `pageContextId`, `until`, `outcome`, `waitedMs`; complete result in the linked contract.

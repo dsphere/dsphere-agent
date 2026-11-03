@@ -107,6 +107,27 @@
         "type": "object",
         "description": "Only the selected account operation's public product fields.",
         "properties": {
+          "application": {
+            "type": "object",
+            "description": "Verified custom application. Use appId with options.get and create, including when it has no accounts.",
+            "properties": {
+              "appId": {
+                "type": "string",
+                "description": "Application reference.",
+                "maxLength": 100
+              },
+              "appName": {
+                "type": "string",
+                "description": "Application name.",
+                "maxLength": 200
+              }
+            },
+            "required": [
+              "appId",
+              "appName"
+            ],
+            "additionalProperties": false
+          },
           "configuration": {
             "type": "object",
             "description": "Permission-derived account form. Work/Sidepanel render these fields; configurationText describes the same values to AI.",
@@ -116,6 +137,10 @@
               "blockedReasons"
             ],
             "properties": {
+              "allowApplicationCreation": {
+                "type": "boolean",
+                "description": "The application picker permits creating a custom web application through the shared application creation owner."
+              },
               "fields": {
                 "type": "array",
                 "description": "Permitted creation fields, including supported fingerprint metrics and their exact choices.",
@@ -607,7 +632,8 @@
                       "fingerprint.update",
                       "fingerprint.regenerate",
                       "operations.get",
-                      "pages.list"
+                      "pages.list",
+                      "application.create"
                     ]
                   },
                   "maxItems": 14
@@ -686,7 +712,8 @@
                     "fingerprint.update",
                     "fingerprint.regenerate",
                     "operations.get",
-                    "pages.list"
+                    "pages.list",
+                    "application.create"
                   ]
                 },
                 "maxItems": 14

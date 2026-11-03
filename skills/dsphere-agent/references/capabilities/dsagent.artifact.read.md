@@ -43,7 +43,7 @@ Bounded structured, paged-text or binary artifact read result. Oversized structu
 | `records` | array of any |  | Complete structured records returned only when they fit the fixed initial probe (format records). |
 | `page` | string |  | format jsonl: the records of this page, one JSON object per line. format csv: the CSV lines of this page (no header lin… |
 | `rowsInPage` | integer (0…∞) |  | How many records page holds. |
-| `columns` | array of string (1–500 chars) (≤ 200) |  | The columns of the dataset (declared, else the keys of the records read so far), in the order csv cells follow. |
+| `columns` | array of string (1–500 chars) (≤ 200) |  | The columns of the dataset (declared, else the keys of the records read so far), in the order csv cells follow. A datas… |
 | `header` | string |  | format csv: the header line (the columns, CSV-escaped), the same on every page; write it once before the pages. |
 | `encoding` | enum: base64 |  | Binary payload encoding when data is returned inline. |
 | `data` | string |  | Bounded Base64 binary payload for the current cursor page. |

@@ -137,6 +137,10 @@
               "blockedReasons"
             ],
             "properties": {
+              "allowApplicationCreation": {
+                "type": "boolean",
+                "description": "The application picker permits creating a custom web application through the shared application creation owner."
+              },
               "fields": {
                 "type": "array",
                 "description": "Permitted creation fields, including supported fingerprint metrics and their exact choices.",

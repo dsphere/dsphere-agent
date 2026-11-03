@@ -254,7 +254,7 @@
             "description": "Vertical offset in CSS pixels, down positive."
           }
         },
-        "description": "With drag: the pixel offset from the press point (the dragged target's centre, or its offset point) to the release point (a slider knob); required unless dropTargetId is given. With drag-move: where the held pointer goes, as the offset from the drag-press point (required). With drag-release: an optional last move, the same way, before letting go."
+        "description": "With drag: the pixel offset from the press point (the dragged target's centre, or its offset point) to the release point (a slider knob); required unless dropTargetId is given. With drag-move: where the held pointer goes, as the offset from the drag-press point (required). With drag-release: an optional last move, the same way, before letting go. For a slider or puzzle CAPTCHA, measure the gap first and drag once by it: a check scores the whole press-to-release, and a held drag nudged with looks in between is rejected even when the piece fits."
       },
       "find": {
         "type": "string",
@@ -370,7 +370,7 @@
         "pattern": "^upl_[0-9a-f]{32}$",
         "minLength": 36,
         "maxLength": 36,
-        "description": "With upload-file: the uploadId dsagent_upload_file returned for the local file (staged with this instance). Where the browser supports it, the slot gets the file straight from disk, as a person's pick or drop would, with no size limit (operationResult.fileDelivery disk). Otherwise (an older browser or Native Agent, a slot inside a shadow root, the picker fallback) it moves into the page in memory, at most 1 GiB (fileDelivery memory): until all of it is in the page the call is refused TARGET_BUSY with businessCode FILE_TRANSFER_IN_PROGRESS and details.transferredBytes / sizeBytes (nothing placed; repeat at once with the same idempotencyKey). Over 1 GiB and not from disk: INVALID_REQUEST with FILE_TOO_LARGE_FOR_PAGE_UPLOAD (nothing placed: update the DSphere browser and the Native Agent, or upload a smaller file). With Settings → File Uploads on (off by default) the person is asked in the DSphere side panel once per file and site: until they answer, TARGET_BUSY with FILE_RELEASE_CONSENT_REQUIRED (nothing placed; wait, then repeat with the same idempotencyKey); a no is POLICY_DENIED with FILE_RELEASE_DENIED (tell the person; do not retry). Call upload-file on the page target first: the Extension detects the page's upload slots and places the file into the one it finds. Several slots: refused INVALID_REQUEST with failureCode candidate-ambiguous, nothing placed; details.slots lists them as \"index picker|drop label\" joined by \" | \" (picker: a file chooser; drop: a drop area; \"index picker replace label\": its file replaces the page's files). Repeat with slotIndex (see slotIndex) on the same target, or call it on the intended upload control or drop area when observe lists it. Only when the page target reports candidate-not-found (no slot detected) call it on the page's own upload button, one details.controls lists (\"targetId label\" joined by \" | \") when it lists any: it is clicked with the file chooser intercepted, so no dialog opens, and the new file input gets the file (from disk where supported). To add a file beside the page's files use an add control (slotEffect add, such as 继续添加 or Add more), never a replace one. A slot or control whose file replaces the page's files (slotEffect replace: 清空并重新上传, 重新上传, Replace, Clear and upload again, or a one-file slot that holds a file) is refused INVALID_REQUEST with details.slotEffect replace, nothing placed, unless the call sets slotEffect replace (see slotEffect). Other failure codes: candidate-not-found with details.slots (that slotIndex is not detected now: choose again from details.slots), value-not-found (the upload expired, was staged with another browser, or the file changed or moved since: stage it again), destination-http-error (the page sent the file and its server rejected it), page-request-failed (its upload request got no response: details.failureReason names the request, status 0 and how long the page waited; retry later, not at once). operationResult.uploadState: uploaded (the page's upload request completed) or placed (the page holds the file but has not sent it; it may send it on submit). Once the page accepts the file the uploadId ends: stage it again for another page or a mail; a failed upload keeps it for the retry. Never click an upload button yourself to open the native file chooser. With paste: the image or file to paste at a text editor's caret, as a person pastes a screenshot, instead of an upload slot (see html for rich text); the same staging, consent and in-memory transfer rules apply, and once the editor took the file the uploadId ends."
+        "description": "With upload-file: the uploadId dsagent_upload_file returned for the local file (staged with this instance). Where the browser supports it, the slot gets the file straight from disk, as a person's pick or drop would, with no size limit (operationResult.fileDelivery disk). Otherwise (an older browser or Native Agent, a slot inside a shadow root, the picker fallback) it moves into the page in memory, at most 1 GiB (fileDelivery memory): until all of it is in the page the call is refused TARGET_BUSY with businessCode FILE_TRANSFER_IN_PROGRESS and details.transferredBytes / sizeBytes (nothing placed; repeat at once with the same idempotencyKey). Over 1 GiB and not from disk: INVALID_REQUEST with FILE_TOO_LARGE_FOR_PAGE_UPLOAD (nothing placed: update the DSphere browser and the Native Agent, or upload a smaller file). With Settings → File Uploads on (off by default) the person is asked in the DSphere side panel once per file and site: until they answer, TARGET_BUSY with FILE_RELEASE_CONSENT_REQUIRED (nothing placed; wait, then repeat with the same idempotencyKey); a no is POLICY_DENIED with FILE_RELEASE_DENIED (tell the person; do not retry). Call upload-file on the page target first: the Extension detects the page's upload slots and places the file into the one it finds. Several slots: refused INVALID_REQUEST with failureCode candidate-ambiguous, nothing placed; details.slots lists them as \"index picker|drop label\" joined by \" | \" (picker: a file chooser; drop: a drop area; \"index picker replace label\": its file replaces the page's files). Repeat with slotIndex (see slotIndex) on the same target, or call it on the intended upload control or drop area when observe lists it. Only when the page target reports candidate-not-found (no slot detected) call it on the page's own upload button, one details.controls lists (\"targetId label\" joined by \" | \") when it lists any: it is clicked with the file chooser intercepted, so no dialog opens, and the new file input gets the file (from disk where supported). To add a file beside the page's files use an add control (slotEffect add, such as 继续添加 or Add more), never a replace one. A slot or control whose file replaces the page's files (slotEffect replace: 清空并重新上传, 重新上传, Replace, Clear and upload again, or a one-file slot that holds a file) is refused INVALID_REQUEST with details.slotEffect replace, nothing placed, unless the call sets slotEffect replace (see slotEffect). Other failure codes: candidate-not-found with details.slots (that slotIndex is not detected now: choose again from details.slots), value-not-found (the upload expired, was staged with another browser, or the file changed or moved since: stage it again), destination-http-error (the page sent the file and its server rejected it), page-request-failed (its upload request got no response: details.failureReason names the request, status 0 and how long the page waited; retry later, not at once). operationResult.uploadState: uploaded (the page's upload request completed) or placed (the page holds the file but has not sent it; it may send it on submit). Once the page accepts the file the uploadId ends: stage it again for another page or a mail; a failed upload keeps it for the retry. Several files into one slot at once (a slot that takes several, as a person's multi-select or a drop of several files): give uploadIds instead of uploadId (see uploadIds). Never click an upload button yourself to open the native file chooser. With paste: the image or file to paste at a text editor's caret, as a person pastes a screenshot, instead of an upload slot (see html for rich text); the same staging, consent and in-memory transfer rules apply, and once the editor took the file the uploadId ends."
       },
       "html": {
         "type": "string",
@@ -515,6 +515,18 @@
       "bypassCache": {
         "type": "boolean",
         "description": "Reload past the browser cache; false by default."
+      },
+      "uploadIds": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 20,
+        "uniqueItems": true,
+        "items": {
+          "type": "string",
+          "pattern": "^upl_[0-9a-f]{32}$",
+          "description": "An uploadId dsagent_upload_file returned (with paths, each one of data.uploads)."
+        },
+        "description": "With upload-file, instead of uploadId: 2 to 20 uploadIds placed into one upload slot at once, in this order, as a person's multi-select or a drop of several files (stage them with one dsagent_upload_file call with paths). The same slot choice, consent, disk and memory rules as uploadId; in memory the files carry at most 1 GiB together. A file input, or a control that is the face of one hidden file input, says in observe or find how many it takes (slotFiles one or several); other controls do not. A slot that takes one file at a time, or a control with no detected slot (the picker fallback), is refused INVALID_REQUEST with details.slotFiles one, nothing placed: upload them one at a time with uploadId. An unknown or expired uploadId refuses the call with details.uploadIndex, nothing placed. operationResult.files lists each file placed and fileCount how many."
       },
       "slotIndex": {
         "type": "integer",
@@ -1531,12 +1543,49 @@
               "fileName": {
                 "type": "string",
                 "maxLength": 255,
-                "description": "The name the file was staged with."
+                "description": "The name the file was staged with; with uploadIds, the first file's (files lists each)."
               },
               "sizeBytes": {
                 "type": "integer",
                 "minimum": 1,
-                "description": "The size of the uploaded file in bytes."
+                "description": "The size of the uploaded file in bytes; with uploadIds, of all the files together."
+              },
+              "fileCount": {
+                "type": "integer",
+                "minimum": 2,
+                "maximum": 20,
+                "description": "With uploadIds: how many files went into the slot at once."
+              },
+              "files": {
+                "type": "array",
+                "maxItems": 20,
+                "description": "With uploadIds: each file placed, in the order given.",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "uploadId",
+                    "fileName",
+                    "sizeBytes"
+                  ],
+                  "description": "One file placed.",
+                  "properties": {
+                    "uploadId": {
+                      "type": "string",
+                      "description": "The uploadId of the file."
+                    },
+                    "fileName": {
+                      "type": "string",
+                      "maxLength": 255,
+                      "description": "The name the file was staged with."
+                    },
+                    "sizeBytes": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "description": "The file's size in bytes."
+                    }
+                  }
+                }
               },
               "slotIndex": {
                 "type": "integer",
@@ -2722,6 +2771,14 @@
                   ],
                   "description": "Optional, on a target that takes upload-file and says what its file does: add (it joins the files the page holds, such as 继续添加 or Add more) or replace (it takes their place, such as 清空并重新上传; upload-file refuses it unless the call sets slotEffect replace)."
                 },
+                "slotFiles": {
+                  "type": "string",
+                  "enum": [
+                    "one",
+                    "several"
+                  ],
+                  "description": "Optional, on a file input, or a control that is the visible face of one hidden file input (its label, its upload button or a control inside one), that takes upload-file: how many files it takes in one placement. several: place them together with uploadIds; one: upload them one at a time with uploadId (uploadIds is refused with details.slotFiles one). Absent on other upload controls (a drop area, a plain box around an input) and the page target, whose slots upload-file detects when called."
+                },
                 "capabilities": {
                   "type": "array",
                   "maxItems": 31,
@@ -2994,6 +3051,14 @@
                     "replace"
                   ],
                   "description": "Optional, on a target that takes upload-file and says what its file does: add (it joins the files the page holds, such as 继续添加 or Add more) or replace (it takes their place, such as 清空并重新上传; upload-file refuses it unless the call sets slotEffect replace)."
+                },
+                "slotFiles": {
+                  "type": "string",
+                  "enum": [
+                    "one",
+                    "several"
+                  ],
+                  "description": "Optional, on a file input, or a control that is the visible face of one hidden file input (its label, its upload button or a control inside one), that takes upload-file: how many files it takes in one placement. several: place them together with uploadIds; one: upload them one at a time with uploadId (uploadIds is refused with details.slotFiles one). Absent on other upload controls (a drop area, a plain box around an input) and the page target, whose slots upload-file detects when called."
                 },
                 "capabilities": {
                   "type": "array",

@@ -46,22 +46,22 @@
       "status": {
         "type": "string",
         "maxLength": 100,
-        "description": "Current execution lifecycle status. partial: ended through the agent repair handoff after saving rows (terminal)."
+        "description": "Current execution status: the backend record's word (pending, running, success, completed, failed, cancelled, stopped, restricted, partial). dsagent.execution.get / wait of a run paused in this browser give its pause word instead: paused-agent-repair, paused-auth-interrupt or paused-resource-pressure. Plan on lifecycle and terminal. partial: ended through the agent repair handoff after saving rows (terminal)."
       },
       "startedAt": {
         "type": "string",
         "maxLength": 100,
-        "description": "Optional execution start timestamp."
+        "description": "Optional execution start time, UTC ISO 8601 (for example 2026-11-01T09:01:56.000Z)."
       },
       "finishedAt": {
         "type": "string",
         "maxLength": 100,
-        "description": "Optional execution finish timestamp."
+        "description": "Optional execution finish time, UTC ISO 8601."
       },
       "durationMs": {
         "type": "integer",
         "minimum": 0,
-        "description": "Optional execution duration in milliseconds."
+        "description": "Optional execution duration in milliseconds; absent while unknown."
       },
       "error": {
         "type": "string",
@@ -712,7 +712,7 @@
               "resource",
               "agent-repair"
             ],
-            "description": "What the run waits on: auth = a sign-in or verification wall the person must pass (never you); resource = host memory or CPU pressure, it resumes on its own; agent-repair = a block failed after every automatic tier and the run waits for your answer (dsagent.execution.handoff.get, then dsagent.execution.handoff.resume or dsagent.execution.handoff.abort) until deadline."
+            "description": "What the run waits on: auth = a sign-in or verification wall (see waitingOn); resource = host memory or CPU pressure, it resumes on its own; agent-repair = a block failed after every automatic tier and the run waits for your answer (dsagent.execution.handoff.get, then dsagent.execution.handoff.resume or dsagent.execution.handoff.abort) until deadline."
           },
           "waitingOn": {
             "type": "string",
@@ -721,7 +721,7 @@
               "person",
               "host"
             ],
-            "description": "Who the run waits on. auth: person (the wall is theirs; never sign in yourself). resource: host (the pressure must ease, or the person adjusts the resource-pressure settings). agent-repair: agent = you (the person may also answer in the SidePanel; the first answer wins); person = your control session ended and did not come back within 30 s, so the person answers in the SidePanel until deadline (moved earlier, at most 5 minutes); you may still answer while it is open. A run you did not start (openedFor person) waits on the person from the start."
+            "description": "Who the run waits on. auth: person (the wall is theirs; never sign in yourself); agent = a verification challenge on the page of your run is yours to try, as a page read of pageContextId says (attemptsLeft); once it is gone the run resumes by itself. resource: host (the pressure must ease, or the person adjusts the resource-pressure settings). agent-repair: agent = you (the person may also answer in the SidePanel; the first answer wins); person = your control session ended and did not come back within 30 s, so the person answers in the SidePanel until deadline (moved earlier, at most 5 minutes); you may still answer while it is open. A run you did not start (openedFor person) waits on the person from the start."
           },
           "openedFor": {
             "type": "string",
@@ -730,6 +730,11 @@
               "person"
             ],
             "description": "agent-repair: whom the handoff was opened for. agent: the agent that started the run (you, when you did). person: nobody started this run over MCP or the Chat (a SidePanel start, a dataset run, a scheduled fire); the person answers in the SidePanel within 5 minutes and you cannot answer it."
+          },
+          "attemptsLeft": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "auth with waitingOn agent: effect calls you may still spend on the challenge before the person takes it over."
           },
           "sinceMs": {
             "type": "integer",
@@ -764,7 +769,7 @@
           "pageContextId": {
             "type": "string",
             "maxLength": 128,
-            "description": "auth: the run page the wall stands on, issued to you to observe (never to sign in on). agent-repair: the run page the block failed on, issued to you (the agent that started the run): observe and act on it with dsagent.page.* while the run waits."
+            "description": "auth: the run page the wall stands on, issued to you to observe (never to sign in on), and to act on while waitingOn is agent. agent-repair: the run page the block failed on, issued to you (the agent that started the run): observe and act on it with dsagent.page.* while the run waits."
           },
           "handoff": {
             "type": "object",
@@ -1014,6 +1019,27 @@
         ],
         "additionalProperties": false,
         "description": "Present while the run executes in this browser: what it is doing now. A run elsewhere (another browser, a server) carries no progress."
+      },
+      "nextActions": {
+        "type": "array",
+        "maxItems": 3,
+        "description": "What to call next, in order. Terminal: read the result (dsagent.artifact.read, dsagent.execution.data.export, dsagent.artifacts.list; empty when the run left no result); never wait again. An open repair handoff that is yours to answer: dsagent.execution.handoff.get, then resume or abort. A sign-in pause of your run: wait, or dsagent.execution.auth.resume once the person says they signed in; a challenge yours to try (pause.waitingOn agent): read pause.pageContextId, pass it, wait. Otherwise (running, pending, a wall or a handoff the person answers): dsagent.execution.wait.",
+        "items": {
+          "type": "string",
+          "enum": [
+            "dsagent.execution.wait",
+            "dsagent.execution.handoff.get",
+            "dsagent.execution.handoff.resume",
+            "dsagent.execution.handoff.abort",
+            "dsagent.execution.auth.resume",
+            "dsagent.artifact.read",
+            "dsagent.execution.data.export",
+            "dsagent.artifacts.list",
+            "dsagent.page.visual.observe",
+            "dsagent.page.observe"
+          ],
+          "description": "One capability to call next, as the catalog names it."
+        }
       }
     },
     "required": [

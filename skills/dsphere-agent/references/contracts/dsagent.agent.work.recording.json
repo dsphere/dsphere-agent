@@ -3,7 +3,7 @@
   "version": 1,
   "title": "Task Recording Choice",
   "description": "Read or begin this task's recording choice, the person's question in the standard side panel bottom sheet. Every task is asked: page.open and a scrape wizard.start ask. Poll dsagent.agent.work.recording.state while pending; never choose for the person.",
-  "guidance": "Once recording, use wizard.state with wizardId and wizardToken, perform the task, finish-recording, read every page of wizard.recording.steps, clean the draft with wizard.recording.edit, answer workflow-details and wizard.save. Do not call wizard.run: the task has already executed. Then agent.work.finish ends the task. Collections: purpose collection; create-workflow keeps the collection wizard's workflow, else collect once (wizard.run once true). A cancelled choice never permits page actions.",
+  "guidance": "Unanswered, the sheet counts down 10 s and the task continues without recording (not-recording, keepWorkflow false). Once recording, use wizard.state with wizardId and wizardToken, perform the task, finish-recording, read every page of wizard.recording.steps, clean the draft with wizard.recording.edit, answer workflow-details and wizard.save. Do not call wizard.run: the task has already executed. Then agent.work.finish ends the task. Collections: purpose collection; create-workflow keeps the collection wizard's workflow, else collect once (wizard.run once true). A cancelled choice never permits page actions.",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
