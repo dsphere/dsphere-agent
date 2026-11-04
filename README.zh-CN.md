@@ -25,7 +25,7 @@
 
 当前版本：**1.16.1**。
 
-下载[不可变的 1.16.1 安装包](https://github.com/dsphere/dsphere-agent/archive/refs/tags/dsphere-agent-v1.16.1.zip)，解压并校验后安装完整的 `skills/dsphere-agent/` 目录。按你的系统和客户端阅读[安装指南](installation-guide.md)。
+按[安装指南](installation-guide.md)安装：它从 GitHub 与 Gitee 中更快的一个读取当前版本（1.16.1），只从不可变 tag 下载你所用平台的程序，并说明各系统和客户端的接入步骤。
 
 ## DSphere Agent 是什么？
 
@@ -148,7 +148,7 @@ Skill 会安装并配置 **Native Agent**（名为 `dsphere-agent` 的本地 std
 | `RELEASE.md` | 当前版本的来源、Native 校验和与验证记录。 |
 | `docs/images/` | 本 README 使用的图片。 |
 
-本发布渠道使用 `https://github.com/dsphere/dsphere-agent.git`，版本指针位于 `https://raw.githubusercontent.com/dsphere/dsphere-agent/main/latest-version.json`。更新始终来自本仓库。请始终安装经过校验的指针所指定的不可变 tag。
+本发布渠道使用 `https://github.com/dsphere/dsphere-agent.git`，版本指针位于 `https://raw.githubusercontent.com/dsphere/dsphere-agent/main/latest-version.json`。Gitee（`https://gitee.com/dsphere/dsphere-agent-skills.git`，分支 `master`）是发布同一版本的另一个正式镜像；安装指南会让智能体使用响应更快的一个。请始终安装经过校验的指针所指定的不可变 tag。
 
 Git tag `dsphere-agent-v<version>` 是版本的唯一事实。从 `latest-version.json` 读取 `version` 和 `tag`，确认 tag 与版本精确对应，然后只从该 tag 取得 `skills/dsphere-agent/`；写入客户端 Skill 目录前必须获得用户确认。
 

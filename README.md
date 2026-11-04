@@ -25,7 +25,7 @@
 
 Current release: **1.16.1**.
 
-Download the [immutable 1.16.1 package](https://github.com/dsphere/dsphere-agent/archive/refs/tags/dsphere-agent-v1.16.1.zip), extract it, and install the complete `skills/dsphere-agent/` directory after verification. Follow the [installation guide](installation-guide.md) for your platform and client.
+Install with the [installation guide](installation-guide.md). It reads the current release (1.16.1) from the faster of GitHub and Gitee, downloads from the immutable tag only the programs for your platform, and covers each platform and client.
 
 ## What is DSphere Agent?
 
@@ -148,7 +148,7 @@ If your client cannot install Skills, install the official connector with the [f
 | `RELEASE.md` | Provenance, Native checksums and validation of the current release. |
 | `docs/images/` | Images used by this README. |
 
-This distribution uses `https://github.com/dsphere/dsphere-agent.git` and the version pointer at `https://raw.githubusercontent.com/dsphere/dsphere-agent/main/latest-version.json`. Updates stay in this repository. Always install the exact immutable tag named by the validated pointer.
+This distribution uses `https://github.com/dsphere/dsphere-agent.git` and the version pointer at `https://raw.githubusercontent.com/dsphere/dsphere-agent/main/latest-version.json`. Gitee (`https://gitee.com/dsphere/dsphere-agent-skills.git`, branch `master`) is the other official mirror of the same releases; the installation guide has the agent use whichever answers faster. Always install the exact immutable tag named by the validated pointer.
 
 The Git tag `dsphere-agent-v<version>` is the only source of truth for a version. Read `version` and `tag` from `latest-version.json`, require the tag to match the version exactly, and take `skills/dsphere-agent/` only from that tag. Confirm with the user before writing to the client's Skill directory.
 
