@@ -37,7 +37,7 @@ Inspect only locations defined by the detector. Read the [diagnostic schema](dia
 
 Use `uname -m` to select `assets/native/macos-arm64/dsphere-native-agent` (Apple Silicon) or `assets/native/macos-x64/dsphere-native-agent` (Intel). `sysctl -in sysctl.proc_translated` returning 1 identifies Rosetta translation. Check size and SHA-256 against `assets/native/manifest.json` using `shasum -a 256`.
 
-Keep the complete Skill at a stable location. Missing files, version or checksum mismatches require restoring the same trusted complete release. Checksums detect corruption; trust comes from the release source. Never copy the executable into the browser or run its old bundled program.
+Keep the complete Skill at a stable location; of `assets/native/` it needs only this platform's folder, and other platforms' folders may be absent. Missing files, version or checksum mismatches require restoring the same trusted complete release. Checksums detect corruption; trust comes from the release source. Never copy the executable into the browser or run its old bundled program.
 
 If its executable bit is lost, restore `chmod 755` only on the Skill program. Do not remove quarantine or bypass Gatekeeper.
 

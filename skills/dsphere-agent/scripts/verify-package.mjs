@@ -1,13 +1,19 @@
 #!/usr/bin/env node
 // Verify an installed copy of this Skill against the manifests it ships with.
 // Node only, no dependencies, read-only:
-//   node scripts/verify-package.mjs [<skill directory>]
+//   node scripts/verify-package.mjs [--platform <platform>] [<skill directory>]
 // Prints one JSON object and exits 0 when every check passes, 2 otherwise.
+//
+// A one-platform install is complete: the installation guide downloads only the
+// current platform's assets/native/<platform>/ folder. Each platform folder that is
+// present must hold every executable the manifest declares for it; absent folders
+// are reported as omitted. The selected platform (--platform, or this machine's,
+// chosen by the rule of the setup guides) must be present.
 //
 // What is checked, and how each hash is computed (the manifests say the same):
 // - SKILL.md: name and metadata.version; the name must match the channel in
 //   assets/release-channel.json (dsphere-agent ↔ production, dsphere-agent-test ↔ test).
-// - assets/native/manifest.json: size and SHA-256 of each executable as bytes.
+// - assets/native/manifest.json: size and SHA-256 of each executable present, as bytes.
 // - assets/capability-build.json: per contract, `sha256` = SHA-256 of
 //   JSON.stringify(parsed contract) and (schema 2) `fileSha256` = SHA-256 of the
 //   contract file bytes with CRLF→LF.
@@ -16,6 +22,7 @@
 //   (assets/native/<platform>/dsphere-native-agent[.exe]), so a Git checkout on any
 //   platform verifies; a schema 1 receipt only carries the production-identity
 //   hash, so its channel-wrapper files are reported, not failed.
+import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { dirname, join, relative, resolve, sep } from 'node:path'
@@ -36,8 +43,30 @@ function listFiles(root) {
   return out.sort()
 }
 
-export function verifyPackage(skillDir) {
+// The platform the setup guides select: on Windows the OS architecture, whatever
+// the shell's bitness; on macOS Apple Silicon also when this process runs under
+// Rosetta. Null elsewhere (no DSphere browser platform).
+export function hostPlatform({ platform = process.platform, arch = process.arch, env = process.env, translated } = {}) {
+  if (platform === 'win32') {
+    const os = String(env.PROCESSOR_ARCHITEW6432 || env.PROCESSOR_ARCHITECTURE || '').toUpperCase()
+    return { AMD64: 'windows-x64', X86: 'windows-x86', ARM64: 'windows-arm64' }[os] ?? null
+  }
+  if (platform === 'darwin') {
+    if (arch === 'arm64') return 'macos-arm64'
+    const rosetta = translated ?? (() => {
+      try { return execFileSync('sysctl', ['-in', 'sysctl.proc_translated'], { encoding: 'utf8', timeout: 5000 }).trim() === '1' } catch { return false }
+    })()
+    return rosetta ? 'macos-arm64' : 'macos-x64'
+  }
+  return null
+}
+
+const platformOf = artifactPath => artifactPath.split('/')[0]
+
+export function verifyPackage(skillDir, { platform } = {}) {
   const root = resolve(skillDir)
+  const selected = platform === undefined ? hostPlatform() : platform
+  const omittedPlatforms = new Set()
   const checks = []
   const check = (name, ok, details) => { checks.push({ name, status: ok ? 'pass' : 'fail', ...(details ? { details } : {}) }); return ok }
   const readJson = path => JSON.parse(readFileSync(join(root, path), 'utf8'))
@@ -61,14 +90,21 @@ export function verifyPackage(skillDir) {
     const native = readJson('assets/native/manifest.json')
     const problems = []
     if (native.skillVersion !== version) problems.push(`manifest skillVersion ${native.skillVersion} ≠ SKILL.md ${version}`)
+    const declared = [...new Set((native.artifacts ?? []).map(artifact => platformOf(artifact.path)))]
+    const present = declared.filter(id => existsSync(join(root, 'assets/native', id)))
+    for (const id of declared) if (!present.includes(id)) omittedPlatforms.add(id)
+    if (selected !== null && !declared.includes(selected)) problems.push(`platform ${selected} is not declared in the manifest`)
+    else if (selected !== null && !present.includes(selected)) problems.push(`${selected}: this platform's folder is missing`)
+    else if (present.length === 0) problems.push('no platform folder is present')
     for (const artifact of native.artifacts ?? []) {
+      if (omittedPlatforms.has(platformOf(artifact.path))) continue
       const path = join(root, 'assets/native', artifact.path)
       if (!existsSync(path)) { problems.push(`${artifact.path}: missing`); continue }
       const bytes = readFileSync(path)
       if (bytes.length !== artifact.size) problems.push(`${artifact.path}: size ${bytes.length} ≠ ${artifact.size}`)
       if (sha256(bytes) !== artifact.sha256) problems.push(`${artifact.path}: sha256 differs`)
     }
-    check('native-manifest', problems.length === 0 && [4, 8].includes((native.artifacts ?? []).length), { artifacts: (native.artifacts ?? []).length, problems })
+    check('native-manifest', problems.length === 0 && [4, 8].includes((native.artifacts ?? []).length), { artifacts: (native.artifacts ?? []).length, platform: selected, present, omitted: [...omittedPlatforms], problems })
   } catch (error) { check('native-manifest', false, { error: error.message }) }
 
   try {
@@ -92,9 +128,12 @@ export function verifyPackage(skillDir) {
       const problems = []
       const skipped = []
       const seen = new Set()
+      let omittedFiles = 0
       for (const [path, entry] of Object.entries(receipt.files ?? {})) {
         seen.add(path)
         const file = join(root, path)
+        const platformFolder = path.match(/^assets\/native\/([^/]+)\//)?.[1]
+        if (!existsSync(file) && platformFolder && omittedPlatforms.has(platformFolder)) { omittedFiles++; continue }
         if (!existsSync(file)) { problems.push(`${path}: missing`); continue }
         const bytes = readFileSync(file)
         if (receipt.schemaVersion >= 2) {
@@ -112,7 +151,7 @@ export function verifyPackage(skillDir) {
       const extra = listFiles(root).map(p => relative(root, p).split(sep).join('/'))
         .filter(p => !seen.has(p) && p !== 'assets/promotion-manifest.json' && p !== 'assets/release-channel.json')
       if (extra.length) problems.push(`files not in the manifest: ${extra.join(', ')}`)
-      check('promotion-manifest', problems.length === 0, { schemaVersion: receipt.schemaVersion, files: seen.size, problems, ...(skipped.length ? { notVerifiable: skipped, note: 'schema 1 receipts record the production-identity hash of channel wrappers; upgrade to a release with a schema 2 receipt to verify them' } : {}) })
+      check('promotion-manifest', problems.length === 0, { schemaVersion: receipt.schemaVersion, files: seen.size, ...(omittedFiles ? { omittedPlatformFiles: omittedFiles } : {}), problems, ...(skipped.length ? { notVerifiable: skipped, note: 'schema 1 receipts record the production-identity hash of channel wrappers; upgrade to a release with a schema 2 receipt to verify them' } : {}) })
     } catch (error) { check('promotion-manifest', false, { error: error.message }) }
   } else {
     checks.push({ name: 'promotion-manifest', status: 'skipped', details: { note: 'no assets/promotion-manifest.json: an unpackaged source tree' } })
@@ -122,8 +161,17 @@ export function verifyPackage(skillDir) {
 }
 
 if (process.argv[1] && import.meta.url === new URL(`file:///${resolve(process.argv[1]).replaceAll('\\', '/')}`).href) {
-  const dir = process.argv[2] ?? resolve(dirname(fileURLToPath(import.meta.url)), '..')
-  const report = verifyPackage(dir)
-  console.log(JSON.stringify(report, null, 2))
-  process.exitCode = report.ok ? 0 : 2
+  const args = process.argv.slice(2)
+  const at = args.indexOf('--platform')
+  const platform = at === -1 ? undefined : args[at + 1]
+  if (at !== -1) args.splice(at, 2)
+  if (platform !== undefined && !/^(?:windows-(?:x64|x86|arm64)|macos-(?:x64|arm64))$/.test(platform ?? '')) {
+    console.log(JSON.stringify({ ok: false, error: 'usage: verify-package.mjs [--platform windows-x64|windows-x86|windows-arm64|macos-x64|macos-arm64] [<skill directory>]' }))
+    process.exitCode = 2
+  } else {
+    const dir = args[0] ?? resolve(dirname(fileURLToPath(import.meta.url)), '..')
+    const report = verifyPackage(dir, { platform })
+    console.log(JSON.stringify(report, null, 2))
+    process.exitCode = report.ok ? 0 : 2
+  }
 }

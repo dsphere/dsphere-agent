@@ -37,7 +37,7 @@ manifest 始终位于 `~/Library/Application Support/Dsphere/NativeMessagingHost
 
 用 `uname -m` 选择 `assets/native/macos-arm64/dsphere-native-agent`（Apple Silicon）或 `assets/native/macos-x64/dsphere-native-agent`（Intel）；Rosetta 环境用 `sysctl -in sysctl.proc_translated` 辅助判断，返回 1 表示转译。用 `shasum -a 256` 对照 `assets/native/manifest.json` 的对应大小与 SHA-256。
 
-保持完整 Skill 在稳定目录。缺文件、版本或摘要不符时恢复可信同版本完整包；校验和用于检查损坏，不能代替发布源可信性。不要复制程序到浏览器目录或使用浏览器旧程序。
+保持完整 Skill 在稳定目录；`assets/native/` 下只需当前平台目录，其他平台目录可以缺省。缺文件、版本或摘要不符时恢复可信同版本完整包；校验和用于检查损坏，不能代替发布源可信性。不要复制程序到浏览器目录或使用浏览器旧程序。
 
 执行权限丢失时只对 Skill 程序恢复 `chmod 755`；不自动移除 quarantine，也不绕过 Gatekeeper。
 

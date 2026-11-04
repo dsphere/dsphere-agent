@@ -45,7 +45,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts\detect-windows.ps1
 
 按操作系统架构选择程序，不按进程位数：优先读取 `PROCESSOR_ARCHITEW6432`，否则读取 `PROCESSOR_ARCHITECTURE`；AMD64/x86/ARM64 分别对应 windows-x64/windows-x86/windows-arm64，选择 `assets/native/<platform>/dsphere-native-agent.exe`。环境变量仅用于选取文件，不是身份或权限证据；Connect 会通过 Windows API 独立确认原生架构。用 `Get-FileHash -Algorithm SHA256` 对照 `assets/native/manifest.json` 的对应大小与 SHA-256。
 
-保持完整 Skill 在稳定目录。缺文件、版本或摘要不符时恢复可信同版本完整包；校验和用于检查损坏，不能代替发布源可信性。不要复制程序到浏览器目录或使用浏览器旧程序。
+保持完整 Skill 在稳定目录；`assets/native/` 下只需当前平台目录，其他平台目录可以缺省。缺文件、版本或摘要不符时恢复可信同版本完整包；校验和用于检查损坏，不能代替发布源可信性。不要复制程序到浏览器目录或使用浏览器旧程序。
 
 ## 3. 安装或更新用户级 manifest 和 HKCU
 

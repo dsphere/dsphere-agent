@@ -45,7 +45,7 @@ Inspect only locations defined by the detector. Read the [diagnostic schema](dia
 
 Select the OS architecture, independent of shell bitness: use `PROCESSOR_ARCHITEW6432` when present, otherwise `PROCESSOR_ARCHITECTURE`; AMD64 maps to `windows-x64`, x86 to `windows-x86`, ARM64 to `windows-arm64`. Select `assets/native/<platform>/dsphere-native-agent.exe`. These environment values select an artifact only; they are never user/permission evidence. The helper independently verifies the native architecture through Windows APIs. Check size and SHA-256 against `assets/native/manifest.json` using `Get-FileHash -Algorithm SHA256`.
 
-Keep the complete Skill at a stable location. Missing files, version or checksum mismatches require restoring the same trusted complete release. Checksums detect corruption; trust comes from the release source. Never copy the executable into the browser or run its old bundled program.
+Keep the complete Skill at a stable location; of `assets/native/` it needs only this platform's folder, and other platforms' folders may be absent. Missing files, version or checksum mismatches require restoring the same trusted complete release. Checksums detect corruption; trust comes from the release source. Never copy the executable into the browser or run its old bundled program.
 
 ## 3. Install or update the user manifest and HKCU
 

@@ -5,6 +5,7 @@ The public GitHub repository is the default fallback distribution source:
 - repository: `https://github.com/dsphere/dsphere-agent.git`
 - version pointer: `https://raw.githubusercontent.com/dsphere/dsphere-agent/main/latest-version.json`
 - skill ID: `dsphere-agent`
+- other official mirror: `https://gitee.com/dsphere/dsphere-agent-skills.git`, version pointer `https://gitee.com/dsphere/dsphere-agent-skills/raw/master/latest-version.json`. Both mirrors publish the same releases with byte-identical programs; before reading the pointer, time one `git ls-remote` of each and use the faster one, as step 1 of the root `installation-guide.md` shows.
 
 ## When to check
 
@@ -15,14 +16,14 @@ An automatic check may be cached for 24 hours. After the user skips version `X`,
 ## Install
 
 1. Prefer the current AI client's SkillHub or native Skill installer and verify that the target `skillId` is `dsphere-agent`.
-2. If the client has no marketplace or native installer, read the root `latest-version.json` from the version pointer above. Resolve only `version` and `tag`; the tag must equal `dsphere-agent-v<version>` exactly.
-3. Clone or fetch that immutable tag with Git from the official repository above, install only `skills/dsphere-agent/` from the tag, and verify that `SKILL.md metadata.version` matches the version pointer. Never install mutable `main`, an arbitrary repository, or an arbitrary tag.
+2. If the client has no marketplace or native installer, read the root `latest-version.json` from the faster mirror's version pointer above. Resolve only `version` and `tag`; the tag must equal `dsphere-agent-v<version>` exactly.
+3. Fetch that immutable tag from the chosen mirror with only this platform's programs, as step 2 of the root installation guide shows (`git clone --depth 1 --filter=blob:none --no-checkout --branch dsphere-agent-v<version> <repository>`, then `git sparse-checkout set --no-cone` keeping `skills/dsphere-agent/` without the other platforms' `assets/native/<platform>/` folders), install only `skills/dsphere-agent/` from it, and verify that `SKILL.md metadata.version` matches the version pointer. Never install mutable `main`, an arbitrary repository, or an arbitrary tag.
 4. Show the version, source, and change summary. Write to the client's supported Skill directory or installation API only after explicit user confirmation.
 5. Reload the client's Skill catalog, then follow the English guide linked by `SKILL.md` to detect the browser and configure MCP.
 
 The official Git clone URL is `https://github.com/dsphere/dsphere-agent.git`. Do not overwrite an installed release by copying unverified files from the mutable `main` worktree.
 
-After installing, verify the copy before registering it: `node scripts/verify-package.mjs` in the Skill directory checks `SKILL.md` against `assets/release-channel.json` (the channel this package was built for — a `dsphere-agent` package is production, `dsphere-agent` is the test channel; refuse a package whose name and channel disagree), every executable against `assets/native/manifest.json`, every contract against `assets/capability-build.json`, and every file against `assets/promotion-manifest.json`. Each manifest states how its hashes are computed. Exit code 0 means verified; otherwise reinstall the same release from its immutable tag.
+After installing, verify the copy before registering it: `node scripts/verify-package.mjs --platform <platform>` in the Skill directory checks `SKILL.md` against `assets/release-channel.json` (the channel this package was built for — a `dsphere-agent` package is production, `dsphere-agent` is the test channel; refuse a package whose name and channel disagree), this platform's executables against `assets/native/manifest.json` (other platforms' folders may be absent), every contract against `assets/capability-build.json`, and every file against `assets/promotion-manifest.json`. Each manifest states how its hashes are computed. Exit code 0 means verified; otherwise reinstall the same release from its immutable tag.
 
 ## Documentation learning after every installation or upgrade
 
@@ -37,7 +38,7 @@ Read the installed `metadata.version` from `SKILL.md` and compare it with `lates
 - Without confirmation, do not write files, remove the installed version, or change MCP.
 - If the version pointer is invalid, the tag is absent, or the Skill shape/version is invalid, keep the current version and report a recoverable error. Do not fall back to `main` or an unconfirmed copy.
 
-The Skill owns the executable for both browser runtime and MCP connector. Install the complete new Skill release, including all declared executable files under `assets/native/`, at a stable location. No Go compiler or separate executable download is required. Validate and follow platform setup: Windows install writes the user manifest and HKCU; macOS install writes the user manifest (the browser ships none). MCP uses the same Skill executable. After installation or update, follow the [shared guide](client-setup.en.md) to explicitly request a full browser restart and wait for confirmation. Keep the previous verified Skill until browser restart and MCP reconnection succeed. Never use or copy an executable from the browser installation. Rerun detection after browser upgrades; Windows user registration does not move with version directories. If an old process prevents replacing files, retain both releases and arrange a safe restart; never forcibly kill it.
+The Skill owns the executable for both browser runtime and MCP connector. Install the new Skill release with this platform's executables under `assets/native/<platform>/` (other platforms' folders are not downloaded) at a stable location. No Go compiler or separate executable download is required. Validate and follow platform setup: Windows install writes the user manifest and HKCU; macOS install writes the user manifest (the browser ships none). MCP uses the same Skill executable. After installation or update, follow the [shared guide](client-setup.en.md) to explicitly request a full browser restart and wait for confirmation. Keep the previous verified Skill until browser restart and MCP reconnection succeed. Never use or copy an executable from the browser installation. Rerun detection after browser upgrades; Windows user registration does not move with version directories. If an old process prevents replacing files, retain both releases and arrange a safe restart; never forcibly kill it.
 
 ## Channel consistency
 
