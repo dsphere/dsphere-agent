@@ -12,7 +12,7 @@
         "type": "string",
         "minLength": 1,
         "maxLength": 2000,
-        "description": "The person’s request in detail (what to do, on which site, with which data), as you would tell them; DSphere shows it as the task in the SidePanel Chat and the live execution panel, and its first line, shortened, names the browser tab group the pages you open in the person’s session are gathered in (one group per task: a page.open without it stays in your current task’s group). Required on the first call that starts work in a task (dsagent.page.open, or the first page.action / page.actions on a page you did not open): such a call on a task that has no description yet is refused with INVALID_REQUEST, businessCode TASK-DESCRIPTION-REQUIRED. Later calls of the same task need not repeat it. Presentation context only, never delegated planning. Do not include credentials. When you follow a skill or plan of several steps, describe the whole request here once (not its current step) and pass taskMode continue; a later call with a different taskDescription starts a separate task."
+        "description": "The person’s request in detail, as you would tell them: what to do, where, with which data. DSphere shows it as the task in the SidePanel Chat and the live execution panel, and its first line, shortened, names the browser tab group the pages you open in the person’s session are gathered in (one group per task: a page.open without it stays in your current task’s group). Required on the first call that starts work in a task (dsagent.page.open, or the first page.action / page.actions on a page you did not open): such a call on a task that has no description yet is refused with INVALID_REQUEST, businessCode TASK-DESCRIPTION-REQUIRED. Later calls of the same task need not repeat it. Presentation context only, never delegated planning. Do not include credentials. When you follow a skill or plan of several steps, describe the whole request here once (not its current step) and pass taskMode continue; a later call with a different taskDescription starts a separate task."
       },
       "taskMode": {
         "type": "string",
@@ -20,7 +20,7 @@
           "auto",
           "continue"
         ],
-        "description": "continue when you follow your own skill, workflow or plan of several steps (open, act, run, collect, …): the task then stays running across all of them, and only your dsagent.agent.work.finish (or the person's Stop, or 30 idle minutes) ends it; a finished run, a saved or canceled wizard or your last closed page no longer ends it, and your next step needs no new taskDescription. Pass it on the call that starts the task, with taskDescription naming the whole request, not its first step; report each step with dsagent.agent.work.step. auto (the default): DSphere ends the task when its work ends, for a request of one step."
+        "description": "continue for your own skill, workflow or plan of several steps; auto (the default) for a request of one step. With continue (open, act, run, collect, …) the task stays running across all of them, and only your dsagent.agent.work.finish (or the person's Stop, or 30 idle minutes) ends it; a finished run, a saved or canceled wizard or your last closed page no longer ends it, and your next step needs no new taskDescription. Pass it on the call that starts the task, with taskDescription naming the whole request, not its first step; report each step with dsagent.agent.work.step. With auto DSphere ends the task when its work ends."
       },
       "taskSteps": {
         "type": "array",
@@ -32,13 +32,13 @@
           "maxLength": 160,
           "description": "One step in your skill's own words, a few words long."
         },
-        "description": "With taskMode continue: your steps in order, as your skill lists them; DSphere shows them as the task checklist and you report each with dsagent.agent.work.step. Presentation only: DSphere never runs a step itself."
+        "description": "With taskMode continue: your steps in order. Name them as your skill lists them; DSphere shows them as the task checklist and you report each with dsagent.agent.work.step. Presentation only: DSphere never runs a step itself."
       },
       "pageContextId": {
         "type": "string",
         "minLength": 2,
         "maxLength": 128,
-        "description": "Opaque page context from dsagent.pages.list, dsagent.page.open, or a receipt's destinationPageContextId."
+        "description": "Page context from dsagent.page.open, dsagent.pages.list or a receipt's destinationPageContextId."
       },
       "expectedRevision": {
         "type": "string",
@@ -70,7 +70,7 @@
               "type": "string",
               "minLength": 1,
               "maxLength": 128,
-              "description": "An opaque target you read."
+              "description": "A target id a reply gave you; never built or guessed."
             },
             "target": {
               "type": "object",
@@ -92,10 +92,22 @@
                   "minLength": 1,
                   "maxLength": 120,
                   "description": "Words of its record."
+                },
+                "id": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "description": "Alone: a targetId a reply gave you."
                 }
               },
               "additionalProperties": false,
-              "description": "The one control with these words when the step runs."
+              "description": "The one control with these words when the step runs.",
+              "minProperties": 1,
+              "examples": [
+                {
+                  "name": "<label>"
+                }
+              ]
             },
             "action": {
               "type": "string",
@@ -188,7 +200,7 @@
                   "description": "Vertical offset from the target centre in CSS pixels, down positive; at most half the target height."
                 }
               },
-              "description": "Optional point inside the target instead of its centre (click: where to click; drag: where to press before moving; drag-press: where to press and hold): the offset from the centre, within the target's own box (the rect of the observation that published it). For a canvas or a single picture whose parts are not targets (click the characters in order, pick the pictures that show X, drag a piece drawn on the picture): measure the point on the visual.observe image against the target rect. An offset outside the box is refused with INVALID_REQUEST before anything is dispatched; the page sees the point clamped to the live box."
+              "description": "Optional point inside the target instead of its centre. The offset from the centre (click: where to click; drag: where to press before moving; drag-press: where to press and hold), within the target's own box (the rect of the observation that published it). For a canvas or a single picture whose parts are not targets (click the characters in order, pick the pictures that show X, drag a piece drawn on the picture): measure the point on the visual.observe image against the target rect. An offset outside the box is refused with INVALID_REQUEST before anything is dispatched; the page sees the point clamped to the live box."
             },
             "dialogAction": {
               "type": "string",
@@ -202,7 +214,7 @@
             "promptText": {
               "type": "string",
               "maxLength": 2000,
-              "description": "With dialogAction accept: the text a prompt is answered with."
+              "description": "With handle-dialog, with dialogAction accept: the text a prompt is answered with."
             },
             "kind": {
               "type": "string",
@@ -253,7 +265,7 @@
               "type": "string",
               "minLength": 1,
               "maxLength": 2000,
-              "description": "The exact text in the field to act on, copied as it reads (case and punctuation matter). It must lie within one paragraph or line."
+              "description": "With edit-text: The exact text in the field to act on, copied as it reads (case and punctuation matter). It must lie within one paragraph or line."
             },
             "occurrence": {
               "type": "integer",
@@ -307,7 +319,7 @@
             "text": {
               "type": "string",
               "maxLength": 8000,
-              "description": "The new text for replace, insert-before and insert-after; ignored by the other operations. An empty replace deletes find."
+              "description": "With edit-text: The new text for replace, insert-before and insert-after; ignored by the other operations. An empty replace deletes find."
             },
             "formFields": {
               "type": "array",
@@ -356,7 +368,7 @@
             "value": {
               "type": "string",
               "maxLength": 8000,
-              "description": "Text value to enter into the opaque target. For date/time/number/range/color inputs any common wording is canonicalised (2026/9/21, 2:30 pm, 50%, red)."
+              "description": "With input: Text value to enter into the opaque target. For date/time/number/range/color inputs any common wording is canonicalised (2026/9/21, 2:30 pm, 50%, red)."
             },
             "uploadId": {
               "type": "string",
@@ -369,7 +381,7 @@
               "type": "string",
               "minLength": 1,
               "maxLength": 100000,
-              "description": "With paste: rich text to paste at the caret of the target editor, as a person pastes copied content (Ctrl+V): the editor receives it as text/html, so it keeps headings, bold, lists, links and inline styles the way it keeps a person's paste. Markup that could run script or load another document (script, style, frames, event handler attributes, javascript: links) is removed first (operationResult.htmlSanitized). Give block structure in markup (<h2>, <p>, <ul><li>), not newline characters: an editor decides how it turns pasted text into blocks. The paste goes where the caret stands in the editor; when the caret is elsewhere it goes at the end of the editor. Put the caret first with edit-text (place-caret-before / place-caret-after) to paste into the middle. Give either uploadId or html (with optional plainText), or plainText alone."
+              "description": "With paste: rich text to paste at the caret of the target editor, as a person pastes copied content (Ctrl+V). The editor receives it as text/html, so it keeps headings, bold, lists, links and inline styles the way it keeps a person's paste. Markup that could run script or load another document (script, style, frames, event handler attributes, javascript: links) is removed first (operationResult.htmlSanitized). Give block structure in markup (<h2>, <p>, <ul><li>), not newline characters: an editor decides how it turns pasted text into blocks. The paste goes where the caret stands in the editor; when the caret is elsewhere it goes at the end of the editor. Put the caret first with edit-text (place-caret-before / place-caret-after) to paste into the middle. Give either uploadId or html (with optional plainText), or plainText alone."
             },
             "plainText": {
               "type": "string",
@@ -481,7 +493,7 @@
             "selection": {
               "type": "string",
               "maxLength": 2000,
-              "description": "The option to choose, exactly as selectBy names it: its value attribute (the default), its visible text, or its 0-based index."
+              "description": "With select: The option to choose, exactly as selectBy names it: its value attribute (the default), its visible text, or its 0-based index."
             },
             "selectBy": {
               "type": "string",
@@ -519,7 +531,7 @@
                 "pattern": "^upl_[0-9a-f]{32}$",
                 "description": "An uploadId dsagent_upload_file returned (with paths, each one of data.uploads)."
               },
-              "description": "With upload-file, instead of uploadId: 2 to 20 uploadIds placed into one upload slot at once, in this order, as a person's multi-select or a drop of several files (stage them with one dsagent_upload_file call with paths). The same slot choice, consent, disk and memory rules as uploadId; in memory the files carry at most 1 GiB together. A file input, or a control that is the face of one hidden file input, says in observe or find how many it takes (slotFiles one or several); other controls do not. A slot that takes one file at a time, or a control with no detected slot (the picker fallback), is refused INVALID_REQUEST with details.slotFiles one, nothing placed: upload them one at a time with uploadId. An unknown or expired uploadId refuses the call with details.uploadIndex, nothing placed. operationResult.files lists each file placed and fileCount how many."
+              "description": "With upload-file, instead of uploadId: 2 to 20 uploadIds placed into one upload slot at once. In this order, as a person's multi-select or a drop of several files (stage them with one dsagent_upload_file call with paths). The same slot choice, consent, disk and memory rules as uploadId; in memory the files carry at most 1 GiB together. A file input, or a control that is the face of one hidden file input, says in observe or find how many it takes (slotFiles one or several); other controls do not. A slot that takes one file at a time, or a control with no detected slot (the picker fallback), is refused INVALID_REQUEST with details.slotFiles one, nothing placed: upload them one at a time with uploadId. An unknown or expired uploadId refuses the call with details.uploadIndex, nothing placed. operationResult.files lists each file placed and fileCount how many."
             },
             "slotIndex": {
               "type": "integer",
@@ -553,15 +565,20 @@
                 "until": {
                   "type": "string",
                   "enum": [
-                    "text-present",
-                    "text-absent",
+                    "revision-changed",
                     "target-present",
                     "target-absent",
+                    "target-enabled",
+                    "target-disabled",
+                    "text-present",
+                    "text-absent",
                     "url-changed",
-                    "revision-changed",
-                    "settled"
+                    "settled",
+                    "surface-closed",
+                    "authentication-cleared",
+                    "download"
                   ],
-                  "description": "text-* (text) or target-* (target) shown or gone; url- or revision-changed since the previous action; settled: quiet."
+                  "description": "As page.wait: text-* (text), target-* (target or targetId; -enabled/-disabled: targetId); url-/revision-changed since the last action; settled; surface-closed."
                 },
                 "text": {
                   "type": "string",
@@ -589,10 +606,34 @@
                       "minLength": 1,
                       "maxLength": 120,
                       "description": "Words of its record."
+                    },
+                    "id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 128,
+                      "description": "Alone: a targetId a reply gave you."
                     }
                   },
                   "additionalProperties": false,
-                  "description": "The one control with these words when the step runs."
+                  "description": "The one control with these words when the step runs.",
+                  "minProperties": 1,
+                  "examples": [
+                    {
+                      "name": "<label>"
+                    }
+                  ]
+                },
+                "targetId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "description": "Or a targetId a reply gave you."
+                },
+                "surfaceId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128,
+                  "description": "With surface-closed."
                 },
                 "timeoutMs": {
                   "type": "integer",
@@ -638,7 +679,7 @@
                   "type": "string",
                   "minLength": 1,
                   "maxLength": 128,
-                  "description": "With target-present / target-absent / target-enabled / target-disabled: the opaque target, as the receipt or the latest observation lists it."
+                  "description": "With target-present / target-absent / target-enabled / target-disabled: a target id a reply gave you, as the receipt or the latest observation lists it."
                 },
                 "text": {
                   "type": "string",
@@ -657,7 +698,7 @@
                 "until"
               ],
               "additionalProperties": false,
-              "description": "Last step only: as page.action waitAfter."
+              "description": "As page.action waitAfter, after this step."
             }
           },
           "additionalProperties": false,
@@ -787,13 +828,18 @@
                 "until": {
                   "type": "string",
                   "enum": [
-                    "text-present",
-                    "text-absent",
+                    "revision-changed",
                     "target-present",
                     "target-absent",
+                    "target-enabled",
+                    "target-disabled",
+                    "text-present",
+                    "text-absent",
                     "url-changed",
-                    "revision-changed",
-                    "settled"
+                    "settled",
+                    "surface-closed",
+                    "authentication-cleared",
+                    "download"
                   ],
                   "description": "The condition waited for."
                 },
@@ -996,6 +1042,13 @@
               "additionalProperties": false,
               "description": "Present when the page used this click to close a surface open outside the target and canceled it there: the target did not receive it; click it again."
             },
+            "writes": {
+              "type": "boolean",
+              "enum": [
+                true
+              ],
+              "description": "The control acted on submits a form: a write."
+            },
             "playbackResumed": {
               "type": "boolean",
               "enum": [
@@ -1126,7 +1179,7 @@
                 "change"
               ],
               "additionalProperties": false,
-              "description": "On the receipt of the last step when it asked for waitAfter: the folded wait and whether the final inventory was refreshed by it."
+              "description": "On the receipt of a step that asked for waitAfter: the folded wait and whether the final inventory was refreshed by it."
             }
           },
           "required": [
@@ -3282,6 +3335,13 @@
             "type": "number",
             "description": "Optional bounded click confidence reported by the action runtime."
           },
+          "writes": {
+            "type": "boolean",
+            "enum": [
+              true
+            ],
+            "description": "The control acted on submits a form: a write."
+          },
           "playbackResumed": {
             "type": "boolean",
             "enum": [
@@ -3571,7 +3631,7 @@
                     "id": {
                       "type": "string",
                       "maxLength": 128,
-                      "description": "Opaque target identifier valid only for the associated page revision (page for the page itself)."
+                      "description": "Target id for this page, used as given and never built (page for the page itself)."
                     },
                     "kind": {
                       "type": "string",
@@ -3645,7 +3705,7 @@
                     "state": {
                       "type": "string",
                       "maxLength": 160,
-                      "description": "Optional bounded state tokens, comma separated, such as checked, selected, expanded=true, pressed or unpressed, mixed, current, disabled, required, invalid, readonly, busy, haspopup=menu, valuenow=<n>, sort=<direction>, filled or empty."
+                      "description": "Optional bounded state tokens, comma separated, such as checked, selected, expanded=true, pressed or unpressed, mixed, current, disabled, required, invalid, readonly, busy, haspopup=menu, valuenow=<n>, sort=<direction>, submits-form, filled or empty; value=\"<text>\" when the page served it (a filter) or this caller typed it."
                     },
                     "slotEffect": {
                       "type": "string",
@@ -3663,11 +3723,18 @@
                       ],
                       "description": "Optional, on a file input, or a control that is the visible face of one hidden file input (its label, its upload button or a control inside one), that takes upload-file: how many files it takes in one placement. several: place them together with uploadIds; one: upload them one at a time with uploadId (uploadIds is refused with details.slotFiles one). Absent on other upload controls (a drop area, a plain box around an input) and the page target, whose slots upload-file detects when called."
                     },
+                    "effect": {
+                      "type": "string",
+                      "enum": [
+                        "writes"
+                      ],
+                      "description": "writes: it submits a form."
+                    },
                     "capabilities": {
                       "type": "array",
                       "maxItems": 31,
                       "uniqueItems": true,
-                      "description": "Public atomic actions accepted for this opaque target by dsagent.page.action; empty for a text target found by dsagent.page.find. Absent in a list: the list's commonCapabilities.",
+                      "description": "Public atomic actions accepted for this opaque target by dsagent.page.action; empty for a text target found by dsagent.page.find. Absent in a list: the list's commonCapabilities. On the page target: only scroll, when the page scrolls (page.action's action lists the rest).",
                       "items": {
                         "type": "string",
                         "enum": [
@@ -3716,7 +3783,7 @@
                     "navigationUrl": {
                       "type": "string",
                       "maxLength": 300,
-                      "description": "Optional: where a link target leads; click it, never build the URL. Lists show it short (same-origin path, no tracking parameters, long parts cut with …); page.find gives the exact address."
+                      "description": "Optional: where a link target leads (posts, if submits-form); click it, never build the URL. Lists show it short (same-origin path, no tracking parameters, long parts cut with …); page.find gives the exact address."
                     },
                     "scrollMetrics": {
                       "type": "object",
@@ -3852,7 +3919,7 @@
                     "id": {
                       "type": "string",
                       "maxLength": 128,
-                      "description": "Opaque target identifier valid only for the associated page revision (page for the page itself)."
+                      "description": "Target id for this page, used as given and never built (page for the page itself)."
                     },
                     "kind": {
                       "type": "string",
@@ -3926,7 +3993,7 @@
                     "state": {
                       "type": "string",
                       "maxLength": 160,
-                      "description": "Optional bounded state tokens, comma separated, such as checked, selected, expanded=true, pressed or unpressed, mixed, current, disabled, required, invalid, readonly, busy, haspopup=menu, valuenow=<n>, sort=<direction>, filled or empty."
+                      "description": "Optional bounded state tokens, comma separated, such as checked, selected, expanded=true, pressed or unpressed, mixed, current, disabled, required, invalid, readonly, busy, haspopup=menu, valuenow=<n>, sort=<direction>, submits-form, filled or empty; value=\"<text>\" when the page served it (a filter) or this caller typed it."
                     },
                     "slotEffect": {
                       "type": "string",
@@ -3944,11 +4011,18 @@
                       ],
                       "description": "Optional, on a file input, or a control that is the visible face of one hidden file input (its label, its upload button or a control inside one), that takes upload-file: how many files it takes in one placement. several: place them together with uploadIds; one: upload them one at a time with uploadId (uploadIds is refused with details.slotFiles one). Absent on other upload controls (a drop area, a plain box around an input) and the page target, whose slots upload-file detects when called."
                     },
+                    "effect": {
+                      "type": "string",
+                      "enum": [
+                        "writes"
+                      ],
+                      "description": "writes: it submits a form."
+                    },
                     "capabilities": {
                       "type": "array",
                       "maxItems": 31,
                       "uniqueItems": true,
-                      "description": "Public atomic actions accepted for this opaque target by dsagent.page.action; empty for a text target found by dsagent.page.find. Absent in a list: the list's commonCapabilities.",
+                      "description": "Public atomic actions accepted for this opaque target by dsagent.page.action; empty for a text target found by dsagent.page.find. Absent in a list: the list's commonCapabilities. On the page target: only scroll, when the page scrolls (page.action's action lists the rest).",
                       "items": {
                         "type": "string",
                         "enum": [
@@ -3997,7 +4071,7 @@
                     "navigationUrl": {
                       "type": "string",
                       "maxLength": 300,
-                      "description": "Optional: where a link target leads; click it, never build the URL. Lists show it short (same-origin path, no tracking parameters, long parts cut with …); page.find gives the exact address."
+                      "description": "Optional: where a link target leads (posts, if submits-form); click it, never build the URL. Lists show it short (same-origin path, no tracking parameters, long parts cut with …); page.find gives the exact address."
                     },
                     "scrollMetrics": {
                       "type": "object",

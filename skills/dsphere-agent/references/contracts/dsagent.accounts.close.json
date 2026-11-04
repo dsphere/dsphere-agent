@@ -25,7 +25,7 @@
     "properties": {
       "autofill": {
         "type": "object",
-        "description": "Separate Biz autofill receipt. Query accounts.operations.get with operationId while running; unknown must not be replayed. succeeded proves fill owner completion, never website sign-in.",
+        "description": "Separate sign-in receipt: the DSphere account manager signs in on the opened page. Query accounts.operations.get with operationId while running; unknown must not be replayed. succeeded: the sign-in form was sent and the page no longer asks to sign in. skipped with already-signed-in or no-sign-in-form: nothing was typed.",
         "properties": {
           "status": {
             "type": "string",

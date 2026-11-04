@@ -1,0 +1,85 @@
+{
+  "method": "dsagent.development.chat.respond",
+  "version": 1,
+  "title": "Answer what a SidePanel Chat task waits on",
+  "description": "Development only: answer the decision the Chat task's card waits on, as the person would: decision approve-plan presses Start (or Continue) on the waiting plan of that version; decision answer answers the open question with that requestId (accepted, and optionIndex for an option or answer for free…",
+  "guidance": "Development only: answer the decision the Chat task's card waits on, as the person would: decision approve-plan presses Start (or Continue) on the waiting plan of that version; decision answer answers the open question with that requestId (accepted, and optionIndex for an option or answer for free text). Read the pending decision first with dsagent.development.chat.transcript. Only when the person explicitly asked you to benchmark or live-check the Chat, and only while the person's grant is on (SidePanel Settings, development builds, one hour; no capability can turn it on): without it every call is refused with POLICY_DENIED (CHAT_AGENT_ACCESS_NOT_GRANTED). Refused with TARGET_NOT_FOUND (CHAT_DECISION_NOT_PENDING) when the task waits on no such plan version or question, and with INVALID_REQUEST (CHAT_ANSWER_REJECTED) when the task refused the answer. Requires an idempotency key.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "The decision to answer.",
+    "properties": {
+      "sessionId": {
+        "type": "string",
+        "description": "The Chat task (its sessionId from dsagent.development.chat.state or .transcript).",
+        "maxLength": 200
+      },
+      "decision": {
+        "type": "string",
+        "enum": [
+          "approve-plan",
+          "answer"
+        ],
+        "description": "approve-plan: Start on the waiting plan. answer: the open question."
+      },
+      "version": {
+        "type": "integer",
+        "minimum": 1,
+        "description": "approve-plan: the plan version the transcript shows as pending."
+      },
+      "requestId": {
+        "type": "string",
+        "description": "answer: the question the transcript shows as pending.",
+        "maxLength": 200
+      },
+      "accepted": {
+        "type": "boolean",
+        "description": "answer: true to accept or answer, false to decline."
+      },
+      "optionIndex": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 50,
+        "description": "answer: the chosen option (0-based) of a question with options."
+      },
+      "answer": {
+        "type": "string",
+        "description": "answer: free text for a question that takes it.",
+        "maxLength": 2000
+      }
+    },
+    "required": [
+      "sessionId",
+      "decision"
+    ]
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "The task took the answer.",
+    "properties": {
+      "accepted": {
+        "type": "boolean",
+        "enum": [
+          true
+        ],
+        "description": "The answer reached the task."
+      }
+    },
+    "required": [
+      "accepted"
+    ]
+  },
+  "risk": "external-effect",
+  "targetKinds": [
+    "browser"
+  ],
+  "requiredPermissions": [
+    "development.chat"
+  ],
+  "timeoutMs": 30000,
+  "maxInlineResultBytes": 1024,
+  "concurrency": "exclusive-browser",
+  "retry": "never",
+  "exposure": "exposed"
+}

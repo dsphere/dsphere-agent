@@ -31,6 +31,7 @@ A task-scoped runtime question or wait request.
 | `question` | string (1–600 chars) | yes | The actual question or confirmation summary shown to the person. |
 | `options` | array of string (1–120 chars) (≤ 8) |  | Optional choices for a clarification; free text is also allowed. |
 | `effect` | string (1–120 chars) |  | Required for confirm: the concrete action awaiting confirmation. |
+| `defaultOptionIndex` | integer (0…7) |  | Clarify with options only: the zero-based option the question settles with after a 30 s countdown nobody answers or hol… |
 
 ## Result fields (data.data)
 

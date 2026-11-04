@@ -1,0 +1,88 @@
+{
+  "method": "dsagent.site.knowledge.feedback",
+  "version": 1,
+  "title": "Confirm or contradict site knowledge",
+  "description": "Say whether an entry of the page's site held: confirmed or contradicted. One verdict per entry per task counts; three contradictions in a row pause the entry. Requires an idempotency key.",
+  "guidance": "When an entry proved wrong, call dsagent.site.knowledge.feedback with contradicted; three contradictions pause it. Acting on a known control's targetId confirms it when the action is verified. Agents cannot delete entries: the person reviews and deletes them on the Site Memory page, and can switch reading or adding off in Settings (SITE_KNOWLEDGE_READS_OFF, SITE_KNOWLEDGE_WRITES_OFF). SITE_KNOWLEDGE_STORE_UNAVAILABLE means the local store is not connected: carry on without it.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "pageContextId",
+      "entryId",
+      "verdict"
+    ],
+    "description": "The entry and the verdict.",
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "minLength": 2,
+        "maxLength": 128,
+        "description": "The page from dsagent.page.open or dsagent.pages.list, or a closed one a finish siteKnowledgeAsk named; the site is the page's own, never named by the caller."
+      },
+      "entryId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 64,
+        "description": "An entry id from the digest or dsagent.site.knowledge.get."
+      },
+      "verdict": {
+        "type": "string",
+        "enum": [
+          "confirmed",
+          "contradicted"
+        ],
+        "description": "Whether the entry held on the page."
+      }
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "entryId",
+      "status",
+      "confirmations",
+      "contradictions"
+    ],
+    "description": "The entry as it now stands.",
+    "properties": {
+      "entryId": {
+        "type": "string",
+        "maxLength": 64,
+        "description": "The entry id."
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "reported",
+          "confirmed",
+          "paused"
+        ],
+        "description": "Its status now."
+      },
+      "confirmations": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Confirmations so far."
+      },
+      "contradictions": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "Contradictions so far."
+      }
+    }
+  },
+  "risk": "reversible-write",
+  "targetKinds": [
+    "page"
+  ],
+  "requiredPermissions": [
+    "site-knowledge.write"
+  ],
+  "timeoutMs": 8000,
+  "maxInlineResultBytes": 4096,
+  "concurrency": "exclusive-target",
+  "retry": "never",
+  "exposure": "exposed"
+}

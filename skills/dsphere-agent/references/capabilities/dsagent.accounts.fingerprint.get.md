@@ -31,7 +31,7 @@ Account operation result. status/stage are for internal reconciliation, not user
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
-| `autofill` | object {status, updatedAt, reason} |  | Separate Biz autofill receipt. Query accounts.operations.get with operationId while running; unknown must not be replay… |
+| `autofill` | object {status, updatedAt, reason} |  | Separate sign-in receipt: the DSphere account manager signs in on the opened page. Query accounts.operations.get with o… |
 | `operationId` | string (0–100 chars) |  | Local operation reference; not a Pangu request receipt. |
 | `status` | enum (10 values, listed under Constraints) |  | Observed operation status. |
 | `stage` | string (0–100 chars) |  | Completed or current account business stage. |

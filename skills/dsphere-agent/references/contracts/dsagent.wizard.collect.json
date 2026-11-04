@@ -69,7 +69,7 @@
           },
           "targetId": {
             "type": "string",
-            "description": "Opaque target id.",
+            "description": "A target id a reply gave you.",
             "pattern": "^[A-Za-z0-9_.:-]{1,128}$",
             "maxLength": 128
           },
@@ -111,7 +111,7 @@
           "auto",
           "continue"
         ],
-        "description": "continue when you follow your own skill, workflow or plan of several steps (open, act, run, collect, …): the task then stays running across all of them, and only your dsagent.agent.work.finish (or the person's Stop, or 30 idle minutes) ends it; a finished run, a saved or canceled wizard or your last closed page no longer ends it, and your next step needs no new taskDescription. Pass it on the call that starts the task, with taskDescription naming the whole request, not its first step; report each step with dsagent.agent.work.step. auto (the default): DSphere ends the task when its work ends, for a request of one step."
+        "description": "continue for your own skill, workflow or plan of several steps; auto (the default) for a request of one step. With continue (open, act, run, collect, …) the task stays running across all of them, and only your dsagent.agent.work.finish (or the person's Stop, or 30 idle minutes) ends it; a finished run, a saved or canceled wizard or your last closed page no longer ends it, and your next step needs no new taskDescription. Pass it on the call that starts the task, with taskDescription naming the whole request, not its first step; report each step with dsagent.agent.work.step. With auto DSphere ends the task when its work ends."
       },
       "taskSteps": {
         "type": "array",
@@ -123,7 +123,7 @@
           "maxLength": 160,
           "description": "One step in your skill's own words, a few words long."
         },
-        "description": "With taskMode continue: your steps in order, as your skill lists them; DSphere shows them as the task checklist and you report each with dsagent.agent.work.step. Presentation only: DSphere never runs a step itself."
+        "description": "With taskMode continue: your steps in order. Name them as your skill lists them; DSphere shows them as the task checklist and you report each with dsagent.agent.work.step. Presentation only: DSphere never runs a step itself."
       }
     }
   },
@@ -135,6 +135,53 @@
     ],
     "description": "The rows read, or why the read stopped or is still running.",
     "properties": {
+      "siteKnowledgeAsk": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "sites",
+          "note"
+        ],
+        "description": "Present (on the reply that hands the task its data, and on the finish) when this task used a site no earlier run taught you about and recorded nothing for it. If you learned how the site works, call dsagent.site.knowledge.record once per site with its pageContextId: it still takes a record for 5 minutes, at the revision of its last observation. Optional; never data.",
+        "properties": {
+          "note": {
+            "type": "string",
+            "maxLength": 256,
+            "description": "What to do with the sites."
+          },
+          "sites": {
+            "type": "array",
+            "maxItems": 3,
+            "description": "The sites, each with the last page the task used there.",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "site",
+                "pageContextId"
+              ],
+              "description": "A site to record.",
+              "properties": {
+                "site": {
+                  "type": "string",
+                  "maxLength": 259,
+                  "description": "The site."
+                },
+                "pageContextId": {
+                  "type": "string",
+                  "maxLength": 128,
+                  "description": "The page to record with."
+                },
+                "revision": {
+                  "type": "string",
+                  "maxLength": 128,
+                  "description": "The revision of its last observation, for entries that name a targetId."
+                }
+              }
+            }
+          }
+        }
+      },
       "outcome": {
         "type": "string",
         "description": "completed: the run succeeded (rows). ended: the run failed, stopped or saved only part (status; rows hold what was saved). running: the run outlasted the wait (executionId: dsagent.execution.wait). stopped: nothing ran (reason; the wizard is yours).",

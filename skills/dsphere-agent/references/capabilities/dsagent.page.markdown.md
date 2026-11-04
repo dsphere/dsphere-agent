@@ -2,7 +2,7 @@
 
 **Read browser page as Markdown** · risk `read-sensitive` · timeout 35000 ms · inline result ≤ 262144 bytes · concurrency `shared-read`
 
-Read the current document of a page context as clean Markdown for reading, summarising or answering: page chrome, hidden elements and ad slots removed, links written as numbered citations with a reference list, low-density link farms pruned in fit mode.
+Read the current document of a page context as clean Markdown for reading, summarising or answering: page chrome, hidden elements and ad slots removed, links written as numbered citations ⟨n⟩ with their destinations in references[], low-density link farms pruned in fit mode.
 
 ## Invocation
 
@@ -20,12 +20,12 @@ Page context to read and the Markdown rendering options.
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
-| `pageContextId` | string (2–128 chars) | yes | Opaque page context from dsagent.pages.list, dsagent.page.open, or a receipt's destinationPageContextId. |
+| `pageContextId` | string (2–128 chars) | yes | Page context from dsagent.page.open, dsagent.pages.list or a receipt's destinationPageContextId. |
 | `profile` | enum: minimal, balanced, aggressive |  | Noise removal: minimal keeps navigation and footers, balanced (default) removes page chrome and hidden elements, aggres… |
-| `links` | enum: inline, citations, none |  | Link rendering: citations (default) writes text⟨n⟩ plus a reference list, inline keeps [text](url), none drops destinat… |
-| `fit` | boolean |  | Prune low-density link-farm blocks (default true). Repeated records such as listing cards are always kept. |
+| `links` | enum: inline, citations, none |  | Link rendering: citations (default) writes text⟨n⟩ with its destination in references[], inline keeps [text](url), none… |
+| `fit` | boolean |  | Prune low-density link-farm blocks (default true). Repeated records such as listing cards, and data tables, are always… |
 | `focus` | string (1–500 chars) |  | Optional wording to focus the reading on; only relevant blocks and headings are kept (BM25, Chinese-aware). A wording t… |
-| `maxChars` | integer (4000…120000) |  | Maximum Markdown characters returned inline, from 4000 to 120000 (default 48000); longer pages are cut at a paragraph b… |
+| `maxChars` | integer (4000…120000) |  | Inline Markdown characters, from 4000 to 120000 (default 48000). Longer pages are cut at a paragraph boundary and flagg… |
 | `cursor` | string (4–32 chars) |  | nextCursor of the previous read of this page with the same options: continue the Markdown where that read was cut. |
 
 ## Result fields (data.data)
@@ -34,6 +34,7 @@ Bounded Markdown rendering of the current document with its references and metad
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
+| `siteKnowledgeAsk` | object {note, sites} |  | Present (on the reply that hands the task its data, and on the finish) when this task used a site no earlier run taught… |
 | `pageContextId` | string (0–128 chars) |  | Opaque page context that was read. |
 | `revision` | string (0–128 chars) |  | Page revision observed for this read; pass it to dsagent.page.action or observe again when it changes. |
 | `url` | string (0–2048 chars) |  | Sanitized current page URL. |
@@ -46,7 +47,14 @@ Bounded Markdown rendering of the current document with its references and metad
 | `metadata` | object {description, canonicalUrl, language, siteName, author, publishedAt, …} |  | What the document says about itself in its head, bounded. |
 | `warnings` | array of object {code, message, nextActions} (≤ 2) |  | REPEATED_RECORDS_USE_WIZARD: switch to the scrape wizard on this page now (dsagent.wizard.start kind=scrape, then wizar… |
 | `fit` | object {rawByteLength, prunedBlocks, matchedChunks, totalChunks} |  | Pruning statistics, present when fit or focus was applied. |
+| `pdf` | object {documents} |  | Present when the page shows PDFs: what became of each. |
 | `authentication` | object {status, type, confidence, waitingOn, attemptsLeft} |  | The sign-in monitor's verdict on the page: status no-wall when it checked and found none (absent when it could not chec… |
+
+## Result constraints
+
+Complete value lists and id patterns for the fields above (the contract file is authoritative).
+
+- `pdf.documents[].reason`: one of `too-large`, `fetch-failed`, `not-pdf`, `encrypted`, `invalid`, `time-budget`, `reader-unavailable`
 
 ## Guidance
 

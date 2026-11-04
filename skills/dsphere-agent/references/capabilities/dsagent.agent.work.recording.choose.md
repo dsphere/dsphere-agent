@@ -2,7 +2,7 @@
 
 **Pass On The Recording Choice** · risk `reversible-write` · timeout 60000 ms · inline result ≤ 2000 bytes · concurrency `exclusive-target`
 
-Pass on the person's answer to this task's pending recording question when the person gave it to you in your own chat (they said to record the task as a workflow, or not to). Never answer it yourself or infer it from the task.
+Answer this task's pending recording question: the person's answer from your chat, or your own decision (keep the workflow when the task needs a reusable or replayable workflow; Janky 2026-11-03).
 
 ## Invocation
 
@@ -28,7 +28,7 @@ The task page, the pending question and the person's answer.
 |---|---|---|---|
 | `pageContextId` | string (1–128 chars) | yes | A page belonging to this task. |
 | `requestId` | string (1–128 chars) | yes | The pending question's requestId from recording or recording.state. |
-| `choice` | enum: create-workflow, continue-without-recording | yes | create-workflow: the person wants the task recorded as a workflow. continue-without-recording: they do not. |
+| `choice` | enum: create-workflow, continue-without-recording | yes | create-workflow: record the task as a workflow (a collection keeps its collection workflow). continue-without-recording… |
 
 ## Result fields (data.data)
 
@@ -39,6 +39,7 @@ The person's choice (in the sheet, or passed on with recording.choose) and the r
 | `status` | enum: pending, starting, recording, not-recording, cancelled, failed |  | Wait while pending or starting; only recording and not-recording permit task actions. Failed means recording could not… |
 | `recordingActive` | boolean |  | False after recording stops; further task page actions are refused. |
 | `keepWorkflow` | boolean |  | False: collect once (wizard.run once true), never save. |
+| `answeredBy` | enum: person, agent, default |  | Who settled the choice: person (the sheet), agent (you: recording.choose or an up-front answer), default (the 10 s coun… |
 | `requestId` | string |  | The pending side panel question. |
 | `wizardId` | string |  | The standard guided recording wizard; finish, clean and save this draft. |
 | `wizardToken` | string |  | Ownership token; keep it with the wizard id. |

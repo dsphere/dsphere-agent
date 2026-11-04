@@ -2,7 +2,7 @@
 
 **Task Recording Choice** · risk `reversible-write` · timeout 60000 ms · inline result ≤ 2000 bytes · concurrency `exclusive-target`
 
-Read or begin this task's recording choice, the person's question in the standard side panel bottom sheet. Every task is asked: page.open and a scrape wizard.start ask. Poll dsagent.agent.work.recording.state while pending; never choose for the person.
+Read or begin this task's recording choice, the person's question in the standard side panel bottom sheet. Every task is asked: page.open and a scrape wizard.start ask.
 
 ## Invocation
 
@@ -36,6 +36,7 @@ The person's choice (in the sheet, or passed on with recording.choose) and the r
 | `status` | enum: pending, starting, recording, not-recording, cancelled, failed |  | Wait while pending or starting; only recording and not-recording permit task actions. Failed means recording could not… |
 | `recordingActive` | boolean |  | False after recording stops; further task page actions are refused. |
 | `keepWorkflow` | boolean |  | False: collect once (wizard.run once true), never save. |
+| `answeredBy` | enum: person, agent, default |  | Who settled the choice: person (the sheet), agent (you: recording.choose or an up-front answer), default (the 10 s coun… |
 | `requestId` | string |  | The pending side panel question. |
 | `wizardId` | string |  | The standard guided recording wizard; finish, clean and save this draft. |
 | `wizardToken` | string |  | Ownership token; keep it with the wizard id. |

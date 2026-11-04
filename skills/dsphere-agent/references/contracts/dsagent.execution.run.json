@@ -50,7 +50,7 @@
           "auto",
           "continue"
         ],
-        "description": "continue when you follow your own skill, workflow or plan of several steps (open, act, run, collect, …): the task then stays running across all of them, and only your dsagent.agent.work.finish (or the person's Stop, or 30 idle minutes) ends it; a finished run, a saved or canceled wizard or your last closed page no longer ends it, and your next step needs no new taskDescription. Pass it on the call that starts the task, with taskDescription naming the whole request, not its first step; report each step with dsagent.agent.work.step. auto (the default): DSphere ends the task when its work ends, for a request of one step."
+        "description": "continue for your own skill, workflow or plan of several steps; auto (the default) for a request of one step. With continue (open, act, run, collect, …) the task stays running across all of them, and only your dsagent.agent.work.finish (or the person's Stop, or 30 idle minutes) ends it; a finished run, a saved or canceled wizard or your last closed page no longer ends it, and your next step needs no new taskDescription. Pass it on the call that starts the task, with taskDescription naming the whole request, not its first step; report each step with dsagent.agent.work.step. With auto DSphere ends the task when its work ends."
       },
       "taskSteps": {
         "type": "array",
@@ -62,7 +62,7 @@
           "maxLength": 160,
           "description": "One step in your skill's own words, a few words long."
         },
-        "description": "With taskMode continue: your steps in order, as your skill lists them; DSphere shows them as the task checklist and you report each with dsagent.agent.work.step. Presentation only: DSphere never runs a step itself."
+        "description": "With taskMode continue: your steps in order. Name them as your skill lists them; DSphere shows them as the task checklist and you report each with dsagent.agent.work.step. Presentation only: DSphere never runs a step itself."
       },
       "variables": {
         "type": "object",

@@ -26,7 +26,7 @@ The page identifying your task, its verified terminal outcome, and the pages to 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
 | `pageContextId` | string (1–128 chars) | yes | A page reference belonging to the task you are finishing. |
-| `status` | enum: succeeded, failed, cancelled | yes | The outcome you verified for this task. |
+| `status` | enum: succeeded, failed, cancelled, completed | yes | The outcome you verified for this task: succeeded, failed or cancelled (completed is accepted as succeeded). |
 | `keep` | array of string (1–128 chars) (≤ 32) |  | Close the task's other pages now: [] closes them all, listed pages stay open for the person. Omit for the 60-second cou… |
 | `compileRun` | boolean |  | Return run: this task's verified page steps compiled into Playwright-style scripts for dsagent.page.script, one per pag… |
 
@@ -40,6 +40,8 @@ The recorded terminal outcome of this task, and what keep closed.
 | `closedPages` | integer (0…∞) |  | With keep: how many of the task's pages this call closed. |
 | `keptPages` | array of string (0–128 chars) (≤ 32) |  | With keep: the kept pages that are this task's and still open; a name that is not one is left out. |
 | `run` | object {pages, steps, notes} |  | With compileRun: the task's verified steps as replay scripts. |
+| `siteKnowledgeAsk` | object {note, sites} |  | Present (on the reply that hands the task its data, and on the finish) when this task used a site no earlier run taught… |
+| `heldPages` | array of string (0–128 chars) (≤ 64) |  | With keep, when any: the task's pages left open because something still holds them, such as a sign-in or verification w… |
 
 ## Guidance
 

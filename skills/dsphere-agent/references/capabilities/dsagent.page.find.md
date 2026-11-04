@@ -20,13 +20,13 @@ Opaque page context and a find-style query, a role, or both, over the current se
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
-| `pageContextId` | string (2–128 chars) | yes | Opaque page context from dsagent.pages.list, dsagent.page.open, or a receipt's destinationPageContextId. |
+| `pageContextId` | string (2–128 chars) | yes | Page context from dsagent.page.open, dsagent.pages.list or a receipt's destinationPageContextId. |
 | `query` | string (1–160 chars) |  | What to look for, in the words the page shows ("关注", "Next page", "Search"). Optional with role: without it, the role’s… |
 | `limit` | integer (1…20) |  | Maximum matches; defaults to 10. |
 | `role` | string (0–40 chars) |  | Optional: only targets of this role (button, link, tab, textbox, checkbox…); alone, without query, every target of the… |
 | `context` | string (0–120 chars) |  | Optional: only controls inside the record whose name contains this text. |
-| `includeText` | boolean |  | Optional: also return text targets (headings, paragraphs, dates and other shown text; kind extractable, no actions) for… |
-| `includeImages` | boolean |  | Optional: also return the pictures the page shows, first and largest first whatever the query (matchedOn picture; targe… |
+| `includeText` | boolean |  | Optional: also return text targets, for dsagent.wizard.pick. They are headings, paragraphs, dates and other shown text… |
+| `includeImages` | boolean |  | Optional: also return the pictures the page shows, for dsagent.wizard.pick of a picture. They come first and largest fi… |
 | `surface` | string (0–128 chars) |  | Optional open surface id, or latest for the most recently opened menu, panel or dialog. Uses the shared runtime control… |
 
 ## Result fields (data.data)

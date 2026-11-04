@@ -2,8 +2,8 @@
   "method": "dsagent.agent.work.recording.choose",
   "version": 1,
   "title": "Pass On The Recording Choice",
-  "description": "Pass on the person's answer to this task's pending recording question when the person gave it to you in your own chat (they said to record the task as a workflow, or not to). Never answer it yourself or infer it from the task.",
-  "guidance": "The DSphere sheet closes as if they had answered there; an answer they already gave there stands and is returned. Returns the settled choice, with create-workflow the recording wizard to use.",
+  "description": "Answer this task's pending recording question: the person's answer from your chat, or your own decision (keep the workflow when the task needs a reusable or replayable workflow; Janky 2026-11-03).",
+  "guidance": "The DSphere sheet closes as if they had answered there (answeredBy agent); an answer they already gave there stands and is returned. Returns the settled choice, with create-workflow the recording wizard to use.",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -32,7 +32,7 @@
           "create-workflow",
           "continue-without-recording"
         ],
-        "description": "create-workflow: the person wants the task recorded as a workflow. continue-without-recording: they do not."
+        "description": "create-workflow: record the task as a workflow (a collection keeps its collection workflow). continue-without-recording: keep none."
       }
     }
   },
@@ -63,6 +63,15 @@
       "keepWorkflow": {
         "type": "boolean",
         "description": "False: collect once (wizard.run once true), never save."
+      },
+      "answeredBy": {
+        "type": "string",
+        "enum": [
+          "person",
+          "agent",
+          "default"
+        ],
+        "description": "Who settled the choice: person (the sheet), agent (you: recording.choose or an up-front answer), default (the 10 s countdown). Report it as it is: your own choice is not the person's."
       },
       "requestId": {
         "type": "string",

@@ -75,7 +75,7 @@ Read browser page as Markdown. Tool: `dsagent_page_markdown` (arguments flat); r
 {"pageContextId":"<pageContextId>"}
 ```
 
-Result preview: `pageContextId`, `revision`, `url`, `title`; complete result in the linked contract.
+Result preview: `siteKnowledgeAsk`, `pageContextId`, `revision`, `url`; complete result in the linked contract.
 
 [Options and constraints](capabilities/dsagent.page.markdown.md) · [Lossless contract](contracts/dsagent.page.markdown.json)
 

@@ -26,9 +26,9 @@ The page, what the script does in words, its source and optional input and limit
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
-| `taskDescription` | string (1–2000 chars) |  | The person’s request in detail (what to do, on which site, with which data), as you would tell them; DSphere shows it a… |
-| `taskMode` | enum: auto, continue |  | continue when you follow your own skill, workflow or plan of several steps (open, act, run, collect, …): the task then… |
-| `taskSteps` | array of string (1–160 chars) (≤ 30) |  | With taskMode continue: your steps in order, as your skill lists them; DSphere shows them as the task checklist and you… |
+| `taskDescription` | string (1–2000 chars) |  | The person’s request in detail, as you would tell them: what to do, where, with which data. DSphere shows it as the tas… |
+| `taskMode` | enum: auto, continue |  | continue for your own skill, workflow or plan of several steps; auto (the default) for a request of one step. With cont… |
+| `taskSteps` | array of string (1–160 chars) (≤ 30) |  | With taskMode continue: your steps in order. Name them as your skill lists them; DSphere shows them as the task checkli… |
 | `pageContextId` | string (2–128 chars) | yes | Opaque page context from dsagent.pages.list or dsagent.page.open. The script works on this page only; it cannot open pa… |
 | `description` | string (1–120 chars) | yes | What the script does, in words the person reads in the activity card and on the page, e.g. "Search for the keyword and… |
 | `source` | string (1–16384 chars) | yes | The script body (at most 16384 bytes of UTF-8). It runs as the body of an async function: use await and return a JSON v… |

@@ -10,8 +10,8 @@ Call `dsagent_page_act` with this shape: the arguments flat, no method/args wrap
 
 ```json
 {
-  "pageContextId": "<pageContextId: supply a value matching the schema>",
-  "targetId": "<targetId: supply a value matching the schema>",
+  "pageContextId": "<pageContextId>",
+  "targetId": "<targetId>",
   "action": "click",
   "idempotencyKey": "<fresh 8-128 character key you choose; reuse it only for an identical retry>"
 }
@@ -24,30 +24,30 @@ Opaque target binding, optional revision, and bounded parameters for one externa
 | Field | Type | Required | Meaning |
 |---|---|---|---|
 | `taskDescription` | string (1–2000 chars) |  | The person’s reques… |
-| `taskMode` | enum: auto, continue |  | continue when you f… |
+| `taskMode` | enum: auto, continue |  | continue for your o… |
 | `taskSteps` | array of string (1–160 chars) (≤ 30) |  | With taskMode conti… |
-| `pageContextId` | string (2–128 chars) | yes | Opaque page context… |
-| `targetId` | string (1–128 chars) | yes | Opaque target ident… |
+| `pageContextId` | string (2–128 chars) | yes | Page context from d… |
+| `targetId` | string (1–128 chars) |  | A target id a reply… |
 | `expectedRevision` | string (1–128 chars) |  | Optional. The revis… |
-| `action` | enum (31 values, listed under Constraints) | yes | Atomic action dynam… |
+| `action` | enum (31 values, listed under Constraints) | yes | One of the target's… |
 | `waitAfter` | object {until, timeoutMs, targetId, text, surfaceId} |  | Optional: a dsagent… |
 | `clickType` | enum: click, dblclick, rightclick, middleclick |  | Optional click vari… |
 | `modifiers` | object {ctrl, shift, alt, meta} |  | Optional modifier k… |
 | `offset` | object {dx, dy} |  | Optional point insi… |
 | `dialogAction` | enum: accept, dismiss, native |  | How the page's next… |
-| `promptText` | string (0–2000 chars) |  | With dialogAction a… |
+| `promptText` | string (0–2000 chars) |  | With handle-dialog,… |
 | `kind` | enum: page, unload |  | page (default): ale… |
 | `scope` | enum: next, session |  | next (default): the… |
 | `dropTargetId` | string (1–128 chars) |  | With drag: the opaq… |
 | `delta` | object {dx, dy} |  | With drag: the pixe… |
-| `find` | string (1–2000 chars) |  | The exact text in t… |
+| `find` | string (1–2000 chars) |  | With edit-text: The… |
 | `occurrence` | integer (1…1000) |  | Which match of find… |
 | `operation` | enum (8 values, listed under Constraints) |  | replace: put text i… |
 | `lineBreaks` | enum: auto, paragraphs, soft |  | In a rich editor (a… |
 | `format` | object {bold, italic, underline} |  | With set-format: th… |
-| `text` | string (0–8000 chars) |  | The new text for re… |
+| `text` | string (0–8000 chars) |  | With edit-text: The… |
 | `formFields` | array of object {fieldId, targetId, value, checked, selections} (≤ 30) |  | With fill-form: the… |
-| `value` | string (0–8000 chars) |  | Text value to enter… |
+| `value` | string (0–8000 chars) |  | With input: Text va… |
 | `uploadId` | string (36–36 chars, pattern under Constraints) |  | With upload-file: t… |
 | `html` | string (1–100000 chars) |  | With paste: rich te… |
 | `plainText` | string (1–100000 chars) |  | With paste, optiona… |
@@ -111,7 +111,7 @@ Verified action receipt: a delta of the page the action left in place, or the co
 | `pageUnchanged` | enum: true |  | Present and true wh… |
 | `consumedByDismissal` | object {surfaceId, kind} |  | Present when the pa… |
 | `omittedRemovedTargets` | integer (1…∞) |  | Present when the ac… |
-| … | 22 more fields in the contract | | |
+| … | 23 more fields in the contract | | |
 
 ## Result constraints
 
@@ -125,6 +125,7 @@ Complete value lists and id patterns for the fields above (the contract file is 
 - `effect.kind`: one of `navigated`, `surface-opened`, `surface-closed`, `region-shown`, `region-hidden`, `value-changed`, `state-changed`, `media`, `download`, `message-shown`, `none`
 - `pageSettled`: one of `false`
 - `backgroundRendering`: one of `unavailable`
+- `writes`: one of `true`
 - `playbackResumed`: one of `true`
 - `disclosureChange`: one of `target-removed`, `state-changed`, `label-changed`, `content-expanded`, `content-collapsed`, `content-changed`
 - `downloadState`: one of `complete`, `in_progress`

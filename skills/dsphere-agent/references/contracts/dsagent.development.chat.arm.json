@@ -1,0 +1,61 @@
+{
+  "method": "dsagent.development.chat.arm",
+  "version": 1,
+  "title": "Set the benchmark arm of the Chat planner",
+  "description": "Development only, for a benchmark of the Chat the person asked you to run: the arm the Chat's next browser tasks plan under, for at most 60 minutes. budget-x3 gives a task three times the decision turns and active time; decision-only always plans with the decision harness; none clears the arm.",
+  "guidance": "A task already running keeps the arm it started with; each task's chat-tool-planner.harness trace event names its arm. Only while the person's Chat grant is on (POLICY_DENIED CHAT_AGENT_ACCESS_NOT_GRANTED otherwise). Clear it when the benchmark ends. Requires an idempotency key.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "The arm to set.",
+    "properties": {
+      "arm": {
+        "type": "string",
+        "enum": [
+          "budget-x3",
+          "decision-only",
+          "none"
+        ],
+        "description": "budget-x3, decision-only, or none to clear the arm."
+      }
+    },
+    "required": [
+      "arm"
+    ]
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "The arm now in force.",
+    "properties": {
+      "arm": {
+        "type": "string",
+        "enum": [
+          "budget-x3",
+          "decision-only",
+          "none"
+        ],
+        "description": "The arm new tasks plan under; none when cleared."
+      },
+      "expiresAt": {
+        "type": "string",
+        "description": "When the arm ends by itself (ISO time); absent when cleared."
+      }
+    },
+    "required": [
+      "arm"
+    ]
+  },
+  "risk": "external-effect",
+  "targetKinds": [
+    "browser"
+  ],
+  "requiredPermissions": [
+    "development.chat"
+  ],
+  "timeoutMs": 10000,
+  "maxInlineResultBytes": 512,
+  "concurrency": "exclusive-browser",
+  "retry": "never",
+  "exposure": "exposed"
+}

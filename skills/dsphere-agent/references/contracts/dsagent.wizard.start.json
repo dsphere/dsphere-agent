@@ -32,7 +32,7 @@
         "type": "string",
         "minLength": 1,
         "maxLength": 2000,
-        "description": "The person’s request in detail (what to collect or record, on which site), as you would tell them; DSphere shows it as the task in the SidePanel Chat and the live execution panel. Required when the wizard starts work on a task that has no description yet (refused with INVALID_REQUEST, businessCode TASK-DESCRIPTION-REQUIRED, otherwise); later calls of the same task need not repeat it. Presentation context only, never delegated planning. Do not include credentials. When you follow a skill or plan of several steps, describe the whole request here once (not its current step) and pass taskMode continue; a later call with a different taskDescription starts a separate task."
+        "description": "The person’s request in detail, as you would tell them: what to collect or record, where. DSphere shows it as the task in the SidePanel Chat and the live execution panel. Required when the wizard starts work on a task that has no description yet (refused with INVALID_REQUEST, businessCode TASK-DESCRIPTION-REQUIRED, otherwise); later calls of the same task need not repeat it. Presentation context only, never delegated planning. Do not include credentials. When you follow a skill or plan of several steps, describe the whole request here once (not its current step) and pass taskMode continue; a later call with a different taskDescription starts a separate task."
       },
       "taskMode": {
         "type": "string",
@@ -40,7 +40,7 @@
           "auto",
           "continue"
         ],
-        "description": "continue when you follow your own skill, workflow or plan of several steps (open, act, run, collect, …): the task then stays running across all of them, and only your dsagent.agent.work.finish (or the person's Stop, or 30 idle minutes) ends it; a finished run, a saved or canceled wizard or your last closed page no longer ends it, and your next step needs no new taskDescription. Pass it on the call that starts the task, with taskDescription naming the whole request, not its first step; report each step with dsagent.agent.work.step. auto (the default): DSphere ends the task when its work ends, for a request of one step."
+        "description": "continue for your own skill, workflow or plan of several steps; auto (the default) for a request of one step. With continue (open, act, run, collect, …) the task stays running across all of them, and only your dsagent.agent.work.finish (or the person's Stop, or 30 idle minutes) ends it; a finished run, a saved or canceled wizard or your last closed page no longer ends it, and your next step needs no new taskDescription. Pass it on the call that starts the task, with taskDescription naming the whole request, not its first step; report each step with dsagent.agent.work.step. With auto DSphere ends the task when its work ends."
       },
       "taskSteps": {
         "type": "array",
@@ -52,7 +52,7 @@
           "maxLength": 160,
           "description": "One step in your skill's own words, a few words long."
         },
-        "description": "With taskMode continue: your steps in order, as your skill lists them; DSphere shows them as the task checklist and you report each with dsagent.agent.work.step. Presentation only: DSphere never runs a step itself."
+        "description": "With taskMode continue: your steps in order. Name them as your skill lists them; DSphere shows them as the task checklist and you report each with dsagent.agent.work.step. Presentation only: DSphere never runs a step itself."
       },
       "collectHint": {
         "type": "string",
@@ -60,20 +60,30 @@
         "maxLength": 300,
         "description": "kind=scrape only: What you want to collect, in a few words and with the fields you need, e.g. \"product cards: title, price, shop\" (1 to 300 characters, kept as one line, credential-shaped parts redacted). Evidence only: detect-with-ai lets the person's AI model rank the detected sources for it (the ranked ones come first, marked \"matches the collect hint\", the best one recommended) and look for a list it holds that the detection missed. It never removes a source, chooses one for you, or writes a selector; summary.collectHint says whether the ranking ran and whether the chosen source is one it ranked. Do not include credentials."
       },
+      "maxRecords": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 100000,
+        "description": "kind=scrape only: the record count the task names (\"the first 20\" → 20; everything → 0 = all). It is set before detection and kept by every step and the run; a count in prose is never read. Step-by-step answers and auto keep it (summary.pagination.maxRecordsSource answered) and the run stops once that many are collected; a count written only in taskDescription or collectHint leaves the SidePanel default (50)."
+      },
       "auto": {
         "type": "object",
         "additionalProperties": false,
-        "description": "Auto mode for a list, scrape wizards only (on dsagent.wizard.choose: once you answer the choice auto stopped at, the same call goes on): after this call's own step, the wizard answers each pending choice with the answer the SidePanel's Next would submit (the one recommended pagination type, the one clear data source, the checked fields, the recommended nested scope, no detail pages, no page content or output files, the name) while that answer is unambiguous, up to ready-to-save, within this call. It stops and returns the ordinary state, with the pending choice yours to answer, at the first choice that needs a decision: no or several recommendations, another list on the page body beside the recommended one, a pick on the page, a sign-in or verification wall, a failed detection. Without once it never saves or runs: check auto.answered and auto.preview against the task, then dsagent.wizard.save. {} uses every default.",
+        "description": "Auto mode for a list, scrape wizards only: after this call's own step, the wizard answers each clear pending choice, up to ready-to-save, within this call. On dsagent.wizard.choose, once you answer the choice auto stopped at, the same call goes on. Each answer is the one the SidePanel's Next would submit (the one recommended pagination type, the one clear data source, the checked fields, the recommended nested scope, no detail pages unless detailPages, no page content or output files, the name) while that answer is unambiguous. It stops and returns the ordinary state, with the pending choice yours to answer, at the first choice that needs a decision: no or several recommendations, another list on the page body beside the recommended one, a pick on the page, a sign-in or verification wall, a failed detection. Without once it never saves or runs: check auto.answered and auto.preview against the task, then dsagent.wizard.save. {} uses every default.",
         "properties": {
           "maxRecords": {
             "type": "integer",
             "minimum": 0,
             "maximum": 100000,
-            "description": "Records to collect, 0 = all; set where a choice lists maxRecords (pagination, data-processing). Omitted: the SidePanel default (50) stands, as summary.pagination.maxRecordsSource default says."
+            "description": "Records to collect, 0 = all; set where a choice lists maxRecords (pagination, data-processing). On dsagent.wizard.start prefer the top-level maxRecords (set before detection); when both are given they must be equal. Omitted: the SidePanel default (50) stands, as summary.pagination.maxRecordsSource default says."
           },
           "detailPages": {
             "type": "boolean",
-            "description": "true: stop at detail-pages so you choose the link field yourself; with auto on that choose the wizard also answers the detail page's settled choices under the list page's rules, and its pagination once reveal steps are saved. It stops at detail-pagination while none are saved (whether the content needs opening first, such as a comment panel, is yours) and at detail-interactions. false or omitted: no detail pages."
+            "description": "true: values on each record's detail page too. The wizard opens the record's one link field (it stops at detail-pages when the list offers several links or click-to-open: answer it with auto to go on) and answers the detail choices with their recommended options: pagination, the opened record's source (a label-value group read once per visit), fields, nested scope, no page content. false or omitted: no detail pages."
+          },
+          "detailReveal": {
+            "type": "boolean",
+            "description": "With detailPages: the detail content must be opened first (a comment panel). Stop at detail-pagination until you record the reveal steps (record-detail-interactions). Omitted: each detail page is read as it opens."
           },
           "workflowName": {
             "type": "string",
@@ -86,9 +96,13 @@
             "maxLength": 500,
             "description": "workflow-details description; omitted, the wizard's suggested one."
           },
+          "keepWorkflow": {
+            "type": "boolean",
+            "description": "dsagent.wizard.start only: true answers this task's keep-a-workflow question yourself when this call begins it (create-workflow, answeredBy agent, no 10 s countdown). Save at ready-to-save, then dsagent.wizard.run, which replays the kept workflow. Not with once. A choice already made stands."
+          },
           "once": {
             "type": "boolean",
-            "description": "true: collect once, keeping no workflow: at ready-to-save the wizard runs once on this tab (outcome run-started, executionId); page-changes is answered collect-once-as-shown. A run refused when it starts (POLICY_DENIED; a plan run limit such as daily executions names the limit and details.planCode) deletes that workflow and ends the wizard: tell the person, do not retry."
+            "description": "true: collect once, keeping no workflow: at ready-to-save the wizard runs once on this tab (outcome run-started, executionId). On dsagent.wizard.start it also answers a keep-a-workflow question this call begins (continue-without-recording, no countdown); page-changes is answered collect-once-as-shown. A run refused when it starts (POLICY_DENIED; a plan run limit such as daily executions names the limit and details.planCode) deletes that workflow and ends the wizard: tell the person, do not retry."
           }
         },
         "required": []
@@ -671,7 +685,7 @@
                   "answered",
                   "default"
                 ],
-                "description": "answered: you or the person set maxRecords; default: nobody did, so the SidePanel default (50) stands. Set it in the pagination or data-processing answer when the task names a count or wants everything (0)."
+                "description": "answered: you or the person set maxRecords; default: nobody did, so the SidePanel default (50) stands. When the task names a count or wants everything (0), pass maxRecords to dsagent.wizard.start (or answer it at pagination / data-processing); a count in prose is never read."
               },
               "nextControlPicked": {
                 "type": "boolean",
@@ -1160,6 +1174,7 @@
               "ai-found-nothing",
               "pagination-inconclusive",
               "pagination-unavailable",
+              "url-query-not-advancing",
               "nested-detection-timeout",
               "nested-detection-failed",
               "field-naming-timeout",
@@ -1183,7 +1198,7 @@
               "step-rejected",
               "step-crashed"
             ],
-            "description": "Closed endpoint code. structure-none / structure-search-empty: detection ran and found no list (or the search returned nothing). structure-detection-failed / structure-budget-exhausted: detection failed (reason says why: content-unavailable, main-frame-timed-out, main-frame-failed, processing-budget, all-frames-failed); never the same as an empty page. form-none / form-detection-failed, ai-model-unavailable / ai-detection-failed / ai-found-nothing, pagination-inconclusive / pagination-unavailable (unavailable: the detector never ran; none is only the default). nested-detection-timeout, nested-detection-failed, field-naming-timeout: degraded follow-ups, the wizard went on. field-review-model-unavailable / field-review-failed: the AI field review did not run (no model) or failed (reason model-failed, invalid-review, fields-changed, transport-error); the fields stay as they were. field-mapping-model-unavailable / field-mapping-failed: a read by fields (dsagent.wizard.collect) could not map the wanted fields onto the detected ones (no model; reason model-failed or invalid-mapping); the fields choice is yours to answer. region-unreadable: a read by fields could not read your region on the page (observe the page again and pass a fresh target). sample-not-repeating / sample-invisible: the picked record built no block (reported at once; reason says more for pick by example: samples-apart, no list holds every sample each in a record of its own; exclusion-kept, every such list also holds the excluded record; records-dropped, the only list holding the added sample would lose records the list already has, so the earlier list stands; no-tighter-record / no-looser-record, no smaller / larger repeating record around the pick; no-table, no table around the pick; samples-lost, the page reloaded and forgot the earlier samples; detector-error). field-pick-not-landed, next-control-not-taken, option-pick-not-taken, pick-not-dispatched (nothing was clicked). next-control-not-advancing: one click of the picked next-page control left the records of the chosen list as they were (it moves something else, such as a carousel), or its recorded address no longer finds it, so it was not saved; choose another pagination type (none when the records needed are all on the page) or pick the next-page control of the list itself. detail-sample-unavailable: the detail sample page could not be opened (scrapeErrorCode says why). compile-rejected: the scrape owner refused to build the workflow (scrapeErrorCode such as FIELDS_REQUIRED, PAGINATION_NOT_SET). save-duplicate: another save of this wizard is in progress, this call saved nothing. save-failed, plan-limit, page-unreadable, content-unavailable, session-start-refused (the scrape owner refused to start on this page: cite details.refusalId of the refused dsagent.wizard.start as wizardId to dsagent.dataset.save-agent-read for what you read yourself), page-not-scrapable (a browser, file or non-HTTP page the wizard never starts on; the same refusalId applies), wall (sign-in or verification; the person passes it; authentication.deadline bounds the wait). step-rejected / step-crashed: any other refused or failed step."
+            "description": "Closed endpoint code. structure-none / structure-search-empty: detection ran and found no list (or the search returned nothing). structure-detection-failed / structure-budget-exhausted: detection failed (reason says why: content-unavailable, main-frame-timed-out, main-frame-failed, processing-budget, all-frames-failed); never the same as an empty page. form-none / form-detection-failed, ai-model-unavailable / ai-detection-failed / ai-found-nothing, pagination-inconclusive / pagination-unavailable (unavailable: the detector never ran; none is only the default). nested-detection-timeout, nested-detection-failed, field-naming-timeout: degraded follow-ups, the wizard went on. field-review-model-unavailable / field-review-failed: the AI field review did not run (no model) or failed (reason model-failed, invalid-review, fields-changed, transport-error); the fields stay as they were. field-mapping-model-unavailable / field-mapping-failed: a read by fields (dsagent.wizard.collect) could not map the wanted fields onto the detected ones (no model; reason model-failed or invalid-mapping); the fields choice is yours to answer. region-unreadable: a read by fields could not read your region on the page (observe the page again and pass a fresh target). sample-not-repeating / sample-invisible: the picked record built no block (reported at once; reason says more for pick by example: samples-apart, no list holds every sample each in a record of its own; exclusion-kept, every such list also holds the excluded record; records-dropped, the only list holding the added sample would lose records the list already has, so the earlier list stands; no-tighter-record / no-looser-record, no smaller / larger repeating record around the pick; no-table, no table around the pick; samples-lost, the page reloaded and forgot the earlier samples; detector-error). field-pick-not-landed, next-control-not-taken, option-pick-not-taken, pick-not-dispatched (nothing was clicked). next-control-not-advancing: one click of the picked next-page control left the records of the chosen list as they were (it moves something else, such as a carousel), or its recorded address no longer finds it, so it was not saved; choose another pagination type (none when the records needed are all on the page) or pick the next-page control of the list itself. url-query-not-advancing: with url-query pagination the page the run loads second (the page parameter set to 2) showed the records of the start page again (the site ignores the parameter, such as a list that pages by path), so the wizard is back at the pagination step; choose next-button (pick the next-page control of the list itself) or none when the records needed are all on the page. detail-sample-unavailable: the detail sample page could not be opened (scrapeErrorCode says why). compile-rejected: the scrape owner refused to build the workflow (scrapeErrorCode such as FIELDS_REQUIRED, PAGINATION_NOT_SET). save-duplicate: another save of this wizard is in progress, this call saved nothing. save-failed, plan-limit, page-unreadable, content-unavailable, session-start-refused (the scrape owner refused to start on this page: cite details.refusalId of the refused dsagent.wizard.start as wizardId to dsagent.dataset.save-agent-read for what you read yourself), page-not-scrapable (a browser, file or non-HTTP page the wizard never starts on; the same refusalId applies), wall (sign-in or verification; the person passes it; authentication.deadline bounds the wait). step-rejected / step-crashed: any other refused or failed step."
           },
           "group": {
             "type": "string",
@@ -1491,7 +1506,7 @@
               "region-mismatch",
               "choose-source"
             ],
-            "description": "Why auto stopped. wall: a sign-in or verification wall (authentication, pass-page-check); awaiting-page: a pick or step on the page; taken-over: the person took the wizard; step-failed / detection-endpoint: a step failed or a detection found nothing (lastError / lastEndpoint); no-data: no list or table, or the search page reports no results; no-recommendation: the wizard recommends no single answer (pagination detection inconclusive); ambiguous-source: no single clear list (another list on the page body, several pages of sources, a recommended one that is page chrome or holds fewer than 2 records); no-fields / fields-truncated: nothing checked, or more fields than listed; detail-pages-requested: auto.detailPages true; name-required: no name to give; not-auto-choice: a choice auto never answers (page-changes without once, pick by example, detail-interactions, detail-pagination before reveal steps are saved for the detail pages, option-combination and recording choices); changed: the wizard changed under auto (the person acted); no-progress: the flow came back to a choice already answered; time-budget: the call's time ran out (a step may still be busy: wait with dsagent.wizard.state). A read by fields (dsagent.wizard.collect) also stops on fields-not-found (a required wanted field was not found or reads empty), fields-ambiguous (a wanted field could be several detected fields) and region-mismatch (no detected list, table or form lies in the region)."
+            "description": "Why auto stopped. wall: a sign-in or verification wall (authentication, pass-page-check); awaiting-page: a pick or step on the page; taken-over: the person took the wizard; step-failed / detection-endpoint: a step failed or a detection found nothing (lastError / lastEndpoint); no-data: no list or table, or the search page reports no results; no-recommendation: the wizard recommends no single answer (pagination detection inconclusive); ambiguous-source: no single clear list (another list on the page body, several pages of sources, a recommended one that is page chrome or holds fewer than 2 records); no-fields / fields-truncated: nothing checked, or more fields than listed; detail-pages-requested: auto.detailPages true and the list offers several ways to open a record; name-required: no name to give; not-auto-choice: a choice auto never answers (page-changes without once, pick by example, detail-interactions, detail-pagination with auto.detailReveal before reveal steps are saved, option-combination and recording choices); changed: the wizard changed under auto (the person acted); no-progress: the flow came back to a choice already answered; time-budget: the call's time ran out (a step may still be busy: wait with dsagent.wizard.state). A read by fields (dsagent.wizard.collect) also stops on fields-not-found (a required wanted field was not found or reads empty), fields-ambiguous (a wanted field could be several detected fields) and region-mismatch (no detected list, table or form lies in the region)."
           },
           "answered": {
             "type": "array",

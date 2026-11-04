@@ -23,9 +23,9 @@ Revision-bound request for one owner-controlled viewport or target image.
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
-| `pageContextId` | string (2–128 chars) | yes | Opaque page context from dsagent.pages.list, dsagent.page.open, or a receipt's destinationPageContextId. |
+| `pageContextId` | string (2–128 chars) | yes | Page context from dsagent.page.open, dsagent.pages.list or a receipt's destinationPageContextId. |
 | `expectedRevision` | string (1–128 chars) |  | Optional revision the image is bound to; omitted, your newest read (listing targetId, if given), else the current page. |
-| `targetId` | string (1–128 chars) |  | Optional opaque target ID. When present, the Extension computes a target-local crop; callers cannot provide coordinates. |
+| `targetId` | string (1–128 chars) |  | Optional target id a reply gave you. When present, the Extension computes a target-local crop; callers cannot provide c… |
 
 ## Result fields (data.data)
 

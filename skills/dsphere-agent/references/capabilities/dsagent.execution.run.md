@@ -27,8 +27,8 @@ Workflow launch request. Use an idempotency key and inspect workflow inputs befo
 | `fileValues` | array of object {fieldId, uploadId} (≤ 100) |  | Run-local file bindings for upload-file inputs. Stage each file with dsagent_upload_file. All empty upload inputs must… |
 | `workflowId` | string (0–128 chars) | yes | Opaque workflow identifier returned by dsagent.workflows.list. |
 | `taskDescription` | string (1–2000 chars) |  | The person’s request in detail (what to do, on which site, with which data), as you would tell them; DSphere shows it a… |
-| `taskMode` | enum: auto, continue |  | continue when you follow your own skill, workflow or plan of several steps (open, act, run, collect, …): the task then… |
-| `taskSteps` | array of string (1–160 chars) (≤ 30) |  | With taskMode continue: your steps in order, as your skill lists them; DSphere shows them as the task checklist and you… |
+| `taskMode` | enum: auto, continue |  | continue for your own skill, workflow or plan of several steps; auto (the default) for a request of one step. With cont… |
+| `taskSteps` | array of string (1–160 chars) (≤ 30) |  | With taskMode continue: your steps in order. Name them as your skill lists them; DSphere shows them as the task checkli… |
 | `variables` | object |  | Optional bounded workflow variable object accepted by the workflow runtime. |
 | `fieldValues` | array of object {fieldId, value} (≤ 100) |  | Optional run-time field substitutions obtained from dsagent.workflow.inputs.get. |
 | `accountMode` | enum: default, specified |  | Use default account selection or require the opaque accountId supplied by the caller. |

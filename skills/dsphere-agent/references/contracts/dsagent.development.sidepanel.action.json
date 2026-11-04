@@ -24,7 +24,7 @@
       "targetId": {
         "type": "string",
         "maxLength": 100,
-        "description": "Opaque target from observe.",
+        "description": "A target id a reply gave you.",
         "minLength": 1
       },
       "action": {

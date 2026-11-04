@@ -3,7 +3,7 @@
   "version": 1,
   "title": "Wait For Task Recording Choice",
   "description": "Wait for the person to choose whether to record this task. Read-only: it never answers the question or starts a new task. With recording, keep wizardId/token and use the ordinary wizard to finish, clean and save at task completion, without running it.",
-  "guidance": "Unanswered, the sheet counts down 10 s and the task continues without recording (not-recording, keepWorkflow false). Once recording, use wizard.state with wizardId and wizardToken, perform the task, finish-recording, read every page of wizard.recording.steps, clean the draft with wizard.recording.edit, answer workflow-details and wizard.save. Do not call wizard.run: the task has already executed. Then agent.work.finish ends the task. Collections: purpose collection; create-workflow keeps the collection wizard's workflow, else collect once (wizard.run once true). A cancelled choice never permits page actions.",
+  "guidance": "Poll dsagent.agent.work.recording.state while pending, or answer it yourself with dsagent.agent.work.recording.choose (or up front: page.open recording, wizard.start auto.keepWorkflow or auto.once). Unanswered, the sheet counts down 10 s and the task continues without recording (not-recording, keepWorkflow false). Once recording, use wizard.state with wizardId and wizardToken, perform the task, finish-recording, read every page of wizard.recording.steps, clean the draft with wizard.recording.edit, answer workflow-details and wizard.save. Do not call wizard.run: the task has already executed. Then agent.work.finish ends the task. Collections: purpose collection; create-workflow keeps the collection wizard's workflow, else collect once (wizard.run once true). A cancelled choice never permits page actions.",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -53,6 +53,15 @@
       "keepWorkflow": {
         "type": "boolean",
         "description": "False: collect once (wizard.run once true), never save."
+      },
+      "answeredBy": {
+        "type": "string",
+        "enum": [
+          "person",
+          "agent",
+          "default"
+        ],
+        "description": "Who settled the choice: person (the sheet), agent (you: recording.choose or an up-front answer), default (the 10 s countdown). Report it as it is: your own choice is not the person's."
       },
       "requestId": {
         "type": "string",

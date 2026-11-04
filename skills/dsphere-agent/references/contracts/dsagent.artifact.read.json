@@ -2,8 +2,8 @@
   "method": "dsagent.artifact.read",
   "version": 1,
   "title": "Read artifact",
-  "description": "Read a listed artifact.",
-  "guidance": "format records (the default) is the mandatory file-first structured read: JSON/NDJSON uses a fixed 4096-byte initial probe, returns records only when the complete result fits, otherwise fails with RESULT_LIMIT_EXCEEDED and export details instead of returning nextCursor (then page it with format jsonl or csv, or export it with dsagent.execution.artifact.export when you can read files on the browser machine; for records the caller cannot supply a byte budget). format jsonl or csv pages a structured dataset to its end for a caller that cannot read exported files (a sandboxed or remote agent): each page holds whole records within pageBytes (at most 65536) as JSON Lines or CSV lines with the columns once in header, and nextCursor continues until eof; a record larger than the page is named, never split. Binary artifacts retain fixed bounded Base64 cursor reads for compatibility and can also be exported.",
+  "description": "Read a listed artifact. Without a format, a structured dataset returns its complete records when they fit a fixed 4096-byte initial probe, and otherwise its first page as JSON Lines (format jsonl in the result): continue with format jsonl and nextCursor until eof.",
+  "guidance": "format records asked by name is the strict file-first read: it returns records only when the complete result fits the probe, otherwise fails with RESULT_LIMIT_EXCEEDED and export details instead of returning nextCursor (then page it with format jsonl or csv, or export it with dsagent.execution.artifact.export when you can read files on the browser machine; for records the caller cannot supply a byte budget). format jsonl or csv pages a structured dataset to its end for a caller that cannot read exported files (a sandboxed or remote agent): each page holds whole records within pageBytes (at most 65536) as JSON Lines or CSV lines with the columns once in header, and nextCursor continues until eof; a record larger than the page is named, never split. Binary artifacts retain fixed bounded Base64 cursor reads for compatibility and can also be exported.",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -27,7 +27,7 @@
           "jsonl",
           "csv"
         ],
-        "description": "records (default): the complete records inline when they fit the fixed probe, else export. jsonl: pages of JSON Lines, one record per line. csv: pages of CSV lines under the dataset columns (header). jsonl and csv apply to structured artifacts only."
+        "description": "Omitted: the complete records inline when they fit the fixed probe, else the first jsonl page. records: the complete records inline when they fit the fixed probe, else RESULT_LIMIT_EXCEEDED with export details. jsonl: pages of JSON Lines, one record per line. csv: pages of CSV lines under the dataset columns (header). jsonl and csv apply to structured artifacts only."
       },
       "pageBytes": {
         "type": "integer",
@@ -45,6 +45,53 @@
     "type": "object",
     "additionalProperties": false,
     "properties": {
+      "siteKnowledgeAsk": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "sites",
+          "note"
+        ],
+        "description": "Present (on the reply that hands the task its data, and on the finish) when this task used a site no earlier run taught you about and recorded nothing for it. If you learned how the site works, call dsagent.site.knowledge.record once per site with its pageContextId: it still takes a record for 5 minutes, at the revision of its last observation. Optional; never data.",
+        "properties": {
+          "note": {
+            "type": "string",
+            "maxLength": 256,
+            "description": "What to do with the sites."
+          },
+          "sites": {
+            "type": "array",
+            "maxItems": 3,
+            "description": "The sites, each with the last page the task used there.",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "site",
+                "pageContextId"
+              ],
+              "description": "A site to record.",
+              "properties": {
+                "site": {
+                  "type": "string",
+                  "maxLength": 259,
+                  "description": "The site."
+                },
+                "pageContextId": {
+                  "type": "string",
+                  "maxLength": 128,
+                  "description": "The page to record with."
+                },
+                "revision": {
+                  "type": "string",
+                  "maxLength": 128,
+                  "description": "The revision of its last observation, for entries that name a targetId."
+                }
+              }
+            }
+          }
+        }
+      },
       "artifactId": {
         "type": "string",
         "minLength": 1,
@@ -130,7 +177,7 @@
       "nextCursor",
       "eof"
     ],
-    "description": "Bounded structured, paged-text or binary artifact read result. Oversized structured data in format records fails with export instructions."
+    "description": "Bounded structured, paged-text or binary artifact read result. Oversized structured data read without a format returns its first jsonl page; in format records it fails with export instructions."
   },
   "risk": "read-sensitive",
   "targetKinds": [

@@ -33,8 +33,8 @@ What to read, from where, and how long to wait for the run.
 | `maxRecords` | integer (1…500) |  | Records to read, following the list's pagination; default 50. A one-record page reads one. |
 | `waitMs` | integer (0…100000) |  | How long this call waits for the run after it starts; default 45000. The call itself ends 120 s after it started, so a… |
 | `taskDescription` | string (1–2000 chars) |  | The person's request in detail, as you would tell them; DSphere shows it as the task in the SidePanel. When you follow… |
-| `taskMode` | enum: auto, continue |  | continue when you follow your own skill, workflow or plan of several steps (open, act, run, collect, …): the task then… |
-| `taskSteps` | array of string (1–160 chars) (≤ 30) |  | With taskMode continue: your steps in order, as your skill lists them; DSphere shows them as the task checklist and you… |
+| `taskMode` | enum: auto, continue |  | continue for your own skill, workflow or plan of several steps; auto (the default) for a request of one step. With cont… |
+| `taskSteps` | array of string (1–160 chars) (≤ 30) |  | With taskMode continue: your steps in order. Name them as your skill lists them; DSphere shows them as the task checkli… |
 
 ## Input constraints
 
@@ -51,6 +51,7 @@ The rows read, or why the read stopped or is still running.
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
+| `siteKnowledgeAsk` | object {note, sites} |  | Present (on the reply that hands the task its data, and on the finish) when this task used a site no earlier run taught… |
 | `outcome` | enum: completed, ended, running, stopped |  | completed: the run succeeded (rows). ended: the run failed, stopped or saved only part (status; rows hold what was save… |
 | `rows` | array of object (≤ 50) |  | The first records, keyed by your field names; key order is not kept in transport, so read them in the order of columns. |
 | `columns` | array of string (0–60 chars) (≤ 20) |  | Your field names in your order: the order to read each row in. Present whenever rows is. |

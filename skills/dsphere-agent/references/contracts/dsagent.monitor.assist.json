@@ -236,7 +236,7 @@
       },
       "wallCleared": {
         "type": "boolean",
-        "description": "With ended: whether a fresh read found the page without a wall."
+        "description": "With ended: whether a fresh read found the page without a wall; absent when that read could not check the page (its content did not answer), and then the paused owner stays paused."
       },
       "ownerResumed": {
         "type": "string",

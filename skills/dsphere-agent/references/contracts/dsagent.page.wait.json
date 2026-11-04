@@ -18,7 +18,7 @@
         "type": "string",
         "minLength": 2,
         "maxLength": 128,
-        "description": "Opaque page context from dsagent.pages.list, dsagent.page.open, or a receipt's destinationPageContextId."
+        "description": "Page context from dsagent.page.open, dsagent.pages.list or a receipt's destinationPageContextId."
       },
       "until": {
         "type": "string",
@@ -54,7 +54,7 @@
         "type": "string",
         "minLength": 1,
         "maxLength": 128,
-        "description": "With target-present / target-absent / target-enabled / target-disabled: the opaque target."
+        "description": "With target-present / target-absent / target-enabled / target-disabled: a target id a reply gave you."
       },
       "expectedRevision": {
         "type": "string",
@@ -91,7 +91,7 @@
         "type": "string",
         "minLength": 2,
         "maxLength": 128,
-        "description": "Opaque page context from dsagent.pages.list, dsagent.page.open, or a receipt's destinationPageContextId."
+        "description": "Page context from dsagent.page.open, dsagent.pages.list or a receipt's destinationPageContextId."
       },
       "until": {
         "type": "string",

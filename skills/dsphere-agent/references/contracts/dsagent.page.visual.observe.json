@@ -11,7 +11,7 @@
         "type": "string",
         "minLength": 2,
         "maxLength": 128,
-        "description": "Opaque page context from dsagent.pages.list, dsagent.page.open, or a receipt's destinationPageContextId."
+        "description": "Page context from dsagent.page.open, dsagent.pages.list or a receipt's destinationPageContextId."
       },
       "expectedRevision": {
         "type": "string",
@@ -23,7 +23,7 @@
         "type": "string",
         "minLength": 1,
         "maxLength": 128,
-        "description": "Optional opaque target ID. When present, the Extension computes a target-local crop; callers cannot provide coordinates."
+        "description": "Optional target id a reply gave you. When present, the Extension computes a target-local crop; callers cannot provide coordinates."
       }
     },
     "required": [
@@ -115,6 +115,43 @@
             "minimum": 0,
             "maximum": 1,
             "description": "Fraction of the target rectangle included in a target crop."
+          },
+          "cssScale": {
+            "type": "number",
+            "minimum": 0.01,
+            "maximum": 8,
+            "description": "Image pixels per CSS pixel: a length measured on the image divided by cssScale is CSS pixels."
+          },
+          "targetRect": {
+            "type": "object",
+            "properties": {
+              "x": {
+                "type": "number",
+                "description": "Left edge in image pixels from the left of the image; negative when the target starts outside the crop."
+              },
+              "y": {
+                "type": "number",
+                "description": "Top edge in image pixels from the top of the image."
+              },
+              "width": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Width in image pixels."
+              },
+              "height": {
+                "type": "number",
+                "minimum": 0,
+                "description": "Height in image pixels."
+              }
+            },
+            "required": [
+              "x",
+              "y",
+              "width",
+              "height"
+            ],
+            "additionalProperties": false,
+            "description": "A target crop: the whole box of the target in the image (the outlined part is what is visible). An offset for page.action is ((px - x - width/2) / cssScale, (py - y - height/2) / cssScale) for a point (px, py) measured on the image."
           },
           "contextTruncated": {
             "type": "boolean",

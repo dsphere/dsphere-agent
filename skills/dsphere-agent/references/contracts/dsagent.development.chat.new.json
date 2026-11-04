@@ -1,0 +1,46 @@
+{
+  "method": "dsagent.development.chat.new",
+  "version": 1,
+  "title": "Start a new SidePanel Chat conversation",
+  "description": "Development only: press New conversation in the Chat of the person's focused window, so the next dsagent.development.chat.send starts without earlier turns.",
+  "guidance": "Only when the person explicitly asked you to benchmark or live-check the Chat, and only while the person's grant is on (SidePanel Settings, development builds, one hour; no capability can turn it on): without it every call is refused with POLICY_DENIED (CHAT_AGENT_ACCESS_NOT_GRANTED). Refused with TARGET_BUSY while a reply streams (CHAT_BUSY) or a browser task of the Chat runs (CHAT_TASK_RUNNING). Requires an idempotency key.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "No input.",
+    "properties": {}
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "The Chat opened a new conversation.",
+    "properties": {
+      "started": {
+        "type": "boolean",
+        "enum": [
+          true
+        ],
+        "description": "The new conversation is open."
+      },
+      "conversationId": {
+        "type": "string",
+        "description": "The new conversation, once it has one."
+      }
+    },
+    "required": [
+      "started"
+    ]
+  },
+  "risk": "external-effect",
+  "targetKinds": [
+    "browser"
+  ],
+  "requiredPermissions": [
+    "development.chat"
+  ],
+  "timeoutMs": 30000,
+  "maxInlineResultBytes": 1024,
+  "concurrency": "exclusive-browser",
+  "retry": "never",
+  "exposure": "exposed"
+}

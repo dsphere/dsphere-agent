@@ -1,0 +1,247 @@
+{
+  "method": "dsagent.site.knowledge.record",
+  "version": 1,
+  "title": "Record site knowledge",
+  "description": "Record what this task learned about how the page's site works, for the next run: up to 10 entries of kind control, reading, pitfall or state. Controls are named by targetId; DSphere takes their label and role from its own view. Text that looks like the person's data is refused.",
+  "guidance": "Requires an idempotency key.\n\nBefore you answer, record once what this task learned with dsagent.site.knowledge.record: controls that mattered (targetId, what they do), the reading method with the fields it read, pitfalls and page states. Write how the site works, never data: no record values, names, numbers, accounts or task wording. An entry that looks like the person's data, or a control inside a data record, is refused.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "pageContextId",
+      "entries"
+    ],
+    "description": "The page the entries were learned on, and the entries.",
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "minLength": 2,
+        "maxLength": 128,
+        "description": "The page from dsagent.page.open or dsagent.pages.list, or a closed one a finish siteKnowledgeAsk named; the site is the page's own, never named by the caller."
+      },
+      "expectedRevision": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "The revision the target ids belong to; required when an entry names a target."
+      },
+      "entries": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 10,
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind"
+          ],
+          "description": "One entry. control: targetId, purpose, optional needs and signedInOnly. reading: method and fields, optional pagination, lazyScroll, region, note. pitfall: type, note, optional targetId. state: name, optional signs (target ids) and leaveBy.",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "control",
+                "reading",
+                "pitfall",
+                "state"
+              ],
+              "description": "What the entry describes."
+            },
+            "targetId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "description": "An id a reply gave you. control: the control (required); pitfall: the control it concerns. A control inside a data record (a result row or card) is refused."
+            },
+            "purpose": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80,
+              "description": "control: what the control does, such as \"sort results by sales\"."
+            },
+            "needs": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80,
+              "description": "control: what must happen first, such as \"open the sort menu\"."
+            },
+            "signedInOnly": {
+              "type": "boolean",
+              "description": "control: true when the control shows only while signed in."
+            },
+            "method": {
+              "type": "string",
+              "enum": [
+                "wizard-collect",
+                "wizard-start",
+                "page-markdown",
+                "page-find",
+                "agent-read"
+              ],
+              "description": "reading: the method that read the data."
+            },
+            "fields": {
+              "type": "array",
+              "maxItems": 20,
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 30,
+                "description": "A field name, never a value."
+              },
+              "minItems": 1,
+              "description": "reading (required): the fields this read produced."
+            },
+            "pagination": {
+              "type": "string",
+              "enum": [
+                "none",
+                "next-button",
+                "numbered",
+                "infinite-scroll",
+                "load-more"
+              ],
+              "description": "reading: how further records load."
+            },
+            "lazyScroll": {
+              "type": "boolean",
+              "description": "reading: true when records render only once scrolled into view."
+            },
+            "region": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40,
+              "description": "reading: the page region holding the records, such as \"search results\"."
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "consent-wall",
+                "sign-in-wall",
+                "challenge-handoff",
+                "popup-overlay",
+                "search-needs-enter",
+                "hover-menu",
+                "opens-new-tab",
+                "lazy-load",
+                "infinite-scroll",
+                "slow-load",
+                "rate-limit",
+                "region-block",
+                "iframe",
+                "shadow-dom",
+                "date-picker",
+                "other"
+              ],
+              "description": "pitfall: the kind of pitfall."
+            },
+            "note": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 160,
+              "description": "pitfall (required) or reading: what happens and what to do, in a sentence."
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 40,
+              "description": "state: its name, such as \"search results\"."
+            },
+            "signs": {
+              "type": "array",
+              "maxItems": 4,
+              "items": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128,
+                "description": "A target id a reply gave you at expectedRevision."
+              },
+              "description": "state: target ids of controls that show the page is in this state."
+            },
+            "leaveBy": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 80,
+              "description": "state: how to leave it."
+            }
+          }
+        },
+        "description": "The entries, in order."
+      }
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "site",
+      "results"
+    ],
+    "description": "What happened to each entry.",
+    "properties": {
+      "site": {
+        "type": "string",
+        "maxLength": 259,
+        "description": "The site the entries were kept under."
+      },
+      "results": {
+        "type": "array",
+        "maxItems": 10,
+        "description": "One result per entry, by index.",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "index",
+            "outcome"
+          ],
+          "description": "One entry's result.",
+          "properties": {
+            "index": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "The entry's index in entries."
+            },
+            "outcome": {
+              "type": "string",
+              "enum": [
+                "added",
+                "merged",
+                "rejected"
+              ],
+              "description": "added: a new entry; merged: it updated the same entry (same control, method, pitfall or state); rejected: nothing saved."
+            },
+            "entryId": {
+              "type": "string",
+              "maxLength": 64,
+              "description": "The entry id, unless rejected."
+            },
+            "reason": {
+              "type": "string",
+              "enum": [
+                "LOOKS_LIKE_USER_DATA",
+                "TARGET_IN_RECORD",
+                "TARGET_NOT_FOUND",
+                "TARGET_NOT_A_CONTROL",
+                "STORE_FULL"
+              ],
+              "description": "Why it was rejected: it looks like the person's data; the target is part of a data record; the target is not in the page's last observation; the target is not a control; the store is full."
+            }
+          }
+        }
+      }
+    }
+  },
+  "risk": "reversible-write",
+  "targetKinds": [
+    "page"
+  ],
+  "requiredPermissions": [
+    "site-knowledge.write"
+  ],
+  "timeoutMs": 15000,
+  "maxInlineResultBytes": 8192,
+  "concurrency": "exclusive-target",
+  "retry": "never",
+  "exposure": "exposed"
+}

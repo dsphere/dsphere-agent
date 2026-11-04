@@ -1,0 +1,243 @@
+{
+  "method": "dsagent.development.chat.transcript",
+  "version": 1,
+  "title": "Read the SidePanel Chat conversation in full",
+  "description": "Development only: the open conversation of the focused window's Chat with each message's text (cut at 8000 characters), its task's status, what the observed task waits on (a plan to approve or a question, read before dsagent.development.chat.respond) and, with traceSessionId, that task's redacted…",
+  "guidance": "Development only: the open conversation of the focused window's Chat with each message's text (cut at 8000 characters), its task's status, what the observed task waits on (a plan to approve or a question, read before dsagent.development.chat.respond) and, with traceSessionId, that task's redacted trace events, oldest first (event names and bounded details, never prompts or page text). When the panel shows another view (the live run view a task's run switches to), the read brings the Chat back into view once; panelOpen false when still no Chat answered. Only when the person explicitly asked you to benchmark or live-check the Chat, and only while the person's grant is on (SidePanel Settings, development builds, one hour; no capability can turn it on): without it every call is refused with POLICY_DENIED (CHAT_AGENT_ACCESS_NOT_GRANTED).",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "How much to read.",
+    "properties": {
+      "maxMessages": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 40,
+        "description": "Newest messages to return (default 20)."
+      },
+      "traceSessionId": {
+        "type": "string",
+        "description": "A Chat task whose trace events to include.",
+        "maxLength": 200
+      },
+      "traceLimit": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 500,
+        "description": "Newest trace events of that task to include (default 200)."
+      }
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "The Chat of the focused window.",
+    "properties": {
+      "panelOpen": {
+        "type": "boolean",
+        "description": "A Chat answered."
+      },
+      "conversationId": {
+        "type": "string",
+        "description": "The open conversation."
+      },
+      "busy": {
+        "type": "boolean",
+        "description": "A reply is still streaming."
+      },
+      "taskRunning": {
+        "type": "boolean",
+        "description": "A browser task of the Chat is running."
+      },
+      "messages": {
+        "type": "array",
+        "maxItems": 40,
+        "description": "The newest messages, oldest first.",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "One message.",
+          "properties": {
+            "role": {
+              "type": "string",
+              "enum": [
+                "user",
+                "assistant"
+              ],
+              "description": "Who wrote it."
+            },
+            "fromAgent": {
+              "type": "boolean",
+              "description": "An outside agent's task mirrored into the Chat."
+            },
+            "text": {
+              "type": "string",
+              "description": "Its text, cut at 8000 characters.",
+              "maxLength": 8000
+            },
+            "truncated": {
+              "type": "boolean",
+              "description": "The text was cut."
+            },
+            "errorCode": {
+              "type": "string",
+              "description": "The typed failure the message shows, if any."
+            },
+            "task": {
+              "type": "object",
+              "additionalProperties": false,
+              "description": "The browser task this message reports.",
+              "properties": {
+                "sessionId": {
+                  "type": "string",
+                  "description": "The task."
+                },
+                "status": {
+                  "type": "string",
+                  "description": "running, succeeded, failed, cancelled, ..."
+                },
+                "executionId": {
+                  "type": "string",
+                  "description": "The workflow run it started."
+                }
+              },
+              "required": [
+                "sessionId",
+                "status"
+              ]
+            }
+          },
+          "required": [
+            "role",
+            "text"
+          ]
+        }
+      },
+      "pending": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "What the observed task waits on the person for, if anything.",
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "plan-approval",
+              "question"
+            ],
+            "description": "A plan to start, or a question to answer."
+          },
+          "sessionId": {
+            "type": "string",
+            "description": "The task."
+          },
+          "version": {
+            "type": "integer",
+            "description": "plan-approval: the version to approve."
+          },
+          "stage": {
+            "type": "string",
+            "enum": [
+              "awaiting-approval",
+              "awaiting-change"
+            ],
+            "description": "plan-approval: a first plan, or an approved plan that gained a site-changing step."
+          },
+          "goal": {
+            "type": "string",
+            "description": "plan-approval: the model's restatement of the task.",
+            "maxLength": 600
+          },
+          "steps": {
+            "type": "array",
+            "description": "plan-approval: the plan steps.",
+            "items": {
+              "type": "string",
+              "description": "One step.",
+              "maxLength": 600
+            }
+          },
+          "requestId": {
+            "type": "string",
+            "description": "question: the question to answer."
+          },
+          "interaction": {
+            "type": "string",
+            "description": "question: its kind (clarify, confirm, pick-control, ...)."
+          },
+          "text": {
+            "type": "string",
+            "description": "question: what it asks.",
+            "maxLength": 600
+          },
+          "options": {
+            "type": "array",
+            "description": "question: its options, in order.",
+            "items": {
+              "type": "string",
+              "description": "One option.",
+              "maxLength": 600
+            }
+          },
+          "freeText": {
+            "type": "boolean",
+            "description": "question: free text is accepted."
+          }
+        },
+        "required": [
+          "kind",
+          "sessionId"
+        ]
+      },
+      "trace": {
+        "type": "array",
+        "maxItems": 500,
+        "description": "The task's redacted trace events, oldest first.",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "One trace event.",
+          "properties": {
+            "at": {
+              "type": "number",
+              "description": "Epoch milliseconds."
+            },
+            "level": {
+              "type": "string",
+              "description": "debug, info, warn or error."
+            },
+            "event": {
+              "type": "string",
+              "description": "The event name, such as chat-tool-planner.step or chat-tool-planner.finished."
+            },
+            "details": {
+              "type": "object",
+              "additionalProperties": true,
+              "description": "Its redacted details (counts, codes, IDs; never prompts, page text or values)."
+            }
+          },
+          "required": [
+            "at",
+            "level",
+            "event",
+            "details"
+          ]
+        }
+      }
+    },
+    "required": [
+      "panelOpen"
+    ]
+  },
+  "risk": "read-sensitive",
+  "targetKinds": [
+    "browser"
+  ],
+  "requiredPermissions": [
+    "development.chat"
+  ],
+  "timeoutMs": 15000,
+  "maxInlineResultBytes": 262144,
+  "concurrency": "shared-read",
+  "retry": "pre-dispatch-read-only",
+  "exposure": "exposed"
+}

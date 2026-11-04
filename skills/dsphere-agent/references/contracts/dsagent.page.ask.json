@@ -3,7 +3,7 @@
   "version": 1,
   "title": "Ask the person in the live execution panel",
   "description": "Ask a task clarification or confirmation in DSphere using the same runtime sheet as semantic execution. The external agent still plans. Do not ask these browser-task questions in the caller chat. Returns pending immediately; use page.ask.wait until answered or cancelled.",
-  "guidance": "Take back an outdated question with dsagent.page.ask.withdraw. Do not enter secrets, grant yourself consent, or continue page actions while pending or declined. Clarifications have no automatic answer; unanswered confirmations decline after the runtime countdown. No action is executed by this method.",
+  "guidance": "Take back an outdated question with dsagent.page.ask.withdraw. Do not enter secrets, grant yourself consent, or continue page actions while pending or declined. Unattended, give a clarification defaultOptionIndex: the sheet counts down 30 s and, unless the person answers or starts answering, settles with that option, answeredBy default (not the person's consent). Without it a clarification waits for the person; unanswered confirmations decline after the runtime countdown. No action is executed by this method.",
   "inputSchema": {
     "type": "object",
     "description": "A task-scoped runtime question or wait request.",
@@ -49,6 +49,12 @@
         "minLength": 1,
         "maxLength": 120,
         "description": "Required for confirm: the concrete action awaiting confirmation."
+      },
+      "defaultOptionIndex": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 7,
+        "description": "Clarify with options only: the zero-based option the question settles with after a 30 s countdown nobody answers or holds (answeredBy default). For an unattended task; a confirmation never takes one."
       }
     }
   },

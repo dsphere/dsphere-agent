@@ -27,10 +27,10 @@ One page context, the optional revision the sequence starts from, and the ordere
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
-| `taskDescription` | string (1–2000 chars) |  | The person’s request in detail (what to do, on… |
-| `taskMode` | enum: auto, continue |  | continue when you follow your own skill, workfl… |
-| `taskSteps` | array of string (1–160 chars) (≤ 30) |  | With taskMode continue: your steps in order, as… |
-| `pageContextId` | string (2–128 chars) | yes | Opaque page context from dsagent.pages.list, ds… |
+| `taskDescription` | string (1–2000 chars) |  | The person’s request in detail, as you would te… |
+| `taskMode` | enum: auto, continue |  | continue for your own skill, workflow or plan o… |
+| `taskSteps` | array of string (1–160 chars) (≤ 30) |  | With taskMode continue: your steps in order. Na… |
+| `pageContextId` | string (2–128 chars) | yes | Page context from dsagent.page.open, dsagent.pa… |
 | `expectedRevision` | string (1–128 chars) |  | Optional. The revision the first step was plann… |
 | `actions` | array of object {targetId, target, action, clickType, modifiers, offset, …} (≤ 12) | yes | The steps, in order. |
 
@@ -54,8 +54,8 @@ Complete value lists and id patterns for the fields above (the contract file is 
 - `actions[].uploadIds[]`: matches `^upl_[0-9a-f]{32}$`
 - `actions[].slotEffect`: one of `replace`
 - `actions[].level`: one of `basic`, `standard`, `aggressive`
-- `actions[].waitFor.until`: one of `text-present`, `text-absent`, `target-present`, `target-absent`, `url-changed`, `revision-changed`, `settled`
-- `actions[].waitAfter.until`: one of `revision-changed`, `target-present`, `target-absent`, `target-enabled`, `target-disabled`, `text-present`, `text-absent`, `url-changed`, `settled`, `surface-closed`, `authentication-cleared`, `download`
+- `actions[].waitFor.until`: one of `revision-changed`, `target-present`, `target-absent`, `target-enabled`, `target-disabled`, `text-present`, `text-absent`, `url-changed`, `settled`, `surface-closed`, `authentication-cleared`, `download`
+- `actions[].waitAfter.until`: same values as `actions[].waitFor.until`
 
 ## Result fields (data.data)
 
@@ -82,7 +82,7 @@ Complete value lists and id patterns for the fields above (the contract file is 
 - `receipts[].action`: same values as input `actions[].action`
 - `receipts[].waitFor.until`: same values as input `actions[].waitFor.until`
 - `receipts[].effect.kind`: one of `navigated`, `surface-opened`, `surface-closed`, `region-shown`, `region-hidden`, `value-changed`, `state-changed`, `media`, `download`, `message-shown`, `none`
-- `receipts[].waitAfter.until`: same values as input `actions[].waitAfter.until`
+- `receipts[].waitAfter.until`: same values as input `actions[].waitFor.until`
 - `stopped.reason`: one of `failed`, `navigated`, `target-missing`, `target-unresolved`, `wait-timed-out`, `canceled`, `consumed-by-dismissal`
 - `final.pageSurfaces.surfaces[].broughtBy.eventType`: one of `press`, `click`, `double-click`, `context-click`, `hover`, `focus`, `key`, `input`, `drag`, `drop`, `wheel`
 - `final.focusedCaret.formatting.block`: one of `p`, `h1`, `h2`, `h3`, `h4`, `h5`, `h6`, `li`, `blockquote`, `pre`, `td`, `th`, `div`, `section`
@@ -90,7 +90,7 @@ Complete value lists and id patterns for the fields above (the contract file is 
 - `final.operationResult.fields[].fieldId`: matches `^fld-[0-9a-f]{12}$`
 - `final.action`: same values as input `actions[].action`
 - `final.effect.kind`: same values as `receipts[].effect.kind`
-- `final.waitAfter.until`: same values as input `actions[].waitAfter.until`
+- `final.waitAfter.until`: same values as input `actions[].waitFor.until`
 - `final.targets.added[].capabilities[]`: same values as input `actions[].action`
 - `final.targets.changed[].capabilities[]`: same values as input `actions[].action`
 

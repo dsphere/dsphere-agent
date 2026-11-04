@@ -3,8 +3,8 @@
   "pageEvidence": true,
   "version": 1,
   "title": "Read browser page as Markdown",
-  "description": "Read the current document of a page context as clean Markdown for reading, summarising or answering: page chrome, hidden elements and ad slots removed, links written as numbered citations with a reference list, low-density link farms pruned in fit mode.",
-  "guidance": "The text is a bounded prefix of the page in document order, not a dataset; use dsagent.page.observe for targets and actions, and pass focus to keep only the blocks relevant to a wording. The destination of every cited link is in references[].url (the address dsagent.page.find reports as navigationUrl), so one read collects the links of a list, such as the profile addresses of its authors, without a find per name.",
+  "description": "Read the current document of a page context as clean Markdown for reading, summarising or answering: page chrome, hidden elements and ad slots removed, links written as numbered citations ⟨n⟩ with their destinations in references[], low-density link farms pruned in fit mode.",
+  "guidance": "A PDF reads as text; see pdf. The text is a bounded prefix of the page in document order, not a dataset; use dsagent.page.observe for targets and actions, and pass focus to keep only the blocks relevant to a wording. The destination of every cited link is in references[].url (the address dsagent.page.find reports as navigationUrl), so one read collects the links of a list, such as the profile addresses of its authors, without a find per name.",
   "inputSchema": {
     "type": "object",
     "properties": {
@@ -12,7 +12,7 @@
         "type": "string",
         "minLength": 2,
         "maxLength": 128,
-        "description": "Opaque page context from dsagent.pages.list, dsagent.page.open, or a receipt's destinationPageContextId."
+        "description": "Page context from dsagent.page.open, dsagent.pages.list or a receipt's destinationPageContextId."
       },
       "profile": {
         "type": "string",
@@ -30,23 +30,23 @@
           "citations",
           "none"
         ],
-        "description": "Link rendering: citations (default) writes text⟨n⟩ plus a reference list, inline keeps [text](url), none drops destinations."
+        "description": "Link rendering: citations (default) writes text⟨n⟩ with its destination in references[], inline keeps [text](url), none drops destinations."
       },
       "fit": {
         "type": "boolean",
-        "description": "Prune low-density link-farm blocks (default true). Repeated records such as listing cards are always kept."
+        "description": "Prune low-density link-farm blocks (default true). Repeated records such as listing cards, and data tables, are always kept; a pruned block is marked where it was as [… left out: N chars, fit]."
       },
       "focus": {
         "type": "string",
         "minLength": 1,
         "maxLength": 500,
-        "description": "Optional wording to focus the reading on; only relevant blocks and headings are kept (BM25, Chinese-aware). A wording that matches nothing keeps everything."
+        "description": "Optional wording to focus the reading on; only relevant blocks and headings are kept (BM25, Chinese-aware). A wording that matches nothing keeps everything; the blocks it leaves out are marked [… left out: N chars, focus]."
       },
       "maxChars": {
         "type": "integer",
         "minimum": 4000,
         "maximum": 120000,
-        "description": "Maximum Markdown characters returned inline, from 4000 to 120000 (default 48000); longer pages are cut at a paragraph boundary and flagged truncated. For a short read, narrow with focus instead of a smaller maxChars."
+        "description": "Inline Markdown characters, from 4000 to 120000 (default 48000). Longer pages are cut at a paragraph boundary and flagged truncated. For a short read, narrow with focus instead of a smaller maxChars."
       },
       "cursor": {
         "type": "string",
@@ -64,6 +64,53 @@
   "outputSchema": {
     "type": "object",
     "properties": {
+      "siteKnowledgeAsk": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "sites",
+          "note"
+        ],
+        "description": "Present (on the reply that hands the task its data, and on the finish) when this task used a site no earlier run taught you about and recorded nothing for it. If you learned how the site works, call dsagent.site.knowledge.record once per site with its pageContextId: it still takes a record for 5 minutes, at the revision of its last observation. Optional; never data.",
+        "properties": {
+          "note": {
+            "type": "string",
+            "maxLength": 256,
+            "description": "What to do with the sites."
+          },
+          "sites": {
+            "type": "array",
+            "maxItems": 3,
+            "description": "The sites, each with the last page the task used there.",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "site",
+                "pageContextId"
+              ],
+              "description": "A site to record.",
+              "properties": {
+                "site": {
+                  "type": "string",
+                  "maxLength": 259,
+                  "description": "The site."
+                },
+                "pageContextId": {
+                  "type": "string",
+                  "maxLength": 128,
+                  "description": "The page to record with."
+                },
+                "revision": {
+                  "type": "string",
+                  "maxLength": 128,
+                  "description": "The revision of its last observation, for entries that name a targetId."
+                }
+              }
+            }
+          }
+        }
+      },
       "pageContextId": {
         "type": "string",
         "maxLength": 128,
@@ -251,6 +298,85 @@
         ],
         "additionalProperties": false,
         "description": "Pruning statistics, present when fit or focus was applied."
+      },
+      "pdf": {
+        "type": "object",
+        "properties": {
+          "documents": {
+            "type": "array",
+            "maxItems": 4,
+            "description": "Each PDF the page shows, in document order: the PDF the tab itself shows (the browser PDF viewer; the Markdown is its pages, one heading per page), or up to three embedded in the page (their pages are added after the page).",
+            "items": {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "type": "string",
+                  "enum": [
+                    "document",
+                    "embedded"
+                  ],
+                  "description": "document: the tab shows this PDF and the Markdown is its text; embedded: a PDF inside the web page, its text added after the page under its file name."
+                },
+                "url": {
+                  "type": "string",
+                  "maxLength": 2048,
+                  "description": "Sanitized address of the PDF. An embedded PDF that was not read can be opened on its own tab with dsagent.page.open."
+                },
+                "outcome": {
+                  "type": "string",
+                  "enum": [
+                    "read",
+                    "no-text",
+                    "not-read"
+                  ],
+                  "description": "read: its text is in the Markdown; no-text: it has no text layer (scanned pages), so there is nothing to read as text; not-read: it could not be read, see reason."
+                },
+                "reason": {
+                  "type": "string",
+                  "enum": [
+                    "too-large",
+                    "fetch-failed",
+                    "not-pdf",
+                    "encrypted",
+                    "invalid",
+                    "time-budget",
+                    "reader-unavailable"
+                  ],
+                  "description": "Why it was not read: too-large (over 25 MB), fetch-failed (the address did not answer again, or it is on another site), not-pdf, encrypted (it needs a password), invalid (a damaged file), time-budget (it took too long), reader-unavailable."
+                },
+                "pageCount": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Pages the PDF has (0 when it was not opened)."
+                },
+                "pagesRead": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Pages read, from page 1; fewer than pageCount when truncated."
+                },
+                "truncated": {
+                  "type": "boolean",
+                  "description": "True when its page, character or time budget ended the read before its last page."
+                }
+              },
+              "required": [
+                "kind",
+                "url",
+                "outcome",
+                "pageCount",
+                "pagesRead",
+                "truncated"
+              ],
+              "additionalProperties": false,
+              "description": "One PDF the page shows."
+            }
+          }
+        },
+        "required": [
+          "documents"
+        ],
+        "additionalProperties": false,
+        "description": "Present when the page shows PDFs: what became of each."
       },
       "authentication": {
         "type": "object",

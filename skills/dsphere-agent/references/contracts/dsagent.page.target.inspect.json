@@ -12,13 +12,13 @@
         "type": "string",
         "minLength": 2,
         "maxLength": 128,
-        "description": "Opaque page context from dsagent.pages.list, dsagent.page.open, or a receipt's destinationPageContextId."
+        "description": "Page context from dsagent.page.open, dsagent.pages.list or a receipt's destinationPageContextId."
       },
       "targetId": {
         "type": "string",
         "minLength": 1,
         "maxLength": 128,
-        "description": "Opaque target identifier returned by dsagent.page.observe."
+        "description": "A target id a reply gave you; never built or guessed."
       },
       "expectedRevision": {
         "type": "string",

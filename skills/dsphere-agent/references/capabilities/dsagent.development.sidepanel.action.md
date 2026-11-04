@@ -29,7 +29,7 @@ Closed side-panel verification input.
 |---|---|---|---|
 | `panelId` | string (1–100 chars) | yes | Document identity from observe. |
 | `expectedRevision` | string (1–100 chars) | yes | Current evidence revision. |
-| `targetId` | string (1–100 chars) | yes | Opaque target from observe. |
+| `targetId` | string (1–100 chars) | yes | A target id a reply gave you. |
 | `action` | enum: click, focus | yes | One of this target's returned actions. |
 
 ## Result fields (data.data)

@@ -456,6 +456,148 @@
                 "additionalProperties": false,
                 "description": "Lists that ran out of pages before the requested record count."
               },
+              "nestedCoverage": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "fulfilled",
+                      "partial",
+                      "unknown"
+                    ],
+                    "description": "Whether every reply thread (nested parent: the replies under a comment) the run saw was proven read to its end. partial makes the collection partial even when every visit ended."
+                  },
+                  "observedParents": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Reply threads the run saw."
+                  },
+                  "resolvedParents": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Threads proven read to their end."
+                  },
+                  "unresolvedParents": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Threads it could not prove read to their end; their replies may be incomplete."
+                  },
+                  "uniqueChildren": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Distinct replies the threads were proven to show."
+                  },
+                  "mainListExhausted": {
+                    "type": "boolean",
+                    "description": "Whether the list holding the threads was read to its end."
+                  },
+                  "unresolvedReasons": {
+                    "type": "array",
+                    "maxItems": 24,
+                    "description": "The unresolved threads counted per reason, most first.",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "reason": {
+                          "type": "string",
+                          "enum": [
+                            "not-visited",
+                            "parent-identity-unavailable",
+                            "parent-identity-ambiguous",
+                            "parent-identity-mismatch",
+                            "parent-unresolved",
+                            "parent-unavailable",
+                            "parent-identity-shifted",
+                            "parent-binding-unavailable",
+                            "parent-not-accepted",
+                            "child-readiness-unresolved",
+                            "rows-unresolved",
+                            "identity-ambiguous",
+                            "control-absent",
+                            "child-payload-incomplete",
+                            "child-page-cycle",
+                            "child-rows-unaccepted",
+                            "child-pagination-pending",
+                            "evidence-limit",
+                            "parent-time-slice-budget",
+                            "parent-no-progress-budget",
+                            "revisit-no-progress",
+                            "visit-ceiling-reached",
+                            "bounded-revisit-exhausted",
+                            "other"
+                          ],
+                          "description": "Why the threads stayed unresolved: not-visited (never opened), parent-* (the comment could not be identified or found again: unavailable, identity-unavailable/-ambiguous/-mismatch, binding-unavailable, not-accepted, unresolved), child-readiness-unresolved / rows-unresolved / identity-ambiguous (its replies could not be identified), control-absent, child-pagination-pending (it still showed a control for more replies), child-rows-unaccepted, child-page-cycle, child-payload-incomplete (a field of its replies was not read), evidence-limit, parent-time-slice-budget / parent-no-progress-budget / visit-ceiling-reached (a bound ended its visits), revisit-no-progress / bounded-revisit-exhausted (reopening it added nothing), other."
+                        },
+                        "count": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "description": "Threads with this reason."
+                        }
+                      },
+                      "required": [
+                        "reason",
+                        "count"
+                      ],
+                      "additionalProperties": false,
+                      "description": "One reason and how many threads it left unresolved."
+                    }
+                  },
+                  "advertisedShortfall": {
+                    "type": "object",
+                    "properties": {
+                      "parents": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Threads whose page showed a reply count above the replies the run accepted."
+                      },
+                      "children": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "description": "Replies those counts exceed the accepted ones by, in all."
+                      }
+                    },
+                    "required": [
+                      "parents",
+                      "children"
+                    ],
+                    "additionalProperties": false,
+                    "description": "Threads whose own reply count says replies are missing; a page may count replies it no longer shows."
+                  },
+                  "limitations": {
+                    "type": "array",
+                    "maxItems": 6,
+                    "description": "What limits this coverage.",
+                    "items": {
+                      "type": "string",
+                      "enum": [
+                        "main-list-exhaustion-unverified",
+                        "unresolved-child-groups",
+                        "unresolved-child-payload",
+                        "coverage-evidence-budget-exhausted",
+                        "advertised-count-changed-during-run",
+                        "advertised-count-differs-from-observed-records"
+                      ],
+                      "description": "One limitation."
+                    }
+                  },
+                  "truncated": {
+                    "type": "boolean",
+                    "description": "Whether the thread evidence was cut at its bound."
+                  }
+                },
+                "required": [
+                  "status",
+                  "observedParents",
+                  "resolvedParents",
+                  "unresolvedParents",
+                  "uniqueChildren",
+                  "mainListExhausted",
+                  "truncated"
+                ],
+                "additionalProperties": false,
+                "description": "The reply threads behind the collection status: counts and typed reasons, never their content. Present when the run read replies under a list."
+              },
               "truncated": {
                 "type": "boolean",
                 "description": "Whether the evidence was cut at its bound."
@@ -570,9 +712,10 @@
                     "field-empty-all-rows",
                     "field-identity-refused",
                     "field-read-blanked",
-                    "chart-sweep-incomplete"
+                    "chart-sweep-incomplete",
+                    "parent-not-accepted"
                   ],
-                  "description": "kept-unreached (a read kept its empty value), zero-iterations (a list loop ran no item), continued-unverified (a click meant to open a tab opened none), pagination-shortfall (pages ran out before the requested count), rows-not-saved / rows-unverified (the local sheet), detail-field-missing (a detail visit kept its record without this field), item-skipped (a loop item answered skip-item: not collected, no row written), field-empty-all-rows (a field the wizard showed with a value read empty on every row; count is the rows saved without it), field-identity-refused (a list field whose every match in a record was another field, by its stated label or its place in the record; the cell stayed empty; count is the rows), field-read-blanked (list cells left empty although the record shows the field: the recorded field refused the value at its place, or recovery found several candidates; count is the rows; check the page before trusting the column), chart-sweep-incomplete (a chart field whose sweep may have missed records; count is the records it read; see chartsIncomplete)."
+                  "description": "kept-unreached (a read kept its empty value), zero-iterations (a list loop ran no item), continued-unverified (a click meant to open a tab opened none), pagination-shortfall (pages ran out before the requested count), rows-not-saved / rows-unverified (the local sheet), detail-field-missing (a detail visit kept its record without this field), item-skipped (a loop item answered skip-item: not collected, no row written), field-empty-all-rows (a field the wizard showed with a value read empty on every row; count is the rows saved without it), field-identity-refused (a list field whose every match in a record was another field, by its stated label or its place in the record; the cell stayed empty; count is the rows), field-read-blanked (list cells left empty although the record shows the field: the recorded field refused the value at its place, or recovery found several candidates; count is the rows; check the page before trusting the column), chart-sweep-incomplete (a chart field whose sweep may have missed records; count is the records it read; see chartsIncomplete), parent-not-accepted (replies the reply loop read under a comment the run could not read as a row: held by no row and not saved; count is the replies)."
                 },
                 "count": {
                   "type": "integer",

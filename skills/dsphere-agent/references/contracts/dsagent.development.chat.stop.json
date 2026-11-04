@@ -1,0 +1,55 @@
+{
+  "method": "dsagent.development.chat.stop",
+  "version": 1,
+  "title": "Stop a SidePanel Chat task",
+  "description": "Development only: press Stop task on the Chat task's message, as the person does (the task ends cancelled; its run, if any, is stopped by the same owner). For ending a benchmark case at its time limit.",
+  "guidance": "Only when the person explicitly asked you to benchmark or live-check the Chat, and only while the person's grant is on (SidePanel Settings, development builds, one hour; no capability can turn it on): without it every call is refused with POLICY_DENIED (CHAT_AGENT_ACCESS_NOT_GRANTED). Refused with TARGET_NOT_FOUND (CHAT_TASK_NOT_FOUND) when the open conversation has no such task of the Chat (an outside agent's mirrored task is stopped by its own agent). Requires an idempotency key.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "The task to stop.",
+    "properties": {
+      "sessionId": {
+        "type": "string",
+        "description": "The Chat task (its sessionId from dsagent.development.chat.state or .transcript).",
+        "maxLength": 200
+      }
+    },
+    "required": [
+      "sessionId"
+    ]
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "The Chat sent the stop.",
+    "properties": {
+      "stopped": {
+        "type": "boolean",
+        "enum": [
+          true
+        ],
+        "description": "Stop task was pressed; follow the task to its cancelled end."
+      },
+      "conversationId": {
+        "type": "string",
+        "description": "The conversation of the task."
+      }
+    },
+    "required": [
+      "stopped"
+    ]
+  },
+  "risk": "external-effect",
+  "targetKinds": [
+    "browser"
+  ],
+  "requiredPermissions": [
+    "development.chat"
+  ],
+  "timeoutMs": 30000,
+  "maxInlineResultBytes": 1024,
+  "concurrency": "exclusive-browser",
+  "retry": "never",
+  "exposure": "exposed"
+}

@@ -21,11 +21,11 @@ The page, the condition and its bound.
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
-| `pageContextId` | string (2–128 chars) | yes | Opaque page context from dsagent.pages.list, dsagent.page.open, or a receipt's destinationPageContextId. |
+| `pageContextId` | string (2–128 chars) | yes | Page context from dsagent.page.open, dsagent.pages.list or a receipt's destinationPageContextId. |
 | `until` | enum (12 values, listed under Constraints) | yes | revision-changed: the page revision differs from sinceRevision. target-present / target-absent: the target (targetId at… |
 | `timeoutMs` | integer (250…25000) |  | How long to wait at most; 10000 by default. |
 | `sinceRevision` | string (1–128 chars) |  | With revision-changed: the revision you hold. |
-| `targetId` | string (1–128 chars) |  | With target-present / target-absent / target-enabled / target-disabled: the opaque target. |
+| `targetId` | string (1–128 chars) |  | With target-present / target-absent / target-enabled / target-disabled: a target id a reply gave you. |
 | `expectedRevision` | string (1–128 chars) |  | With targetId: the revision it was published at. |
 | `text` | string (1–200 chars) |  | With text-present / text-absent: the words the page should show (or stop showing), as it prints them. |
 | `surfaceId` | string (1–128 chars) |  | With surface-closed: the surface from pageSurfaces. |
@@ -42,7 +42,7 @@ Whether the condition was met within the bound, and where the page is now.
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
-| `pageContextId` | string (2–128 chars) |  | Opaque page context from dsagent.pages.list, dsagent.page.open, or a receipt's destinationPageContextId. |
+| `pageContextId` | string (2–128 chars) |  | Page context from dsagent.page.open, dsagent.pages.list or a receipt's destinationPageContextId. |
 | `until` | enum (12 values, listed under Constraints) |  | The condition waited for. |
 | `outcome` | enum: met, timed-out |  | met: the condition held; timed-out: it did not within timeoutMs (read the page and decide; it is not an error). |
 | `waitedMs` | integer (0…∞) |  | How long the wait took for its condition, not counting the read of the page that names the revision after it. |

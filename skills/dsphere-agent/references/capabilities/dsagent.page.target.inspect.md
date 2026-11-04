@@ -24,8 +24,8 @@ Opaque target binding and optional revision guard for one bounded structure insp
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
-| `pageContextId` | string (2–128 chars) | yes | Opaque page context from dsagent.pages.list, dsagent.page.open, or a receipt's destinationPageContextId. |
-| `targetId` | string (1–128 chars) | yes | Opaque target identifier returned by dsagent.page.observe. |
+| `pageContextId` | string (2–128 chars) | yes | Page context from dsagent.page.open, dsagent.pages.list or a receipt's destinationPageContextId. |
+| `targetId` | string (1–128 chars) | yes | A target id a reply gave you; never built or guessed. |
 | `expectedRevision` | string (1–128 chars) |  | Optional: revision of the read that returned targetId; omitted, your newest read listing it. |
 
 ## Result fields (data.data)

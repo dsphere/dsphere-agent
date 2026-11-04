@@ -60,16 +60,18 @@ check the selected option or the reordered list in `final`.
 ## 4. Collect a list once
 
 Repeated records (cards, rows, posts, comments, results) are collected by the wizard, never by reading and scrolling.
-Known fields: read them through the same wizard; you rank the sources. With `region` (a target in the
-records, from find) keeping one source, one call returns the rows:
+Fields named: find one record's shown text; as `region` it picks the source, and one call returns the rows:
 
 ```text
-dsagent_wizard_collect {"pageContextId":"<id>","records":"<which records, as the person said it>","fields":[{"name":"<field>"},{"name":"<field>"}],"maxRecords":50,"taskDescription":"<the person's request>","idempotencyKey":"collect-<uuid>"}
+dsagent_page_find {"pageContextId":"<id>","query":"<a record's words>","includeText":true,"limit":1}
 ```
 
-- `stopped`, `reason: choose-source`: nothing ran; `wizard.pendingChoice` lists every candidate source, even one.
-  Pick yours with `dsagent_wizard_choose` and `auto: {"once": true}`, then `dsagent_execution_wait`; none fits:
-  cancel or `dsagent_wizard_start`.
+```text
+dsagent_wizard_collect {"region":{"pageContextId":"<id>","targetId":"<match target.id>","targetRevision":"<find revision>"},"records":"<which records, as the person said it>","fields":[{"name":"<field>"},{"name":"<field>"}],"maxRecords":50,"idempotencyKey":"collect-<uuid>"}
+```
+
+- `stopped`, `reason: choose-source` (no region, or it held several): nothing ran. Pick a source with
+  `dsagent_wizard_choose` and `auto: {"once": true}`, then `dsagent_execution_wait`; none fits: cancel or wizard_start.
 - `completed`: `rows` keyed by your names, in the order of `columns`. `ended`: the run failed (`status`). `running`:
   `dsagent_execution_wait` with its `executionId`.
 - `stopped` for another reason: nothing ran; the wizard is yours (`wizardId`, `wizardToken`, `fieldResults`). Answer its pending choice
@@ -97,9 +99,9 @@ At `terminal`, `rows` holds the first records (up to 20) and `artifactId` the wh
 left behind. To keep a reusable workflow instead, leave out `once` and call `dsagent.wizard.save`.
 
 When the values to collect sit on each record's detail page (open each item and read its code, stock, specs), it is
-still one wizard, never `page.open` / `page.markdown` per item: add `"detailPages":true` to `auto`. Auto stops at
-`detail-pages`: choose the records' link field (with `auto: {"once": true}`), then on the opened detail page the
-source that holds the values (a `form-group` reads a table of labelled values, one record per page) and its fields.
+still one wizard, never `page.open` / `page.markdown` per item: add `"detailPages":true` to `auto`. Auto opens the
+records' link field and answers the detail page's choices too
+(a `form-group` reads a table of labelled values, one record per page). A panel to open first: `"detailReveal":true`.
 
 ## 5. Read and finish
 

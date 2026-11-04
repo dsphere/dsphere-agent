@@ -106,7 +106,7 @@
                   "site": {
                     "type": "string",
                     "maxLength": 253,
-                    "description": "The website's registrable domain (sign-ins span its hosts), for example example.com."
+                    "description": "The website's registrable domain (sign-ins span its hosts), or host:port on localhost or an IP."
                   },
                   "state": {
                     "type": "string",

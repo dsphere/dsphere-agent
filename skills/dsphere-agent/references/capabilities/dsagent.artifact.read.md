@@ -2,7 +2,7 @@
 
 **Read artifact** · risk `read-sensitive` · timeout 10000 ms · inline result ≤ 262144 bytes · concurrency `shared-read`
 
-Read a listed artifact.
+Read a listed artifact. Without a format, a structured dataset returns its complete records when they fit a fixed 4096-byte initial probe, and otherwise its first page as JSON Lines (format jsonl in the result): continue with format jsonl and nextCursor until eof.
 
 ## Invocation
 
@@ -25,15 +25,16 @@ Input for bounded reading of a listed execution artifact. For format records the
 |---|---|---|---|
 | `artifactId` | string (1–256 chars) | yes | Opaque artifact identifier returned by dsagent.artifacts.list. |
 | `cursor` | string (1–512 chars) |  | Opaque continuation cursor returned by a prior read of the same artifact and format; omit for the first read. |
-| `format` | enum: records, jsonl, csv |  | records (default): the complete records inline when they fit the fixed probe, else export. jsonl: pages of JSON Lines,… |
+| `format` | enum: records, jsonl, csv |  | Omitted: the complete records inline when they fit the fixed probe, else the first jsonl page. records: the complete re… |
 | `pageBytes` | integer (1024…65536) |  | With format jsonl or csv: the most bytes of records one page holds (default 65536); records never split across pages. |
 
 ## Result fields (data.data)
 
-Bounded structured, paged-text or binary artifact read result. Oversized structured data in format records fails with e…
+Bounded structured, paged-text or binary artifact read result. Oversized structured data read without a format returns…
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
+| `siteKnowledgeAsk` | object {note, sites} |  | Present (on the reply that hands the task its data, and on the finish) when this task used a site no earlier run taught… |
 | `artifactId` | string (1–256 chars) |  | Artifact that was read. |
 | `mediaType` | string (1–200 chars) |  | Artifact media type. |
 | `format` | enum: jsonl, csv |  | Present on a paged text read: the format of page. |

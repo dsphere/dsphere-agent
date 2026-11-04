@@ -27,7 +27,7 @@ Known methods are invoked directly. Look a contract up with `dsagent_list_capabi
 | `dsagent.agent.work.finish` | Ends your task with its verified outcome, and with keep closes its pages in the… | reversible-write | yes |
 | `dsagent.agent.work.list` | What this browser still holds for you between calls (decision F4, failure-endpo… | read-sensitive |  |
 | `dsagent.agent.work.recording` | Read or begin this task's recording choice, the person's question in the standa… | reversible-write | yes |
-| `dsagent.agent.work.recording.choose` | Pass on the person's answer to this task's pending recording question when the… | reversible-write | yes |
+| `dsagent.agent.work.recording.choose` | Answer this task's pending recording question: the person's answer from your ch… | reversible-write | yes |
 | `dsagent.agent.work.recording.state` | Wait for the person to choose whether to record this task. | read-sensitive |  |
 | `dsagent.agent.work.step` | For a task that follows your own skill or plan of several steps. | reversible-write | yes |
 | `dsagent.app.accounts.list` | List bounded application-account labels using opaque account IDs. | read-sensitive |  |
@@ -37,8 +37,13 @@ Known methods are invoked directly. Look a contract up with `dsagent_list_capabi
 | `dsagent.bookmarks.sources` | List the Google Chrome, Microsoft Edge and Safari profiles on this computer who… | read-sensitive |  |
 | `dsagent.browser.sessions.list` | List the browser sessions a task can open pages in, each with the websites it h… | read-sensitive |  |
 | `dsagent.dataset.save-agent-read` | The last detection tier (failure-endpoint fallback D4): save records you read y… | reversible-write | yes |
+| `dsagent.development.chat.arm` | Development only, for a benchmark of the Chat the person asked you to run: the… | external-effect | yes |
+| `dsagent.development.chat.new` | Development only: press New conversation in the Chat of the person's focused wi… | external-effect | yes |
+| `dsagent.development.chat.respond` | Development only: answer the decision the Chat task's card waits on, as the per… | external-effect | yes |
 | `dsagent.development.chat.send` | Development only: open the SidePanel of the person's focused window on the Chat… | external-effect | yes |
 | `dsagent.development.chat.state` | Development only: the view the SidePanel of the person's focused window shows (… | read-sensitive |  |
+| `dsagent.development.chat.stop` | Development only: press Stop task on the Chat task's message, as the person doe… | external-effect | yes |
+| `dsagent.development.chat.transcript` | Development only: the open conversation of the focused window's Chat with each… | read-sensitive |  |
 | `dsagent.development.inject-fault` | Development only: reproduce on demand a fault the release gate must see handled… | reversible-write | yes |
 | `dsagent.development.restart-service-worker` | Development only: let this Extension's service worker end the way the browser e… | reversible-write | yes |
 | `dsagent.development.sidepanel.action` | Click or focus one observed permitted UI control using its current document and… | reversible-write | yes |
@@ -96,6 +101,10 @@ Known methods are invoked directly. Look a contract up with `dsagent_list_capabi
 | `dsagent.pages.list` | List bounded, automatable browser pages using opaque page context IDs. | read-sensitive |  |
 | `dsagent.settings.get` | Read the settings a person can change in the SidePanel and Options page, with t… | read-sensitive |  |
 | `dsagent.settings.update` | Change one setting section exactly as the person would in the SidePanel or Opti… | reversible-write | yes |
+| `dsagent.sign-in.check` | Open a sign-in or application entry address in a new tab and report, once the p… | reversible-write | yes |
+| `dsagent.site.knowledge.feedback` | Say whether an entry of the page's site held: confirmed or contradicted. | reversible-write | yes |
+| `dsagent.site.knowledge.get` | Read every entry earlier runs left about a site: the site of pageContextId, or… | read-sensitive |  |
+| `dsagent.site.knowledge.record` | Record what this task learned about how the page's site works, for the next run… | reversible-write | yes |
 | `dsagent.website.explore.capture` | ONLY when the user explicitly requests website exploration or an exploration re… | reversible-write | yes |
 | `dsagent.website.explore.export` | ONLY for an explicit user request to explore a website or produce its report. | reversible-write | yes |
 | `dsagent.wizard.back` | Undo the last answered choice so the agent or person can decide again, as the S… | reversible-write | yes |

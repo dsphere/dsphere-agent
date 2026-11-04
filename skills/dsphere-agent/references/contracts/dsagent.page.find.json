@@ -12,7 +12,7 @@
         "type": "string",
         "minLength": 2,
         "maxLength": 128,
-        "description": "Opaque page context from dsagent.pages.list, dsagent.page.open, or a receipt's destinationPageContextId."
+        "description": "Page context from dsagent.page.open, dsagent.pages.list or a receipt's destinationPageContextId."
       },
       "query": {
         "type": "string",
@@ -38,11 +38,11 @@
       },
       "includeText": {
         "type": "boolean",
-        "description": "Optional: also return text targets (headings, paragraphs, dates and other shown text; kind extractable, no actions) for dsagent.wizard.pick. Defaults to false: only targets dsagent.page.action takes."
+        "description": "Optional: also return text targets, for dsagent.wizard.pick. They are headings, paragraphs, dates and other shown text (kind extractable, no actions). Defaults to false: only targets dsagent.page.action takes."
       },
       "includeImages": {
         "type": "boolean",
-        "description": "Optional: also return the pictures the page shows, first and largest first whatever the query (matchedOn picture; target.picture gives the rendered size; the target is what a click on the picture's centre lands on), for dsagent.wizard.pick of a picture (pagePick.includeImages of the wizard state asks for it). Defaults to false."
+        "description": "Optional: also return the pictures the page shows, for dsagent.wizard.pick of a picture. They come first and largest first whatever the query (matchedOn picture; target.picture gives the rendered size; the target is what a click on the picture's centre lands on); pagePick.includeImages of the wizard state asks for it. Defaults to false."
       },
       "surface": {
         "type": "string",
@@ -256,7 +256,7 @@
                 "id": {
                   "type": "string",
                   "maxLength": 128,
-                  "description": "Opaque target identifier valid only for the associated page revision (page for the page itself)."
+                  "description": "Target id for this page, used as given and never built (page for the page itself)."
                 },
                 "kind": {
                   "type": "string",
@@ -330,7 +330,7 @@
                 "state": {
                   "type": "string",
                   "maxLength": 160,
-                  "description": "Optional bounded state tokens, comma separated, such as checked, selected, expanded=true, pressed or unpressed, mixed, current, disabled, required, invalid, readonly, busy, haspopup=menu, valuenow=<n>, sort=<direction>, filled or empty."
+                  "description": "Optional bounded state tokens, comma separated, such as checked, selected, expanded=true, pressed or unpressed, mixed, current, disabled, required, invalid, readonly, busy, haspopup=menu, valuenow=<n>, sort=<direction>, submits-form, filled or empty; value=\"<text>\" when the page served it (a filter) or this caller typed it."
                 },
                 "slotEffect": {
                   "type": "string",
@@ -348,11 +348,18 @@
                   ],
                   "description": "Optional, on a file input, or a control that is the visible face of one hidden file input (its label, its upload button or a control inside one), that takes upload-file: how many files it takes in one placement. several: place them together with uploadIds; one: upload them one at a time with uploadId (uploadIds is refused with details.slotFiles one). Absent on other upload controls (a drop area, a plain box around an input) and the page target, whose slots upload-file detects when called."
                 },
+                "effect": {
+                  "type": "string",
+                  "enum": [
+                    "writes"
+                  ],
+                  "description": "writes: it submits a form."
+                },
                 "capabilities": {
                   "type": "array",
                   "maxItems": 31,
                   "uniqueItems": true,
-                  "description": "Public atomic actions accepted for this opaque target by dsagent.page.action; empty for a text target found by dsagent.page.find. Absent in a list: the list's commonCapabilities.",
+                  "description": "Public atomic actions accepted for this opaque target by dsagent.page.action; empty for a text target found by dsagent.page.find. Absent in a list: the list's commonCapabilities. On the page target: only scroll, when the page scrolls (page.action's action lists the rest).",
                   "items": {
                     "type": "string",
                     "enum": [
@@ -401,7 +408,7 @@
                 "navigationUrl": {
                   "type": "string",
                   "maxLength": 300,
-                  "description": "Optional: where a link target leads; click it, never build the URL. Lists show it short (same-origin path, no tracking parameters, long parts cut with …); page.find gives the exact address."
+                  "description": "Optional: where a link target leads (posts, if submits-form); click it, never build the URL. Lists show it short (same-origin path, no tracking parameters, long parts cut with …); page.find gives the exact address."
                 },
                 "scrollMetrics": {
                   "type": "object",

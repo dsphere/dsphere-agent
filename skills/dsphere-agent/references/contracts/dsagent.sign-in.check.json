@@ -1,0 +1,142 @@
+{
+  "method": "dsagent.sign-in.check",
+  "version": 1,
+  "title": "Check whether a sign-in page needs signing in",
+  "description": "Open a sign-in or application entry address in a new tab and report, once the page settled, what it asks of the visitor: sign-in-required (the sign-in monitor sees a sign-in wall, which wallType names, or the page shows a login and password form beside its content, with no wallType), signed-in (no…",
+  "guidance": "Open a sign-in or application entry address in a new tab and report, once the page settled, what it asks of the visitor: sign-in-required (the sign-in monitor sees a sign-in wall, which wallType names, or the page shows a login and password form beside its content, with no wallType), signed-in (no wall and a signed-in account shows), blocked (a human check, bot check or site refusal before any sign-in) or unknown. A page whose sign-in form opens from a control (a header Sign in button) is unknown with signInEntries: sign in on the same checkId with method set to the entry that opens the form. Returns the settled origin and path only, the session, a checkId, and the pageContextId of the opened tab: read it with dsagent.page.observe and close it with dsagent.page.close when done. Fills and submits nothing. At most 20 checks a minute per caller (RATE_LIMITED, wait a minute). For signed-out checks use sessionGroup new with a sessionName, never sign the person's own session out.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "The address to check and the browser session to open it in.",
+    "properties": {
+      "url": {
+        "type": "string",
+        "format": "uri",
+        "minLength": 8,
+        "maxLength": 2048,
+        "pattern": "^https?://",
+        "description": "The sign-in or entry address: http or https, with no user name or password in it."
+      },
+      "sessionGroup": {
+        "type": "string",
+        "enum": [
+          "default",
+          "new",
+          "previous"
+        ],
+        "description": "default (the person's own session; the default), new (a fresh isolated session named sessionName) or previous (the named session sessionName opened before)."
+      },
+      "sessionName": {
+        "type": "string",
+        "pattern": "^[a-z0-9][a-z0-9-]{0,39}$",
+        "maxLength": 40,
+        "description": "With new or previous: the session's name, lowercase letters, digits and dashes."
+      }
+    },
+    "required": [
+      "url"
+    ]
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "What the settled page asks of the visitor, where it settled, and the opened tab.",
+    "properties": {
+      "status": {
+        "type": "string",
+        "enum": [
+          "sign-in-required",
+          "signed-in",
+          "blocked",
+          "unknown"
+        ],
+        "description": "sign-in-required, signed-in, blocked, or unknown when no wall shows and no signed-in account either (also while the page is still loading: see loading)."
+      },
+      "wallType": {
+        "type": "string",
+        "description": "The sign-in monitor's wall type, with sign-in-required and blocked."
+      },
+      "page": {
+        "type": "object",
+        "description": "Where the page settled, without its query or fragment.",
+        "properties": {
+          "origin": {
+            "type": "string",
+            "description": "The settled page's origin."
+          },
+          "path": {
+            "type": "string",
+            "description": "The settled page's path."
+          }
+        },
+        "required": [
+          "origin",
+          "path"
+        ]
+      },
+      "session": {
+        "type": "object",
+        "description": "The browser session the page opened in.",
+        "properties": {
+          "mode": {
+            "type": "string",
+            "enum": [
+              "default",
+              "named"
+            ],
+            "description": "default (the person's own session) or named."
+          },
+          "name": {
+            "type": "string",
+            "description": "With named: the session's name."
+          }
+        },
+        "required": [
+          "mode"
+        ]
+      },
+      "checkId": {
+        "type": "string",
+        "description": "Opaque id of this check, for a later sign-in on the same page."
+      },
+      "pageContextId": {
+        "type": "string",
+        "description": "The opened tab; absent when the check no longer stands for it."
+      },
+      "loading": {
+        "type": "boolean",
+        "enum": [
+          true
+        ],
+        "description": "The page was still loading when the check ended, so status is unknown: check again later, or call the sign-in on this checkId, which waits for the page first. The tab stays yours to observe or close."
+      },
+      "signInEntries": {
+        "type": "array",
+        "description": "With unknown: the page shows no sign-in form yet, and these controls may open one (a header Sign in button, a sign-in link); their labels are page text. Sign in on this checkId with method set to the candidateId of the one that opens it: the click is verified, and nothing is typed until a login-and-password form shows.",
+        "items": {
+          "type": "object",
+          "description": "One control: candidateId, label, kind (tab, link, button, other), selected."
+        }
+      }
+    },
+    "required": [
+      "status",
+      "page",
+      "session",
+      "checkId"
+    ]
+  },
+  "risk": "reversible-write",
+  "targetKinds": [
+    "browser",
+    "page"
+  ],
+  "requiredPermissions": [
+    "page.open"
+  ],
+  "timeoutMs": 60000,
+  "maxInlineResultBytes": 4000,
+  "concurrency": "exclusive-target",
+  "retry": "never",
+  "exposure": "exposed"
+}

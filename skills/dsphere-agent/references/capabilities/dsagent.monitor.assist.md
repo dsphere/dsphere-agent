@@ -39,7 +39,7 @@ The assist after this call.
 | `expiresAt` | string (0–40 chars) |  | With assisting: when it lapses (ISO 8601). |
 | `attention` | array of object {code, waitingOn, since, detail} (≤ 8) |  | What holds the work up, each with who must act. Empty when nothing does. |
 | `task` | object {taskRef, kind, mine, ownerName, description, status, …} |  | One task running (or just ended) in the browser. |
-| `wallCleared` | boolean |  | With ended: whether a fresh read found the page without a wall. |
+| `wallCleared` | boolean |  | With ended: whether a fresh read found the page without a wall; absent when that read could not check the page (its con… |
 | `ownerResumed` | enum: task, run |  | With ended: the task or run that waited on the wall continues. |
 
 ## Result constraints
