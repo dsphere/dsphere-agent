@@ -104,9 +104,10 @@
               "type": "string",
               "enum": [
                 "agent",
-                "chat"
+                "chat",
+                "dsphere"
               ],
-              "description": "Reported by an outside agent or by the SidePanel Chat."
+              "description": "Reported by an outside agent or the SidePanel Chat, or dsphere: a wizard read DSphere saw succeed."
             },
             "sourceName": {
               "type": "string",

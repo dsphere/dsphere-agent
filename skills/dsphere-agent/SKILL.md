@@ -3,7 +3,7 @@ name: dsphere-agent
 description: "Drive DSphere browser via MCP: read pages, act on controls, collect data with the wizard, and replay workflows."
 metadata:
   author: "dsphere"
-  version: "1.16.1"
+  version: "1.17.0"
   specification: "https://agentskills.io/specification"
 ---
 
@@ -11,13 +11,13 @@ metadata:
 
 Use the user's language. Install/update or missing tools: [English guide](references/guide.en.md) / [中文操作指引](references/guide.zh-CN.md).
 
-Windows: use the verified installer; follow the Windows guide for refused contexts. Never write registry keys directly.
+Windows: use the verified installer (refused contexts: Windows guide); never write registry keys.
 
-**After every install or upgrade:** read all bundled documentation, references and nested contracts once and keep a versioned memory cache ([documentation learning](references/documentation-memory.md)) before reporting setup complete; refresh it when the package changes. Task-time reading below is selective.
+**After every install or upgrade:** read all bundled docs, references and nested contracts once and keep a versioned memory cache ([documentation learning](references/documentation-memory.md)) before reporting setup complete; refresh it when the package changes. Tasks read selectively.
 
 ## One-time task: start here
 
-A one-off task (open, act, collect one list) needs only this section and [quick shapes](references/quick-task.md); form sheet: uploads, downloads, rich text, drag, widgets.
+A one-off task (open, act, collect one list) needs only this section and [quick shapes](references/quick-task.md).
 
 Step tools take flat arguments (an effect adds `idempotencyKey`) and load up front; if `dsagent_page_open` is deferred, fetch every `dsagent_` tool in one search, never a subset.
 
@@ -99,9 +99,10 @@ Retain operationId; rule (5).
 | `INSTANCE_REQUIRED` | Select error.instances; keep instanceId. |
 | `DISCOVERY_UNAVAILABLE` | Local setup (details.cause), not offline: never launch; report. |
 | `EXTENSION_OFFLINE` / INSTANCE_NOT_FOUND | Launch once. Still offline, BROWSER_NOT_INSTALLED or BROWSER_LAUNCH_FAILED: report, use setup; no retries. |
+| BROWSER_SESSION_OWNER_UNAVAILABLE | Wait 2/5/10 s, repeat; then have them check DSphere sign-in; never launch. |
 | APPROVAL_DENIED + STOPPED-BY-PERSON | Stop; tell them what is left; resume only once they agree, with a new `taskDescription`. |
 | `POLICY_DENIED`, hint `Plan quota hit:` | Tell the person the limit ([plan quotas](references/plan-quotas.md)); never retry or work around it. `AUTOMATION_METERING_UNAVAILABLE`: tell them, wait. |
-| `APPROVAL_REQUIRED` / other APPROVAL_DENIED / other POLICY_DENIED | Report refusal; no loop. |
+| `APPROVAL_REQUIRED` / other APPROVAL_DENIED/POLICY_DENIED | Report refusal; no loop. |
 | pre-dispatch `STALE_OBSERVATION` / TARGET_BUSY | Only dispatchStatus=not-dispatched allows fresh evidence/args/key. TARGET_NOT_ACTIONABLE: await change. |
 | TARGET_BUSY + AUTHENTICATION_REQUIRED | Follow User control; await the person. |
 | TARGET_BUSY + FILE_RELEASE_CONSENT_REQUIRED | Nothing sent; await side-panel consent, repeat same key. FILE_RELEASE_DENIED: never retry. |

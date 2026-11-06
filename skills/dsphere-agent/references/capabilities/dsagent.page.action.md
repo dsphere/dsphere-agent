@@ -38,7 +38,7 @@ Opaque target binding, optional revision, and bounded parameters for one externa
 | `promptText` | string (0–2000 chars) |  | With handle-dialog,… |
 | `kind` | enum: page, unload |  | page (default): ale… |
 | `scope` | enum: next, session |  | next (default): the… |
-| `dropTargetId` | string (1–128 chars) |  | With drag: the opaq… |
+| `dropTargetId` | string (1–128 chars) |  | With drag: a target… |
 | `delta` | object {dx, dy} |  | With drag: the pixe… |
 | `find` | string (1–2000 chars) |  | With edit-text: The… |
 | `occurrence` | integer (1…1000) |  | Which match of find… |

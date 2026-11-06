@@ -62,7 +62,7 @@ The started wizard and its first state (with auto, the state where auto ended).
 | `warnings` | array of object {code, message, workflows, nextActions} (≤ 8) |  | What the saved work… |
 | `personTookOver` | boolean |  | True when the perso… |
 | `wizardToken` | string (0–128 chars) |  | Ownership token, re… |
-| `auto` | object {outcome, stoppedAt, executionId, reason, answered, preview} |  | Present when the ca… |
+| `auto` | object {outcome, stoppedAt, executionId, reason, answered, preview, …} |  | Present when the ca… |
 
 ## Result constraints
 

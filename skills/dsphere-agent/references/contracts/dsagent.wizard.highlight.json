@@ -396,6 +396,10 @@
                       ],
                       "description": "data-block / data-table: the detection reads it as page chrome (navigation: a menu, a header or footer link list) or as related items beside an opened record (related), not the page's own data. Never recommended; collect it only when the task asks for exactly that."
                     },
+                    "noValues": {
+                      "type": "boolean",
+                      "description": "data-block / data-table: its sampled records show no value in any field or cell (empty slide or layout frames). Never recommended; listed after the sources that show values."
+                    },
                     "labelSource": {
                       "type": "string",
                       "enum": [
@@ -1290,9 +1294,10 @@
               "type": "string",
               "enum": [
                 "parallel-needs-stable-identity",
+                "nested-children-not-with-detail-pages",
                 "same-name-workflow-exists"
               ],
-              "description": "parallel-needs-stable-identity: the records of the chosen list carry no stable identity (an id, a data attribute or a unique link), which same-tab parallel detail visits need; the saved workflow visits them one at a time instead of maxConcurrency in parallel. same-name-workflow-exists (dsagent.wizard.save only): the person already has workflows with the name this save used (workflows). The save happened as asked; nothing was renamed or replaced. A new wizard for work an existing workflow does leaves lookalikes: change or run the existing one instead (nextActions). Collection steps cannot be edited over MCP; when the new one replaces an older one, tell the person, who can delete it in the DSphere side panel."
+              "description": "parallel-needs-stable-identity: the records of the chosen list carry no stable identity (an id, a data attribute or a unique link), which same-tab parallel detail visits need; the saved workflow visits them one at a time instead of maxConcurrency in parallel. nested-children-not-with-detail-pages: the records of the list open detail pages, and a list read with detail visits collects no nested records of the list, so the nested records chosen for it are left out (choose no-detail-pages to keep them). same-name-workflow-exists (dsagent.wizard.save only): the person already has workflows with the name this save used (workflows). The save happened as asked; nothing was renamed or replaced. A new wizard for work an existing workflow does leaves lookalikes: change or run the existing one instead (nextActions). Collection steps cannot be edited over MCP; when the new one replaces an older one, tell the person, who can delete it in the DSphere side panel."
             },
             "message": {
               "type": "string",

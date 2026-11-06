@@ -84,9 +84,9 @@ for ($Index = 0; $Index -lt $Targets.Count; $Index++) {
 
 仅 **Windows 10/11 桌面版的 Codex** 用随包 GUI 替换原 PowerShell 交接。正常自动安装和其他客户端保持原流程；不支持 Windows 7/8/8.1、Server，x86 仅支持 Windows 10。Connect 不是统一安装前置条件。
 
-1. 公开安装指南第 2 步已安装完整 Skill。验证可信发布源及对应文件哈希后，用已验证 Native 程序执行 `integrations native-host prepare-connect`。命令不注册、不启动 GUI，通过系统原生架构选择、签名与哈希检查后返回 `connectorPath` 和有效期 30 分钟的 `request`。将完整 JSON 保存在包外临时 `prepared.json`，不手工改写或传入沙箱 manifest 路径。
+1. 公开安装指南第 2 步已安装完整 Skill。验证可信发布源及对应文件哈希后，用已验证 Native 程序执行 `integrations native-host prepare-connect`。命令不注册、不启动 GUI，通过 Windows 版本、系统原生架构以及两个程序与 `assets/native/manifest.json` 的大小和 SHA-256 检查后返回 `connectorPath` 和有效期 30 分钟的 `request`（程序没有代码签名，不检查签名）。将完整 JSON 保存在包外临时 `prepared.json`，不手工改写或传入沙箱 manifest 路径。
 2. 给用户返回的 **connector.exe 绝对本地路径**（支持时使用本地文件链接）和所在文件夹。请用户在文件资源管理器打开该文件夹，用浏览器所在 Windows 账号自行双击程序，点击“设置 / 修复”，再“复制结果”粘贴回当前对话。Agent 不启动程序，不要求找 PowerShell，不让用户重复下载。文件不可访问或缺失时先报告阻塞，恢复可信完整 Skill 到用户可访问位置后重新准备；不提供单个替代 exe，不要求关闭安全保护。
-3. `HANDOFF_BUSY` 表示已有未过期交接：使用该对话保存的原请求继续，或等待过期；不删除其他尝试的请求。不支持的系统、签名失败、包不完整或请求无法写入时，停止提供可运行路径。旧版无 Connect 时保持其文档化支持流程，不假装文件存在；只有签名、外部启动和真实客户端验收通过的发布版才能推广 Connect。
+3. `HANDOFF_BUSY` 表示已有未过期交接：使用该对话保存的原请求继续，或等待过期；不删除其他尝试的请求。不支持的系统、大小或哈希不符、包不完整或请求无法写入时，停止提供可运行路径；缺少代码签名从来不是停止的理由，Windows 程序本就不签名发布，出现“未知发布者”或未签名提示属于预期。旧版无 Connect 时保持其文档化支持流程，不假装文件存在；只有外部启动和真实客户端验收通过的发布版才能推广 Connect；代码签名不是条件。
 4. 将用户复制的 JSON 保存为包外 `copied-result.json`，从已安装 Skill 执行 `node scripts/verify-connect-result.mjs <prepared.json> <copied-result.json>`，必须返回 `ok=true`、`configured-awaiting-client-verification`。过期 challenge、错误通道/哈希/路径、注册不完整、重复检查或错误均保持阻塞。口头“完成”不算证据；回执是有界配置证据，不是实时 MCP 已连接的密码学证明。
 5. 使用校验后的 descriptor 继续第 4 步。必须验证当前 Codex MCP 重连、`dsagent_get_runtime_status`、目标在线 DSphere 实例和共享指南的 capability 检查。C4 允许待检查，GUI 的 C5 始终是“请在 Codex 中验证”，不得只凭回执宣称端到端成功。
 

@@ -22,7 +22,7 @@ Filters and pagination for workflow execution history.
 | Field | Type | Required | Meaning |
 |---|---|---|---|
 | `workflowId` | string (0–128 chars) |  | Optional opaque workflow ID used to filter execution history. |
-| `status` | enum (10 values, listed under Constraints) |  | Optional exact execution status filter; omit instead of sending an empty value. partial: ended through the agent repair… |
+| `status` | enum (10 values, listed under Constraints) |  | Optional exact execution status filter; omit instead of sending an empty value. partial: saved rows but did not collect… |
 | `page` | integer (1…100000) |  | One-based result page; defaults to 1. |
 | `pageSize` | integer (1…100) |  | Maximum records per page; defaults to 50. |
 

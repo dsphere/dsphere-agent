@@ -58,7 +58,7 @@ Complete value lists and id patterns for the fields above (the contract file is 
 
 - `appearance.textColor`: matches `^(?:(?:rgba?|(?:ok)?lab|(?:ok)?lch|color)\([a-zA-Z0-9.,%/+\s-]+\)|transparent|currentcolor)$`
 - `appearance.backgroundColor`: matches `^(?:(?:rgba?|(?:ok)?lab|(?:ok)?lch|color)\([a-zA-Z0-9.,%/+\s-]+\)|transparent|currentcolor)$`
-- `fieldLabelSearch.stop`: one of `own-label`, `heading`, `hint-kept`, `fieldset`, `list-entry`, `readout`, `other-field-heading`, `section-fields`, `section-size`, `depth`, `body`, `control-strip`
+- `fieldLabelSearch.stop`: one of `own-label`, `heading`, `hint-kept`, `fieldset`, `inline-text`, `table-cell`, `list-entry`, `readout`, `other-field-heading`, `section-fields`, `section-size`, `depth`, `body`, `control-strip`
 - `fieldLabelSearch.levels[].siblings[].kind`: one of `label`, `long-line`, `readout`, `control-inside`, `too-long`, `empty`, `hidden`, `list-entry`, `field`, `field-block`, `control-strip`
 
 ## Guidance

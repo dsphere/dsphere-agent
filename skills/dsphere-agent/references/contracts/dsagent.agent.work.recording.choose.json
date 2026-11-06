@@ -73,6 +73,18 @@
         ],
         "description": "Who settled the choice: person (the sheet), agent (you: recording.choose or an up-front answer), default (the 10 s countdown). Report it as it is: your own choice is not the person's."
       },
+      "endedBy": {
+        "type": "string",
+        "enum": [
+          "declined",
+          "session-ended",
+          "replaced",
+          "asker-cancelled",
+          "tab-closed",
+          "task-ended"
+        ],
+        "description": "With cancelled: why the question ended unanswered."
+      },
       "requestId": {
         "type": "string",
         "description": "The pending side panel question."

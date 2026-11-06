@@ -25,7 +25,7 @@
           "restricted",
           "partial"
         ],
-        "description": "Optional exact execution status filter; omit instead of sending an empty value. partial: ended through the agent repair handoff (abort, deadline, spent budget, handoff turned off) after saving rows."
+        "description": "Optional exact execution status filter; omit instead of sending an empty value. partial: saved rows but did not collect everything: ended through the agent repair handoff (abort, deadline, spent budget, handoff turned off), or finished short of its collection (parents not visited, visits unresolved or failed, fewer records than requested, records skipped; errorCode COLLECTION_PARTIAL). Coverage that is only unknown keeps success."
       },
       "page": {
         "type": "integer",
@@ -71,7 +71,7 @@
             "status": {
               "type": "string",
               "maxLength": 100,
-              "description": "Current execution status: the backend record's word (pending, running, success, completed, failed, cancelled, stopped, restricted, partial). dsagent.execution.get / wait of a run paused in this browser give its pause word instead: paused-agent-repair, paused-auth-interrupt or paused-resource-pressure. Plan on lifecycle and terminal. partial: ended through the agent repair handoff after saving rows (terminal)."
+              "description": "Current execution status: the backend record's word (pending, running, success, completed, failed, cancelled, stopped, restricted, partial). dsagent.execution.get / wait of a run paused in this browser give its pause word instead: paused-agent-repair, paused-auth-interrupt or paused-resource-pressure. Plan on lifecycle and terminal. partial: saved rows without collecting everything (the agent repair handoff ended it, or it finished short of its collection: errorCode COLLECTION_PARTIAL; terminal)."
             },
             "startedAt": {
               "type": "string",

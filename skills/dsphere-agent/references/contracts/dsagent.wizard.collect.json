@@ -197,7 +197,7 @@
         "maxItems": 50,
         "items": {
           "type": "object",
-          "description": "One record: your field names to their values (null where it has none)."
+          "description": "One record: your field names to their values (null where it has none). A field on a link reads the words the link shows, with its address beside it under \"<name> (Link)\"; a field whose name or description asks for a link or URL reads the address."
         },
         "description": "The first records, keyed by your field names; key order is not kept in transport, so read them in the order of columns."
       },

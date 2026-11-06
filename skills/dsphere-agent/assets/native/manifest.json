@@ -1,67 +1,67 @@
 {
   "schemaVersion": 1,
   "channelSchemaVersion": 1,
-  "skillVersion": "1.16.1",
-  "nativeVersion": "1.16.1",
-  "sourceCommit": "65123c00d4aba36c448e1b23b5f1e84356c631ef",
+  "skillVersion": "1.17.0",
+  "nativeVersion": "1.17.0",
+  "sourceCommit": "c3991f5b6455f786ab267d6727b77906ecf99e57",
   "sourceDirty": false,
-  "builtAt": "2026-11-04T13:36:02.144Z",
+  "builtAt": "2026-11-06T14:39:33.050Z",
   "artifacts": [
     {
       "path": "windows-x64/dsphere-native-agent.exe",
       "goos": "windows",
       "goarch": "amd64",
-      "size": 29208576,
-      "sha256": "e1c394e35401810584304193096ff552538423e05a596bbe2d197655fa18f02a"
+      "size": 29209088,
+      "sha256": "d1a7c50a942487f6bd0bfec6500aff397e963a6972a0fd4fb8d65c95062ab105"
     },
     {
       "path": "windows-x86/dsphere-native-agent.exe",
       "goos": "windows",
       "goarch": "386",
-      "size": 28195840,
-      "sha256": "864873d133719ddb5ca15078c6407403e2ba581cfdd91090c94c07cbdf0a7355"
+      "size": 28196352,
+      "sha256": "2ac3ce86a8a8f55378b72747842987baff25cde892a94ba70310c4101994c58c"
     },
     {
       "path": "windows-arm64/dsphere-native-agent.exe",
       "goos": "windows",
       "goarch": "arm64",
-      "size": 26744320,
-      "sha256": "c509339b5b1d0106ccaf63e60d7b97999d08978626c557ecdc07f1ed08ef7bea"
+      "size": 26744832,
+      "sha256": "a61788c39760904d06d1045fed61bb108d5b4984d84a12e6578e7a8e887d512a"
     },
     {
       "path": "macos-x64/dsphere-native-agent",
       "goos": "darwin",
       "goarch": "amd64",
       "size": 28855280,
-      "sha256": "c14a4a50dc4bb208297987e4ce4773a5648c22003421b4ef845969178121f00a"
+      "sha256": "94488b8c0c205707181d2f512d748a377420c40a0d8d6616129d7fb0ff3c63b2"
     },
     {
       "path": "macos-arm64/dsphere-native-agent",
       "goos": "darwin",
       "goarch": "arm64",
       "size": 26905938,
-      "sha256": "09ee979e2c35bab9c09c62c0e6e02d81b67f6e12e1cdcbf410cc784cbaf0b73d"
+      "sha256": "fc8196f7c379365c3b37200a66c04d098ead0a43fe87878750df363c01ba4764"
     },
     {
       "path": "windows-x64/connector.exe",
       "goos": "windows",
       "goarch": "amd64",
       "size": 3666944,
-      "sha256": "591c88c77747a6a2ac4d0310a3434d31824586cd708adfe5e95cfa8a6c8142ed"
+      "sha256": "c742e937273a70c87a3e5df14e55e561854bc4b9090e73f1f52a9706772ffc81"
     },
     {
       "path": "windows-x86/connector.exe",
       "goos": "windows",
       "goarch": "386",
       "size": 3414016,
-      "sha256": "778cfd7b7bcc37cf31bb90b7c14506bb545e45a07e6f06202024c197fdb14364"
+      "sha256": "96ebce68028953fe3078a75623eb4a804fb33e871fccc825a677924819c32792"
     },
     {
       "path": "windows-arm64/connector.exe",
       "goos": "windows",
       "goarch": "arm64",
       "size": 3440640,
-      "sha256": "807e590de1baf8e2ba4d2b838eb3ecaae096b6c46aaa95b2e302e935526837b4"
+      "sha256": "6ebbb9aabdc1dfa39d72652579856b94b45d6518aa988c089dfee3e4be2122df"
     }
   ]
 }

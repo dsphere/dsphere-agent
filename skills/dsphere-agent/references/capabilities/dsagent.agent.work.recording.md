@@ -37,6 +37,7 @@ The person's choice (in the sheet, or passed on with recording.choose) and the r
 | `recordingActive` | boolean |  | False after recording stops; further task page actions are refused. |
 | `keepWorkflow` | boolean |  | False: collect once (wizard.run once true), never save. |
 | `answeredBy` | enum: person, agent, default |  | Who settled the choice: person (the sheet), agent (you: recording.choose or an up-front answer), default (the 10 s coun… |
+| `endedBy` | enum: declined, session-ended, replaced, asker-cancelled, tab-closed, task-ended |  | With cancelled: why the question ended unanswered. |
 | `requestId` | string |  | The pending side panel question. |
 | `wizardId` | string |  | The standard guided recording wizard; finish, clean and save this draft. |
 | `wizardToken` | string |  | Ownership token; keep it with the wizard id. |

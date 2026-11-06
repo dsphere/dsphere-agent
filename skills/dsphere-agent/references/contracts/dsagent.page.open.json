@@ -165,6 +165,10 @@
             "type": "string",
             "description": "person (the sheet), agent (you, in this call or with recording.choose) or default (the 10 s countdown): who settled the choice."
           },
+          "endedBy": {
+            "type": "string",
+            "description": "With cancelled: why the question ended unanswered."
+          },
           "requestId": {
             "type": "string",
             "description": "The side panel question."

@@ -302,6 +302,8 @@
               "heading",
               "hint-kept",
               "fieldset",
+              "inline-text",
+              "table-cell",
               "list-entry",
               "readout",
               "other-field-heading",
@@ -311,7 +313,7 @@
               "body",
               "control-strip"
             ],
-            "description": "Why the search ended: own-label (a <label>/aria-labelledby), heading (a short label before the field or its column), hint-kept (a long line above, no short label beside), fieldset (its legend), list-entry, readout (a value, not words), other-field-heading, section-fields (an ancestor holds more than three fields), section-size (an ancestor holds more than 250 elements), depth (eight levels with earlier siblings read, or 24 ancestors climbed), body, control-strip."
+            "description": "Why the search ended: own-label (a <label>/aria-labelledby), heading (a short label before the field or its column), hint-kept (a long line above, no short label beside), fieldset (its legend), inline-text (the words right before the field in its own line), table-cell (the label cell before the field cell in a form table, or above it in a label row), list-entry, readout (a value, not words), other-field-heading, section-fields (an ancestor holds more than three fields), section-size (an ancestor holds more than 250 elements), depth (eight levels with earlier siblings read, or 24 ancestors climbed), body, control-strip."
           },
           "depth": {
             "type": "integer",

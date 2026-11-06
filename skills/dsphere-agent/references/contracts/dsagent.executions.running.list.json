@@ -43,7 +43,7 @@
             "status": {
               "type": "string",
               "maxLength": 100,
-              "description": "Current execution status: the backend record's word (pending, running, success, completed, failed, cancelled, stopped, restricted, partial). dsagent.execution.get / wait of a run paused in this browser give its pause word instead: paused-agent-repair, paused-auth-interrupt or paused-resource-pressure. Plan on lifecycle and terminal. partial: ended through the agent repair handoff after saving rows (terminal)."
+              "description": "Current execution status: the backend record's word (pending, running, success, completed, failed, cancelled, stopped, restricted, partial). dsagent.execution.get / wait of a run paused in this browser give its pause word instead: paused-agent-repair, paused-auth-interrupt or paused-resource-pressure. Plan on lifecycle and terminal. partial: saved rows without collecting everything (the agent repair handoff ended it, or it finished short of its collection: errorCode COLLECTION_PARTIAL; terminal)."
             },
             "startedAt": {
               "type": "string",

@@ -345,7 +345,7 @@
           },
           "detailPages": {
             "type": "boolean",
-            "description": "true: values on each record's detail page too. The wizard opens the record's one link field (it stops at detail-pages when the list offers several links or click-to-open: answer it with auto to go on) and answers the detail choices with their recommended options: pagination, the opened record's source (a label-value group read once per visit), fields, nested scope, no page content. false or omitted: no detail pages."
+            "description": "true: values on each record's detail page too. The wizard opens the record's one link field (it stops at detail-pages when the list offers several links or click-to-open: answer it with auto to go on) and answers the detail choices with their recommended options: pagination, the opened record's source (a label-value group read once per visit), fields, nested scope, no page content. With a collect hint it stops at detail-data-source (ambiguous-source) when the detail page body offers another list beside the recommended source: rank them for the hint and answer it. false or omitted: no detail pages."
           },
           "detailReveal": {
             "type": "boolean",
@@ -734,6 +734,10 @@
                         "related"
                       ],
                       "description": "data-block / data-table: the detection reads it as page chrome (navigation: a menu, a header or footer link list) or as related items beside an opened record (related), not the page's own data. Never recommended; collect it only when the task asks for exactly that."
+                    },
+                    "noValues": {
+                      "type": "boolean",
+                      "description": "data-block / data-table: its sampled records show no value in any field or cell (empty slide or layout frames). Never recommended; listed after the sources that show values."
                     },
                     "labelSource": {
                       "type": "string",
@@ -1629,9 +1633,10 @@
               "type": "string",
               "enum": [
                 "parallel-needs-stable-identity",
+                "nested-children-not-with-detail-pages",
                 "same-name-workflow-exists"
               ],
-              "description": "parallel-needs-stable-identity: the records of the chosen list carry no stable identity (an id, a data attribute or a unique link), which same-tab parallel detail visits need; the saved workflow visits them one at a time instead of maxConcurrency in parallel. same-name-workflow-exists (dsagent.wizard.save only): the person already has workflows with the name this save used (workflows). The save happened as asked; nothing was renamed or replaced. A new wizard for work an existing workflow does leaves lookalikes: change or run the existing one instead (nextActions). Collection steps cannot be edited over MCP; when the new one replaces an older one, tell the person, who can delete it in the DSphere side panel."
+              "description": "parallel-needs-stable-identity: the records of the chosen list carry no stable identity (an id, a data attribute or a unique link), which same-tab parallel detail visits need; the saved workflow visits them one at a time instead of maxConcurrency in parallel. nested-children-not-with-detail-pages: the records of the list open detail pages, and a list read with detail visits collects no nested records of the list, so the nested records chosen for it are left out (choose no-detail-pages to keep them). same-name-workflow-exists (dsagent.wizard.save only): the person already has workflows with the name this save used (workflows). The save happened as asked; nothing was renamed or replaced. A new wizard for work an existing workflow does leaves lookalikes: change or run the existing one instead (nextActions). Collection steps cannot be edited over MCP; when the new one replaces an older one, tell the person, who can delete it in the DSphere side panel."
             },
             "message": {
               "type": "string",
@@ -1919,6 +1924,15 @@
               }
             },
             "required": []
+          },
+          "fieldReview": {
+            "type": "string",
+            "enum": [
+              "reviewed",
+              "model-unavailable",
+              "failed"
+            ],
+            "description": "A wizard started with a collectHint: auto ran the AI field review (review-fields-with-ai) on the list's fields before answering them; how it ended. reviewed: the model named the guessed fields (labelSource ai); model-unavailable: no AI model is enabled in the person's DSphere settings, the guessed names stay (rename them through fieldLabels when the task knows better); failed: the review failed or was refused, the guessed names stay. Absent while the review still runs (reason time-budget: wait with dsagent.wizard.state, then answer fields)."
           }
         },
         "required": [

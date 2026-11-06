@@ -56,7 +56,7 @@ The opened page and its first compact view (absent when the page could not be re
 | `revision` | string (0–128 chars) |  | The revision of the opened page from the read the open already made (af… |
 | `rendered` | boolean |  | False when the browser is not drawing the page (its window reported min… |
 | `settled` | boolean |  | With waitUntil settled: whether the page went quiet within the bound (f… |
-| `recording` | object {status, keepWorkflow, answeredBy, requestId, wizardId, wizardToken} |  | Task recording choice. While pending or starting, wait for the person i… |
+| `recording` | object {status, keepWorkflow, answeredBy, endedBy, requestId, wizardId, …} |  | Task recording choice. While pending or starting, wait for the person i… |
 | `browserSession` | object {session, site, state, accountLabel, observedAccountLabel, otherSignedInSessions} |  | The browser session this page opened in and the sign-in evidence DSpher… |
 | `siteKnowledge` | object {site, controls, reading, pitfalls, states, personNote, …} |  | What earlier runs learned about this site: known controls, the reading… |
 | `change` | enum: full, delta, unchanged |  | full: the targets are the page's whole on-screen inventory, not a delta. |

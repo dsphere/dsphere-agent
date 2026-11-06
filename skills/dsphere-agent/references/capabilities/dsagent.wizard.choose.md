@@ -75,7 +75,7 @@ The wizard state after the answer (with auto, the state where auto ended).
 | `lastEndpoint` | object {endpoint, group, outcome, scope, reason, scrapeErrorCode, …} |  | The typed endpoint… |
 | `warnings` | array of object {code, message, workflows, nextActions} (≤ 8) |  | What the saved work… |
 | `personTookOver` | boolean |  | True when the perso… |
-| `auto` | object {outcome, stoppedAt, executionId, reason, answered, preview} |  | Present when the ca… |
+| `auto` | object {outcome, stoppedAt, executionId, reason, answered, preview, …} |  | Present when the ca… |
 
 ## Result constraints
 

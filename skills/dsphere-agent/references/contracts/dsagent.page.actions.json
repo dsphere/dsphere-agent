@@ -236,7 +236,7 @@
               "type": "string",
               "minLength": 1,
               "maxLength": 128,
-              "description": "With drag: the opaque target to drop the dragged target onto (from the same observation). Required unless delta is given."
+              "description": "With drag: a target id a reply gave you, to drop the dragged target onto (from the same observation). Required unless delta is given."
             },
             "delta": {
               "type": "object",
@@ -325,7 +325,7 @@
               "type": "array",
               "minItems": 1,
               "maxItems": 30,
-              "description": "With fill-form: the fields to fill, in order. First call detect-form-fields on the page target and fill by its fieldIds; name a targetId from CURRENT TARGETS only as the fallback, for a field detect-form-fields did not list (a field in a frame, an unlabelled control). text fields take value (date, time and number fields take common wording and get the canonical value: 2026/9/21, 2:30 pm); select fields take value (an option label) or selections (several, for a multiple select); checkbox and radio fields take checked (a radio option is chosen with checked true). Every entry is checked before anything is written: failureCode candidate-not-found (unknown fieldId or target), value-not-found (no such option: details.failureReason lists the options), input-invalid (the wrong kind of value), operation-not-authorized (a password or one-time code: the person enters it), target-not-actionable (disabled or read-only) refuse the call with nothing written. A failure while filling (effect-not-observed, target-scope-changed) stops at that field: details.filledFields names the fields already filled and details.failedField the one that failed. fill-form never submits the form: submit it with a click on its submit button when the task says to.",
+              "description": "With fill-form: the fields to fill, in order. First call detect-form-fields on the page target and fill by its fieldIds; name a targetId a reply gave you only as the fallback, for a field detect-form-fields did not list (a field in a frame, an unlabelled control). text fields take value (date, time and number fields take common wording and get the canonical value: 2026/9/21, 2:30 pm); select fields take value (an option label) or selections (several, for a multiple select); checkbox and radio fields take checked (a radio option is chosen with checked true). Every entry is checked before anything is written: failureCode candidate-not-found (unknown fieldId or target), value-not-found (no such option: details.failureReason lists the options), input-invalid (the wrong kind of value), operation-not-authorized (a password or one-time code: the person enters it), target-not-actionable (disabled or read-only) refuse the call with nothing written. A failure while filling (effect-not-observed, target-scope-changed) stops at that field: details.filledFields names the fields already filled and details.failedField the one that failed. fill-form never submits the form: submit it with a click on its submit button when the task says to.",
               "items": {
                 "type": "object",
                 "additionalProperties": false,
@@ -340,7 +340,7 @@
                     "type": "string",
                     "minLength": 1,
                     "maxLength": 128,
-                    "description": "Fallback only: an exact target ID from CURRENT TARGETS for a field detection did not list."
+                    "description": "Fallback only: a target id a reply gave you, for a field detection did not list."
                   },
                   "value": {
                     "type": "string",

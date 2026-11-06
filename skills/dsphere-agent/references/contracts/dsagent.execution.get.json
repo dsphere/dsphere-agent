@@ -46,7 +46,7 @@
       "status": {
         "type": "string",
         "maxLength": 100,
-        "description": "Current execution status: the backend record's word (pending, running, success, completed, failed, cancelled, stopped, restricted, partial). dsagent.execution.get / wait of a run paused in this browser give its pause word instead: paused-agent-repair, paused-auth-interrupt or paused-resource-pressure. Plan on lifecycle and terminal. partial: ended through the agent repair handoff after saving rows (terminal)."
+        "description": "Current execution status: the backend record's word (pending, running, success, completed, failed, cancelled, stopped, restricted, partial). dsagent.execution.get / wait of a run paused in this browser give its pause word instead: paused-agent-repair, paused-auth-interrupt or paused-resource-pressure. Plan on lifecycle and terminal. partial: saved rows without collecting everything (the agent repair handoff ended it, or it finished short of its collection: errorCode COLLECTION_PARTIAL; terminal)."
       },
       "startedAt": {
         "type": "string",
@@ -454,7 +454,34 @@
                   "collected"
                 ],
                 "additionalProperties": false,
-                "description": "Lists that ran out of pages before the requested record count."
+                "description": "Lists that reached their verified end below the requested record count: their records are all there is (a record count is a cap, not a promise); the collection is not short for it."
+              },
+              "requestStoppedShort": {
+                "type": "object",
+                "properties": {
+                  "lists": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Lists that stopped before their end."
+                  },
+                  "requested": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Records they were asked for."
+                  },
+                  "collected": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Records they held."
+                  }
+                },
+                "required": [
+                  "lists",
+                  "requested",
+                  "collected"
+                ],
+                "additionalProperties": false,
+                "description": "Lists that stopped below the requested record count before their end was verified (a time or pass ceiling while they still grew, a stalled pagination, a load still pending): they may hold more, so the collection is partial."
               },
               "nestedCoverage": {
                 "type": "object",
@@ -713,9 +740,12 @@
                     "field-identity-refused",
                     "field-read-blanked",
                     "chart-sweep-incomplete",
-                    "parent-not-accepted"
+                    "parent-not-accepted",
+                    "records-read-not-saved",
+                    "parents-not-visited",
+                    "records-not-saved"
                   ],
-                  "description": "kept-unreached (a read kept its empty value), zero-iterations (a list loop ran no item), continued-unverified (a click meant to open a tab opened none), pagination-shortfall (pages ran out before the requested count), rows-not-saved / rows-unverified (the local sheet), detail-field-missing (a detail visit kept its record without this field), item-skipped (a loop item answered skip-item: not collected, no row written), field-empty-all-rows (a field the wizard showed with a value read empty on every row; count is the rows saved without it), field-identity-refused (a list field whose every match in a record was another field, by its stated label or its place in the record; the cell stayed empty; count is the rows), field-read-blanked (list cells left empty although the record shows the field: the recorded field refused the value at its place, or recovery found several candidates; count is the rows; check the page before trusting the column), chart-sweep-incomplete (a chart field whose sweep may have missed records; count is the records it read; see chartsIncomplete), parent-not-accepted (replies the reply loop read under a comment the run could not read as a row: held by no row and not saved; count is the replies)."
+                  "description": "kept-unreached (a read kept its empty value), zero-iterations (a list loop ran no item), continued-unverified (a click meant to open a tab opened none), pagination-shortfall (pages ran out before the requested count), rows-not-saved / rows-unverified (the local sheet), detail-field-missing (a detail visit kept its record without this field), item-skipped (a loop item answered skip-item: not collected, no row written), field-empty-all-rows (a field the wizard showed with a value read empty on every row; count is the rows saved without it), field-identity-refused (a list field whose every match in a record was another field, by its stated label or its place in the record; the cell stayed empty; count is the rows), field-read-blanked (list cells left empty although the record shows the field: the recorded field refused the value at its place, or recovery found several candidates; count is the rows; check the page before trusting the column), chart-sweep-incomplete (a chart field whose sweep may have missed records; count is the records it read; see chartsIncomplete), parent-not-accepted (replies the reply loop read under a comment the run could not read as a row: held by no row and not saved; count is the replies), records-read-not-saved (a run that did not succeed read list records it never saved; count is the records read beyond the rows saved), records-not-saved (a run that succeeded collected list records its confirmed saved rows do not hold; count is the records collected beyond the rows saved; the run ends partial), parents-not-visited (a detail loop ended before visiting every parent record it listed; count is the parents never visited; see collectionFulfillment)."
                 },
                 "count": {
                   "type": "integer",
@@ -843,7 +873,7 @@
           "failed",
           "stopped"
         ],
-        "description": "The lifecycle to plan on, whatever words status (the backend record) uses: completed covers completed and success, partial is a run that ended through the agent repair handoff (you aborted it, its deadline passed, its handoff budget was spent, or the handoff was turned off) after saving rows (coverage.rowsSaved; they are kept and listed like any terminal run's, and endpoint names where it stopped), failed covers failed and restricted (refused under the plan limits), stopped covers stopped and cancelled, paused is a run in this browser waiting on a sign-in wall, on host resources, or on your repair of a failed block (pause says which)."
+        "description": "The lifecycle to plan on, whatever words status (the backend record) uses: completed covers completed and success, partial is a run that saved rows without collecting everything: it ended through the agent repair handoff (you aborted it, its deadline passed, its handoff budget was spent, or the handoff was turned off), or it finished short of its collection (errorCode COLLECTION_PARTIAL: parents it listed and never visited, visits unresolved or failed, fewer records than requested, records skipped; coverage says which; coverage that is only unknown keeps completed) (coverage.rowsSaved; they are kept and listed like any terminal run's, and endpoint names where it stopped), failed covers failed and restricted (refused under the plan limits), stopped covers stopped and cancelled, paused is a run in this browser waiting on a sign-in wall, on host resources, or on your repair of a failed block (pause says which)."
       },
       "pause": {
         "type": "object",
