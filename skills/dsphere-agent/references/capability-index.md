@@ -79,6 +79,7 @@ Known methods are invoked directly. Look a contract up with `dsagent_list_capabi
 | `dsagent.page.ask` | Ask a task clarification or confirmation in DSphere using the same runtime shee… | reversible-write | yes |
 | `dsagent.page.ask.wait` | Read or wait up to 30 seconds for the person to answer the question in DSphere. | read-sensitive |  |
 | `dsagent.page.ask.withdraw` | Withdraw your own pending dsagent.page.ask question on this page once it is out… | reversible-write | yes |
+| `dsagent.page.auth.not-a-wall` | Report that the sign-in or verification wall DSphere reads on a page (authentic… | reversible-write | yes |
 | `dsagent.page.close` | Close a browser tab opened for you, once you are done with it (for example when… | reversible-write | yes |
 | `dsagent.page.emulation.clear` | Stop re-applying the script device preset after navigation. | reversible-write | yes |
 | `dsagent.page.emulation.set` | Install an android, iphone, ipad or desktop script device preset on an agent-ow… | reversible-write | yes |

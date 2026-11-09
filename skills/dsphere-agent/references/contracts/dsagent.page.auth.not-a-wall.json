@@ -1,0 +1,70 @@
+{
+  "method": "dsagent.page.auth.not-a-wall",
+  "version": 1,
+  "title": "Report a sign-in wall as a false alarm",
+  "description": "Report that the sign-in or verification wall DSphere reads on a page (authentication.status sign-in-required) is a false alarm: the page needs no sign-in or check for the task, as the person's \"False Alarm, Skip And Resume\" on the sign-in sheet does.",
+  "guidance": "Call it only when the page evidence shows it (dsagent.page.markdown or observe show the page's own content, and what DSphere took for a wall is, for example, a set of links to separate sign-in pages) or your user told you so; never to get past a sign-in or check the task needs: signing in stays the person's. The Extension reads the page again and records the wall it finds as none for this page only, until the tab moves to another address; another kind of wall, and every other page, are judged as before, and nothing is recorded as a sign-in. A task or run paused on the page then resumes as after any wall that went away (a run within a few seconds; follow it with dsagent.execution.wait), and your next read of the page carries authentication no-wall. outcome no-wall: no wall stood when the page was read. Refused, with nothing recorded, while the browser's own sign-in dialog holds the page (businessCode AUTHENTICATION_REQUIRED) or when the page could not be read (SIGN_IN_UNVERIFIED: wait a moment and retry). Requires an idempotency key.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "The page whose wall is a false alarm.",
+    "required": [
+      "pageContextId"
+    ],
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "minLength": 2,
+        "maxLength": 128,
+        "description": "The page the wall stands on: a pageContextId from dsagent.page.open, dsagent.pages.list or a paused run (pause.pageContextId)."
+      }
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "What the report came to.",
+    "required": [
+      "pageContextId",
+      "outcome",
+      "cleared"
+    ],
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "minLength": 2,
+        "maxLength": 128,
+        "description": "The page the wall stands on: a pageContextId from dsagent.page.open, dsagent.pages.list or a paused run (pause.pageContextId)."
+      },
+      "outcome": {
+        "type": "string",
+        "enum": [
+          "reported",
+          "no-wall"
+        ],
+        "description": "reported: the wall standing on the page is recorded as a false alarm for this page; no-wall: no wall stood when the page was read, nothing was recorded."
+      },
+      "wallType": {
+        "type": "string",
+        "maxLength": 40,
+        "description": "With reported: the kind of wall reported (LOGIN_FORM, CAPTCHA, ...)."
+      },
+      "cleared": {
+        "type": "boolean",
+        "description": "Whether the page now reads clear. False only when another kind of wall still stands there; that wall is the person's as usual."
+      }
+    }
+  },
+  "risk": "reversible-write",
+  "targetKinds": [
+    "page"
+  ],
+  "requiredPermissions": [
+    "page.control"
+  ],
+  "timeoutMs": 20000,
+  "maxInlineResultBytes": 1024,
+  "concurrency": "exclusive-target",
+  "retry": "never",
+  "exposure": "exposed"
+}

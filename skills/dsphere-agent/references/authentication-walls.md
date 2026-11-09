@@ -57,3 +57,19 @@ A verification challenge on your own run's page can be yours instead (`pause.wai
 `pause.attemptsLeft`; `nextActions` starts with `dsagent.page.visual.observe`). Pass it on `pause.pageContextId` as in
 `waitingOn: agent` above; the run lends you that page meanwhile. Then wait: the run resumes by itself once the
 challenge is gone. A failed challenge goes to the person, and the pause reads `waitingOn: person` again.
+
+## A wall that is clearly wrong
+
+DSphere can read a wall where none stands, for example a public home page whose box of links leads to separate
+sign-in pages. When the page evidence shows it (`dsagent.page.markdown` or observe show the page's own content) or your
+user tells you so, report it with `dsagent.page.auth.not-a-wall` `{pageContextId}`. Never use it to get past a sign-in
+or check the task needs: signing in stays the person's.
+
+- `outcome: reported`: the wall is recorded as none for that page in that tab, until the tab moves to another address.
+  A task or run paused there resumes by itself, as after any wall that went away (follow a run with
+  `dsagent.execution.wait`). `cleared: false` means another kind of wall still stands there; that one is the person's.
+- `outcome: no-wall`: no wall stood when the page was read; nothing was recorded.
+- A new page, or a different wall on the same page, is judged as before and still pauses.
+- Refusals record nothing. `TARGET_BUSY` with `AUTHENTICATION_REQUIRED`: the browser's own sign-in dialog holds the
+  page; ask the person to answer it. `TARGET_BUSY` with `SIGN_IN_UNVERIFIED`: the page could not be read; wait a moment,
+  then call again. `TARGET_NOT_FOUND`: the tab shows no web page.

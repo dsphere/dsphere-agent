@@ -25,7 +25,7 @@
     "properties": {
       "autofill": {
         "type": "object",
-        "description": "Separate sign-in receipt: the DSphere account manager signs in on the opened page. Query accounts.operations.get with operationId while running; unknown must not be replayed. succeeded: the sign-in form was sent and the page no longer asks to sign in. skipped with already-signed-in or no-sign-in-form: nothing was typed.",
+        "description": "Separate sign-in receipt: the DSphere account manager signs in on the opened page. Query accounts.operations.get with operationId while running; unknown must not be replayed. succeeded: the sign-in form was sent and the page no longer asks to sign in. skipped with already-signed-in, no-sign-in-form or site-unreachable (the tab shows the browser's error page): nothing was typed.",
         "properties": {
           "status": {
             "type": "string",
@@ -248,12 +248,13 @@
                 },
                 "state": {
                   "type": "string",
-                  "description": "Where the page stands on its way to the signed-in application. loading: no web document yet. sign-in-required: the sign-in monitor of the browser finds a sign-in or verification wall; the person signs in: read the page (DSphere shows them the sign-in), then dsagent.page.wait until authentication-cleared. signed-in: the monitor checked the application page and found no wall. unchecked: the application page is open and the monitor could not check it yet; read the page.",
+                  "description": "Where the page stands on its way to the signed-in application. loading: no web document yet. sign-in-required: the sign-in monitor of the browser finds a sign-in or verification wall; the person signs in: read the page (DSphere shows them the sign-in), then dsagent.page.wait until authentication-cleared. signed-in: the monitor checked the application page, found no wall, and the page shows a signed-in account. unknown: no wall, but no signed-in account shows either (an error page, a challenge step, a page still drawing): read the page. unchecked: the application page is open and the monitor could not check it yet; read the page.",
                   "maxLength": 40,
                   "enum": [
                     "loading",
                     "sign-in-required",
                     "signed-in",
+                    "unknown",
                     "unchecked"
                   ]
                 }

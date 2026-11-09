@@ -1,67 +1,46 @@
 {
   "schemaVersion": 1,
   "channelSchemaVersion": 1,
-  "skillVersion": "1.17.0",
-  "nativeVersion": "1.17.0",
-  "sourceCommit": "c3991f5b6455f786ab267d6727b77906ecf99e57",
+  "skillVersion": "1.18.0",
+  "nativeVersion": "1.18.0",
+  "sourceCommit": "99b9f408fb310a9ab8fac00e0d6a64202e448f9b",
   "sourceDirty": false,
-  "builtAt": "2026-11-06T14:39:33.050Z",
+  "builtAt": "2026-11-09T11:05:21.909Z",
   "artifacts": [
     {
       "path": "windows-x64/dsphere-native-agent.exe",
       "goos": "windows",
       "goarch": "amd64",
-      "size": 29209088,
-      "sha256": "d1a7c50a942487f6bd0bfec6500aff397e963a6972a0fd4fb8d65c95062ab105"
+      "size": 29215232,
+      "sha256": "592e6e50a350bf6a68f3d2418ad0f2e2d85b0937f49d04047ced5e3bd679ab83"
     },
     {
       "path": "windows-x86/dsphere-native-agent.exe",
       "goos": "windows",
       "goarch": "386",
-      "size": 28196352,
-      "sha256": "2ac3ce86a8a8f55378b72747842987baff25cde892a94ba70310c4101994c58c"
+      "size": 28201472,
+      "sha256": "a1d293885dc294b684d5bc0a9630e0518aeeb4aec112e72afea87ff8ed5d35af"
     },
     {
       "path": "windows-arm64/dsphere-native-agent.exe",
       "goos": "windows",
       "goarch": "arm64",
-      "size": 26744832,
-      "sha256": "a61788c39760904d06d1045fed61bb108d5b4984d84a12e6578e7a8e887d512a"
+      "size": 26749440,
+      "sha256": "cb62d6ffd6042d9b8f62d9775f9b79b4a4959fbe3885d57315ec72ad3add7d6a"
     },
     {
       "path": "macos-x64/dsphere-native-agent",
       "goos": "darwin",
       "goarch": "amd64",
-      "size": 28855280,
-      "sha256": "94488b8c0c205707181d2f512d748a377420c40a0d8d6616129d7fb0ff3c63b2"
+      "size": 28855296,
+      "sha256": "3fa0ef7240f9fbf91a9e92d77e22dd7c6b7cd4b9ec598931725802d02e9e9afa"
     },
     {
       "path": "macos-arm64/dsphere-native-agent",
       "goos": "darwin",
       "goarch": "arm64",
-      "size": 26905938,
-      "sha256": "fc8196f7c379365c3b37200a66c04d098ead0a43fe87878750df363c01ba4764"
-    },
-    {
-      "path": "windows-x64/connector.exe",
-      "goos": "windows",
-      "goarch": "amd64",
-      "size": 3666944,
-      "sha256": "c742e937273a70c87a3e5df14e55e561854bc4b9090e73f1f52a9706772ffc81"
-    },
-    {
-      "path": "windows-x86/connector.exe",
-      "goos": "windows",
-      "goarch": "386",
-      "size": 3414016,
-      "sha256": "96ebce68028953fe3078a75623eb4a804fb33e871fccc825a677924819c32792"
-    },
-    {
-      "path": "windows-arm64/connector.exe",
-      "goos": "windows",
-      "goarch": "arm64",
-      "size": 3440640,
-      "sha256": "6ebbb9aabdc1dfa39d72652579856b94b45d6518aa988c089dfee3e4be2122df"
+      "size": 26905954,
+      "sha256": "d834a916f21a3f7a1692c2677e82d2e7985952c01b24901734e73dbeecb86b77"
     }
   ]
 }

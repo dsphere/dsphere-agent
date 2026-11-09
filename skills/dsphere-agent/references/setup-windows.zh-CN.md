@@ -10,7 +10,7 @@
 
 - 首次使用或 manifest 缺失：执行 1–4 步完成初始化。
 - 更新或移动 Skill：即使路径相同、manifest 已匹配，也执行 1–4 步，再提示重启以替换旧进程。
-- `EXTENSION_OFFLINE` 或实例为空：先执行 1–4 步，不能仅让用户重启或登录。空实例只证明没有在线扩展，不证明 Native Host 已配置正常。
+- `EXTENSION_OFFLINE` 或实例为空：先执行 1–4 步，不能仅让用户重启或登录。空实例只证明没有在线扩展，不证明 Native Host 已配置正常。浏览器已打开却仍无法连接时，浏览器可能正在运行另一个智能体的 DSphere Agent（同一时间只运行一个）：请用户打开 DSphere 扩展侧边栏 → 更多 → 安装 MCP，点击你这个智能体旁的“激活”；若你未在其中显示为已安装，则点击“连接”安装，之后再调用一次 `dsagent_list_instances`。
 - 任一步失败：报告实际错误和失败步骤；权限或安全边界失败进入下述受控人工流程，其他错误停止。不要宣称配置完成，也不要把重启当作修复。
 
 ## 1. 自动检测浏览器
@@ -80,19 +80,20 @@ for ($Index = 0; $Index -lt $Targets.Count; $Index++) {
 
 仅当自动安装或某次最后 `--check` 因当前客户端沙箱/权限限制而无法写入或读取一个或多个已安装浏览器的 HKCU 注册时使用。任一 install 或 `--check` 返回 `packaged-client-virtualized` 也进入本流程：当前客户端是 Windows 打包应用（MSIX，例如 Codex Desktop），其 AppData 与 HKCU 写入会被重定向到私有存储，浏览器看不到，因此在该客户端内既不能安装也不能回读；不要重试或改用其他写入方式。配置校验失败、manifest 冲突、Origin 不匹配或并发变化不是权限回退；报告后停止。
 
-#### Windows/Codex：本地图形化兜底
+#### Windows：在 DSphere 浏览器中完成连接
 
-仅 **Windows 10/11 桌面版的 Codex** 用随包 GUI 替换原 PowerShell 交接。正常自动安装和其他客户端保持原流程；不支持 Windows 7/8/8.1、Server，x86 仅支持 Windows 10。Connect 不是统一安装前置条件。
+DSphere 浏览器自行注册 Native Host；Skill 不再附带 connector.exe。Windows 10/11 桌面版上进入本兜底的所有客户端都按此执行（不支持 Windows 7/8/8.1、Server，x86 仅支持 Windows 10）。
 
-1. 公开安装指南第 2 步已安装完整 Skill。验证可信发布源及对应文件哈希后，用已验证 Native 程序执行 `integrations native-host prepare-connect`。命令不注册、不启动 GUI，通过 Windows 版本、系统原生架构以及两个程序与 `assets/native/manifest.json` 的大小和 SHA-256 检查后返回 `connectorPath` 和有效期 30 分钟的 `request`（程序没有代码签名，不检查签名）。将完整 JSON 保存在包外临时 `prepared.json`，不手工改写或传入沙箱 manifest 路径。
-2. 给用户返回的 **connector.exe 绝对本地路径**（支持时使用本地文件链接）和所在文件夹。请用户在文件资源管理器打开该文件夹，用浏览器所在 Windows 账号自行双击程序，点击“设置 / 修复”，再“复制结果”粘贴回当前对话。Agent 不启动程序，不要求找 PowerShell，不让用户重复下载。文件不可访问或缺失时先报告阻塞，恢复可信完整 Skill 到用户可访问位置后重新准备；不提供单个替代 exe，不要求关闭安全保护。
-3. `HANDOFF_BUSY` 表示已有未过期交接：使用该对话保存的原请求继续，或等待过期；不删除其他尝试的请求。不支持的系统、大小或哈希不符、包不完整或请求无法写入时，停止提供可运行路径；缺少代码签名从来不是停止的理由，Windows 程序本就不签名发布，出现“未知发布者”或未签名提示属于预期。旧版无 Connect 时保持其文档化支持流程，不假装文件存在；只有外部启动和真实客户端验收通过的发布版才能推广 Connect；代码签名不是条件。
-4. 将用户复制的 JSON 保存为包外 `copied-result.json`，从已安装 Skill 执行 `node scripts/verify-connect-result.mjs <prepared.json> <copied-result.json>`，必须返回 `ok=true`、`configured-awaiting-client-verification`。过期 challenge、错误通道/哈希/路径、注册不完整、重复检查或错误均保持阻塞。口头“完成”不算证据；回执是有界配置证据，不是实时 MCP 已连接的密码学证明。
-5. 使用校验后的 descriptor 继续第 4 步。必须验证当前 Codex MCP 重连、`dsagent_get_runtime_status`、目标在线 DSphere 实例和共享指南的 capability 检查。C4 允许待检查，GUI 的 C5 始终是“请在 Codex 中验证”，不得只凭回执宣称端到端成功。
+1. 公开安装指南第 2 步已安装完整 Skill。验证可信发布源及本平台程序哈希后，用已验证 Native 程序执行 `integrations native-host prepare-connect`。命令不注册任何内容，检查 Windows 版本、系统原生架构以及程序与 `assets/native/manifest.json` 的大小和 SHA-256（程序没有代码签名，不检查签名），在 Skill 旁写入安装请求，并输出 `request`（有效期 24 小时，有效期内再次执行返回同一请求）、`requestPath` 和 `resultPath`。将完整 JSON 保存在包外临时 `prepared.json`，不手工改写或传入沙箱路径。
+   只有 Skill 直接位于用户主目录下的标准 Skills 文件夹之一时，浏览器才能自动找到请求：`.agents\skills`、`.codex\skills`、`.claude\skills`、`.cursor\skills`、`.gemini\skills`、`.copilot\skills`、`.codebuddy\skills`、`.workbuddy\skills`、`.qoder\skills`、`.trae\skills`、`.windsurf\skills` 或 `.config\opencode\skills`。安装到所用客户端自己的标准文件夹（或 `.agents\skills`），不得装到其他位置，也不得向用户索要路径。
+2. 用用户的语言在消息末尾说明两点：打开 DSphere 浏览器（未安装时从官方下载页 https://work.dsphereai.com/download/index.html 安装）；侧边栏出现“完成连接 DSphere Agent <版本>”时点击“连接”（“更多 → 安装 MCP → 完成连接”中也是同一提示）。不向用户索要 Skill 文件夹或任何路径，Agent 不启动任何程序，不要求找 PowerShell，不让用户重复下载。
+3. 不支持的系统、大小或哈希不符、包不完整或请求无法写入时，在第 2 步之前停止。缺少代码签名从来不是停止的理由，Windows 程序本就不签名发布。`HANDOFF_BUSY` 表示另一次准备正在进行，或旧版 Skill 的交接尚未过期：等待即可，不删除其他尝试的请求。
+4. 用户回来后（浏览器已打开时可立即）读取 `resultPath` 处的文件。文件不存在表示尚未完成连接：询问侧边栏是否显示错误。浏览器没有“完成连接”说明版本过旧：请用户从下载页更新浏览器；仅当无法更新时才使用下方 PowerShell 流程。将结果复制为包外 `result.json`，从已安装 Skill 执行 `node scripts/verify-connect-result.mjs <prepared.json> <result.json>`，必须返回 `ok=true`、`configured-awaiting-client-verification`。过期 challenge、错误通道/哈希/路径、注册不完整、重复检查或错误均保持阻塞。口头“完成”不算证据；结果是有界配置证据，不是实时 MCP 已连接的密码学证明。
+5. 使用校验后的 descriptor 继续第 4 步。必须验证客户端 MCP 已重连、`dsagent_get_runtime_status`、目标在线 DSphere 实例和共享指南的 capability 检查。C4 允许待检查，C5 始终为 `verify-in-codex`，不得只凭结果宣称端到端成功。
 
 #### 其他客户端与旧版支持：保留 PowerShell 流程
 
-以下仅用于其他客户端或明确选用的旧版支持，不是 Windows/Codex Connect 的自动兜底。
+以下仅用于没有“完成连接”且用户无法更新的浏览器，或明确选用的旧版支持。
 
 1. 生成一个 16–64 字符、只含 `[A-Za-z0-9_-]` 的新 challenge。解析已验证 `$SkillExe` 与 `scripts\complete-windows-registration.ps1` 的绝对路径。完整 Skill 必须能被桌面用户访问，否则先在其普通 PowerShell 安装并验证完整发布包。禁止传入沙箱检测得到的 `-ManifestPath`、`-TemplatePath` 或 `-RegistryRoots`。helper 在外部用户上下文独立重新检测 DSphere 浏览器，并保留该上下文发现的现有 manifest/来源；不能采信沙箱路径或沙箱内的空浏览器列表。
 2. 用下列模板生成一条可直接复制的命令。显示前替换所有尖括号值；PowerShell 单引号值中的 `'` 必须写成 `''`。绝不把占位符或环境变量留给用户：

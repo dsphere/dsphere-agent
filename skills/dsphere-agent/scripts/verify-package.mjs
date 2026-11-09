@@ -104,7 +104,7 @@ export function verifyPackage(skillDir, { platform } = {}) {
       if (bytes.length !== artifact.size) problems.push(`${artifact.path}: size ${bytes.length} ≠ ${artifact.size}`)
       if (sha256(bytes) !== artifact.sha256) problems.push(`${artifact.path}: sha256 differs`)
     }
-    check('native-manifest', problems.length === 0 && [4, 8].includes((native.artifacts ?? []).length), { artifacts: (native.artifacts ?? []).length, platform: selected, present, omitted: [...omittedPlatforms], problems })
+    check('native-manifest', problems.length === 0 && [4, 5, 8].includes((native.artifacts ?? []).length), { artifacts: (native.artifacts ?? []).length, platform: selected, present, omitted: [...omittedPlatforms], problems })
   } catch (error) { check('native-manifest', false, { error: error.message }) }
 
   try {

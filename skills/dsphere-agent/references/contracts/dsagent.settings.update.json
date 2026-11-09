@@ -28,6 +28,7 @@
           "run-window-focus",
           "agent-challenge-walls",
           "browser-monitor",
+          "sign-in-consent-dialogs",
           "agent-scripts",
           "chat-plan-approval",
           "file-release-consent",
@@ -552,6 +553,45 @@
             },
             "required": [
               "enabled"
+            ]
+          }
+        },
+        "required": [
+          "section",
+          "operation",
+          "value"
+        ]
+      },
+      {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "sign-in-consent-dialogs set: Change how consent dialogs over a sign-in form are answered.",
+        "properties": {
+          "section": {
+            "const": "sign-in-consent-dialogs",
+            "description": "Section sign-in-consent-dialogs: Consent Dialogs."
+          },
+          "operation": {
+            "const": "set",
+            "description": "Change how consent dialogs over a sign-in form are answered."
+          },
+          "value": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "The new answer.",
+            "properties": {
+              "choice": {
+                "type": "string",
+                "enum": [
+                  "leave",
+                  "decline",
+                  "accept"
+                ],
+                "description": "How the account manager's auto fill answers a consent dialog (cookies, privacy, tracking) that a site lays over its sign-in form: leave (the person answers it; the sign-in stops as form-covered and nothing is pressed), decline (press the dialog's one \"reject all\" or \"continue without accepting\" control when it offers one; otherwise it stays the person's), or accept (press the dialog's one accept control). Default leave. Other dialogs over the form are not affected."
+              }
+            },
+            "required": [
+              "choice"
             ]
           }
         },
@@ -1713,6 +1753,7 @@
           "run-window-focus",
           "agent-challenge-walls",
           "browser-monitor",
+          "sign-in-consent-dialogs",
           "agent-scripts",
           "chat-plan-approval",
           "file-release-consent",
