@@ -22,6 +22,16 @@
 //   (assets/native/<platform>/dsphere-native-agent[.exe]), so a Git checkout on any
 //   platform verifies; a schema 1 receipt only carries the production-identity
 //   hash, so its channel-wrapper files are reported, not failed.
+//
+// A copy the DSphere Extension updated in place: the browser's file API writes at an
+// offset but can't shorten, rename or delete a file, so two kinds of files are
+// accepted and listed (never silently):
+// - padded: a non-program file whose release text is shorter than the old copy is
+//   the release text, then spaces, then one LF, up to the old length. After CRLF→LF,
+//   one trailing ` *\n` run is dropped and the hash taken again. Programs stay exact.
+// - removed: a file of the old release that this one dropped holds a note, padded
+//   the same way: `{"removedInDsphereAgent":"<version>"}` in a JSON file, otherwise
+//   `Removed in dsphere-agent <version>: this file is not part of the Skill. Ignore it.`
 import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
@@ -32,6 +42,49 @@ const sha256 = bytes => createHash('sha256').update(bytes).digest('hex')
 const lf = bytes => Buffer.from(bytes.toString('utf8').replaceAll('\r\n', '\n'))
 const EXECUTABLE = /^assets\/native\/[^/]+\/(?:dsphere-native-agent(?:\.exe)?|connector\.exe)$/
 const WRAPPERS =/^(?:SKILL\.md|agents\/openai\.yaml|references\/(?:guide|setup-macos|setup-windows|client-setup|skill-install-update)\.(?:en|zh-CN)\.md|scripts\/(?:detect-macos\.sh|detect-windows\.ps1|complete-windows-registration\.ps1))$/
+
+// The release text of a file an in-place update padded: `bytes` (already CRLF→LF)
+// without one trailing run of spaces followed by a single LF. Null when it doesn't
+// end with LF.
+export function withoutInPlacePadding(bytes) {
+  if (bytes.length === 0 || bytes[bytes.length - 1] !== 0x0a) return null
+  let end = bytes.length - 1
+  while (end > 0 && bytes[end - 1] === 0x20) end--
+  return bytes.subarray(0, end)
+}
+
+// How a non-program file matches its expected CRLF→LF hash: 'exact', 'padded' (by an
+// in-place update) or false.
+function textMatch(bytes, expected) {
+  const text = lf(bytes)
+  if (sha256(text) === expected) return 'exact'
+  const unpadded = withoutInPlacePadding(text)
+  return unpadded !== null && sha256(unpadded) === expected ? 'padded' : false
+}
+
+// Where an in-place update overwrites files the release dropped: the Skill's own
+// folders and its top-level Markdown files, hidden entries skipped.
+const REMOVED_SCOPE = /^(?:(?:references|scripts|assets|agents)\/.+|[^/]+\.md)$/i
+const NOTE_VERSION = '([0-9A-Za-z][0-9A-Za-z.+-]{0,63})'
+const REMOVED_JSON_NOTE = new RegExp(`^\\{"removedInDsphereAgent":"${NOTE_VERSION}"\\}$`)
+const REMOVED_TEXT_NOTE = new RegExp(`^Removed in dsphere-agent ${NOTE_VERSION}: this file is not part of the Skill\\. Ignore it\\.$`)
+
+// The version named by the note an in-place update wrote over a dropped file at
+// `path`, or null when `bytes` (trailing spaces and newlines aside) is anything else.
+export function removedNoteVersion(path, bytes) {
+  if (!REMOVED_SCOPE.test(path) || path.split('/').some(segment => segment.startsWith('.'))) return null
+  let end = bytes.length
+  while (end > 0 && [0x20, 0x0a, 0x0d].includes(bytes[end - 1])) end--
+  if (end > 256) return null
+  const text = Buffer.from(bytes.subarray(0, end)).toString('utf8')
+  const note = path.toLowerCase().endsWith('.json') ? REMOVED_JSON_NOTE : REMOVED_TEXT_NOTE
+  return note.exec(text)?.[1] ?? null
+}
+
+const IN_PLACE_NOTE = 'an in-place update cannot shorten or delete files: padded files are the release text followed by spaces and one newline; removed files hold a note naming the release that dropped them'
+const inPlaceDetails = (padded, removed) => (padded.length || removed.length
+  ? { ...(padded.length ? { paddedByInPlaceUpdate: padded } : {}), ...(removed.length ? { removedByInPlaceUpdate: removed } : {}), inPlaceUpdateNote: IN_PLACE_NOTE }
+  : {})
 
 function listFiles(root) {
   const out = []
@@ -110,16 +163,30 @@ export function verifyPackage(skillDir, { platform } = {}) {
   try {
     const build = readJson('assets/capability-build.json')
     const problems = []
+    const padded = []
     for (const entry of build.capabilities ?? []) {
       const path = join(root, 'references/contracts', `${entry.method}.json`)
       if (!existsSync(path)) { problems.push(`${entry.method}: contract file missing`); continue }
       const bytes = readFileSync(path)
       if (sha256(JSON.stringify(JSON.parse(bytes.toString('utf8')))) !== entry.sha256) problems.push(`${entry.method}: sha256 differs`)
-      if (build.schemaVersion >= 2 && sha256(lf(bytes)) !== entry.fileSha256) problems.push(`${entry.method}: fileSha256 differs`)
+      if (build.schemaVersion >= 2) {
+        const match = textMatch(bytes, entry.fileSha256)
+        if (!match) problems.push(`${entry.method}: fileSha256 differs`)
+        else if (match === 'padded') padded.push(`references/contracts/${entry.method}.json`)
+      }
     }
-    const contracts = existsSync(join(root, 'references/contracts')) ? readdirSync(join(root, 'references/contracts')).filter(n => n.endsWith('.json')).length : 0
+    const removed = []
+    let contracts = 0
+    if (existsSync(join(root, 'references/contracts'))) {
+      for (const name of readdirSync(join(root, 'references/contracts')).filter(n => n.endsWith('.json'))) {
+        const path = `references/contracts/${name}`
+        const version = removedNoteVersion(path, readFileSync(join(root, path)))
+        if (version) removed.push({ path, version })
+        else contracts++
+      }
+    }
     if (contracts !== (build.capabilities ?? []).length) problems.push(`${contracts} contract files for ${(build.capabilities ?? []).length} manifest entries`)
-    check('capability-build', problems.length === 0, { schemaVersion: build.schemaVersion, capabilities: (build.capabilities ?? []).length, sourceExtensionVersion: build.sourceExtensionVersion, problems })
+    check('capability-build', problems.length === 0, { schemaVersion: build.schemaVersion, capabilities: (build.capabilities ?? []).length, sourceExtensionVersion: build.sourceExtensionVersion, problems, ...inPlaceDetails(padded, removed) })
   } catch (error) { check('capability-build', false, { error: error.message }) }
 
   if (existsSync(join(root, 'assets/promotion-manifest.json'))) {
@@ -127,6 +194,7 @@ export function verifyPackage(skillDir, { platform } = {}) {
       const receipt = readJson('assets/promotion-manifest.json')
       const problems = []
       const skipped = []
+      const padded = []
       const seen = new Set()
       let omittedFiles = 0
       for (const [path, entry] of Object.entries(receipt.files ?? {})) {
@@ -139,8 +207,9 @@ export function verifyPackage(skillDir, { platform } = {}) {
         if (receipt.schemaVersion >= 2) {
           // Schema 2 receipts said "outside assets/native/"; the only other file
           // there, manifest.json, is always written with LF, so the rule is the same.
-          const actual = EXECUTABLE.test(path) ? sha256(bytes) : sha256(lf(bytes))
-          if (actual !== entry.shipped) problems.push(`${path}: shipped sha256 differs`)
+          const match = EXECUTABLE.test(path) ? sha256(bytes) === entry.shipped : textMatch(bytes, entry.shipped)
+          if (!match) problems.push(`${path}: shipped sha256 differs`)
+          else if (match === 'padded') padded.push(path)
         } else if (WRAPPERS.test(path)) {
           // Schema 1 holds only the production-identity hash of a channel wrapper.
           skipped.push(path)
@@ -148,10 +217,16 @@ export function verifyPackage(skillDir, { platform } = {}) {
           problems.push(`${path}: sha256 differs`)
         }
       }
-      const extra = listFiles(root).map(p => relative(root, p).split(sep).join('/'))
-        .filter(p => !seen.has(p) && p !== 'assets/promotion-manifest.json' && p !== 'assets/release-channel.json')
+      const removed = []
+      const extra = []
+      for (const p of listFiles(root).map(p => relative(root, p).split(sep).join('/'))) {
+        if (seen.has(p) || p === 'assets/promotion-manifest.json' || p === 'assets/release-channel.json') continue
+        const version = removedNoteVersion(p, readFileSync(join(root, p)))
+        if (version) removed.push({ path: p, version })
+        else extra.push(p)
+      }
       if (extra.length) problems.push(`files not in the manifest: ${extra.join(', ')}`)
-      check('promotion-manifest', problems.length === 0, { schemaVersion: receipt.schemaVersion, files: seen.size, ...(omittedFiles ? { omittedPlatformFiles: omittedFiles } : {}), problems, ...(skipped.length ? { notVerifiable: skipped, note: 'schema 1 receipts record the production-identity hash of channel wrappers; upgrade to a release with a schema 2 receipt to verify them' } : {}) })
+      check('promotion-manifest', problems.length === 0, { schemaVersion: receipt.schemaVersion, files: seen.size, ...(omittedFiles ? { omittedPlatformFiles: omittedFiles } : {}), problems, ...inPlaceDetails(padded, removed), ...(skipped.length ? { notVerifiable: skipped, note: 'schema 1 receipts record the production-identity hash of channel wrappers; upgrade to a release with a schema 2 receipt to verify them' } : {}) })
     } catch (error) { check('promotion-manifest', false, { error: error.message }) }
   } else {
     checks.push({ name: 'promotion-manifest', status: 'skipped', details: { note: 'no assets/promotion-manifest.json: an unpackaged source tree' } })

@@ -123,8 +123,8 @@ Windows 为检测到的 DSphere 浏览器执行用户级 install 与只读回验
 用**同一个包内程序**的 `mcp serve --stdio` 配置本地 MCP，名称 `dsphere-agent`。按客户端支持方式重新加载 Skill 与重连 MCP，不伪造 descriptor、command 或“已连接”状态。
 Configure local stdio MCP `dsphere-agent` with the same verified bundled program; register only this channel's Native Host. No fabricated descriptor or success state.
 
-主动提示用户保存工作并安全退出/重开浏览器、重连 MCP；有任务或占用时等待，不强杀、不自动替用户确认。验证成功前保留上一份可用 Skill。
-Arrange safe browser/MCP reconnection with the user; do not kill tasks/processes or remove the previous verified installation before validation.
+主动提示用户保存工作并安全退出/重开浏览器、重连 MCP；有任务或占用时等待，不强杀、不自动替用户确认。验证成功前保留上一份可用 Skill。注册或 MCP 配置指向的 Skill 目录在程序可能运行时不得移动、重命名或删除；新版本装到新目录，切换注册与配置并验证后再删旧目录。
+Arrange safe browser/MCP reconnection with the user; do not kill tasks/processes or remove the previous verified installation before validation. Never move, rename or delete the Skill folder a registration or MCP configuration names while its program may run; install the new release in a new folder, switch the registration and configuration, and remove the old folder only after verification.
 
 ## 4. Verify completion / 完成判定
 

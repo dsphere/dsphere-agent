@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "sourceExtensionVersion": "1.1.15.20",
+  "sourceExtensionVersion": "1.1.16.40",
   "catalogSha256": "6b4cf1932708fba26b8cf413f5182244648317d56c40800c9cef06fbf7128b1f",
   "hashing": {
     "sha256": "SHA-256 of JSON.stringify(descriptor) with no whitespace, where descriptor is references/contracts/<method>.json parsed as JSON (key order as in the file).",

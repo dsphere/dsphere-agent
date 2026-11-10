@@ -7,40 +7,40 @@
   },
   "files": {
     "SKILL.md": {
-      "canonical": "737e06e2d8c555233ba8dc272acf8da6a9485ad43f346a54614353339d96db78",
-      "shipped": "737e06e2d8c555233ba8dc272acf8da6a9485ad43f346a54614353339d96db78"
+      "canonical": "256b0627496bd3709b0c1c1563e9e5b318f42ba4c9c004594ed8d4b624af86c1",
+      "shipped": "256b0627496bd3709b0c1c1563e9e5b318f42ba4c9c004594ed8d4b624af86c1"
     },
     "agents/openai.yaml": {
       "canonical": "f6fff9c7b537d15e1ee2a39ce3f50e8a4925539f814637bf26d82b532c189cbf",
       "shipped": "f6fff9c7b537d15e1ee2a39ce3f50e8a4925539f814637bf26d82b532c189cbf"
     },
     "assets/capability-build.json": {
-      "canonical": "8791708a11e514365db12bb5c5e9ea340a1b7576345f85dfdba7267276188b44",
-      "shipped": "8791708a11e514365db12bb5c5e9ea340a1b7576345f85dfdba7267276188b44"
+      "canonical": "992b53d6acceaae65be46dae719ef519d50096628a6696e787e93fa69cf3e562",
+      "shipped": "992b53d6acceaae65be46dae719ef519d50096628a6696e787e93fa69cf3e562"
     },
     "assets/native/macos-arm64/dsphere-native-agent": {
-      "canonical": "d834a916f21a3f7a1692c2677e82d2e7985952c01b24901734e73dbeecb86b77",
-      "shipped": "d834a916f21a3f7a1692c2677e82d2e7985952c01b24901734e73dbeecb86b77"
+      "canonical": "a77378ccaf575fe89a45a2448ee0785072820d6852947187fec9cc9894fd8f2f",
+      "shipped": "a77378ccaf575fe89a45a2448ee0785072820d6852947187fec9cc9894fd8f2f"
     },
     "assets/native/macos-x64/dsphere-native-agent": {
-      "canonical": "3fa0ef7240f9fbf91a9e92d77e22dd7c6b7cd4b9ec598931725802d02e9e9afa",
-      "shipped": "3fa0ef7240f9fbf91a9e92d77e22dd7c6b7cd4b9ec598931725802d02e9e9afa"
+      "canonical": "07856b3dd729ee63f75f0e276a559d5f991c52511b8341c6d75d055dc6129284",
+      "shipped": "07856b3dd729ee63f75f0e276a559d5f991c52511b8341c6d75d055dc6129284"
     },
     "assets/native/manifest.json": {
-      "canonical": "822299c9037e28205fe4c595a5c4e7dabcb5309ade239218a5dba7f1f18af56a",
-      "shipped": "822299c9037e28205fe4c595a5c4e7dabcb5309ade239218a5dba7f1f18af56a"
+      "canonical": "570a6d26e66b77a804748e27ee55a1589e3cc735773cb53faf47ec8868ed0769",
+      "shipped": "570a6d26e66b77a804748e27ee55a1589e3cc735773cb53faf47ec8868ed0769"
     },
     "assets/native/windows-arm64/dsphere-native-agent.exe": {
-      "canonical": "cb62d6ffd6042d9b8f62d9775f9b79b4a4959fbe3885d57315ec72ad3add7d6a",
-      "shipped": "cb62d6ffd6042d9b8f62d9775f9b79b4a4959fbe3885d57315ec72ad3add7d6a"
+      "canonical": "95d63ed5d6a39ec931e1a56756d70b5c3b1df07850de16482cf788105d5ebdd7",
+      "shipped": "95d63ed5d6a39ec931e1a56756d70b5c3b1df07850de16482cf788105d5ebdd7"
     },
     "assets/native/windows-x64/dsphere-native-agent.exe": {
-      "canonical": "592e6e50a350bf6a68f3d2418ad0f2e2d85b0937f49d04047ced5e3bd679ab83",
-      "shipped": "592e6e50a350bf6a68f3d2418ad0f2e2d85b0937f49d04047ced5e3bd679ab83"
+      "canonical": "120eb7c5b70d519274c406914893b7eca59547bd271c75f7a5bb91876588ae17",
+      "shipped": "120eb7c5b70d519274c406914893b7eca59547bd271c75f7a5bb91876588ae17"
     },
     "assets/native/windows-x86/dsphere-native-agent.exe": {
-      "canonical": "a1d293885dc294b684d5bc0a9630e0518aeeb4aec112e72afea87ff8ed5d35af",
-      "shipped": "a1d293885dc294b684d5bc0a9630e0518aeeb4aec112e72afea87ff8ed5d35af"
+      "canonical": "419e12efcfb5a0da260e4ed07f311ce3d27eaee753fd8e45458ecb4ec79fabaf",
+      "shipped": "419e12efcfb5a0da260e4ed07f311ce3d27eaee753fd8e45458ecb4ec79fabaf"
     },
     "references/account-management.md": {
       "canonical": "0802fcedf40dbb1dd1a27878450f2a71b8280e2514b9d41ade497855d1fe80db",
@@ -1167,12 +1167,12 @@
       "shipped": "d26f06ef82bc865a887edfe2294684c1c9c736bc4d4e640dc2ba9ac076e0c282"
     },
     "references/skill-install-update.en.md": {
-      "canonical": "afe4b0ed7c4765e0b462e086d6f8408ea11b06685ed5f49e1cef3624ecc1a674",
-      "shipped": "433e18dbed76e8ddbf0896c96a9f23efdf92235e84d4fb6a4d10c937acb119f9"
+      "canonical": "2e9a13ce9e48c6738c7b22f6c7dc30653ae804c625feeda77ca9b6a6e26c2ec7",
+      "shipped": "6feac7df5e66eabd662428d1d3175e44702b2a02414bc03798247ad2cbf4acd9"
     },
     "references/skill-install-update.zh-CN.md": {
-      "canonical": "40c4db930b342888690dd8d8329c210c354255af223343977837eef392a0f609",
-      "shipped": "03b0d2fa9cd57b378ac947980114d804497a45f367fbc7194e4a4e215126ce59"
+      "canonical": "263e2bf4f004c35bdbcd7b674cec661766539edee2acb77a5bea022776a424a9",
+      "shipped": "eeb286a55af0b42f55e7d40bd7949114401637adc207a4e64f404cfa5272bfba"
     },
     "references/task-recording.md": {
       "canonical": "ffc71b6f7a34d4e55f62d36b1d2fd85f42059f262753db349df26a388644a9c1",
@@ -1215,8 +1215,8 @@
       "shipped": "617e9a3e2e74127a0464ee5a1348380160aea5d6884a56fb9a95fa0df5754b15"
     },
     "scripts/verify-package.mjs": {
-      "canonical": "ef3747324f8a0d04ac52cfb83defc655c9a87519dc76f376533c2a755b0a5c3a",
-      "shipped": "ef3747324f8a0d04ac52cfb83defc655c9a87519dc76f376533c2a755b0a5c3a"
+      "canonical": "fafc6394e3756683ebce0fed450d3d816aca8875111d17399d23cbf4ddf51376",
+      "shipped": "fafc6394e3756683ebce0fed450d3d816aca8875111d17399d23cbf4ddf51376"
     }
   }
 }
