@@ -1,46 +1,46 @@
 {
   "schemaVersion": 1,
   "channelSchemaVersion": 1,
-  "skillVersion": "2.0.0",
-  "nativeVersion": "2.0.0",
-  "sourceCommit": "90f3cd8f193d376ec0e2d7239eff897405c105de",
+  "skillVersion": "2.0.1",
+  "nativeVersion": "2.0.1",
+  "sourceCommit": "62a3a55561a237b318d005292dc24bd119f4357f",
   "sourceDirty": false,
-  "builtAt": "2026-11-10T03:26:42.611Z",
+  "builtAt": "2026-11-11T02:22:08.918Z",
   "artifacts": [
     {
       "path": "windows-x64/dsphere-native-agent.exe",
       "goos": "windows",
       "goarch": "amd64",
-      "size": 29215232,
-      "sha256": "120eb7c5b70d519274c406914893b7eca59547bd271c75f7a5bb91876588ae17"
+      "size": 29230056,
+      "sha256": "976403964e8936b267276bfd4ccd6771bd5bcc99f1d3b49fb39fca2b56d261ff"
     },
     {
       "path": "windows-x86/dsphere-native-agent.exe",
       "goos": "windows",
       "goarch": "386",
-      "size": 28201472,
-      "sha256": "419e12efcfb5a0da260e4ed07f311ce3d27eaee753fd8e45458ecb4ec79fabaf"
+      "size": 28216296,
+      "sha256": "42c9570bc158d6ae2d6e4cb9c85eb995beed08b14eb5c6d57561afca64928519"
     },
     {
       "path": "windows-arm64/dsphere-native-agent.exe",
       "goos": "windows",
       "goarch": "arm64",
-      "size": 26749440,
-      "sha256": "95d63ed5d6a39ec931e1a56756d70b5c3b1df07850de16482cf788105d5ebdd7"
+      "size": 26764264,
+      "sha256": "0630073d4409fc9ee6a0e223bf17b2ae0779a8c2cb2045859b826b855ae39182"
     },
     {
       "path": "macos-x64/dsphere-native-agent",
       "goos": "darwin",
       "goarch": "amd64",
       "size": 28855296,
-      "sha256": "07856b3dd729ee63f75f0e276a559d5f991c52511b8341c6d75d055dc6129284"
+      "sha256": "305f63496979dc188972e21f809719e9a5b5e030262f33a478dbbbae4f297620"
     },
     {
       "path": "macos-arm64/dsphere-native-agent",
       "goos": "darwin",
       "goarch": "arm64",
       "size": 26905954,
-      "sha256": "a77378ccaf575fe89a45a2448ee0785072820d6852947187fec9cc9894fd8f2f"
+      "sha256": "f10b6bf723f4335e9a65801722b4dcbbd659b9bd8ba9af0447534da6a11c741d"
     }
   ]
 }

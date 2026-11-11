@@ -116,6 +116,7 @@
           "engine-error",
           "dataset-save-unconfirmed",
           "plan-restricted",
+          "plan-check-unavailable",
           "run-ownership-conflict",
           "recovery-replay-forbidden",
           "run-tab-group-closed",
@@ -124,7 +125,7 @@
           "recovery-snapshot-missing",
           "unclassified"
         ],
-        "description": "The typed place the failure of the run landed on, from one closed set: target-* (the step's element), wait-timeout / readiness-* / block-timeout (waiting), navigation-* / new-tab-* / tab-unavailable, effect-unverified (a click or upload that may have happened: inspect the page before acting again), collection endpoints (record-limit-not-reached, records-not-saved, traversal-budget-exhausted), input and host endpoints, plan-restricted, unclassified. Absent when the run did not fail, or failed outside this browser."
+        "description": "The typed place the failure of the run landed on, from one closed set: target-* (the step's element), wait-timeout / readiness-* / block-timeout (waiting), navigation-* / new-tab-* / tab-unavailable, effect-unverified (a click or upload that may have happened: inspect the page before acting again), collection endpoints (record-limit-not-reached, records-not-saved, traversal-budget-exhausted), input and host endpoints, plan-restricted (a plan limit, named in endpointDetails.planRestriction), plan-check-unavailable (the plan check did not answer: no limit), unclassified. Absent when the run did not fail, or failed outside this browser."
       },
       "endpointFallback": {
         "type": "string",
@@ -142,7 +143,12 @@
           "kind": {
             "type": "string",
             "maxLength": 40,
-            "description": "Which detail this is: navigation, readiness, budget, tab, timeout, recorded-target, effect, detail-visit or auth."
+            "description": "Which detail this is: navigation, readiness, budget, tab, timeout, recorded-target, effect, detail-visit, auth or plan."
+          },
+          "planRestriction": {
+            "type": "string",
+            "maxLength": 60,
+            "description": "plan: the plan limit the server named (AUTOMATION_DAILY_LIMIT, AUTOMATION_CONCURRENCY, PLAN_EXPIRED, ...)."
           },
           "wallType": {
             "type": "string",
@@ -800,6 +806,7 @@
                     "engine-error",
                     "dataset-save-unconfirmed",
                     "plan-restricted",
+                    "plan-check-unavailable",
                     "run-ownership-conflict",
                     "recovery-replay-forbidden",
                     "run-tab-group-closed",

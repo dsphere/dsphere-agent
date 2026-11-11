@@ -23,9 +23,9 @@
   <img src="docs/images/sidepanel-chat.webp" alt="网页旁的 DSphere Agent 侧边栏，显示 Claude Code 正在控制浏览器" width="900">
 </p>
 
-当前版本：**2.0.0**。
+当前版本：**2.0.1**。
 
-按[安装指南](installation-guide.md)安装：它从 GitHub 与 Gitee 中更快的一个读取当前版本（2.0.0），只从不可变 tag 下载你所用平台的程序，并说明各系统和客户端的接入步骤。
+按[安装指南](installation-guide.md)安装：它从 GitHub 与 Gitee 中更快的一个读取当前版本（2.0.1），只从不可变 tag 下载你所用平台的程序，并说明各系统和客户端的接入步骤。
 
 ## DSphere Agent 是什么？
 

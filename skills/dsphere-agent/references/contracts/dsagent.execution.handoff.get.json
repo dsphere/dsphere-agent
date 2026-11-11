@@ -103,6 +103,7 @@
               "engine-error",
               "dataset-save-unconfirmed",
               "plan-restricted",
+              "plan-check-unavailable",
               "run-ownership-conflict",
               "recovery-replay-forbidden",
               "run-tab-group-closed",

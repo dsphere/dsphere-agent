@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "sourceExtensionVersion": "1.1.16.40",
-  "catalogSha256": "6b4cf1932708fba26b8cf413f5182244648317d56c40800c9cef06fbf7128b1f",
+  "catalogSha256": "dca355c9115b75fe87512ca32edea67d6600a077192b94f6400aa1bac5522afa",
   "hashing": {
     "sha256": "SHA-256 of JSON.stringify(descriptor) with no whitespace, where descriptor is references/contracts/<method>.json parsed as JSON (key order as in the file).",
     "fileSha256": "SHA-256 of the bytes of references/contracts/<method>.json after replacing every CRLF with LF.",
@@ -299,8 +299,8 @@
     {
       "method": "dsagent.execution.get",
       "version": 1,
-      "sha256": "5229d10a3097dc8ba7424a52311ebe9010b1f63a25c5b7872976ada59e1b9eb0",
-      "fileSha256": "2c605a11d8b057f7fb36163348ba059a30bf0ec6fa7f4b90abd60a88db43b24b"
+      "sha256": "75c27353b450614a15666f2903031ba02d9c0cb6cfc0f351d90f0c26be04b2a1",
+      "fileSha256": "3d564fa7648476e22c90c44b0374322cbc21e28749746a7c1df31024941d4c31"
     },
     {
       "method": "dsagent.execution.handoff.abort",
@@ -311,8 +311,8 @@
     {
       "method": "dsagent.execution.handoff.get",
       "version": 1,
-      "sha256": "0918752a939ddcabf591e939c72fbcc8eb49cec65b1faaad1f9a839a174fac1e",
-      "fileSha256": "9223438313c4c436f8ad1edd8e978a4e2fa874ff9512356fef8d07e1ce13d7f9"
+      "sha256": "51772382e9eec0ff8aedfd6efa50b8b9a3270df2397f10f0c4b427b91ef7b26a",
+      "fileSha256": "c958337290e7159c61dc3f0557e4ae6155c49c5f7e6a66e7ee341d8d4a15ddff"
     },
     {
       "method": "dsagent.execution.handoff.resume",
@@ -335,8 +335,8 @@
     {
       "method": "dsagent.execution.wait",
       "version": 1,
-      "sha256": "1b705727841ee01f521b5e728e212e52469ee820e66ee21668c80c8e3201384c",
-      "fileSha256": "1e8a4d72453052b132544b53366dcf7002c12d02f628232eeaa5b97ff489f330"
+      "sha256": "cd2388d11e76a066f47d1de5785c3058cb3a634ad339a53c7dccb05e9ee37584",
+      "fileSha256": "bfe22912babf8757384fbfb15ca8d02b7fdd942ca14d022eec55430094411008"
     },
     {
       "method": "dsagent.executions.list",
