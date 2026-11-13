@@ -1,0 +1,76 @@
+{
+  "method": "dsagent.workflow.repairs.answer",
+  "version": 1,
+  "title": "Keep or decline a workflow's repairs",
+  "description": "Answer the offer dsagent.workflow.repairs.get reports, as the person can in the SidePanel.",
+  "guidance": "keep: the repaired address of each offered step is put first in that step's own setting and the workflow is saved through its normal save, with the recorded addresses kept behind it; later runs reach the step directly. decline: the workflow is not changed; the repairs keep working from this computer's memory and are not offered again. Use keep when your user asked you to maintain the workflow or the changed page is the page they want it to run on; ask them first when unsure. steps 0 means nothing was offered and nothing was written. Requires an idempotency key.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "The workflow and the answer to its offer.",
+    "required": [
+      "workflowId",
+      "answer"
+    ],
+    "properties": {
+      "workflowId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "Opaque workflow identifier returned by dsagent.workflows.list, dsagent.wizard.save or a run."
+      },
+      "answer": {
+        "type": "string",
+        "enum": [
+          "keep",
+          "decline"
+        ],
+        "description": "keep: save the repairs into the workflow's steps. decline: leave the workflow as it is and stop offering these repairs."
+      }
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "What the answer did.",
+    "required": [
+      "workflowId",
+      "answer",
+      "steps"
+    ],
+    "properties": {
+      "workflowId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "Opaque workflow identifier returned by dsagent.workflows.list, dsagent.wizard.save or a run."
+      },
+      "answer": {
+        "type": "string",
+        "enum": [
+          "keep",
+          "decline"
+        ],
+        "description": "The answer that was applied."
+      },
+      "steps": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 50,
+        "description": "How many steps of the workflow it applies to."
+      }
+    }
+  },
+  "risk": "reversible-write",
+  "targetKinds": [
+    "workflow"
+  ],
+  "requiredPermissions": [
+    "workflow.execute"
+  ],
+  "timeoutMs": 20000,
+  "maxInlineResultBytes": 16384,
+  "concurrency": "exclusive-target",
+  "retry": "never",
+  "exposure": "exposed"
+}

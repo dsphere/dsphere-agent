@@ -394,9 +394,16 @@
                       ],
                       "description": "data-block / data-table: the detection reads it as page chrome (navigation: a menu, a header or footer link list) or as related items beside an opened record (related), not the page's own data. Never recommended; collect it only when the task asks for exactly that."
                     },
+                    "source": {
+                      "type": "string",
+                      "enum": [
+                        "network"
+                      ],
+                      "description": "field: network on a field the page does not show, read for each record from the data the page itself received (Settings → Network Data). It has no element on the page: no pick, highlight or rules. Never recommended or chosen by auto. Absent on a field read from the page."
+                    },
                     "noValues": {
                       "type": "boolean",
-                      "description": "data-block / data-table: its sampled records show no value in any field or cell (empty slide or layout frames). Never recommended; listed after the sources that show values."
+                      "description": "data-block / data-table: its sampled records show no value in any field or cell (empty slide or layout frames). Never recommended; listed after the sources that show values. field: no sampled record shows a value for it; not recommended and auto leaves it out; choose it only when the task knows it fills on later records."
                     },
                     "labelSource": {
                       "type": "string",

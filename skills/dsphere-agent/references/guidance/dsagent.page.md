@@ -28,7 +28,7 @@ Owner rules for planning with these methods, each paragraph once with the method
 
 - (dsagent.page.files.detect) Each entry has a fileId for dsagent.page.files.locate and dsagent.page.files.download, valid until the next detect of the page. Lazy pictures appear once the page loaded them: scroll the page (dsagent.page.action scroll) and detect again. Tiny icons and tracking pixels are left out. Read-only: nothing on the page changes.
 
-- (dsagent.page.files.download) The browser saves each under its file name, numbering duplicates. Requires an idempotency key: repeating a key with the same files returns the first result without downloading again.
+- (dsagent.page.files.download) Only http and https addresses download; the result lists the fileIds that did not. The result includes each confirmed saved filePath. Explicitly tell the person where the files reside; browser fallback paths include actual duplicate numbering. Requires an idempotency key: repeating a key with the same files returns the first result without downloading again.
 
 - (dsagent.page.files.locate) located false means the page no longer shows it: detect again. It only scrolls; nothing is clicked. Requires an idempotency key.
 

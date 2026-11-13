@@ -498,6 +498,12 @@
             "maximum": 100,
             "description": "The monitor's confidence."
           },
+          "retryAfterMs": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 3600000,
+            "description": "With type RATE_LIMITED: the wait the site asked for, in milliseconds, when it named one. Wait at least that long before reading the page again."
+          },
           "waitingOn": {
             "type": "string",
             "enum": [

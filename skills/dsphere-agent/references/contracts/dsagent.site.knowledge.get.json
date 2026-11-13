@@ -98,7 +98,7 @@
                 "confirmed",
                 "paused"
               ],
-              "description": "reported: an agent said so, unverified; confirmed: a later run confirmed it last; paused: contradicted three times in a row."
+              "description": "reported: seen once (an agent, or one DSphere run), unverified; confirmed: a later run confirmed it last; paused: contradicted three times in a row."
             },
             "source": {
               "type": "string",

@@ -10,4 +10,4 @@ Owner rules for planning with these methods, each paragraph once with the method
 
 - (dsagent.site.knowledge.record) Requires an idempotency key.
 
-- (dsagent.site.knowledge.record) Before you answer, record once what this task learned with dsagent.site.knowledge.record: controls that mattered (targetId, what they do), the reading method with the fields it read, pitfalls and page states. Write how the site works, never data: no record values, names, numbers, accounts or task wording. An entry that looks like the person's data, or a control inside a data record, is refused.
+- (dsagent.site.knowledge.record) Before answering, record once what this task learned: key controls (targetId, purpose), the reading method and its fields, pitfalls and page states. Write how the site works, never data: no record values, names, numbers, accounts or task wording; those, and controls inside a data record, are refused. entries: a plain list, at most 10; text over maxLength is cut (shortened).

@@ -50,13 +50,13 @@
         "type": "string",
         "pattern": "^acct_[0-9a-f]{16,128}$",
         "maxLength": 128,
-        "description": "Account id from dsagent.app.accounts.list or dsagent.browser.sessions.list. The page opens in that account's own browser session, where the account's sign-in lives. The url must be on the account's application site. Not with sessionGroup new or previous (an account brings its own session). An unknown or unopenable account is refused with TARGET_NOT_FOUND / BROWSER_SESSION_ACCOUNT_NOT_FOUND; a pageContextId must then be a page of the account's session. An account not open yet is refused with POLICY_DENIED / APP_ACCOUNTS_OPEN_LIMIT when the plan's limit on app accounts open at once is reached (a page beside an account already open never is): tell the person to close an open account or upgrade the plan, and do not retry."
+        "description": "Account id from dsagent.app.accounts.list or dsagent.browser.sessions.list. Ask the person which account if unclear; never pick one yourself. The page opens in the account's own browser session, which holds its sign-in; the url must be on its application site. Not with sessionGroup new/previous. Unknown or unopenable: TARGET_NOT_FOUND / BROWSER_SESSION_ACCOUNT_NOT_FOUND; a pageContextId must then be in its session. An account not open yet at the plan's limit on app accounts open at once: POLICY_DENIED / APP_ACCOUNTS_OPEN_LIMIT (a page beside an open account never is); tell the person to close one or upgrade the plan; do not retry."
       },
       "taskDescription": {
         "type": "string",
         "minLength": 1,
         "maxLength": 2000,
-        "description": "The person’s request in detail, as you would tell them: what to do, where, with which data. DSphere shows it as the task in the SidePanel Chat and the live execution panel, and its first line, shortened, names the browser tab group the pages you open in the person’s session are gathered in (one group per task: a page.open without it stays in your current task’s group). Required on the first call that starts work in a task (dsagent.page.open, or the first page.action / page.actions on a page you did not open): such a call on a task that has no description yet is refused with INVALID_REQUEST, businessCode TASK-DESCRIPTION-REQUIRED. Later calls of the same task need not repeat it. Presentation context only, never delegated planning. Do not include credentials. When you follow a skill or plan of several steps, describe the whole request here once (not its current step) and pass taskMode continue; a later call with a different taskDescription starts a separate task."
+        "description": "The person’s request in detail, as you would tell them: what to do, where, with which data. DSphere shows it as the task in the SidePanel Chat and the live execution panel, and its first line, shortened, names the browser tab group the pages you open in the person’s session are gathered in (one group per task: a page.open without it stays in your current task’s group). Required on the first call that starts work in a task (dsagent.page.open, or the first page.action / page.actions on a page you did not open): such a call on a task that has no description yet is refused with INVALID_REQUEST, businessCode TASK-DESCRIPTION-REQUIRED. Later calls of the same task need not repeat it. Presentation context only, never delegated planning. Do not include credentials. When you follow a skill or plan of several steps, describe the whole request here once (not its current step) and pass taskMode continue; a later call with a different taskDescription starts a separate task, so when the person only adjusts the task call dsagent.agent.work.amend instead."
       },
       "taskKind": {
         "type": "string",
@@ -292,7 +292,7 @@
                     "confirmed",
                     "reported"
                   ],
-                  "description": "verified: DSphere's own runs verified it; confirmed: a later run confirmed it; reported: an agent said so, unverified."
+                  "description": "verified: DSphere's own runs verified it; confirmed: a later run confirmed it; reported: seen once (an agent, or one DSphere run), unverified."
                 },
                 "targetId": {
                   "type": "string",
@@ -370,7 +370,7 @@
                   "confirmed",
                   "reported"
                 ],
-                "description": "verified: DSphere's own runs verified it; confirmed: a later run confirmed it; reported: an agent said so, unverified."
+                "description": "verified: DSphere's own runs verified it; confirmed: a later run confirmed it; reported: seen once (an agent, or one DSphere run), unverified."
               }
             }
           },
@@ -428,7 +428,7 @@
                     "confirmed",
                     "reported"
                   ],
-                  "description": "verified: DSphere's own runs verified it; confirmed: a later run confirmed it; reported: an agent said so, unverified."
+                  "description": "verified: DSphere's own runs verified it; confirmed: a later run confirmed it; reported: seen once (an agent, or one DSphere run), unverified."
                 },
                 "targetId": {
                   "type": "string",
@@ -489,7 +489,7 @@
                     "confirmed",
                     "reported"
                   ],
-                  "description": "verified: DSphere's own runs verified it; confirmed: a later run confirmed it; reported: an agent said so, unverified."
+                  "description": "verified: DSphere's own runs verified it; confirmed: a later run confirmed it; reported: seen once (an agent, or one DSphere run), unverified."
                 }
               }
             }
@@ -1286,6 +1286,35 @@
         "minimum": 1,
         "description": "Present when the page has more targets than are listed (off screen, or beyond the bound): find one with dsagent.page.find, or read them all with dsagent.page.observe; its id acts at this revision."
       },
+      "taskNotice": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "previousTaskId",
+          "hint"
+        ],
+        "description": "Present when this call's new taskDescription started a separate task on a page your other running task holds.",
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": [
+              "NEW-TASK-STARTED"
+            ],
+            "description": "A separate task was started."
+          },
+          "previousTaskId": {
+            "type": "string",
+            "maxLength": 80,
+            "description": "Your earlier running task that held the page (its taskId, as dsagent.agent.work.amend returns it)."
+          },
+          "hint": {
+            "type": "string",
+            "maxLength": 256,
+            "description": "What to do if the person only adjusted that task: the page belongs to this new task now."
+          }
+        }
+      },
       "authentication": {
         "type": "object",
         "properties": {
@@ -1308,6 +1337,12 @@
             "maximum": 100,
             "description": "The monitor's confidence."
           },
+          "retryAfterMs": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 3600000,
+            "description": "With type RATE_LIMITED: the wait the site asked for, in milliseconds, when it named one. Wait at least that long before reading the page again."
+          },
           "waitingOn": {
             "type": "string",
             "enum": [
@@ -1328,6 +1363,81 @@
         ],
         "additionalProperties": false,
         "description": "The sign-in monitor's verdict on the page: status no-wall when it checked and found none (absent when it could not check); status sign-in-required, with type and confidence, when the page is a sign-in or verification (CAPTCHA) wall. With waitingOn \"agent\" the wall is a human-verification challenge (a CAPTCHA or bot check) that you pass yourself, with the page gestures a person uses: dsagent.page.visual.observe shows the puzzle; dsagent.page.observe / dsagent.page.find list its controls (a checkbox or a picture tile: click; a slider knob: drag with delta or dropTargetId; a code field: type; a refresh or confirm control: click); then read the page again. Once the challenge has survived one of your answers, DSphere sends your drags and plain clicks on it as real browser input (the receipt says so); nothing changes in how you call them. authentication absent or no-wall means it is passed; continue the task. You have attemptsLeft effect calls on this challenge (12 at first) and 5 minutes; when they are spent, or you call dsagent.page.notify on this page because you cannot pass it, DSphere hands the challenge to the person and waitingOn becomes \"person\". Never enter credentials, sign in or ask the person before that. The person may turn this off (DSphere Settings → Verification Challenges; dsagent.settings.get section agent-challenge-walls, which you cannot change): then every wall is the person's from the start. With waitingOn \"person\" effects other than a click on the active surface's own close control (activeSurface.closeTargetId), dismiss, scroll and Escape are refused with TARGET_BUSY / AUTHENTICATION_REQUIRED until the wall is gone. You may still close a sign-in popup the way a guest does, which signs nothing in: click its own close control (activeSurface.closeTargetId of your latest page read), dismiss, scroll or press Escape; then read the page again. DSphere has shown the person its sign-in sheet for this page (and a desktop notification when its side panel is closed). Tell your user that the page needs them to sign in or pass the check in the browser and click Resume in the DSphere side panel; do not use dsagent.page.ask for it. Wait, then read this page again (dsagent.page.observe); continue the task where it stopped once authentication is absent. Do not end the task, retry the effect before then, or sign in, enter credentials or solve the challenge yourself."
+      },
+      "siteResponsiveness": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "verdict",
+          "reason",
+          "host",
+          "stalledRequests",
+          "failedRequests",
+          "sampledRequests",
+          "since",
+          "hint"
+        ],
+        "description": "Present only while something is wrong with how websites answer this task's tab; absent when they answer normally. site-slow: the website itself is slow, stalled, failing, rate-limiting or unreachable while other websites in the same tab answer normally, so it is not a browser or Agent fault. local-network-slow: every website is slow alike, so it is the person's network or proxy. Either way: do not switch browsers, reload the extension or repeat actions faster; tell the person once which website is slow, then wait (dsagent_page_wait) and read again. DSphere never changes its own timeouts because of it.",
+        "properties": {
+          "verdict": {
+            "type": "string",
+            "enum": [
+              "site-slow",
+              "local-network-slow"
+            ],
+            "description": "site-slow: the website is the problem; local-network-slow: the person's network or proxy is."
+          },
+          "reason": {
+            "type": "string",
+            "enum": [
+              "slow",
+              "stalled",
+              "failing",
+              "rate-limited",
+              "unreachable"
+            ],
+            "description": "What is wrong: slow answers (median wait 3 s or more), requests waiting over 10 s, failing requests (5xx or connection errors), rate limiting (HTTP 429), or the website cannot be reached."
+          },
+          "host": {
+            "type": "string",
+            "maxLength": 253,
+            "description": "Host name of the tab's website; never a path or query."
+          },
+          "medianWaitMs": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Median time the website took to start answering over the last 20 s; absent when no request answered."
+          },
+          "stalledRequests": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "The website's requests waiting more than 10 s without an answer (long polls excluded)."
+          },
+          "failedRequests": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "The website's requests that failed in the last 20 s."
+          },
+          "sampledRequests": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "The website's requests counted in the last 20 s."
+          },
+          "controlMedianWaitMs": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Median wait of the other websites the same tab loaded over the last 60 s (the comparison); absent when none answered."
+          },
+          "since": {
+            "type": "string",
+            "description": "When this finding began (UTC, ISO 8601)."
+          },
+          "hint": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "One sentence on what to do."
+          }
+        }
       }
     },
     "required": [

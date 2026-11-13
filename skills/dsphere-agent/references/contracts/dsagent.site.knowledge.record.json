@@ -3,7 +3,7 @@
   "version": 1,
   "title": "Record site knowledge",
   "description": "Record what this task learned about how the page's site works, for the next run: up to 10 entries of kind control, reading, pitfall or state. Controls are named by targetId; DSphere takes their label and role from its own view. Text that looks like the person's data is refused.",
-  "guidance": "Requires an idempotency key.\n\nBefore you answer, record once what this task learned with dsagent.site.knowledge.record: controls that mattered (targetId, what they do), the reading method with the fields it read, pitfalls and page states. Write how the site works, never data: no record values, names, numbers, accounts or task wording. An entry that looks like the person's data, or a control inside a data record, is refused.",
+  "guidance": "Requires an idempotency key.\n\nBefore answering, record once what this task learned: key controls (targetId, purpose), the reading method and its fields, pitfalls and page states. Write how the site works, never data: no record values, names, numbers, accounts or task wording; those, and controls inside a data record, are refused. entries: a plain list, at most 10; text over maxLength is cut (shortened).",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -215,6 +215,15 @@
               "type": "string",
               "maxLength": 64,
               "description": "The entry id, unless rejected."
+            },
+            "shortened": {
+              "type": "array",
+              "maxItems": 32,
+              "items": {
+                "type": "string",
+                "maxLength": 40
+              },
+              "description": "Fields cut to fit."
             },
             "reason": {
               "type": "string",

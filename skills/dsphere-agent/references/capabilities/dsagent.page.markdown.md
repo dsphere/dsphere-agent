@@ -48,7 +48,8 @@ Bounded Markdown rendering of the current document with its references and metad
 | `warnings` | array of object {code, message, nextActions} (≤ 2) |  | REPEATED_RECORDS_USE_WIZARD: switch to the scrape wizard on this page now (dsagent.wizard.start kind=scrape, then wizar… |
 | `fit` | object {rawByteLength, prunedBlocks, matchedChunks, totalChunks} |  | Pruning statistics, present when fit or focus was applied. |
 | `pdf` | object {documents} |  | Present when the page shows PDFs: what became of each. |
-| `authentication` | object {status, type, confidence, waitingOn, attemptsLeft} |  | The sign-in monitor's verdict on the page: status no-wall when it checked and found none (absent when it could not chec… |
+| `authentication` | object {status, type, confidence, retryAfterMs, waitingOn, attemptsLeft} |  | The sign-in monitor's verdict on the page: status no-wall when it checked and found none (absent when it could not chec… |
+| `siteResponsiveness` | object {verdict, reason, host, medianWaitMs, stalledRequests, failedRequests, …} |  | Present only while something is wrong with how websites answer this task's tab; absent when they answer normally. site-… |
 
 ## Result constraints
 

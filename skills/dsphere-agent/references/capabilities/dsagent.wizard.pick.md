@@ -14,7 +14,6 @@ Call `dsagent_invoke` with this shape. Replace every placeholder with a value fr
   "args": {
     "wizardId": "<wizardId: supply a value matching the schema>",
     "expectedRevision": "<expectedRevision: supply a value matching the schema>",
-    "pageContextId": "<pageContextId: supply a value matching the schema>",
     "targetId": "<targetId: supply a value matching the schema>",
     "targetRevision": "<targetRevision: supply a value matching the schema>"
   },
@@ -31,7 +30,7 @@ The element to pick, as an opaque page target.
 | `wizardId` | string (0–36 chars, pattern under Constraints) | yes | Opaque wizard id re… |
 | `wizardToken` | string (16–128 chars, pattern under Constraints) |  | Ownership token ret… |
 | `expectedRevision` | string (0–16 chars, pattern under Constraints) | yes | revision of the sta… |
-| `pageContextId` | string (0–128 chars, pattern under Constraints) | yes | pagePick.pageContex… |
+| `pageContextId` | string (0–128 chars, pattern under Constraints) |  | pagePick.pageContex… |
 | `targetId` | string (0–128 chars, pattern under Constraints) | yes | A target id dsagent… |
 | `targetRevision` | string (0–128 chars, pattern under Constraints) | yes | revision of the dsa… |
 

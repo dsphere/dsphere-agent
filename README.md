@@ -23,9 +23,9 @@
   <img src="docs/images/sidepanel-chat.webp" alt="DSphere Agent side panel next to a web page, showing that Claude Code is controlling the browser" width="900">
 </p>
 
-Current release: **2.0.1**.
+Current release: **2.0.3**.
 
-Install with the [installation guide](installation-guide.md). It reads the current release (2.0.1) from the faster of GitHub and Gitee, downloads from the immutable tag only the programs for your platform, and covers each platform and client.
+Install with the [installation guide](installation-guide.md). It reads the current release (2.0.3) from the faster of GitHub and Gitee, downloads from the immutable tag only the programs for your platform, and covers each platform and client.
 
 ## What is DSphere Agent?
 

@@ -24,6 +24,7 @@ Known methods are invoked directly. Look a contract up with `dsagent_list_capabi
 | `dsagent.accounts.pages.list` | Read current tabs belonging to this visible account: pageContextId, tabId, wind… | read-sensitive |  |
 | `dsagent.accounts.set-enabled` | Set the desired enabled state using at most one existing toggle request. | external-effect | yes |
 | `dsagent.accounts.update` | Update permitted account fields using the current Work complete save format. | reversible-write | yes |
+| `dsagent.agent.work.amend` | When the person adjusts the task you are doing (more or fewer fields, another r… | reversible-write | yes |
 | `dsagent.agent.work.finish` | Ends your task with its verified outcome, and with keep closes its pages in the… | reversible-write | yes |
 | `dsagent.agent.work.list` | What this browser still holds for you between calls (decision F4, failure-endpo… | read-sensitive |  |
 | `dsagent.agent.work.recording` | Read or begin this task's recording choice, the person's question in the standa… | reversible-write | yes |
@@ -84,7 +85,7 @@ Known methods are invoked directly. Look a contract up with `dsagent_list_capabi
 | `dsagent.page.emulation.clear` | Stop re-applying the script device preset after navigation. | reversible-write | yes |
 | `dsagent.page.emulation.set` | Install an android, iphone, ipad or desktop script device preset on an agent-ow… | reversible-write | yes |
 | `dsagent.page.files.detect` | Scan a page, its embedded frames included, for the files it links (pdf, excel,… | read-sensitive |  |
-| `dsagent.page.files.download` | Download detected files or images of a page into the browser's Downloads folder… | external-effect | yes |
+| `dsagent.page.files.download` | Save detected files or images through the DSphere file API to the user export f… | external-effect | yes |
 | `dsagent.page.files.locate` | Scroll the page (or its embedded frame) so a detected file's link or picture is… | reversible-write | yes |
 | `dsagent.page.find` | Find the current page targets that read as a short query (a visible label, a pl… | read-sensitive |  |
 | `dsagent.page.focus` | Bring a page's tab forward in its window and focus that window, for the rare st… | reversible-write | yes |
@@ -108,7 +109,7 @@ Known methods are invoked directly. Look a contract up with `dsagent_list_capabi
 | `dsagent.site.knowledge.record` | Record what this task learned about how the page's site works, for the next run… | reversible-write | yes |
 | `dsagent.website.explore.capture` | ONLY when the user explicitly requests website exploration or an exploration re… | reversible-write | yes |
 | `dsagent.website.explore.export` | ONLY for an explicit user request to explore a website or produce its report. | reversible-write | yes |
-| `dsagent.wizard.back` | Undo the last answered choice so the agent or person can decide again, as the S… | reversible-write | yes |
+| `dsagent.wizard.back` | Undo the last answer, as the SidePanel's Back does: that choice is pending agai… | reversible-write | yes |
 | `dsagent.wizard.cancel` | End the wizard without saving, as the SidePanel's Cancel does: the scrape sessi… | reversible-write | yes |
 | `dsagent.wizard.choose` | Choose wizard options autonomously from the requested task and current wizard/p… | reversible-write | yes |
 | `dsagent.wizard.collect` | Read the records of one list, table or one-record page once with the fields you… | external-effect | yes |
@@ -122,4 +123,6 @@ Known methods are invoked directly. Look a contract up with `dsagent_list_capabi
 | `dsagent.wizard.state` | Read the wizard's current step, the pending choice with its options (opaque opt… | read-sensitive |  |
 | `dsagent.workflow.definition.get` | Read one page of a saved workflow definition: its blocks in order (type, label,… | read-sensitive |  |
 | `dsagent.workflow.inputs.get` | List editable run inputs using opaque field IDs. | read-sensitive |  |
+| `dsagent.workflow.repairs.answer` | Answer the offer dsagent.workflow.repairs.get reports, as the person can in the… | reversible-write | yes |
+| `dsagent.workflow.repairs.get` | Read which steps of a saved workflow were repaired on its last runs and can be… | read-sensitive |  |
 | `dsagent.workflows.list` | List workflows visible to the current extension identity. | read-sensitive |  |

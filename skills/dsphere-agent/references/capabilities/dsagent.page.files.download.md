@@ -1,8 +1,8 @@
 # dsagent.page.files.download
 
-**Download page files or images** · risk `external-effect` · timeout 60000 ms · inline result ≤ 8192 bytes · concurrency `exclusive-target`
+**Download page files or images** · risk `external-effect` · timeout 60000 ms · inline result ≤ 262144 bytes · concurrency `exclusive-target`
 
-Download detected files or images of a page into the browser's Downloads folder, as the Files panel's download does, by fileId from the latest dsagent.page.files.detect (at most 50 per call). Only http and https addresses download; the result lists the fileIds that did not.
+Save detected files or images through the DSphere file API to the user export folder first, allowing browser downloads only after that route is unavailable or fails, by fileId from the latest dsagent.page.files.detect (at most 50 per call).
 
 ## Invocation
 
@@ -32,12 +32,13 @@ The page and the files to download.
 
 ## Result fields (data.data)
 
-The downloads started.
+Completed saves and their confirmed locations.
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
 | `pageContextId` | string (2–128 chars) |  | Opaque page context from dsagent.pages.list or dsagent.page.open. |
-| `downloaded` | integer (0…∞) |  | Downloads the browser started. |
+| `downloaded` | integer (0…∞) |  | Files confirmed saved. |
+| `savedFiles` | array of object {fileId, filePath, destination} (≤ 50) |  | Confirmed local locations; explicitly report these paths to the person. |
 | `skipped` | array of object {fileId, reason} (≤ 50) |  | Files not downloaded. |
 
 ## Guidance

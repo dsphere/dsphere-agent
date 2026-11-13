@@ -50,7 +50,8 @@ Whether the condition was met within the bound, and where the page is now.
 | `url` | string (0–2048 chars) |  | The page address as last read. |
 | `change` | enum: changed, unchanged |  | With sinceRevision: whether the latest revision differs from it. |
 | `authentication` | object |  | With authentication-cleared and timed-out: the wall still standing (status, kind). |
-| `download` | object {state, fileName, sizeBytes, mimeType, interruptReason} |  | With download, once the page started one: the file as the browser saved it. A timed-out wait with state in_progress: th… |
+| `download` | object {state, fileName, filePath, sizeBytes, mimeType, interruptReason} |  | With download, once the page started one: the file as the browser saved it. A timed-out wait with state in_progress: th… |
+| `siteResponsiveness` | object {verdict, reason, host, medianWaitMs, stalledRequests, failedRequests, …} |  | Present only while something is wrong with how websites answer this task's tab; absent when they answer normally. site-… |
 
 ## Result constraints
 

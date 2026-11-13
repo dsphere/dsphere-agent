@@ -42,7 +42,7 @@
         "type": "string",
         "minLength": 1,
         "maxLength": 2000,
-        "description": "The person’s request in detail (what to do, on which site, with which data), as you would tell them; DSphere shows it as the task in the SidePanel Chat. Required when the run starts work on a task that has no description yet (refused with INVALID_REQUEST, businessCode TASK-DESCRIPTION-REQUIRED, otherwise); later calls of the same task need not repeat it. Presentation context only, never delegated planning. Do not include credentials. When you follow a skill or plan of several steps, describe the whole request here once (not its current step) and pass taskMode continue; a later call with a different taskDescription starts a separate task."
+        "description": "The person’s request in detail (what to do, on which site, with which data), as you would tell them; DSphere shows it as the task in the SidePanel Chat. Required when the run starts work on a task that has no description yet (refused with INVALID_REQUEST, businessCode TASK-DESCRIPTION-REQUIRED, otherwise); later calls of the same task need not repeat it. Presentation context only, never delegated planning. Do not include credentials. When you follow a skill or plan of several steps, describe the whole request here once (not its current step) and pass taskMode continue; a later call with a different taskDescription starts a separate task, so when the person only adjusts the task call dsagent.agent.work.amend instead."
       },
       "taskMode": {
         "type": "string",
@@ -104,7 +104,7 @@
       "accountId": {
         "type": "string",
         "maxLength": 128,
-        "description": "Opaque account identifier from dsagent.app.accounts.list; required only for specified mode."
+        "description": "Opaque account identifier from dsagent.app.accounts.list; required only for specified mode. Ask the person which account if unclear; never pick one yourself."
       },
       "sessionGroup": {
         "type": "string",
@@ -179,6 +179,35 @@
         "type": "string",
         "maxLength": 128,
         "description": "The run's ownership token, shown only here: keep it. On the browser connection that started the run nothing needs it; after a restart of your Connector (a new connection) pass it once to dsagent.execution.get / wait or dsagent.execution.handoff.*, and the run, its open repair handoff and its pages follow you."
+      },
+      "taskNotice": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "previousTaskId",
+          "hint"
+        ],
+        "description": "Present when this call's new taskDescription started a separate task on a page your other running task holds.",
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": [
+              "NEW-TASK-STARTED"
+            ],
+            "description": "A separate task was started."
+          },
+          "previousTaskId": {
+            "type": "string",
+            "maxLength": 80,
+            "description": "Your earlier running task that held the page (its taskId, as dsagent.agent.work.amend returns it)."
+          },
+          "hint": {
+            "type": "string",
+            "maxLength": 256,
+            "description": "What to do if the person only adjusted that task: the page belongs to this new task now."
+          }
+        }
       }
     },
     "required": [

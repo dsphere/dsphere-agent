@@ -44,7 +44,7 @@ The open handoff and the page to repair it on.
 | `executionId` | string (0–128 chars) |  | The paused run. |
 | `handoff` | object {handoffId, endpoint, endpointDetails, nodeId, blockType, blockLabel, …} |  | The open handoff. |
 | `pageContextId` | string (0–128 chars) |  | The run page the block failed on, issued to you: observe it (dsagent.page.observe / find) and act on it while the run w… |
-| `recordedTarget` | object {tag, role, label, intent, targetMode} |  | What the block was recorded on; a retarget must name an element the Extension verifies against it. |
+| `recordedTarget` | object {tag, role, label, group, intent, targetMode} |  | What the block was recorded on; a retarget must name an element the Extension verifies against it. |
 | `candidates` | object {revision, query, matches, evidenceOnly} |  | Present when candidates were asked for and the run page and the recorded element have something to search by. |
 | `candidatesUnavailable` | string (0–80 chars) |  | Why no candidates were listed: no-run-page, nothing-recorded, or the page owner's refusal code. |
 | `visual` | object |  | With vision: the screenshot's receipt as dsagent.page.visual.observe gives it (revision, size, redaction); the image it… |

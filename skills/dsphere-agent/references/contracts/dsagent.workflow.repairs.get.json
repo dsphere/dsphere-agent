@@ -1,0 +1,92 @@
+{
+  "method": "dsagent.workflow.repairs.get",
+  "version": 1,
+  "title": "Read the repairs a workflow can keep",
+  "description": "Read which steps of a saved workflow were repaired on its last runs and can be kept in the workflow. When a page changes, a run repairs a step whose recorded address reaches nothing and remembers the repair on this computer; the workflow itself is never rewritten by a run.",
+  "guidance": "A repair that worked on the run that made it and on two further runs is offered here. steps 0 means there is nothing to keep. Call it after replaying a workflow whose run healed or repaired steps (a slower run, a repair handoff you answered), then keep the repairs with dsagent.workflow.repairs.answer. Read-only; no address or page text is returned.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "The workflow to ask about.",
+    "required": [
+      "workflowId"
+    ],
+    "properties": {
+      "workflowId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "Opaque workflow identifier returned by dsagent.workflows.list, dsagent.wizard.save or a run."
+      }
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "The steps whose repair can be kept.",
+    "required": [
+      "workflowId",
+      "steps",
+      "offers"
+    ],
+    "properties": {
+      "workflowId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "Opaque workflow identifier returned by dsagent.workflows.list, dsagent.wizard.save or a run."
+      },
+      "steps": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 50,
+        "description": "How many steps of the workflow it applies to."
+      },
+      "offers": {
+        "type": "array",
+        "maxItems": 50,
+        "description": "One entry per step, in the workflow's order.",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "One step with a repair to keep.",
+          "required": [
+            "nodeId",
+            "blockType",
+            "runs"
+          ],
+          "properties": {
+            "nodeId": {
+              "type": "string",
+              "maxLength": 200,
+              "description": "The step, as dsagent.workflow.definition.get names its blocks."
+            },
+            "blockType": {
+              "type": "string",
+              "maxLength": 100,
+              "description": "Its block type (event-click, forms, get-text, ...)."
+            },
+            "runs": {
+              "type": "integer",
+              "minimum": 3,
+              "maximum": 5,
+              "description": "How many runs the repair worked on (the last five are counted)."
+            }
+          }
+        }
+      }
+    }
+  },
+  "risk": "read-sensitive",
+  "targetKinds": [
+    "workflow"
+  ],
+  "requiredPermissions": [
+    "workflow.read"
+  ],
+  "timeoutMs": 20000,
+  "maxInlineResultBytes": 16384,
+  "concurrency": "shared-read",
+  "retry": "pre-dispatch-read-only",
+  "exposure": "exposed"
+}

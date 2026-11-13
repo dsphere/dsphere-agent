@@ -50,7 +50,7 @@ Revision-bound target-local structure and geometry evidence.
 | `appearance` | object {textColor, backgroundColor} |  | Fixed computed color evidence for this target only. No arbitrary CSS, custom properties, URLs, pixels or private field… |
 | `fieldLabelSearch` | object {outcome, stop, depth, labelChars, levels} |  | For a value field: why its label search (the fieldLabel find and observe report) ended where it did. Typed facts, no te… |
 | `guidance` | object {evidenceGaps, recommendedObservation} |  | Optional owner-derived read-only evidence escalation guidance. |
-| `authentication` | object {status, type, confidence, waitingOn, attemptsLeft} |  | The sign-in monitor's verdict on the page: status no-wall when it checked and found none (absent when it could not chec… |
+| `authentication` | object {status, type, confidence, retryAfterMs, waitingOn, attemptsLeft} |  | The sign-in monitor's verdict on the page: status no-wall when it checked and found none (absent when it could not chec… |
 
 ## Result constraints
 

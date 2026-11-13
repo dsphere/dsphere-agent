@@ -66,10 +66,11 @@ The rows read, or why the read stopped or is still running.
 | `waitedMs` | integer (0…∞) |  | How long this call waited for the run. |
 | `reason` | enum (20 values, listed under Constraints) |  | stopped: why (the wizard auto stop reasons; fields-not-found, fields-ambiguous, region-mismatch and choose-source are t… |
 | `stoppedAt` | string (0–64 chars) |  | stopped: the pending wizard choice it stopped at. |
-| `fieldResults` | array of object {name, status, optionId, matchedLabel, sample, nullCount, …} (≤ 20) |  | How each wanted field mapped, once the fields were decided. |
+| `fieldResults` | array of object {name, status, optionId, matchedLabel, sample, source, …} (≤ 20) |  | How each wanted field mapped, once the fields were decided. |
 | `wizardId` | string (0–36 chars) |  | stopped: the wizard, now yours to continue or cancel. |
 | `wizardToken` | string (0–128 chars) |  | stopped: its ownership token; pass it with every dsagent.wizard.* call. |
 | `wizard` | object |  | stopped: the wizard state as dsagent.wizard.state returns it (pendingChoice, lastEndpoint, authentication, nextActions). |
+| `taskNotice` | object {code, previousTaskId, hint} |  | Present when this call's new taskDescription started a separate task on a page your other running task holds. |
 
 ## Result constraints
 

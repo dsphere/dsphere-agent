@@ -2,7 +2,7 @@
   "method": "dsagent.app.accounts.list",
   "version": 1,
   "title": "List application accounts",
-  "description": "List bounded application-account labels using opaque account IDs.",
+  "description": "List bounded application-account labels using opaque account IDs. Ask the person which account if unclear; never pick one yourself.",
   "inputSchema": {
     "type": "object",
     "properties": {

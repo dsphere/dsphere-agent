@@ -12,7 +12,7 @@
         "type": "string",
         "minLength": 1,
         "maxLength": 2000,
-        "description": "The person’s request in detail, as you would tell them: what to do, where, with which data. DSphere shows it as the task in the SidePanel Chat and the live execution panel, and its first line, shortened, names the browser tab group the pages you open in the person’s session are gathered in (one group per task: a page.open without it stays in your current task’s group). Required on the first call that starts work in a task (dsagent.page.open, or the first page.action / page.actions on a page you did not open): such a call on a task that has no description yet is refused with INVALID_REQUEST, businessCode TASK-DESCRIPTION-REQUIRED. Later calls of the same task need not repeat it. Presentation context only, never delegated planning. Do not include credentials. When you follow a skill or plan of several steps, describe the whole request here once (not its current step) and pass taskMode continue; a later call with a different taskDescription starts a separate task."
+        "description": "The person’s request in detail, as you would tell them: what to do, where, with which data. DSphere shows it as the task in the SidePanel Chat and the live execution panel, and its first line, shortened, names the browser tab group the pages you open in the person’s session are gathered in (one group per task: a page.open without it stays in your current task’s group). Required on the first call that starts work in a task (dsagent.page.open, or the first page.action / page.actions on a page you did not open): such a call on a task that has no description yet is refused with INVALID_REQUEST, businessCode TASK-DESCRIPTION-REQUIRED. Later calls of the same task need not repeat it. Presentation context only, never delegated planning. Do not include credentials. When you follow a skill or plan of several steps, describe the whole request here once (not its current step) and pass taskMode continue; a later call with a different taskDescription starts a separate task, so when the person only adjusts the task call dsagent.agent.work.amend instead."
       },
       "taskMode": {
         "type": "string",
@@ -1030,6 +1030,35 @@
         },
         "additionalProperties": false,
         "description": "The compact view of the page when the script ended; plan the next call from it."
+      },
+      "taskNotice": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "previousTaskId",
+          "hint"
+        ],
+        "description": "Present when this call's new taskDescription started a separate task on a page your other running task holds.",
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": [
+              "NEW-TASK-STARTED"
+            ],
+            "description": "A separate task was started."
+          },
+          "previousTaskId": {
+            "type": "string",
+            "maxLength": 80,
+            "description": "Your earlier running task that held the page (its taskId, as dsagent.agent.work.amend returns it)."
+          },
+          "hint": {
+            "type": "string",
+            "maxLength": 256,
+            "description": "What to do if the person only adjusted that task: the page belongs to this new task now."
+          }
+        }
       }
     },
     "required": [

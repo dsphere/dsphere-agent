@@ -63,6 +63,7 @@ The started wizard and its first state (with auto, the state where auto ended).
 | `personTookOver` | boolean |  | True when the perso… |
 | `wizardToken` | string (0–128 chars) |  | Ownership token, re… |
 | `auto` | object {outcome, stoppedAt, executionId, reason, answered, preview, …} |  | Present when the ca… |
+| `taskNotice` | object {code, previousTaskId, hint} |  | Present when this c… |
 
 ## Result constraints
 

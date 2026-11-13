@@ -27,11 +27,11 @@ One page context, the optional revision the sequence starts from, and the ordere
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
-| `taskDescription` | string (1–2000 chars) |  | The person’s request in detail, as you would te… |
-| `taskMode` | enum: auto, continue |  | continue for your own skill, workflow or plan o… |
-| `taskSteps` | array of string (1–160 chars) (≤ 30) |  | With taskMode continue: your steps in order. Na… |
-| `pageContextId` | string (2–128 chars) | yes | Page context from dsagent.page.open, dsagent.pa… |
-| `expectedRevision` | string (1–128 chars) |  | Optional. The revision the first step was plann… |
+| `taskDescription` | string (1–2000 chars) |  | The person’s request in detail,… |
+| `taskMode` | enum: auto, continue |  | continue for your own skill, wo… |
+| `taskSteps` | array of string (1–160 chars) (≤ 30) |  | With taskMode continue: your st… |
+| `pageContextId` | string (2–128 chars) | yes | Page context from dsagent.page.… |
+| `expectedRevision` | string (1–128 chars) |  | Optional. The revision the firs… |
 | `actions` | array of object {targetId, target, action, clickType, modifiers, offset, …} (≤ 12) | yes | The steps, in order. |
 
 ## Input constraints
@@ -63,17 +63,19 @@ Receipts of the executed steps and the compact view of the page the sequence end
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
-| `pageContextId` | string (0–128 chars) |  | The page context the sequence ended on (another… |
-| `previousRevision` | string (0–128 chars) |  | The revision the sequence started from. |
-| `revision` | string (0–128 chars) |  | The page revision after the last executed actio… |
-| `executed` | integer (0…12) |  | How many steps executed (actions verified, wait… |
-| `receipts` | array of object {index, targetId, action, resolved, waitFor, success, …} (≤ 12) |  | One receipt per executed step, in order. |
-| `stopped` | object {reason, index, targetId, code, businessCode, failureCode, …} |  | Present when the sequence ended before its last… |
-| `uploads` | array of object {index, fileName, success, uploadState, networkUpload, failureCode, …} (≤ 12) |  | Present when an upload-file step had later step… |
-| `recheck` | object {checked, changed, hint} |  | Present when fields were filled while an upload… |
-| `warnings` | array of object {code, message, nextActions} (≤ 2) |  | REPEATED_RECORDS_USE_WIZARD: switch to the scra… |
-| `final` | object {pageSurfaces, motion, focusedCaret, framePageSurfaces, pageSurfacesUnchanged, timing, …} |  | Verified action receipt: a delta of the page th… |
-| `authentication` | object {status, type, confidence, waitingOn, attemptsLeft} |  | The sign-in monitor's verdict on the page: stat… |
+| `pageContextId` | string (0–128 chars) |  | The page context the sequence e… |
+| `previousRevision` | string (0–128 chars) |  | The revision the sequence start… |
+| `revision` | string (0–128 chars) |  | The page revision after the las… |
+| `executed` | integer (0…12) |  | How many steps executed (action… |
+| `receipts` | array of object {index, targetId, action, resolved, waitFor, success, …} (≤ 12) |  | One receipt per executed step,… |
+| `stopped` | object {reason, index, targetId, code, businessCode, failureCode, …} |  | Present when the sequence ended… |
+| `uploads` | array of object {index, fileName, success, uploadState, networkUpload, failureCode, …} (≤ 12) |  | Present when an upload-file ste… |
+| `recheck` | object {checked, changed, hint} |  | Present when fields were filled… |
+| `warnings` | array of object {code, message, nextActions} (≤ 2) |  | REPEATED_RECORDS_USE_WIZARD: sw… |
+| `final` | object {pageSurfaces, motion, focusedCaret, framePageSurfaces, pageSurfacesUnchanged, timing, …} |  | Verified action receipt: a delt… |
+| `taskNotice` | object {code, previousTaskId, hint} |  | Present when this call's new ta… |
+| `authentication` | object {status, type, confidence, retryAfterMs, waitingOn, attemptsLeft} |  | The sign-in monitor's verdict o… |
+| `siteResponsiveness` | object {verdict, reason, host, medianWaitMs, stalledRequests, failedRequests, …} |  | Present only while something is… |
 
 ## Result constraints
 

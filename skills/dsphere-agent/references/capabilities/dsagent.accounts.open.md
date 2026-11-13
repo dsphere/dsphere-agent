@@ -2,7 +2,7 @@
 
 **Open Account** · risk `reversible-write` · timeout 300000 ms · inline result ≤ 65536 bytes · concurrency `exclusive-target`
 
-Open the account using its existing browser environment and fill owner. At the plan's limit on app accounts open at once, a new account is refused with POLICY_DENIED / APP_ACCOUNTS_OPEN_LIMIT and nothing opens: tell the person; do not retry.
+Open the account using its existing browser environment and fill owner. Ask the person which account if unclear; never pick one yourself. At the plan's limit on app accounts open at once, a new account does not open (POLICY_DENIED / APP_ACCOUNTS_OPEN_LIMIT): tell the person; do not retry.
 
 ## Invocation
 
@@ -20,7 +20,7 @@ Call `dsagent_invoke` with this shape. Replace every placeholder with a value fr
 
 ## Inputs
 
-Open the account using its existing browser environment and fill owner. At the plan's limit on app accounts open at onc…
+Open the account using its existing browser environment and fill owner. Ask the person which account if unclear; never…
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
@@ -47,6 +47,10 @@ Complete value lists and id patterns for the fields above (the contract file is 
 
 - `status`: one of `not-dispatched`, `waiting-user`, `running`, `succeeded`, `partial`, `failed`, `cancelled`, `outcome-unknown`, `record-unavailable`, `available`
 - `data.account.allowedActions[]`: one of `options.get`, `list`, `get`, `create`, `update`, `delete`, `set-enabled`, `open`, `close`, `focus`, `fingerprint.get`, `fingerprint.update`, `fingerprint.regenerate`, `operations.get`, `pages.list`, `application.create`
+
+## Guidance
+
+Planning rules for this method: [`guidance/dsagent.accounts.md`](../guidance/dsagent.accounts.md).
 
 ## Contract
 

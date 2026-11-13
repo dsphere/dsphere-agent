@@ -3,7 +3,7 @@
   "version": 1,
   "title": "Read Extension settings",
   "description": "Read the settings a person can change in the SidePanel and Options page, with their current values.",
-  "guidance": "Without workflowId: the Extension settings (export-directory, dom-training-export, trace-logs, intent-interpreter, ad-blocker-default, fallback-model, execution-memory, site-memory, site-notes, resource-pressure, site-knowledge, professional-mode, identity-providers, run-window-focus, agent-challenge-walls, browser-monitor, sign-in-consent-dialogs, agent-scripts, chat-plan-approval, file-release-consent, chat-memory, notification-channels, schedules, llm-models, chat-model, mail, dashboard-url). With workflowId from dsagent.workflows.list: that workflow's card settings (workflow-favorite, workflow-run-environment, workflow-name, workflow-sheet-binding, workflow-record-limits, workflow-monitors). Each section lists the operations dsagent.settings.update accepts and the parts only the person may change; a section the person lacks the SidePanel permission for, or whose owner is unreachable, reports unavailable instead of a value. API keys, secrets and account tags are never returned.",
+  "guidance": "Without workflowId: the Extension settings (export-directory, dom-training-export, trace-logs, intent-interpreter, ad-blocker-default, fallback-model, execution-memory, site-memory, site-notes, resource-pressure, site-knowledge, professional-mode, identity-providers, run-window-focus, agent-challenge-walls, network-data, browser-monitor, sign-in-consent-dialogs, agent-scripts, chat-plan-approval, file-release-consent, chat-memory, notification-channels, schedules, llm-models, chat-model, mail, dashboard-url). With workflowId from dsagent.workflows.list: that workflow's card settings (workflow-favorite, workflow-run-environment, workflow-name, workflow-sheet-binding, workflow-record-limits, workflow-monitors). Each section lists the operations dsagent.settings.update accepts and the parts only the person may change; a section the person lacks the SidePanel permission for, or whose owner is unreachable, reports unavailable instead of a value. API keys, secrets and account tags are never returned.",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -35,6 +35,7 @@
             "identity-providers",
             "run-window-focus",
             "agent-challenge-walls",
+            "network-data",
             "browser-monitor",
             "sign-in-consent-dialogs",
             "agent-scripts",
@@ -57,7 +58,7 @@
           "description": "One section id."
         },
         "minItems": 1,
-        "maxItems": 33,
+        "maxItems": 34,
         "uniqueItems": true,
         "description": "Only these sections, all of the same scope; every section of the scope when absent."
       }
@@ -106,6 +107,7 @@
                 "identity-providers",
                 "run-window-focus",
                 "agent-challenge-walls",
+                "network-data",
                 "browser-monitor",
                 "sign-in-consent-dialogs",
                 "agent-scripts",
@@ -970,6 +972,33 @@
             },
             {
               "type": "object",
+              "description": "Value shape of section network-data.",
+              "properties": {
+                "section": {
+                  "const": "network-data",
+                  "description": "Section network-data."
+                },
+                "value": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "description": "The network data switch.",
+                  "properties": {
+                    "enabled": {
+                      "type": "boolean",
+                      "description": "Whether DSphere may read the data responses a page itself receives: in collection to check and fill values read from the page and to offer fields the page does not show, and elsewhere to tell whether an action or a sign-in worked, whether a collection is complete and whether the site is limiting access; off, collection reads only what the page shows and fields that come from network data stay empty (default true)."
+                    }
+                  },
+                  "required": [
+                    "enabled"
+                  ]
+                }
+              },
+              "required": [
+                "section"
+              ]
+            },
+            {
+              "type": "object",
               "description": "Value shape of section browser-monitor.",
               "properties": {
                 "section": {
@@ -1320,7 +1349,7 @@
                           "dateTime": {
                             "type": "string",
                             "maxLength": 16,
-                            "description": "For date: the one run's date and time as saved."
+                            "description": "For date: the one run's local date and time on the person's computer."
                           },
                           "cronExpression": {
                             "type": "string",
@@ -1335,7 +1364,7 @@
                               "null"
                             ],
                             "maxLength": 64,
-                            "description": "When the schedule runs next, as the server reports it."
+                            "description": "When the schedule runs next, as the local date and time on the person's computer (YYYY-MM-DDTHH:mm:ss)."
                           },
                           "lastRun": {
                             "type": [
@@ -1343,7 +1372,7 @@
                               "null"
                             ],
                             "maxLength": 64,
-                            "description": "When the schedule last ran, as the server reports it."
+                            "description": "When the schedule last ran, as the local date and time on the person's computer (YYYY-MM-DDTHH:mm:ss)."
                           },
                           "environment": {
                             "type": "string",
@@ -1390,6 +1419,32 @@
                             "minimum": 0,
                             "maximum": 10000,
                             "description": "Stored accounts that match no account dsagent.app.accounts.list offers for the workflow now (removed, not openable, or the account list could not be read); they stay saved unless accountIds is changed."
+                          },
+                          "inputs": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "additionalProperties": false,
+                              "description": "One stored input value.",
+                              "properties": {
+                                "fieldId": {
+                                  "type": "string",
+                                  "maxLength": 256,
+                                  "description": "Opaque field id from dsagent.workflow.inputs.get."
+                                },
+                                "value": {
+                                  "type": "string",
+                                  "maxLength": 8192,
+                                  "description": "The text the scheduled runs enter."
+                                }
+                              },
+                              "required": [
+                                "fieldId",
+                                "value"
+                              ]
+                            },
+                            "maxItems": 100,
+                            "description": "The values the scheduled runs fill the workflow's text inputs with, by the field ids dsagent.workflow.inputs.get publishes; empty when the workflow has none."
                           }
                         },
                         "required": [
@@ -1402,7 +1457,8 @@
                           "lastRun",
                           "environment",
                           "accounts",
-                          "unresolvedAccountCount"
+                          "unresolvedAccountCount",
+                          "inputs"
                         ]
                       },
                       "maxItems": 200,
@@ -2336,7 +2392,7 @@
             }
           ]
         },
-        "maxItems": 33,
+        "maxItems": 34,
         "description": "Sections in the order the person meets them in the SidePanel."
       }
     },

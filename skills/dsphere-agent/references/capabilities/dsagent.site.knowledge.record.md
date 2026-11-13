@@ -49,7 +49,7 @@ What happened to each entry.
 | Field | Type | Required | Meaning |
 |---|---|---|---|
 | `site` | string (0–259 chars) |  | The site the entries were kept under. |
-| `results` | array of object {index, outcome, entryId, reason} (≤ 10) |  | One result per entry, by index. |
+| `results` | array of object {index, outcome, entryId, shortened, reason} (≤ 10) |  | One result per entry, by index. |
 
 ## Guidance
 

@@ -108,10 +108,10 @@ Verified action receipt: a delta of the page the action left in place, or the co
 | `effect` | object {kind, confidence, evidence, surfaceId, closeTargetId, message} |  | What the page did a… |
 | `hover` | object {entered, pointerAlreadyInside, cssHoverRulesApplied} |  | What the pointer di… |
 | `rehover` | object {targetId, label, hint} |  | Present on a hover… |
+| `scroll` | object {moved, end, pixelsBelow, contentGrew} |  | On a downward scrol… |
 | `pageUnchanged` | enum: true |  | Present and true wh… |
-| `consumedByDismissal` | object {surfaceId, kind} |  | Present when the pa… |
-| `omittedRemovedTargets` | integer (1…∞) |  | Present when the ac… |
-| … | 23 more fields in the contract | | |
+| `response` | object {answered, failed, pending, rateLimited, retryAfterMs, signInRequired, …} |  | Present when the ac… |
+| … | 28 more fields in the contract | | |
 
 ## Result constraints
 

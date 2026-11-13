@@ -72,7 +72,7 @@ Bounded live page state and opaque semantic targets.
 | `region` | object {targetId, targets} |  | Present for a compact read limited to a region… |
 | `warnings` | array of object {code, message, nextActions} (≤ 2) |  | REPEATED_RECORDS_USE_WIZARD: switch to the scra… |
 | `guidance` | object {evidenceGaps, recommendedObservation} |  | Optional owner-derived read-only evidence escal… |
-| … | 1 more fields in the contract | | |
+| … | 2 more fields in the contract | | |
 
 ## Result constraints
 

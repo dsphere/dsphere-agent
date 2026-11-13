@@ -38,7 +38,7 @@ Structured receipt paired with exactly one MCP ImageContent block.
 | `scope` | enum: viewport, target |  | Whether the image contains the current viewport or an owner-controlled target crop. |
 | `targetId` | string (0–128 chars) |  | Opaque target ID for a target-scoped image. |
 | `visual` | object {mediaType, sourceVerified, geometryVerified, width, height, sizeBytes, …} |  | Bounded quality receipt for the separately returned MCP image content. |
-| `authentication` | object {status, type, confidence, waitingOn, attemptsLeft} |  | The sign-in monitor's verdict on the page: status no-wall when it checked and found none (absent when it could not chec… |
+| `authentication` | object {status, type, confidence, retryAfterMs, waitingOn, attemptsLeft} |  | The sign-in monitor's verdict on the page: status no-wall when it checked and found none (absent when it could not chec… |
 
 ## Contract
 

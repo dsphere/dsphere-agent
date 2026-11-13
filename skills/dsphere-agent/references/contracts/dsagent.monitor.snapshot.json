@@ -399,6 +399,81 @@
                   "waitingOn"
                 ]
               }
+            },
+            "siteResponsiveness": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "verdict",
+                "reason",
+                "host",
+                "stalledRequests",
+                "failedRequests",
+                "sampledRequests",
+                "since",
+                "hint"
+              ],
+              "description": "Present only while something is wrong with how websites answer this task's tab; absent when they answer normally. site-slow: the website itself is slow, stalled, failing, rate-limiting or unreachable while other websites in the same tab answer normally, so it is not a browser or Agent fault. local-network-slow: every website is slow alike, so it is the person's network or proxy. Either way: do not switch browsers, reload the extension or repeat actions faster; tell the person once which website is slow, then wait (dsagent_page_wait) and read again. DSphere never changes its own timeouts because of it.",
+              "properties": {
+                "verdict": {
+                  "type": "string",
+                  "enum": [
+                    "site-slow",
+                    "local-network-slow"
+                  ],
+                  "description": "site-slow: the website is the problem; local-network-slow: the person's network or proxy is."
+                },
+                "reason": {
+                  "type": "string",
+                  "enum": [
+                    "slow",
+                    "stalled",
+                    "failing",
+                    "rate-limited",
+                    "unreachable"
+                  ],
+                  "description": "What is wrong: slow answers (median wait 3 s or more), requests waiting over 10 s, failing requests (5xx or connection errors), rate limiting (HTTP 429), or the website cannot be reached."
+                },
+                "host": {
+                  "type": "string",
+                  "maxLength": 253,
+                  "description": "Host name of the tab's website; never a path or query."
+                },
+                "medianWaitMs": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Median time the website took to start answering over the last 20 s; absent when no request answered."
+                },
+                "stalledRequests": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "The website's requests waiting more than 10 s without an answer (long polls excluded)."
+                },
+                "failedRequests": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "The website's requests that failed in the last 20 s."
+                },
+                "sampledRequests": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "The website's requests counted in the last 20 s."
+                },
+                "controlMedianWaitMs": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Median wait of the other websites the same tab loaded over the last 60 s (the comparison); absent when none answered."
+                },
+                "since": {
+                  "type": "string",
+                  "description": "When this finding began (UTC, ISO 8601)."
+                },
+                "hint": {
+                  "type": "string",
+                  "maxLength": 200,
+                  "description": "One sentence on what to do."
+                }
+              }
             }
           },
           "required": [

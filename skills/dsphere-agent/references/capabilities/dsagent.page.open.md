@@ -70,7 +70,9 @@ The opened page and its first compact view (absent when the page could not be re
 | `pageMetrics` | object {viewportWidth, viewportHeight, scrollX, scrollY, pixelsAbove, pixelsBelow} |  | Viewport and scroll metrics used for bounded navigation planning. |
 | `targets` | object {mode, added, changed, removedTargetIds, commonCapabilities, groups} |  | Opaque semantic targets of the page. |
 | `omittedTargets` | integer (1…∞) |  | Present when the page has more targets than are listed (off screen, or… |
-| `authentication` | object {status, type, confidence, waitingOn, attemptsLeft} |  | The sign-in monitor's verdict on the page: status no-wall when it check… |
+| `taskNotice` | object {code, previousTaskId, hint} |  | Present when this call's new taskDescription started a separate task on… |
+| `authentication` | object {status, type, confidence, retryAfterMs, waitingOn, attemptsLeft} |  | The sign-in monitor's verdict on the page: status no-wall when it check… |
+| `siteResponsiveness` | object {verdict, reason, host, medianWaitMs, stalledRequests, failedRequests, …} |  | Present only while something is wrong with how websites answer this tas… |
 
 ## Result constraints
 

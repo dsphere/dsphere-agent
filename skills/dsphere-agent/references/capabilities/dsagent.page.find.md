@@ -45,7 +45,7 @@ Revision-bound find result over the current semantic targets.
 | `activeSurface` | object {kind, label, backgroundMatches} |  | Present when an open dialog or panel bounded the search. |
 | `warnings` | array of object {code, message, nextActions} (≤ 2) |  | REPEATED_RECORDS_USE_WIZARD: switch to the scrape wizard on this page now (dsagent.wizard.start kind=scrape, then wizar… |
 | `matches` | array of object {target, score, matchedOn} (≤ 20) |  | Matching targets, best first. |
-| `authentication` | object {status, type, confidence, waitingOn, attemptsLeft} |  | The sign-in monitor's verdict on the page: status no-wall when it checked and found none (absent when it could not chec… |
+| `authentication` | object {status, type, confidence, retryAfterMs, waitingOn, attemptsLeft} |  | The sign-in monitor's verdict on the page: status no-wall when it checked and found none (absent when it could not chec… |
 
 ## Result constraints
 

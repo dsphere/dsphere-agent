@@ -33,7 +33,7 @@ Artifact summaries for one workflow execution.
 | Field | Type | Required | Meaning |
 |---|---|---|---|
 | `executionId` | string (1–128 chars) |  | Workflow execution that owns the returned artifacts. |
-| `artifacts` | array of object {artifactId, name, mediaType, kind, size, rowCount, …} (≤ 1000) |  | Bounded artifact summaries; pass an artifactId to dsagent.artifact.read or dsagent.execution.artifact.export. |
+| `artifacts` | array of object {artifactId, name, mediaType, kind, size, filePath, …} (≤ 1000) |  | Bounded artifact summaries; pass an artifactId to dsagent.artifact.read or dsagent.execution.artifact.export. |
 
 ## Contract
 

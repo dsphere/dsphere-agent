@@ -2,7 +2,7 @@
 
 **List application accounts** · risk `read-sensitive` · timeout 15000 ms · inline result ≤ 262144 bytes · concurrency `shared-read`
 
-List bounded application-account labels using opaque account IDs.
+List bounded application-account labels using opaque account IDs. Ask the person which account if unclear; never pick one yourself.
 
 ## Invocation
 

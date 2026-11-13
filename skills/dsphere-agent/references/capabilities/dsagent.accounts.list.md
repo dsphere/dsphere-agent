@@ -2,7 +2,7 @@
 
 **List Accounts** · risk `read-sensitive` · timeout 30000 ms · inline result ≤ 65536 bytes · concurrency `shared-read`
 
-Search the current Work-visible account snapshot.
+Search the current Work-visible account snapshot. Ask the person which account if unclear; never pick one yourself.
 
 ## Invocation
 
@@ -17,7 +17,7 @@ Call `dsagent_read` with this shape (a read: no idempotencyKey, may run beside o
 
 ## Inputs
 
-Search the current Work-visible account snapshot.
+Search the current Work-visible account snapshot. Ask the person which account if unclear; never pick one yourself.
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
@@ -48,6 +48,10 @@ Complete value lists and id patterns for the fields above (the contract file is 
 
 - `status`: one of `not-dispatched`, `waiting-user`, `running`, `succeeded`, `partial`, `failed`, `cancelled`, `outcome-unknown`, `record-unavailable`, `available`
 - `data.records[].allowedActions[]`: one of `options.get`, `list`, `get`, `create`, `update`, `delete`, `set-enabled`, `open`, `close`, `focus`, `fingerprint.get`, `fingerprint.update`, `fingerprint.regenerate`, `operations.get`, `pages.list`, `application.create`
+
+## Guidance
+
+Planning rules for this method: [`guidance/dsagent.accounts.md`](../guidance/dsagent.accounts.md).
 
 ## Contract
 

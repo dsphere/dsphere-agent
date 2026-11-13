@@ -101,7 +101,7 @@
       },
       "taskDescription": {
         "type": "string",
-        "description": "The person's request in detail, as you would tell them; DSphere shows it as the task in the SidePanel. When you follow a skill or plan of several steps, describe the whole request here once (not its current step) and pass taskMode continue; a later call with a different taskDescription starts a separate task.",
+        "description": "The person's request in detail, as you would tell them; DSphere shows it as the task in the SidePanel. When you follow a skill or plan of several steps, describe the whole request here once (not its current step) and pass taskMode continue; a later call with a different taskDescription starts a separate task, so when the person only adjusts the task call dsagent.agent.work.amend instead.",
         "minLength": 1,
         "maxLength": 2000
       },
@@ -359,6 +359,13 @@
               "description": "A bounded sample value.",
               "maxLength": 260
             },
+            "source": {
+              "type": "string",
+              "description": "matched: network when the field is one the page does not show, read from the data the page itself received; absent for a field read from the page.",
+              "enum": [
+                "network"
+              ]
+            },
             "nullCount": {
               "type": "integer",
               "minimum": 0,
@@ -412,6 +419,35 @@
       "wizard": {
         "type": "object",
         "description": "stopped: the wizard state as dsagent.wizard.state returns it (pendingChoice, lastEndpoint, authentication, nextActions)."
+      },
+      "taskNotice": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "code",
+          "previousTaskId",
+          "hint"
+        ],
+        "description": "Present when this call's new taskDescription started a separate task on a page your other running task holds.",
+        "properties": {
+          "code": {
+            "type": "string",
+            "enum": [
+              "NEW-TASK-STARTED"
+            ],
+            "description": "A separate task was started."
+          },
+          "previousTaskId": {
+            "type": "string",
+            "maxLength": 80,
+            "description": "Your earlier running task that held the page (its taskId, as dsagent.agent.work.amend returns it)."
+          },
+          "hint": {
+            "type": "string",
+            "maxLength": 256,
+            "description": "What to do if the person only adjusted that task: the page belongs to this new task now."
+          }
+        }
       }
     }
   },

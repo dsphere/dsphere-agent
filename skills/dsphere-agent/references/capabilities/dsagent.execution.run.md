@@ -32,7 +32,7 @@ Workflow launch request. Use an idempotency key and inspect workflow inputs befo
 | `variables` | object |  | Optional bounded workflow variable object accepted by the workflow runtime. |
 | `fieldValues` | array of object {fieldId, value} (≤ 100) |  | Optional run-time field substitutions obtained from dsagent.workflow.inputs.get. |
 | `accountMode` | enum: default, specified |  | Use default account selection or require the opaque accountId supplied by the caller. |
-| `accountId` | string (0–128 chars) |  | Opaque account identifier from dsagent.app.accounts.list; required only for specified mode. |
+| `accountId` | string (0–128 chars) |  | Opaque account identifier from dsagent.app.accounts.list; required only for specified mode. Ask the person which accoun… |
 | `sessionGroup` | enum: default, new, previous |  | Use the default user session for every agent task, preserving the person's existing website sign-ins. When the task nam… |
 | `sessionName` | string (0–40 chars, pattern under Constraints) |  | The session's name (lowercase letters, digits, dashes): optional with new, required with previous, not allowed with def… |
 | `agentRepairHandoff` | boolean |  | Whether a block that fails after the run's own retries and in-run recovery pauses the run for you to repair (lifecycle… |
@@ -58,6 +58,7 @@ Created workflow execution and dispatch status.
 | `dispatch` | string (0–100 chars) |  | Dispatch result such as started, already_running, or backend_pending. |
 | `sessionName` | string (0–40 chars) |  | The named browser session the run started in (sessionGroup new or previous). |
 | `runToken` | string (0–128 chars) |  | The run's ownership token, shown only here: keep it. On the browser connection that started the run nothing needs it; a… |
+| `taskNotice` | object {code, previousTaskId, hint} |  | Present when this call's new taskDescription started a separate task on a page your other running task holds. |
 
 ## Contract
 

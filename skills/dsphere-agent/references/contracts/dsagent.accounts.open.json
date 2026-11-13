@@ -2,10 +2,10 @@
   "method": "dsagent.accounts.open",
   "version": 1,
   "title": "Open Account",
-  "description": "Open the account using its existing browser environment and fill owner. At the plan's limit on app accounts open at once, a new account is refused with POLICY_DENIED / APP_ACCOUNTS_OPEN_LIMIT and nothing opens: tell the person; do not retry.",
+  "description": "Open the account using its existing browser environment and fill owner. Ask the person which account if unclear; never pick one yourself. At the plan's limit on app accounts open at once, a new account does not open (POLICY_DENIED / APP_ACCOUNTS_OPEN_LIMIT): tell the person; do not retry.",
   "inputSchema": {
     "type": "object",
-    "description": "Open the account using its existing browser environment and fill owner. At the plan's limit on app accounts open at once, a new account is refused with POLICY_DENIED / APP_ACCOUNTS_OPEN_LIMIT and nothing opens: tell the person; do not retry.",
+    "description": "Open the account using its existing browser environment and fill owner. Ask the person which account if unclear; never pick one yourself. At the plan's limit on app accounts open at once, a new account does not open (POLICY_DENIED / APP_ACCOUNTS_OPEN_LIMIT): tell the person; do not retry.",
     "properties": {
       "accountId": {
         "type": "string",
@@ -279,6 +279,7 @@
     ],
     "additionalProperties": false
   },
+  "guidance": "Use only the account the person's words identify: its application and, when the application has several accounts, the account name. When either is unnamed or several accounts match, ask the person which one, naming the matching applications and accounts, before opening anything; never pick one yourself (first row, most recent, any) unless they explicitly let you choose any.",
   "risk": "reversible-write",
   "targetKinds": [
     "managed-account"

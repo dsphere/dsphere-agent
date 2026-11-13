@@ -2,7 +2,7 @@
 
 **Go back one wizard choice** · risk `reversible-write` · timeout 45000 ms · inline result ≤ 65536 bytes · concurrency `exclusive-target`
 
-Undo the last answered choice so the agent or person can decide again, as the SidePanel's Back does: the earlier choice becomes pending again with the current selections kept. A stopped recording cannot be resumed. Requires an idempotency key.
+Undo the last answer, as the SidePanel's Back does: that choice is pending again, its selections kept; toChoiceId goes back to an answered choice in one call. A stopped recording cannot be resumed. Requires an idempotency key.
 
 ## Invocation
 
@@ -28,6 +28,7 @@ Which wizard to step back.
 | `wizardId` | string (0–36 chars, pattern under Constraints) | yes | Opaque wizard id re… |
 | `wizardToken` | string (16–128 chars, pattern under Constraints) |  | Ownership token ret… |
 | `expectedRevision` | string (0–16 chars, pattern under Constraints) | yes | revision of the sta… |
+| `toChoiceId` | string (0–64 chars) |  | An answered choiceI… |
 
 ## Input constraints
 

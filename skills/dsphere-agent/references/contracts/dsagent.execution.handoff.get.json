@@ -250,6 +250,11 @@
             "maxLength": 120,
             "description": "Its label, text or hint as recorded, redacted."
           },
+          "group": {
+            "type": "string",
+            "maxLength": 120,
+            "description": "The group the page named around it when it was recorded (the heading of its form or section), redacted. Compare it with the labelContext of each candidate: a control under another group is another control, and a retarget onto it is refused (group-mismatch)."
+          },
           "intent": {
             "type": "string",
             "maxLength": 40,

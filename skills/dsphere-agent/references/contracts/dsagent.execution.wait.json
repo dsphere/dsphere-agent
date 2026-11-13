@@ -495,6 +495,34 @@
                 "additionalProperties": false,
                 "description": "Lists that stopped below the requested record count before their end was verified (a time or pass ceiling while they still grew, a stalled pagination, a load still pending): they may hold more, so the collection is partial."
               },
+              "advertisedTotal": {
+                "type": "object",
+                "properties": {
+                  "advertised": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Records the list's own data response says the list has in all."
+                  },
+                  "collected": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Records the list gave before it reached its end."
+                  }
+                },
+                "required": [
+                  "advertised",
+                  "collected"
+                ],
+                "additionalProperties": false,
+                "description": "The list reached its end with fewer records than the data the page received says it has in all (Settings → Network Data). It does not change status: a site's total often counts records it never shows. Look at the page when the difference matters."
+              },
+              "advertisedMore": {
+                "type": "boolean",
+                "enum": [
+                  true
+                ],
+                "description": "Present and true when the list reached its end on the page while the newest data response the page received for it still said there are more records (a has-more flag). It does not change status; the page may have stopped loading early. Look at the page when it matters."
+              },
               "nestedCoverage": {
                 "type": "object",
                 "properties": {
@@ -705,6 +733,149 @@
               "description": "One chart field and how many records its incomplete sweep read."
             }
           },
+          "networkData": {
+            "type": "object",
+            "properties": {
+              "filled": {
+                "type": "array",
+                "maxItems": 20,
+                "description": "Fields with cells the run saved from the data the page itself received: the page showed the cell empty, or cut its text short.",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "field": {
+                      "type": "string",
+                      "maxLength": 100,
+                      "description": "The field (its variable)."
+                    },
+                    "empty": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "description": "Cells the page showed empty, saved with the page data value."
+                    },
+                    "truncated": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "description": "Texts the page cut short, saved whole."
+                    }
+                  },
+                  "required": [
+                    "field",
+                    "empty",
+                    "truncated"
+                  ],
+                  "additionalProperties": false,
+                  "description": "One field and how many of its cells were completed."
+                }
+              },
+              "differs": {
+                "type": "array",
+                "maxItems": 20,
+                "description": "Fields with cells whose page value differs from the data the page received. The page value is what the run saved; look at the page if the difference matters.",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "field": {
+                      "type": "string",
+                      "maxLength": 100,
+                      "description": "The field (its variable)."
+                    },
+                    "count": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "description": "Cells that differ."
+                    }
+                  },
+                  "required": [
+                    "field",
+                    "count"
+                  ],
+                  "additionalProperties": false,
+                  "description": "One field and how many of its cells differ."
+                }
+              },
+              "uncheckedRecords": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Records that matched no single record of the data the page received, so their values were saved as the page shows them, unchecked."
+              },
+              "structureChanged": {
+                "type": "array",
+                "maxItems": 20,
+                "description": "Fields the data the page received no longer has: they were saved as the page shows them. Running the scrape wizard again restores the check.",
+                "items": {
+                  "type": "string",
+                  "maxLength": 100,
+                  "description": "The field (its variable)."
+                }
+              },
+              "notRead": {
+                "type": "array",
+                "maxItems": 20,
+                "description": "Fields the page does not show (source network) that stayed empty in every record: the data the page received was not read in this run, because the person switched Network Data off or the page gave none. The page fields were saved as usual.",
+                "items": {
+                  "type": "string",
+                  "maxLength": 100,
+                  "description": "The field (its variable)."
+                }
+              }
+            },
+            "additionalProperties": false,
+            "description": "What the run did with the data responses the page itself received (Settings → Network Data): counts per field, never a value, address or path. Absent when the run checked nothing."
+          },
+          "pageRequests": {
+            "type": "object",
+            "properties": {
+              "failed": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Requests of the page itself that were answered with an error, or not answered at all, while the failed step ran."
+              },
+              "kinds": {
+                "type": "object",
+                "properties": {
+                  "rate-limited": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Refused for coming too often (status 429)."
+                  },
+                  "sign-in-required": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Asked for authentication (status 401 or 407)."
+                  },
+                  "refused": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Refused outright (status 403)."
+                  },
+                  "client-error": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Answered with another client error (status 400 to 499)."
+                  },
+                  "server-error": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Answered with a server error (status 500 or above)."
+                  },
+                  "network-error": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Not answered at all (a network error)."
+                  }
+                },
+                "additionalProperties": false,
+                "description": "The same requests by kind; only kinds that happened."
+              }
+            },
+            "required": [
+              "failed",
+              "kinds"
+            ],
+            "additionalProperties": false,
+            "description": "On a failed run: the page's own requests that failed while the failed step ran, from the page's request log. Evidence beside endpoint, not the endpoint: rate-limited or refused requests suggest the site held the page back, and a later run may fare better. Counts only, never an address or a message."
+          },
           "itemsSkipped": {
             "type": "integer",
             "minimum": 0,
@@ -755,9 +926,15 @@
                     "parent-not-accepted",
                     "records-read-not-saved",
                     "parents-not-visited",
-                    "records-not-saved"
+                    "records-not-saved",
+                    "response-filled-empty",
+                    "response-filled-truncated",
+                    "response-differs",
+                    "response-records-unchecked",
+                    "response-structure-changed",
+                    "response-field-not-read"
                   ],
-                  "description": "kept-unreached (a read kept its empty value), zero-iterations (a list loop ran no item), continued-unverified (a click meant to open a tab opened none), pagination-shortfall (pages ran out before the requested count), rows-not-saved / rows-unverified (the local sheet), detail-field-missing (a detail visit kept its record without this field), item-skipped (a loop item answered skip-item: not collected, no row written), field-empty-all-rows (a field the wizard showed with a value read empty on every row; count is the rows saved without it), field-identity-refused (a list field whose every match in a record was another field, by its stated label or its place in the record; the cell stayed empty; count is the rows), field-read-blanked (list cells left empty although the record shows the field: the recorded field refused the value at its place, or recovery found several candidates; count is the rows; check the page before trusting the column), chart-sweep-incomplete (a chart field whose sweep may have missed records; count is the records it read; see chartsIncomplete), parent-not-accepted (replies the reply loop read under a comment the run could not read as a row: held by no row and not saved; count is the replies), records-read-not-saved (a run that did not succeed read list records it never saved; count is the records read beyond the rows saved), records-not-saved (a run that succeeded collected list records its confirmed saved rows do not hold; count is the records collected beyond the rows saved; the run ends partial), parents-not-visited (a detail loop ended before visiting every parent record it listed; count is the parents never visited; see collectionFulfillment)."
+                  "description": "kept-unreached (a read kept its empty value), zero-iterations (a list loop ran no item), continued-unverified (a click meant to open a tab opened none), pagination-shortfall (pages ran out before the requested count), rows-not-saved / rows-unverified (the local sheet), detail-field-missing (a detail visit kept its record without this field), item-skipped (a loop item answered skip-item: not collected, no row written), field-empty-all-rows (a field the wizard showed with a value read empty on every row; count is the rows saved without it), field-identity-refused (a list field whose every match in a record was another field, by its stated label or its place in the record; the cell stayed empty; count is the rows), field-read-blanked (list cells left empty although the record shows the field: the recorded field refused the value at its place, or recovery found several candidates; count is the rows; check the page before trusting the column), chart-sweep-incomplete (a chart field whose sweep may have missed records; count is the records it read; see chartsIncomplete), parent-not-accepted (replies the reply loop read under a comment the run could not read as a row: held by no row and not saved; count is the replies), records-read-not-saved (a run that did not succeed read list records it never saved; count is the records read beyond the rows saved), records-not-saved (a run that succeeded collected list records its confirmed saved rows do not hold; count is the records collected beyond the rows saved; the run ends partial), parents-not-visited (a detail loop ended before visiting every parent record it listed; count is the parents never visited; see collectionFulfillment), response-filled-empty / response-filled-truncated (cells the page showed empty or cut short, saved with the value of the data the page itself received; see networkData), response-differs (cells whose page value differs from that data; the page value is saved), response-records-unchecked (records that matched no single record of that data), response-structure-changed (a field that data no longer has), response-field-not-read (a field the page does not show stayed empty: that data was not read in this run)."
                 },
                 "count": {
                   "type": "integer",
@@ -846,6 +1023,81 @@
         "additionalProperties": false,
         "description": "What the run collected and where it stopped; present when the run executed in this browser."
       },
+      "siteResponsiveness": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "verdict",
+          "reason",
+          "host",
+          "stalledRequests",
+          "failedRequests",
+          "sampledRequests",
+          "since",
+          "hint"
+        ],
+        "description": "Present only while something is wrong with how websites answer this task's tab; absent when they answer normally. site-slow: the website itself is slow, stalled, failing, rate-limiting or unreachable while other websites in the same tab answer normally, so it is not a browser or Agent fault. local-network-slow: every website is slow alike, so it is the person's network or proxy. Either way: do not switch browsers, reload the extension or repeat actions faster; tell the person once which website is slow, then wait (dsagent_page_wait) and read again. DSphere never changes its own timeouts because of it.",
+        "properties": {
+          "verdict": {
+            "type": "string",
+            "enum": [
+              "site-slow",
+              "local-network-slow"
+            ],
+            "description": "site-slow: the website is the problem; local-network-slow: the person's network or proxy is."
+          },
+          "reason": {
+            "type": "string",
+            "enum": [
+              "slow",
+              "stalled",
+              "failing",
+              "rate-limited",
+              "unreachable"
+            ],
+            "description": "What is wrong: slow answers (median wait 3 s or more), requests waiting over 10 s, failing requests (5xx or connection errors), rate limiting (HTTP 429), or the website cannot be reached."
+          },
+          "host": {
+            "type": "string",
+            "maxLength": 253,
+            "description": "Host name of the tab's website; never a path or query."
+          },
+          "medianWaitMs": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Median time the website took to start answering over the last 20 s; absent when no request answered."
+          },
+          "stalledRequests": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "The website's requests waiting more than 10 s without an answer (long polls excluded)."
+          },
+          "failedRequests": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "The website's requests that failed in the last 20 s."
+          },
+          "sampledRequests": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "The website's requests counted in the last 20 s."
+          },
+          "controlMedianWaitMs": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Median wait of the other websites the same tab loaded over the last 60 s (the comparison); absent when none answered."
+          },
+          "since": {
+            "type": "string",
+            "description": "When this finding began (UTC, ISO 8601)."
+          },
+          "hint": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "One sentence on what to do."
+          }
+        }
+      },
       "toleratedFailures": {
         "type": "object",
         "properties": {
@@ -874,6 +1126,32 @@
         "type": "integer",
         "minimum": 0,
         "description": "Number of listed artifacts when the execution is terminal and artifact access is available."
+      },
+      "savedFiles": {
+        "type": "array",
+        "maxItems": 50,
+        "description": "Confirmed local files saved by this run. Explicitly tell the person these locations. For more than 50 use dsagent.artifacts.list.",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "artifactId",
+            "filePath"
+          ],
+          "description": "One confirmed saved file.",
+          "properties": {
+            "artifactId": {
+              "type": "string",
+              "maxLength": 256,
+              "description": "Artifact identity for subsequent access."
+            },
+            "filePath": {
+              "type": "string",
+              "maxLength": 4096,
+              "description": "Actual local file path, including browser fallback naming."
+            }
+          }
+        }
       },
       "lifecycle": {
         "type": "string",
@@ -944,6 +1222,12 @@
                 "type": "string",
                 "maxLength": 120,
                 "description": "The host of the walled page."
+              },
+              "retryAfterMs": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 3600000,
+                "description": "With type RATE_LIMITED: the wait the site asked for, in milliseconds, when it named one."
               }
             },
             "required": [

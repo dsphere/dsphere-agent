@@ -2,8 +2,8 @@
   "method": "dsagent.page.files.download",
   "version": 1,
   "title": "Download page files or images",
-  "description": "Download detected files or images of a page into the browser's Downloads folder, as the Files panel's download does, by fileId from the latest dsagent.page.files.detect (at most 50 per call). Only http and https addresses download; the result lists the fileIds that did not.",
-  "guidance": "The browser saves each under its file name, numbering duplicates. Requires an idempotency key: repeating a key with the same files returns the first result without downloading again.",
+  "description": "Save detected files or images through the DSphere file API to the user export folder first, allowing browser downloads only after that route is unavailable or fails, by fileId from the latest dsagent.page.files.detect (at most 50 per call).",
+  "guidance": "Only http and https addresses download; the result lists the fileIds that did not. The result includes each confirmed saved filePath. Explicitly tell the person where the files reside; browser fallback paths include actual duplicate numbering. Requires an idempotency key: repeating a key with the same files returns the first result without downloading again.",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -40,9 +40,10 @@
     "required": [
       "pageContextId",
       "downloaded",
+      "savedFiles",
       "skipped"
     ],
-    "description": "The downloads started.",
+    "description": "Completed saves and their confirmed locations.",
     "properties": {
       "pageContextId": {
         "type": "string",
@@ -53,7 +54,43 @@
       "downloaded": {
         "type": "integer",
         "minimum": 0,
-        "description": "Downloads the browser started."
+        "description": "Files confirmed saved."
+      },
+      "savedFiles": {
+        "type": "array",
+        "maxItems": 50,
+        "description": "Confirmed local locations; explicitly report these paths to the person.",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "fileId",
+            "filePath",
+            "destination"
+          ],
+          "description": "One completed file save.",
+          "properties": {
+            "fileId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 64,
+              "description": "A fileId from the latest dsagent.page.files.detect of this page."
+            },
+            "filePath": {
+              "type": "string",
+              "maxLength": 4096,
+              "description": "The actual saved absolute path, including browser duplicate numbering on fallback."
+            },
+            "destination": {
+              "type": "string",
+              "enum": [
+                "export-folder",
+                "browser-download"
+              ],
+              "description": "Whether the file API or browser fallback completed this save."
+            }
+          }
+        }
       },
       "skipped": {
         "type": "array",
@@ -95,7 +132,7 @@
     "page.files.download"
   ],
   "timeoutMs": 60000,
-  "maxInlineResultBytes": 8192,
+  "maxInlineResultBytes": 262144,
   "concurrency": "exclusive-target",
   "retry": "never",
   "exposure": "exposed"

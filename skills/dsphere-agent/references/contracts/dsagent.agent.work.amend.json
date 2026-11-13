@@ -1,0 +1,118 @@
+{
+  "method": "dsagent.agent.work.amend",
+  "version": 1,
+  "title": "Change the request of my running task",
+  "description": "When the person adjusts the task you are doing (more or fewer fields, another range, order, filter or count, a correction), call this instead of starting a new task: the task, its card, tab group, pages, wizards and runs stay, and the person sees the new request.",
+  "guidance": "A whole new job, usually on a new web page or site, is a new task: start it with a new taskDescription instead. Pass the whole new request as taskDescription, the person's own words as instruction, and for a continue task optionally the new taskSteps (steps already reported keep their state). Name the task by one of its pages; without pageContextId it amends your only running task.",
+  "inputSchema": {
+    "description": "The task and its new request.",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "taskDescription"
+    ],
+    "properties": {
+      "pageContextId": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "description": "A page belonging to the task; omit when you have one running task."
+      },
+      "taskDescription": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 2000,
+        "description": "The whole request as it stands now, in detail and in the person's terms (not only the change); no credentials."
+      },
+      "instruction": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 500,
+        "description": "What the person said to change it, in their own words; shown on the task card as the change."
+      },
+      "taskSteps": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 30,
+        "items": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160,
+          "description": "One step title."
+        },
+        "description": "A continue task only: your new list of steps in order; steps already reported keep their state."
+      }
+    }
+  },
+  "outputSchema": {
+    "description": "The task, still running, with its new request.",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "taskId",
+      "taskDescription",
+      "amendments"
+    ],
+    "properties": {
+      "taskId": {
+        "type": "string",
+        "description": "The task (its agent session, the card the person sees); taskNotice.previousTaskId names tasks the same way."
+      },
+      "taskDescription": {
+        "type": "string",
+        "description": "The task's request now."
+      },
+      "amendments": {
+        "type": "integer",
+        "minimum": 1,
+        "description": "How often the task's request was changed so far."
+      },
+      "steps": {
+        "type": "array",
+        "description": "A continue task: its steps in order.",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "title",
+            "state"
+          ],
+          "description": "One step.",
+          "properties": {
+            "title": {
+              "type": "string",
+              "description": "The step title."
+            },
+            "state": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "running",
+                "succeeded",
+                "failed",
+                "skipped"
+              ],
+              "description": "The state last reported."
+            },
+            "current": {
+              "type": "boolean",
+              "description": "True for the step started last."
+            }
+          }
+        }
+      }
+    }
+  },
+  "risk": "reversible-write",
+  "targetKinds": [
+    "page"
+  ],
+  "requiredPermissions": [
+    "page.read"
+  ],
+  "timeoutMs": 10000,
+  "maxInlineResultBytes": 8192,
+  "concurrency": "exclusive-target",
+  "retry": "never",
+  "exposure": "exposed"
+}

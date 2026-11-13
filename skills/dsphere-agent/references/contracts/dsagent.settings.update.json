@@ -27,6 +27,7 @@
           "identity-providers",
           "run-window-focus",
           "agent-challenge-walls",
+          "network-data",
           "browser-monitor",
           "sign-in-consent-dialogs",
           "agent-scripts",
@@ -717,7 +718,7 @@
       {
         "type": "object",
         "additionalProperties": false,
-        "description": "schedules create: Schedule a saved workflow, as the Schedules panel's New schedule does. Give the timing field of scheduleType (daily defaults to 09:00); a date must be in the future. Without accountIds the workflow runs in the current browser environment. Returns the new schedule's id as itemId.",
+        "description": "schedules create: Schedule a saved workflow, as the Schedules panel's New schedule does. Give the timing field of scheduleType (daily defaults to 09:00); a date must be in the future. Without accountIds the workflow runs in the current browser environment. A workflow with text inputs runs with inputs, else with its saved values. Returns the new schedule's id as itemId.",
         "properties": {
           "section": {
             "const": "schedules",
@@ -725,7 +726,7 @@
           },
           "operation": {
             "const": "create",
-            "description": "Schedule a saved workflow, as the Schedules panel's New schedule does. Give the timing field of scheduleType (daily defaults to 09:00); a date must be in the future. Without accountIds the workflow runs in the current browser environment. Returns the new schedule's id as itemId."
+            "description": "Schedule a saved workflow, as the Schedules panel's New schedule does. Give the timing field of scheduleType (daily defaults to 09:00); a date must be in the future. Without accountIds the workflow runs in the current browser environment. A workflow with text inputs runs with inputs, else with its saved values. Returns the new schedule's id as itemId."
           },
           "value": {
             "type": "object",
@@ -788,6 +789,33 @@
                 "maxItems": 50,
                 "uniqueItems": true,
                 "description": "Application accounts to run the workflow in, as opaque ids from dsagent.app.accounts.list for this workflow; empty runs it in the current browser environment."
+              },
+              "inputs": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "description": "One input value.",
+                  "properties": {
+                    "fieldId": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 256,
+                      "description": "Opaque field id from dsagent.workflow.inputs.get (a text-field input of this workflow)."
+                    },
+                    "value": {
+                      "type": "string",
+                      "maxLength": 8192,
+                      "description": "The text the scheduled runs enter."
+                    }
+                  },
+                  "required": [
+                    "fieldId",
+                    "value"
+                  ]
+                },
+                "maxItems": 100,
+                "description": "Values the scheduled runs fill the workflow's text inputs with, as the schedule editor's Required Fields does. The workflow's text inputs that no sheet binding fills are its schedule inputs; each needs a non-blank value. An omitted input keeps the schedule's value, or for a new schedule the workflow's saved value (the value dsagent.workflow.inputs.get shows). Select, checkbox and upload inputs are not saved with a schedule."
               }
             },
             "required": [
@@ -805,7 +833,7 @@
       {
         "type": "object",
         "additionalProperties": false,
-        "description": "schedules update: Change a schedule, as its edit sheet does; omitted fields keep their values. Changing scheduleType needs that type's timing field unless the schedule already has one. accountIds replaces the accounts ([] switches to the current browser environment); without it the saved accounts stay as they are. Changing only enabled pauses or resumes the schedule as the panel's switch does.",
+        "description": "schedules update: Change a schedule, as its edit sheet does; omitted fields keep their values. Changing scheduleType needs that type's timing field unless the schedule already has one. accountIds replaces the accounts ([] switches to the current browser environment); without it the saved accounts stay as they are. inputs changes the values of the inputs it names; the others keep theirs. Changing only enabled pauses or resumes the schedule as the panel's switch does.",
         "properties": {
           "section": {
             "const": "schedules",
@@ -813,7 +841,7 @@
           },
           "operation": {
             "const": "update",
-            "description": "Change a schedule, as its edit sheet does; omitted fields keep their values. Changing scheduleType needs that type's timing field unless the schedule already has one. accountIds replaces the accounts ([] switches to the current browser environment); without it the saved accounts stay as they are. Changing only enabled pauses or resumes the schedule as the panel's switch does."
+            "description": "Change a schedule, as its edit sheet does; omitted fields keep their values. Changing scheduleType needs that type's timing field unless the schedule already has one. accountIds replaces the accounts ([] switches to the current browser environment); without it the saved accounts stay as they are. inputs changes the values of the inputs it names; the others keep theirs. Changing only enabled pauses or resumes the schedule as the panel's switch does."
           },
           "itemId": {
             "type": "string",
@@ -876,6 +904,33 @@
                 "maxItems": 50,
                 "uniqueItems": true,
                 "description": "Application accounts to run the workflow in, as opaque ids from dsagent.app.accounts.list for this workflow; empty runs it in the current browser environment."
+              },
+              "inputs": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "description": "One input value.",
+                  "properties": {
+                    "fieldId": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 256,
+                      "description": "Opaque field id from dsagent.workflow.inputs.get (a text-field input of this workflow)."
+                    },
+                    "value": {
+                      "type": "string",
+                      "maxLength": 8192,
+                      "description": "The text the scheduled runs enter."
+                    }
+                  },
+                  "required": [
+                    "fieldId",
+                    "value"
+                  ]
+                },
+                "maxItems": 100,
+                "description": "Values the scheduled runs fill the workflow's text inputs with, as the schedule editor's Required Fields does. The workflow's text inputs that no sheet binding fills are its schedule inputs; each needs a non-blank value. An omitted input keeps the schedule's value, or for a new schedule the workflow's saved value (the value dsagent.workflow.inputs.get shows). Select, checkbox and upload inputs are not saved with a schedule."
               }
             }
           }
@@ -1752,6 +1807,7 @@
           "identity-providers",
           "run-window-focus",
           "agent-challenge-walls",
+          "network-data",
           "browser-monitor",
           "sign-in-consent-dialogs",
           "agent-scripts",

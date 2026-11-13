@@ -70,6 +70,11 @@
               "minimum": 0,
               "description": "Artifact size in bytes when known."
             },
+            "filePath": {
+              "type": "string",
+              "maxLength": 4096,
+              "description": "Confirmed local file location. Explicitly tell the person where the downloaded artifact resides."
+            },
             "rowCount": {
               "type": "integer",
               "minimum": 0,

@@ -49,6 +49,7 @@ How the script ended, its value, logs, step receipts and the ended page.
 | `steps` | array of object {index, call, action, targetId, outcome, code, …} (≤ 60) |  | One receipt per page call, in order. |
 | `error` | object {code, businessCode, name, message, line, column, …} |  | Present unless status is completed. |
 | `final` | object {revision, url, title, change, semanticText, semanticTextKind, …} |  | The compact view of the page when the script ended; plan the next call from it. |
+| `taskNotice` | object {code, previousTaskId, hint} |  | Present when this call's new taskDescription started a separate task on a page your other running task holds. |
 
 ## Result constraints
 
