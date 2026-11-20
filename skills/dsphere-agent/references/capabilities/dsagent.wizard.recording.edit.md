@@ -15,7 +15,10 @@ Call `dsagent_invoke` with this shape. Replace every placeholder with a value fr
     "wizardId": "<wizardId: supply a value matching the schema>",
     "expectedRevision": "<expectedRevision: supply a value matching the schema>",
     "edits": [
-      "<edits: supply a value matching the schema>"
+      {
+        "operation": "remove",
+        "stepId": "<stepId: supply a value matching the schema>"
+      }
     ]
   },
   "idempotencyKey": "<fresh 8-128 character key you choose; reuse it only for an identical retry>"
@@ -31,7 +34,13 @@ The draft revision and edits.
 | `wizardId` | string (1–128 chars) | yes | The recording wizard id. |
 | `wizardToken` | string (1–128 chars) |  | Its ownership token; pass it after a connection renewal. |
 | `expectedRevision` | string (1–16 chars) | yes | The current recording draft revision; an outdated revision refuses the edit. |
-| `edits` | array of one of 3: object {operation, stepId} / object {operation, stepId, beforeStepId} / object {operation, stepId, value} (≤ 50) | yes | Ordered edits applied as one atomic batch. |
+| `edits` | array of object {operation, stepId, beforeStepId, value} (≤ 50) | yes | Ordered edits applied as one atomic batch. |
+
+## Input constraints
+
+Complete value lists and id patterns for the fields above (the contract file is authoritative).
+
+- `edits[].operation`: one of `remove`, `move-before`, `set-value`
 
 ## Result fields (data.data)
 

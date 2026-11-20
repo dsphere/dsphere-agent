@@ -32,88 +32,41 @@
         "maxItems": 50,
         "description": "Ordered edits applied as one atomic batch.",
         "items": {
-          "description": "A removal, move or form value change.",
-          "oneOf": [
-            {
-              "type": "object",
-              "additionalProperties": false,
-              "properties": {
-                "operation": {
-                  "type": "string",
-                  "const": "remove",
-                  "description": "Remove this step and its navigation effects."
-                },
-                "stepId": {
-                  "type": "string",
-                  "minLength": 1,
-                  "maxLength": 16,
-                  "description": "An opaque stepId returned by recording.steps, never an action id or selector."
-                }
-              },
-              "required": [
-                "operation",
-                "stepId"
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "operation": {
+              "type": "string",
+              "enum": [
+                "remove",
+                "move-before",
+                "set-value"
               ],
-              "description": "Remove one step."
+              "description": "remove: the step and its navigation effects. move-before: the step moves before beforeStepId, on the same page. set-value: a recorded form value or anchored inserted text becomes value (steps with editableValue true)."
             },
-            {
-              "type": "object",
-              "additionalProperties": false,
-              "properties": {
-                "operation": {
-                  "type": "string",
-                  "const": "move-before",
-                  "description": "Move the step before another step."
-                },
-                "stepId": {
-                  "type": "string",
-                  "minLength": 1,
-                  "maxLength": 16,
-                  "description": "An opaque stepId returned by recording.steps, never an action id or selector."
-                },
-                "beforeStepId": {
-                  "type": "string",
-                  "minLength": 1,
-                  "maxLength": 16,
-                  "description": "An opaque stepId returned by recording.steps, never an action id or selector."
-                }
-              },
-              "required": [
-                "operation",
-                "stepId",
-                "beforeStepId"
-              ],
-              "description": "Move within one page."
+            "stepId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 16,
+              "description": "An opaque stepId returned by recording.steps, never an action id or selector."
             },
-            {
-              "type": "object",
-              "additionalProperties": false,
-              "properties": {
-                "operation": {
-                  "type": "string",
-                  "const": "set-value",
-                  "description": "Change a recorded form value."
-                },
-                "stepId": {
-                  "type": "string",
-                  "minLength": 1,
-                  "maxLength": 16,
-                  "description": "An opaque stepId returned by recording.steps, never an action id or selector."
-                },
-                "value": {
-                  "type": "string",
-                  "maxLength": 8000,
-                  "description": "The corrected value from the user task; empty clears the field on replay."
-                }
-              },
-              "required": [
-                "operation",
-                "stepId",
-                "value"
-              ],
-              "description": "Change an entered value."
+            "beforeStepId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 16,
+              "description": "move-before only, required there: the stepId the step moves before."
+            },
+            "value": {
+              "type": "string",
+              "maxLength": 8000,
+              "description": "set-value only, required there: the corrected value from the user task; empty clears the field on replay."
             }
-          ]
+          },
+          "required": [
+            "operation",
+            "stepId"
+          ],
+          "description": "One edit: a removal, a move within one page, or a form value change."
         }
       }
     },

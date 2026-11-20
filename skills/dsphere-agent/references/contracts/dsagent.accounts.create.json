@@ -2,10 +2,10 @@
   "method": "dsagent.accounts.create",
   "version": 1,
   "title": "Create Account",
-  "description": "Create a DSphere account record. Ordinary requests show a trusted inline chat form. Explicit generateDefaults delegation generates a name, encrypted password and permitted defaults, then saves directly. This never registers a third-party account; never pass passwords in tool input.",
+  "description": "Create a DSphere account record. Ordinary requests show a trusted side panel sheet. Explicit generateDefaults delegation generates a name, encrypted password and permitted defaults, then saves directly. This never registers a third-party account; never pass passwords in tool input.",
   "inputSchema": {
     "type": "object",
-    "description": "Create a DSphere account record. Ordinary requests show a trusted inline chat form. Explicit generateDefaults delegation generates a name, encrypted password and permitted defaults, then saves directly. This never registers a third-party account; never pass passwords in tool input.",
+    "description": "Create a DSphere account record. Ordinary requests show a trusted side panel sheet. Explicit generateDefaults delegation generates a name, encrypted password and permitted defaults, then saves directly. This never registers a third-party account; never pass passwords in tool input.",
     "properties": {
       "generateDefaults": {
         "type": "boolean",
@@ -17,7 +17,7 @@
       },
       "reviewConfiguration": {
         "type": "boolean",
-        "description": "Show this application configuration as an inline card in the original AI conversation. Work and Sidepanel render every permission-derived field, choices and supported fingerprint metrics. The person selects values before confirmation and private password input; other supplied fields only prefill the form."
+        "description": "Show this application configuration in a side panel sheet. Work and Sidepanel render every permission-derived field, choices and supported fingerprint metrics. The person selects values before confirmation and private password input; other supplied fields only prefill the form."
       },
       "appId": {
         "type": "string",

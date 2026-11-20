@@ -29,8 +29,9 @@ Opaque target binding, optional revision, and bounded parameters for one externa
 | `pageContextId` | string (2–128 chars) | yes | Page context from d… |
 | `targetId` | string (1–128 chars) |  | A target id a reply… |
 | `expectedRevision` | string (1–128 chars) |  | Optional. The revis… |
-| `action` | enum (31 values, listed under Constraints) | yes | One of the target's… |
+| `action` | enum (31 values, listed under Constraints) | yes | A target capability… |
 | `waitAfter` | object {until, timeoutMs, targetId, text, surfaceId} |  | Optional: a dsagent… |
+| `expect` | enum (8 values, listed under Constraints) |  | Optional effect the… |
 | `clickType` | enum: click, dblclick, rightclick, middleclick |  | Optional click vari… |
 | `modifiers` | object {ctrl, shift, alt, meta} |  | Optional modifier k… |
 | `offset` | object {dx, dy} |  | Optional point insi… |
@@ -54,8 +55,7 @@ Opaque target binding, optional revision, and bounded parameters for one externa
 | `key` | enum (65 values, listed under Constraints) |  | Key or modifier cho… |
 | `repeat` | integer (1…20) |  | Press the same key… |
 | `scrollTo` | enum: top, bottom, next-viewport, previous-viewport |  | Bounded destination… |
-| `viewportRatio` | number (-∞…1) |  | Optional fraction o… |
-| … | 11 more fields in the contract | | |
+| … | 12 more fields in the contract | | |
 
 ## Input constraints
 
@@ -63,6 +63,7 @@ Complete value lists and id patterns for the fields above (the contract file is 
 
 - `action`: one of `click`, `detect-form-fields`, `handle-dialog`, `dismiss`, `drag`, `drag-move`, `drag-press`, `drag-release`, `edit-text`, `fill-form`, `history-back`, `history-forward`, `hover`, `input`, `paste`, `press-key`, `scroll`, `select`, `set-checkbox`, `set-radio`, `reload`, `upload-file`, `load-options`, `detect-marquees`, `detect-videos`, `pause-marquees`, `pause-videos`, `play-videos`, `resume-marquees`, `detect-ads`, `remove-ads`
 - `waitAfter.until`: one of `revision-changed`, `target-present`, `target-absent`, `target-enabled`, `target-disabled`, `text-present`, `text-absent`, `url-changed`, `settled`, `surface-closed`, `authentication-cleared`, `download`
+- `expect`: one of `navigates`, `opens-panel`, `closes-panel`, `value-set`, `list-grows`, `text-present`, `target-gone`, `download-starts`
 - `operation`: one of `replace`, `insert-before`, `insert-after`, `delete`, `select`, `place-caret-before`, `place-caret-after`, `set-format`
 - `formFields[].fieldId`: matches `^fld-[0-9a-f]{12}$`
 - `uploadId`: matches `^upl_[0-9a-f]{32}$`
@@ -90,6 +91,10 @@ Verified action receipt: a delta of the page the action left in place, or the co
 | `targetId` | string (0–128 chars) |  | Opaque target selec… |
 | `action` | enum (31 values, listed under Constraints) |  | Atomic action that… |
 | `success` | boolean |  | Whether the Extensi… |
+| `verdict` | enum: achieved, not-achieved, unknown |  | Whether the goal wa… |
+| `why` | string (0–160 chars) |  | The verdict in one… |
+| `nextActions` | array of object {tool, method, args} (≤ 3) |  | With not-achieved o… |
+| `situation` | enum (13 values, listed under Constraints) |  | What unexpected hap… |
 | `detail` | string (0–1000 chars) |  | Bounded action rece… |
 | `previousRevision` | string (0–128 chars) |  | Revision verified i… |
 | `revision` | string (0–128 chars) |  | Page revision obser… |
@@ -107,11 +112,7 @@ Verified action receipt: a delta of the page the action left in place, or the co
 | `contentVerified` | boolean |  | Optional receipt fl… |
 | `effect` | object {kind, confidence, evidence, surfaceId, closeTargetId, message} |  | What the page did a… |
 | `hover` | object {entered, pointerAlreadyInside, cssHoverRulesApplied} |  | What the pointer di… |
-| `rehover` | object {targetId, label, hint} |  | Present on a hover… |
-| `scroll` | object {moved, end, pixelsBelow, contentGrew} |  | On a downward scrol… |
-| `pageUnchanged` | enum: true |  | Present and true wh… |
-| `response` | object {answered, failed, pending, rateLimited, retryAfterMs, signInRequired, …} |  | Present when the ac… |
-| … | 28 more fields in the contract | | |
+| … | 32 more fields in the contract | | |
 
 ## Result constraints
 
@@ -122,7 +123,9 @@ Complete value lists and id patterns for the fields above (the contract file is 
 - `framePageSurfaces[].observed.surfaces[].broughtBy.eventType`: same values as `pageSurfaces.surfaces[].broughtBy.eventType`
 - `operationResult.fields[].fieldId`: matches `^fld-[0-9a-f]{12}$`
 - `action`: same values as input `action`
+- `situation`: one of `sign-in-wall`, `challenge`, `dialog-open`, `new-tab-opened`, `target-stale`, `no-effect`, `rate-limited`, `run-paused`, `run-ended-partial`, `run-ended`, `wizard-waiting`, `browser-reloading`, `task-ended`
 - `effect.kind`: one of `navigated`, `surface-opened`, `surface-closed`, `region-shown`, `region-hidden`, `value-changed`, `state-changed`, `media`, `download`, `message-shown`, `none`
+- `pageUnchanged`: one of `true`
 - `pageSettled`: one of `false`
 - `backgroundRendering`: one of `unavailable`
 - `writes`: one of `true`

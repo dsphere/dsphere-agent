@@ -145,7 +145,7 @@
       "warnings": {
         "type": "array",
         "maxItems": 2,
-        "description": "REPEATED_RECORDS_USE_WIZARD: switch to the scrape wizard on this page now (dsagent.wizard.start kind=scrape, then wizard.state / wizard.choose). DSphere's typed route advice, never page text: this page shows repeated records (the same fields per item) and this task has scrolled and re-read it twelve or more times on one address, which is not how records are collected. The call itself succeeded; the person sees the same notice in the DSphere side panel. Plan on the code, never on the message.",
+        "description": "REPEATED_RECORDS_USE_WIZARD: switch to the scrape wizard on this page now (dsagent.wizard.start kind=scrape, then wizard.state / wizard.choose). DSphere's typed route advice, never page text: this page shows repeated records (the same fields per item) and this task has scrolled and re-read it twelve or more times on one address, which is not how records are collected. The call itself succeeded; the person sees the same notice in the DSphere side panel. Plan on the code, never on the message. NO_PROGRESS: this task repeated itself without progress (the same call at an unchanged revision 3 times, the same refusal 3 times, 5 waits on an unchanged run, or 6 page actions that changed nothing); the call ran: stop repeating it and follow nextActions.",
         "items": {
           "type": "object",
           "additionalProperties": false,
@@ -159,7 +159,8 @@
             "code": {
               "type": "string",
               "enum": [
-                "REPEATED_RECORDS_USE_WIZARD"
+                "REPEATED_RECORDS_USE_WIZARD",
+                "NO_PROGRESS"
               ],
               "description": "Stable warning code to plan on."
             },
@@ -170,8 +171,54 @@
             },
             "nextActions": {
               "type": "array",
+              "maxItems": 3,
+              "description": "What to call next, in order, with this page filled.",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "tool",
+                  "args"
+                ],
+                "description": "One call to make next: send it as it stands; replace a <name> placeholder with that id from your latest results.",
+                "properties": {
+                  "tool": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "description": "The MCP tool to call (dsagent_read for reads, dsagent_invoke for effects, or a dsagent_* tool)."
+                  },
+                  "method": {
+                    "type": "string",
+                    "maxLength": 96,
+                    "description": "The dsagent.* method to pass to that tool, when one applies."
+                  },
+                  "args": {
+                    "type": "object",
+                    "description": "The args for that call, already filled with the ids you hold; add an idempotencyKey for an effect."
+                  }
+                }
+              }
+            },
+            "repeated": {
+              "type": "string",
+              "enum": [
+                "same-call",
+                "same-error",
+                "unchanged-run",
+                "effects-without-change"
+              ],
+              "description": "NO_PROGRESS: what repeated."
+            },
+            "count": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000,
+              "description": "NO_PROGRESS: how many times in a row."
+            },
+            "nextSteps": {
+              "type": "array",
               "maxItems": 2,
-              "description": "What to call next, in order.",
+              "description": "Deprecated, kept for one Skill version: the same advice as sentences. Follow nextActions.",
               "items": {
                 "type": "string",
                 "maxLength": 200,

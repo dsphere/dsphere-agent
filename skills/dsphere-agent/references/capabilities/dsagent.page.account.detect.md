@@ -39,6 +39,13 @@ The signed-in account the page shows.
 | `candidates` | array of object {label, corner, source, score, signals} (≤ 5) |  | Every account label considered, strongest first. |
 | `accountMenu` | object {targetId, expectedRevision, open, label, corner} |  | The control that opens the account menu (the avatar's), to open it with a page action when only an avatar shows. |
 
+## Result constraints
+
+Complete value lists and id patterns for the fields above (the contract file is authoritative).
+
+- `account.signals[]`: one of `beside-avatar`, `account-container`, `named-account`, `menu-trigger`, `login-identifier`, `account-menu`, `account-links`
+- `candidates[].signals[]`: same values as `account.signals[]`
+
 ## Guidance
 
 Planning rules for this method: [`guidance/dsagent.page.md`](../guidance/dsagent.page.md).

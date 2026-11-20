@@ -45,7 +45,7 @@ Bounded Markdown rendering of the current document with its references and metad
 | `nextCursor` | string (0–32 chars) |  | Present when the Markdown was cut before the end of the rendering: pass it as cursor, with the same options, to read on. |
 | `references` | array of object {index, url, text} (≤ 400) |  | Numbered link and image destinations referenced from the Markdown in citations mode. |
 | `metadata` | object {description, canonicalUrl, language, siteName, author, publishedAt, …} |  | What the document says about itself in its head, bounded. |
-| `warnings` | array of object {code, message, nextActions} (≤ 2) |  | REPEATED_RECORDS_USE_WIZARD: switch to the scrape wizard on this page now (dsagent.wizard.start kind=scrape, then wizar… |
+| `warnings` | array of object {code, message, nextActions, repeated, count, nextSteps} (≤ 2) |  | REPEATED_RECORDS_USE_WIZARD: switch to the scrape wizard on this page now (dsagent.wizard.start kind=scrape, then wizar… |
 | `fit` | object {rawByteLength, prunedBlocks, matchedChunks, totalChunks} |  | Pruning statistics, present when fit or focus was applied. |
 | `pdf` | object {documents} |  | Present when the page shows PDFs: what became of each. |
 | `authentication` | object {status, type, confidence, retryAfterMs, waitingOn, attemptsLeft} |  | The sign-in monitor's verdict on the page: status no-wall when it checked and found none (absent when it could not chec… |

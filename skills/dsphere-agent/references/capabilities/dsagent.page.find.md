@@ -43,7 +43,7 @@ Revision-bound find result over the current semantic targets.
 | `searched` | integer (0…∞) |  | How many current targets were considered. |
 | `unansweredFrames` | object {admitted, dropped} |  | Present when shown child frames did not answer: the matches cover the rest of the page only, so an empty or short list… |
 | `activeSurface` | object {kind, label, backgroundMatches} |  | Present when an open dialog or panel bounded the search. |
-| `warnings` | array of object {code, message, nextActions} (≤ 2) |  | REPEATED_RECORDS_USE_WIZARD: switch to the scrape wizard on this page now (dsagent.wizard.start kind=scrape, then wizar… |
+| `warnings` | array of object {code, message, nextActions, repeated, count, nextSteps} (≤ 2) |  | REPEATED_RECORDS_USE_WIZARD: switch to the scrape wizard on this page now (dsagent.wizard.start kind=scrape, then wizar… |
 | `matches` | array of object {target, score, matchedOn} (≤ 20) |  | Matching targets, best first. |
 | `authentication` | object {status, type, confidence, retryAfterMs, waitingOn, attemptsLeft} |  | The sign-in monitor's verdict on the page: status no-wall when it checked and found none (absent when it could not chec… |
 

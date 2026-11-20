@@ -50,7 +50,7 @@
         "type": "string",
         "pattern": "^acct_[0-9a-f]{16,128}$",
         "maxLength": 128,
-        "description": "Account id from dsagent.app.accounts.list or dsagent.browser.sessions.list. Ask the person which account if unclear; never pick one yourself. The page opens in the account's own browser session, which holds its sign-in; the url must be on its application site. Not with sessionGroup new/previous. Unknown or unopenable: TARGET_NOT_FOUND / BROWSER_SESSION_ACCOUNT_NOT_FOUND; a pageContextId must then be in its session. An account not open yet at the plan's limit on app accounts open at once: POLICY_DENIED / APP_ACCOUNTS_OPEN_LIMIT (a page beside an open account never is); tell the person to close one or upgrade the plan; do not retry."
+        "description": "Account id from dsagent.app.accounts.list or dsagent.browser.sessions.list. Ask the person which account if unclear; never pick one yourself. The page opens in the account's own browser session, which holds its sign-in; any http(s) url, also a related site. Not with sessionGroup new/previous. Unknown or unopenable: TARGET_NOT_FOUND / BROWSER_SESSION_ACCOUNT_NOT_FOUND; a pageContextId must then be in its session. An account not open yet at the plan's limit on app accounts open at once: POLICY_DENIED / APP_ACCOUNTS_OPEN_LIMIT (a page beside an open account never is); tell the person to close one or upgrade the plan; do not retry."
       },
       "taskDescription": {
         "type": "string",
@@ -135,6 +135,14 @@
         "type": "string",
         "maxLength": 128,
         "description": "The application account whose session the page opened in, when accountId was given."
+      },
+      "accountSite": {
+        "type": "string",
+        "enum": [
+          "own",
+          "other"
+        ],
+        "description": "With accountId: own (the account's site; also when its sign-in there needs the person: open the url again after it) or other (another site; work there is stored with that account)."
       },
       "revision": {
         "type": "string",
@@ -1375,9 +1383,10 @@
           "failedRequests",
           "sampledRequests",
           "since",
-          "hint"
+          "hint",
+          "tellThePerson"
         ],
-        "description": "Present only while something is wrong with how websites answer this task's tab; absent when they answer normally. site-slow: the website itself is slow, stalled, failing, rate-limiting or unreachable while other websites in the same tab answer normally, so it is not a browser or Agent fault. local-network-slow: every website is slow alike, so it is the person's network or proxy. Either way: do not switch browsers, reload the extension or repeat actions faster; tell the person once which website is slow, then wait (dsagent_page_wait) and read again. DSphere never changes its own timeouts because of it.",
+        "description": "Present only while something is wrong with how websites answer this task's tab; absent when they answer normally. site-slow: the website itself is slow, stalled, failing, rate-limiting or unreachable while other websites in the same tab answer normally, so it is not a browser or Agent fault. local-network-slow: every website is slow alike, so it is the person's network or proxy. Either way: do not switch browsers, reload the extension or repeat actions faster; tell the person once, in their language, what tellThePerson says (which website, and to check their network and proxy settings), then wait (dsagent_page_wait) and read again. DSphere never changes its own timeouts because of it.",
         "properties": {
           "verdict": {
             "type": "string",
@@ -1436,6 +1445,11 @@
             "type": "string",
             "maxLength": 200,
             "description": "One sentence on what to do."
+          },
+          "tellThePerson": {
+            "type": "string",
+            "maxLength": 320,
+            "description": "One sentence for the person: which website is slow and why it is not DSphere, with the advice to check their network and proxy settings. Relay it once per finding, in their language; do not repeat it on every reply."
           }
         }
       }

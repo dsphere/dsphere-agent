@@ -1,0 +1,521 @@
+{
+  "method": "dsagent.agent.work.state",
+  "version": 1,
+  "title": "Read my task state",
+  "description": "Where your task stands, in one read (weak-agent W3): its description and steps, a state word (running, blocked, waiting-on-person, ended; no-task when you have none), the pages, wizards and runs it holds, what holds it up first (blockers[0]: the situation, its ids and who must act), your last…",
+  "guidance": "Where your task stands, in one read (weak-agent W3): its description and steps, a state word (running, blocked, waiting-on-person, ended; no-task when you have none), the pages, wizards and runs it holds, what holds it up first (blockers[0]: the situation, its ids and who must act), your last calls with their verdicts, the idle time a call gives it, and nextActions. Read it when unsure what to do next, after a reply's taskNote, or when a refusal names no way on. Your own task only. Read-only; like every call it resets the idle clock.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "No input.",
+    "properties": {},
+    "required": []
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "Your task state.",
+    "properties": {
+      "state": {
+        "type": "string",
+        "enum": [
+          "no-task",
+          "running",
+          "blocked",
+          "waiting-on-person",
+          "idle-warning",
+          "ended"
+        ],
+        "description": "Your task now: running, blocked (handle blockers[0]), waiting-on-person, idle-warning, ended, or no-task."
+      },
+      "task": {
+        "type": "object",
+        "additionalProperties": false,
+        "description": "Your latest task; absent with state no-task.",
+        "properties": {
+          "taskId": {
+            "type": "string",
+            "maxLength": 80,
+            "description": "Your task (the card the person sees)."
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 2000,
+            "description": "Its taskDescription."
+          },
+          "status": {
+            "type": "string",
+            "maxLength": 40,
+            "description": "running, or how it ended: succeeded, failed, cancelled, interrupted."
+          },
+          "endReason": {
+            "type": "string",
+            "enum": [
+              "finished",
+              "stopped-by-person",
+              "idle",
+              "connection-lost"
+            ],
+            "description": "Why it ended: finished (its work or your finish), stopped-by-person (never continue it; ask them), idle, connection-lost."
+          },
+          "steps": {
+            "type": "array",
+            "maxItems": 30,
+            "description": "Its steps (continue mode), in order.",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "description": "One step.",
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "maxLength": 160,
+                  "description": "The step, as you named it."
+                },
+                "state": {
+                  "type": "string",
+                  "maxLength": 16,
+                  "description": "pending, running, succeeded, failed or skipped."
+                },
+                "current": {
+                  "type": "boolean",
+                  "description": "The step you started last."
+                }
+              },
+              "required": [
+                "title",
+                "state"
+              ]
+            }
+          }
+        },
+        "required": [
+          "taskId",
+          "status"
+        ]
+      },
+      "pages": {
+        "type": "array",
+        "maxItems": 16,
+        "description": "The pages your task holds.",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "One page of your task.",
+          "properties": {
+            "pageContextId": {
+              "type": "string",
+              "maxLength": 128,
+              "description": "The page."
+            },
+            "attention": {
+              "type": "array",
+              "maxItems": 8,
+              "items": {
+                "type": "string",
+                "maxLength": 40,
+                "description": "An attention word of the page."
+              },
+              "description": "What holds the page up, if anything."
+            }
+          },
+          "required": [
+            "pageContextId",
+            "attention"
+          ]
+        }
+      },
+      "wizards": {
+        "type": "array",
+        "maxItems": 16,
+        "description": "Your task's open wizards.",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "One open wizard of your task.",
+          "properties": {
+            "wizardId": {
+              "type": "string",
+              "maxLength": 36,
+              "description": "The wizard; continue it with dsagent.wizard.state."
+            },
+            "kind": {
+              "type": "string",
+              "maxLength": 16,
+              "description": "scrape or record."
+            },
+            "phase": {
+              "type": "string",
+              "maxLength": 40,
+              "description": "Its phase."
+            },
+            "awaitingPerson": {
+              "type": "string",
+              "maxLength": 40,
+              "description": "What it waits for the person to do, when it does."
+            }
+          },
+          "required": [
+            "wizardId",
+            "kind",
+            "phase"
+          ]
+        }
+      },
+      "runs": {
+        "type": "array",
+        "maxItems": 16,
+        "description": "Your task's runs still running or paused.",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "One run of your task.",
+          "properties": {
+            "executionId": {
+              "type": "string",
+              "maxLength": 128,
+              "description": "The run."
+            },
+            "status": {
+              "type": "string",
+              "maxLength": 40,
+              "description": "Its runtime status."
+            },
+            "waitingOn": {
+              "type": "string",
+              "enum": [
+                "person",
+                "agent",
+                "nobody"
+              ],
+              "description": "While paused: who it waits on."
+            },
+            "pageContextId": {
+              "type": "string",
+              "maxLength": 128,
+              "description": "While paused: the page it waits on."
+            }
+          },
+          "required": [
+            "executionId",
+            "status"
+          ]
+        }
+      },
+      "blockers": {
+        "type": "array",
+        "maxItems": 4,
+        "description": "What holds the task up, the one to handle first first (the person's before yours).",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "attention",
+            "waitingOn"
+          ],
+          "description": "One thing that holds the task up.",
+          "properties": {
+            "situation": {
+              "type": "string",
+              "enum": [
+                "sign-in-wall",
+                "challenge",
+                "dialog-open",
+                "new-tab-opened",
+                "target-stale",
+                "no-effect",
+                "rate-limited",
+                "run-paused",
+                "run-ended-partial",
+                "run-ended",
+                "wizard-waiting",
+                "browser-reloading",
+                "task-ended"
+              ],
+              "description": "What happened, one name per kind (the same names errors and receipts use)."
+            },
+            "attention": {
+              "type": "string",
+              "maxLength": 40,
+              "description": "The browser monitor's word for it."
+            },
+            "waitingOn": {
+              "type": "string",
+              "enum": [
+                "person",
+                "agent",
+                "nobody"
+              ],
+              "description": "Who must act: person (wait or ask), agent (you), nobody (it passes by itself)."
+            },
+            "pageContextId": {
+              "type": "string",
+              "maxLength": 128,
+              "description": "The page it is on."
+            },
+            "wizardId": {
+              "type": "string",
+              "maxLength": 36,
+              "description": "The wizard it is in."
+            },
+            "executionId": {
+              "type": "string",
+              "maxLength": 128,
+              "description": "The run it is in."
+            }
+          }
+        }
+      },
+      "recentCalls": {
+        "type": "array",
+        "maxItems": 5,
+        "description": "Your last calls on this task, oldest first.",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "One call.",
+          "properties": {
+            "method": {
+              "type": "string",
+              "maxLength": 96,
+              "description": "The method you called."
+            },
+            "outcome": {
+              "type": "string",
+              "enum": [
+                "ok",
+                "error"
+              ],
+              "description": "Whether it answered or was refused."
+            },
+            "verdict": {
+              "type": "string",
+              "enum": [
+                "achieved",
+                "not-achieved",
+                "unknown"
+              ],
+              "description": "A page action's verdict."
+            },
+            "code": {
+              "type": "string",
+              "maxLength": 64,
+              "description": "The refusal's error code."
+            },
+            "secondsAgo": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "How long ago it ended."
+            }
+          },
+          "required": [
+            "method",
+            "outcome",
+            "secondsAgo"
+          ]
+        }
+      },
+      "idleEndsInSeconds": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "The idle time this call gave the task: it ends after this long without a call. Absent while its run runs."
+      },
+      "hint": {
+        "type": "string",
+        "maxLength": 256,
+        "description": "What the state means for your next step."
+      },
+      "nextActions": {
+        "type": "array",
+        "maxItems": 3,
+        "description": "The calls that move the task on, first one first; empty when the person stopped it.",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "tool",
+            "args"
+          ],
+          "description": "One call to make next: send it as it stands; replace a <name> placeholder with that id from your latest results.",
+          "properties": {
+            "tool": {
+              "type": "string",
+              "maxLength": 64,
+              "description": "The MCP tool to call (dsagent_read for reads, dsagent_invoke for effects, or a dsagent_* tool)."
+            },
+            "method": {
+              "type": "string",
+              "maxLength": 96,
+              "description": "The dsagent.* method to pass to that tool, when one applies."
+            },
+            "args": {
+              "type": "object",
+              "description": "The args for that call, already filled with the ids you hold; add an idempotencyKey for an effect."
+            }
+          }
+        }
+      },
+      "taskNote": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "state",
+          "changes",
+          "nextActions"
+        ],
+        "description": "Never on this read: the note any other reply carries, once, when your task changed since your last call. Act on it before your next step.",
+        "properties": {
+          "state": {
+            "type": "string",
+            "enum": [
+              "no-task",
+              "running",
+              "blocked",
+              "waiting-on-person",
+              "idle-warning",
+              "ended"
+            ],
+            "description": "Your task now, as dsagent.agent.work.state reports it."
+          },
+          "changes": {
+            "type": "array",
+            "maxItems": 4,
+            "description": "What changed, each noted once.",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "change"
+              ],
+              "description": "One change.",
+              "properties": {
+                "change": {
+                  "type": "string",
+                  "enum": [
+                    "attention-raised",
+                    "attention-cleared",
+                    "run-paused",
+                    "run-ended",
+                    "idle-near",
+                    "task-ended"
+                  ],
+                  "description": "The kind of change."
+                },
+                "situation": {
+                  "type": "string",
+                  "enum": [
+                    "sign-in-wall",
+                    "challenge",
+                    "dialog-open",
+                    "new-tab-opened",
+                    "target-stale",
+                    "no-effect",
+                    "rate-limited",
+                    "run-paused",
+                    "run-ended-partial",
+                    "run-ended",
+                    "wizard-waiting",
+                    "browser-reloading",
+                    "task-ended"
+                  ],
+                  "description": "The situation it concerns."
+                },
+                "waitingOn": {
+                  "type": "string",
+                  "enum": [
+                    "person",
+                    "agent",
+                    "nobody"
+                  ],
+                  "description": "Who must act on it."
+                },
+                "pageContextId": {
+                  "type": "string",
+                  "maxLength": 128,
+                  "description": "The page it is on."
+                },
+                "wizardId": {
+                  "type": "string",
+                  "maxLength": 36,
+                  "description": "The wizard it is in."
+                },
+                "executionId": {
+                  "type": "string",
+                  "maxLength": 128,
+                  "description": "The run it is in."
+                },
+                "endReason": {
+                  "type": "string",
+                  "enum": [
+                    "finished",
+                    "stopped-by-person",
+                    "idle",
+                    "connection-lost"
+                  ],
+                  "description": "With task-ended: why."
+                },
+                "idleEndsInSeconds": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "With idle-near: the idle time a call gives; your task ends after it without one."
+                }
+              }
+            }
+          },
+          "nextActions": {
+            "type": "array",
+            "maxItems": 3,
+            "description": "The calls that handle the change, first one first.",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "tool",
+                "args"
+              ],
+              "description": "One call to make next: send it as it stands; replace a <name> placeholder with that id from your latest results.",
+              "properties": {
+                "tool": {
+                  "type": "string",
+                  "maxLength": 64,
+                  "description": "The MCP tool to call (dsagent_read for reads, dsagent_invoke for effects, or a dsagent_* tool)."
+                },
+                "method": {
+                  "type": "string",
+                  "maxLength": 96,
+                  "description": "The dsagent.* method to pass to that tool, when one applies."
+                },
+                "args": {
+                  "type": "object",
+                  "description": "The args for that call, already filled with the ids you hold; add an idempotencyKey for an effect."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "required": [
+      "state",
+      "pages",
+      "wizards",
+      "runs",
+      "blockers",
+      "recentCalls",
+      "hint",
+      "nextActions"
+    ]
+  },
+  "risk": "read-sensitive",
+  "targetKinds": [
+    "workflow"
+  ],
+  "requiredPermissions": [
+    "workflow.read"
+  ],
+  "timeoutMs": 10000,
+  "maxInlineResultBytes": 32768,
+  "concurrency": "shared-read",
+  "retry": "pre-dispatch-read-only",
+  "exposure": "exposed"
+}

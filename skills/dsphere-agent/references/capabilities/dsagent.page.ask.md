@@ -29,8 +29,8 @@ A task-scoped runtime question or wait request.
 | `pageContextId` | string (2–128 chars) | yes | The task page context from dsagent.page.open, dsagent.pages.list or a receipt's destinationPageContextId. |
 | `kind` | enum: clarify, confirm | yes | Clarify missing details or confirm a described effect. |
 | `question` | string (1–600 chars) | yes | The actual question or confirmation summary shown to the person. |
-| `options` | array of string (1–120 chars) (≤ 8) |  | Optional choices for a clarification; free text is also allowed. |
-| `effect` | string (1–120 chars) |  | Required for confirm: the concrete action awaiting confirmation. |
+| `options` | array of string (1–120 chars) (≤ 8) |  | Clarify only: optional choices; free text is also allowed. A confirmation refuses options. |
+| `effect` | string (1–120 chars) |  | Confirm only, and required there: the concrete action awaiting confirmation. A clarification refuses an effect. |
 | `defaultOptionIndex` | integer (0…7) |  | Clarify with options only: the zero-based option the question settles with after a 30 s countdown nobody answers or hol… |
 
 ## Result fields (data.data)
@@ -44,6 +44,7 @@ Runtime question state and its answer when settled.
 | `publishedAt` | number (0…∞) |  | Runtime question publication boundary in epoch milliseconds. |
 | `answeredAt` | number (0…∞) |  | Runtime validated response boundary in epoch milliseconds; use with answeredBy to distinguish person response from a sa… |
 | `response` | object {requestId, accepted, answer, optionIndex, answeredBy} |  | The runtime answer, available only after the question settles. |
+| `nextActions` | array of object {tool, method, args} (≤ 1) |  | While the question is pending: the wait to call next, already filled with this page and requestId. |
 
 ## Guidance
 

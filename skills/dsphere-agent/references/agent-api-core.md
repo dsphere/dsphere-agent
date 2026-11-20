@@ -6,7 +6,7 @@ Generated from Extension contracts. This is an optional quick reference, not a n
 
 A step tool takes the arguments flat, with instanceId and idempotencyKey beside them; the gateway takes method, args, instanceId and idempotencyKey beside each other. Omit instanceId only with one online browser. An effect needs a fresh 8–128 character idempotencyKey; only an identical retry reuses it. Never retry an uncertain effect automatically.
 
-Prefer structuredContent. Keep the complete {ok,data|error} envelope: operationId and status are in data; the business result is data.data. Do not recursively unwrap a business field named data. Preserve warnings, authentication, dispatchStatus, hint and nextActions. A successful transport is not proof that the user task finished.
+Prefer structuredContent. Keep the complete {ok,data|error} envelope: operationId and status are in data; the business result is data.data. Do not recursively unwrap a business field named data. Preserve warnings, taskNote, authentication, dispatchStatus, hint and nextActions. A reply carries taskNote {state, changes, nextActions} once when your task changed since your last call (dsagent.agent.work.state has its shape); act on it before your next step. A successful transport is not proof that the user task finished.
 
 ## Handle provenance
 

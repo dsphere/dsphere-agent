@@ -42,13 +42,13 @@
           "minLength": 1,
           "maxLength": 120
         },
-        "description": "Optional choices for a clarification; free text is also allowed."
+        "description": "Clarify only: optional choices; free text is also allowed. A confirmation refuses options."
       },
       "effect": {
         "type": "string",
         "minLength": 1,
         "maxLength": 120,
-        "description": "Required for confirm: the concrete action awaiting confirmation."
+        "description": "Confirm only, and required there: the concrete action awaiting confirmation. A clarification refuses an effect."
       },
       "defaultOptionIndex": {
         "type": "integer",
@@ -130,6 +130,36 @@
               "default"
             ],
             "description": "The person or the runtime safe default."
+          }
+        }
+      },
+      "nextActions": {
+        "type": "array",
+        "maxItems": 1,
+        "description": "While the question is pending: the wait to call next, already filled with this page and requestId.",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "tool",
+            "args"
+          ],
+          "description": "One call to make next: send it as it stands; replace a <name> placeholder with that id from your latest results.",
+          "properties": {
+            "tool": {
+              "type": "string",
+              "maxLength": 64,
+              "description": "The MCP tool to call (dsagent_read for reads, dsagent_invoke for effects, or a dsagent_* tool)."
+            },
+            "method": {
+              "type": "string",
+              "maxLength": 96,
+              "description": "The dsagent.* method to pass to that tool, when one applies."
+            },
+            "args": {
+              "type": "object",
+              "description": "The args for that call, already filled with the ids you hold; add an idempotencyKey for an effect."
+            }
           }
         }
       }

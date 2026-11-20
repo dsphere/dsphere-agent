@@ -30,6 +30,7 @@ Known methods are invoked directly. Look a contract up with `dsagent_list_capabi
 | `dsagent.agent.work.recording` | Read or begin this task's recording choice, the person's question in the standa… | reversible-write | yes |
 | `dsagent.agent.work.recording.choose` | Answer this task's pending recording question: the person's answer from your ch… | reversible-write | yes |
 | `dsagent.agent.work.recording.state` | Wait for the person to choose whether to record this task. | read-sensitive |  |
+| `dsagent.agent.work.state` | Where your task stands, in one read (weak-agent W3): its description and steps,… | read-sensitive |  |
 | `dsagent.agent.work.step` | For a task that follows your own skill or plan of several steps. | reversible-write | yes |
 | `dsagent.app.accounts.list` | List bounded application-account labels using opaque account IDs. | read-sensitive |  |
 | `dsagent.artifact.read` | Read a listed artifact. | read-sensitive |  |
@@ -66,6 +67,7 @@ Known methods are invoked directly. Look a contract up with `dsagent_list_capabi
 | `dsagent.execution.wait` | Bounded wait (at most 30 s) until the execution is terminal, or until it pauses… | read-sensitive |  |
 | `dsagent.executions.list` | List bounded execution summaries visible to the current extension identity. | read-sensitive |  |
 | `dsagent.executions.running.list` | List pending and running execution summaries assigned to the current extension… | read-sensitive |  |
+| `dsagent.live-tasks.window.open` | Open DSphere's Live Task window for the person: its own browser window with liv… | reversible-write | yes |
 | `dsagent.mail.account` | The email address and display name of the account the person set up in the DSph… | read-sensitive |  |
 | `dsagent.mail.read` | Read the plain text of up to 10 messages found with dsagent.mail.search, by the… | read-sensitive |  |
 | `dsagent.mail.search` | Search the mail the person synced into the DSphere Agent Email panel from their… | read-sensitive |  |

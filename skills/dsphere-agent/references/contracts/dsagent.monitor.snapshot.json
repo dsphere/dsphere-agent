@@ -219,6 +219,25 @@
                     ],
                     "description": "Who must act for it to clear: the person, an agent (the owner, or one assisting), or nobody (the work ended; report it)."
                   },
+                  "situation": {
+                    "type": "string",
+                    "enum": [
+                      "sign-in-wall",
+                      "challenge",
+                      "dialog-open",
+                      "new-tab-opened",
+                      "target-stale",
+                      "no-effect",
+                      "rate-limited",
+                      "run-paused",
+                      "run-ended-partial",
+                      "run-ended",
+                      "wizard-waiting",
+                      "browser-reloading",
+                      "task-ended"
+                    ],
+                    "description": "What unexpected happened, when something did: handle it first."
+                  },
                   "since": {
                     "type": "string",
                     "maxLength": 40,
@@ -383,6 +402,25 @@
                     ],
                     "description": "Who must act for it to clear: the person, an agent (the owner, or one assisting), or nobody (the work ended; report it)."
                   },
+                  "situation": {
+                    "type": "string",
+                    "enum": [
+                      "sign-in-wall",
+                      "challenge",
+                      "dialog-open",
+                      "new-tab-opened",
+                      "target-stale",
+                      "no-effect",
+                      "rate-limited",
+                      "run-paused",
+                      "run-ended-partial",
+                      "run-ended",
+                      "wizard-waiting",
+                      "browser-reloading",
+                      "task-ended"
+                    ],
+                    "description": "What unexpected happened, when something did: handle it first."
+                  },
                   "since": {
                     "type": "string",
                     "maxLength": 40,
@@ -411,9 +449,10 @@
                 "failedRequests",
                 "sampledRequests",
                 "since",
-                "hint"
+                "hint",
+                "tellThePerson"
               ],
-              "description": "Present only while something is wrong with how websites answer this task's tab; absent when they answer normally. site-slow: the website itself is slow, stalled, failing, rate-limiting or unreachable while other websites in the same tab answer normally, so it is not a browser or Agent fault. local-network-slow: every website is slow alike, so it is the person's network or proxy. Either way: do not switch browsers, reload the extension or repeat actions faster; tell the person once which website is slow, then wait (dsagent_page_wait) and read again. DSphere never changes its own timeouts because of it.",
+              "description": "Present only while something is wrong with how websites answer this task's tab; absent when they answer normally. site-slow: the website itself is slow, stalled, failing, rate-limiting or unreachable while other websites in the same tab answer normally, so it is not a browser or Agent fault. local-network-slow: every website is slow alike, so it is the person's network or proxy. Either way: do not switch browsers, reload the extension or repeat actions faster; tell the person once, in their language, what tellThePerson says (which website, and to check their network and proxy settings), then wait (dsagent_page_wait) and read again. DSphere never changes its own timeouts because of it.",
               "properties": {
                 "verdict": {
                   "type": "string",
@@ -472,6 +511,11 @@
                   "type": "string",
                   "maxLength": 200,
                   "description": "One sentence on what to do."
+                },
+                "tellThePerson": {
+                  "type": "string",
+                  "maxLength": 320,
+                  "description": "One sentence for the person: which website is slow and why it is not DSphere, with the advice to check their network and proxy settings. Relay it once per finding, in their language; do not repeat it on every reply."
                 }
               }
             }

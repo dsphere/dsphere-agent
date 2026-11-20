@@ -53,6 +53,7 @@ The opened page and its first compact view (absent when the page could not be re
 | `title` | string (0–300 chars) |  | Bounded page title. |
 | `sessionName` | string (0–40 chars) |  | The named session the page opened in (sessionGroup new or previous); pa… |
 | `accountId` | string (0–128 chars) |  | The application account whose session the page opened in, when accountI… |
+| `accountSite` | enum: own, other |  | With accountId: own (the account's site; also when its sign-in there ne… |
 | `revision` | string (0–128 chars) |  | The revision of the opened page from the read the open already made (af… |
 | `rendered` | boolean |  | False when the browser is not drawing the page (its window reported min… |
 | `settled` | boolean |  | With waitUntil settled: whether the page went quiet within the bound (f… |

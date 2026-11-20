@@ -125,7 +125,12 @@
       "agentRepairHandoff": {
         "type": "boolean",
         "default": true,
-        "description": "Whether a block that fails after the run's own retries and in-run recovery pauses the run for you to repair (lifecycle paused, pause.kind agent-repair; answer with dsagent.execution.handoff.resume or dsagent.execution.handoff.abort) instead of failing the run at once. Defaults to true; false fails the run on the block as before."
+        "description": "Whether an unresolved block failure pauses for the calling agent to repair. True by default; false ends the run on that failure. Built-in recovery runs first by default; builtInRecovery false skips it."
+      },
+      "builtInRecovery": {
+        "type": "boolean",
+        "default": true,
+        "description": "Run built-in recovery before the agent repair handoff, enabled by default. Uses the selected model and canonical recovery owners; does not edit the saved workflow. Set false to skip built-in recovery and retain caller-owned repair."
       },
       "windowPlacement": {
         "type": "string",

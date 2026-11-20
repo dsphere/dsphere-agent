@@ -155,6 +155,25 @@
         ],
         "description": "Something to do on the page now."
       },
+      "situation": {
+        "type": "string",
+        "enum": [
+          "sign-in-wall",
+          "challenge",
+          "dialog-open",
+          "new-tab-opened",
+          "target-stale",
+          "no-effect",
+          "rate-limited",
+          "run-paused",
+          "run-ended-partial",
+          "run-ended",
+          "wizard-waiting",
+          "browser-reloading",
+          "task-ended"
+        ],
+        "description": "What unexpected happened, when something did: handle it first."
+      },
       "pagePick": {
         "anyOf": [
           {
@@ -989,6 +1008,36 @@
       },
       "nextActions": {
         "type": "array",
+        "maxItems": 3,
+        "description": "The calls that apply in this state, in order, with wizardId, the revision to answer, the pending choiceId and the pick page filled: add your wizardToken (and optionIds, values or a target where the call takes them), plus an idempotencyKey for an effect.",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "tool",
+            "args"
+          ],
+          "description": "One call to make next: send it as it stands; replace a <name> placeholder with that id from your latest results.",
+          "properties": {
+            "tool": {
+              "type": "string",
+              "maxLength": 64,
+              "description": "The MCP tool to call (dsagent_read for reads, dsagent_invoke for effects, or a dsagent_* tool)."
+            },
+            "method": {
+              "type": "string",
+              "maxLength": 96,
+              "description": "The dsagent.* method to pass to that tool, when one applies."
+            },
+            "args": {
+              "type": "object",
+              "description": "The args for that call, already filled with the ids you hold; add an idempotencyKey for an effect."
+            }
+          }
+        }
+      },
+      "nextSteps": {
+        "type": "array",
         "maxItems": 7,
         "items": {
           "type": "string",
@@ -1003,7 +1052,7 @@
           ],
           "description": "One wizard call that applies now."
         },
-        "description": "The dsagent.wizard.* calls that apply in this state."
+        "description": "Deprecated, kept for one Skill version: every dsagent.wizard.* call that applies in this state, as a verb (wait is dsagent.wizard.state). Follow nextActions."
       },
       "authentication": {
         "type": "object",
@@ -1132,7 +1181,7 @@
               "step-rejected",
               "step-crashed"
             ],
-            "description": "Closed endpoint code. structure-none / structure-search-empty: detection ran and found no list (or the search returned nothing). structure-detection-failed / structure-budget-exhausted: detection failed (reason says why: content-unavailable, main-frame-timed-out, main-frame-failed, processing-budget, all-frames-failed); never the same as an empty page. form-none / form-detection-failed, ai-model-unavailable / ai-detection-failed / ai-found-nothing, pagination-inconclusive / pagination-unavailable (unavailable: the detector never ran; none is only the default). nested-detection-timeout, nested-detection-failed, field-naming-timeout: degraded follow-ups, the wizard went on. field-review-model-unavailable / field-review-failed: the AI field review did not run (no model) or failed (reason model-failed, invalid-review, fields-changed, transport-error); the fields stay as they were. field-mapping-model-unavailable / field-mapping-failed: a read by fields (dsagent.wizard.collect) could not map the wanted fields onto the detected ones (no model; reason model-failed or invalid-mapping); the fields choice is yours to answer. region-unreadable: a read by fields could not read your region on the page (observe the page again and pass a fresh target). sample-not-repeating / sample-invisible: the picked record built no block (reported at once; reason says more for pick by example: samples-apart, no list holds every sample each in a record of its own; exclusion-kept, every such list also holds the excluded record; records-dropped, the only list holding the added sample would lose records the list already has, so the earlier list stands; no-tighter-record / no-looser-record, no smaller / larger repeating record around the pick; no-table, no table around the pick; samples-lost, the page reloaded and forgot the earlier samples; detector-error). field-pick-not-landed, next-control-not-taken, option-pick-not-taken, pick-not-dispatched (nothing was clicked). next-control-not-advancing: one click of the picked next-page control left the records of the chosen list as they were (it moves something else, such as a carousel), or its recorded address no longer finds it, so it was not saved; choose another pagination type (none when the records needed are all on the page) or pick the next-page control of the list itself. url-query-not-advancing: with url-query pagination the page the run loads second (the page parameter set to 2) showed the records of the start page again (the site ignores the parameter, such as a list that pages by path), so the wizard is back at the pagination step; choose next-button (pick the next-page control of the list itself) or none when the records needed are all on the page. detail-sample-unavailable: the detail sample page could not be opened (scrapeErrorCode says why). compile-rejected: the scrape owner refused to build the workflow (scrapeErrorCode such as FIELDS_REQUIRED, PAGINATION_NOT_SET). save-duplicate: another save of this wizard is in progress, this call saved nothing. save-failed, plan-limit, page-unreadable, content-unavailable, session-start-refused (the scrape owner refused to start on this page: cite details.refusalId of the refused dsagent.wizard.start as wizardId to dsagent.dataset.save-agent-read for what you read yourself), page-not-scrapable (a browser, file or non-HTTP page the wizard never starts on; the same refusalId applies), wall (sign-in or verification; the person passes it; authentication.deadline bounds the wait). step-rejected / step-crashed: any other refused or failed step."
+            "description": "Closed endpoint code. structure-none / structure-search-empty: detection ran and found no list (or the search returned nothing: report that and cancel). structure-detection-failed / structure-budget-exhausted: detection failed (reason says why: content-unavailable, main-frame-timed-out, main-frame-failed, processing-budget, all-frames-failed); never the same as an empty page. form-none / form-detection-failed, ai-model-unavailable / ai-detection-failed / ai-found-nothing, pagination-inconclusive / pagination-unavailable (unavailable: the detector never ran; none is only the default). nested-detection-timeout, nested-detection-failed, field-naming-timeout: degraded follow-ups, the wizard went on. field-review-model-unavailable / field-review-failed: the AI field review did not run (no model) or failed (reason model-failed, invalid-review, fields-changed, transport-error); the fields stay as they were. field-mapping-model-unavailable / field-mapping-failed: a read by fields (dsagent.wizard.collect) could not map the wanted fields onto the detected ones (no model; reason model-failed or invalid-mapping); the fields choice is yours to answer. region-unreadable: a read by fields could not read your region on the page (observe the page again and pass a fresh target). sample-not-repeating / sample-invisible: the picked record built no block (reported at once; reason says more for pick by example: samples-apart, no list holds every sample each in a record of its own; exclusion-kept, every such list also holds the excluded record; records-dropped, the only list holding the added sample would lose records the list already has, so the earlier list stands; no-tighter-record / no-looser-record, no smaller / larger repeating record around the pick; no-table, no table around the pick; samples-lost, the page reloaded and forgot the earlier samples; detector-error). field-pick-not-landed, next-control-not-taken, option-pick-not-taken, pick-not-dispatched (nothing was clicked). next-control-not-advancing: one click of the picked next-page control left the records of the chosen list as they were (it moves something else, such as a carousel), or its recorded address no longer finds it, so it was not saved; choose another pagination type (none when the records needed are all on the page) or pick the next-page control of the list itself. url-query-not-advancing: with url-query pagination the page the run loads second (the page parameter set to 2) showed the records of the start page again (the site ignores the parameter, such as a list that pages by path), so the wizard is back at the pagination step; choose next-button (pick the next-page control of the list itself) or none when the records needed are all on the page. detail-sample-unavailable: the detail sample page could not be opened (scrapeErrorCode says why). compile-rejected: the scrape owner refused to build the workflow (scrapeErrorCode such as FIELDS_REQUIRED, PAGINATION_NOT_SET). save-duplicate: another save of this wizard is in progress, this call saved nothing. save-failed, plan-limit, page-unreadable, content-unavailable, session-start-refused (the scrape owner refused to start on this page: cite details.refusalId of the refused dsagent.wizard.start as wizardId to dsagent.dataset.save-agent-read for what you read yourself), page-not-scrapable (a browser, file or non-HTTP page the wizard never starts on; the same refusalId applies), wall (sign-in or verification; the person passes it; authentication.deadline bounds the wait). step-rejected / step-crashed: any other refused or failed step."
           },
           "group": {
             "type": "string",
@@ -1296,7 +1345,8 @@
               "enum": [
                 "parallel-needs-stable-identity",
                 "nested-children-not-with-detail-pages",
-                "same-name-workflow-exists"
+                "same-name-workflow-exists",
+                "NO_PROGRESS"
               ],
               "description": "parallel-needs-stable-identity: the records of the chosen list carry no stable identity (an id, a data attribute or a unique link), which same-tab parallel detail visits need; the saved workflow visits them one at a time instead of maxConcurrency in parallel. nested-children-not-with-detail-pages: the records of the list open detail pages, and a list read with detail visits collects no nested records of the list, so the nested records chosen for it are left out (choose no-detail-pages to keep them). same-name-workflow-exists (dsagent.wizard.save only): the person already has workflows with the name this save used (workflows). The save happened as asked; nothing was renamed or replaced. A new wizard for work an existing workflow does leaves lookalikes: change or run the existing one instead (nextActions). Collection steps cannot be edited over MCP; when the new one replaces an older one, tell the person, who can delete it in the DSphere side panel."
             },
@@ -1339,12 +1389,58 @@
             "nextActions": {
               "type": "array",
               "maxItems": 3,
-              "description": "same-name-workflow-exists: ways to work with an existing workflow instead of saving another, in order.",
+              "description": "same-name-workflow-exists: ways to work with the most recently updated existing workflow instead of saving another, in order, its workflowId filled: read its settings, run it, or give it a distinct name (replace <distinctName>).",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "tool",
+                  "args"
+                ],
+                "description": "One call to make next: send it as it stands; replace a <name> placeholder with that id from your latest results.",
+                "properties": {
+                  "tool": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "description": "The MCP tool to call (dsagent_read for reads, dsagent_invoke for effects, or a dsagent_* tool)."
+                  },
+                  "method": {
+                    "type": "string",
+                    "maxLength": 96,
+                    "description": "The dsagent.* method to pass to that tool, when one applies."
+                  },
+                  "args": {
+                    "type": "object",
+                    "description": "The args for that call, already filled with the ids you hold; add an idempotencyKey for an effect."
+                  }
+                }
+              }
+            },
+            "nextSteps": {
+              "type": "array",
+              "maxItems": 3,
+              "description": "same-name-workflow-exists: deprecated, kept for one Skill version: the same advice as sentences. Follow nextActions.",
               "items": {
                 "type": "string",
                 "maxLength": 200,
                 "description": "One call, named as the catalog names it, and what it is for."
               }
+            },
+            "repeated": {
+              "type": "string",
+              "enum": [
+                "same-call",
+                "same-error",
+                "unchanged-run",
+                "effects-without-change"
+              ],
+              "description": "NO_PROGRESS: what repeated."
+            },
+            "count": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000,
+              "description": "NO_PROGRESS: how many times in a row."
             }
           },
           "required": [
@@ -1352,7 +1448,7 @@
             "message"
           ]
         },
-        "description": "What the saved workflow does differently from the choices, typed (X5), and on dsagent.wizard.save what the person already has beside it. Present as soon as the choices imply it (after data-processing) and on the save. Plan on the code, never on the message."
+        "description": "What the saved workflow does differently from the choices, typed (X5), and on dsagent.wizard.save what the person already has beside it. Present as soon as the choices imply it (after data-processing) and on the save. Plan on the code, never on the message. NO_PROGRESS: this task repeated itself without progress (the same call at an unchanged revision 3 times, the same refusal 3 times, 5 waits on an unchanged run, or 6 page actions that changed nothing); the call ran: stop repeating it and follow nextActions."
       },
       "personTookOver": {
         "type": "boolean",
@@ -1368,6 +1464,7 @@
       "pendingChoice",
       "summary",
       "nextActions",
+      "nextSteps",
       "personTookOver",
       "workflowId"
     ]

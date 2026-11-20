@@ -22,7 +22,7 @@
         "type": "string",
         "maxLength": 128,
         "pattern": "^[A-Za-z0-9_-]{16,128}$",
-        "description": "The run's ownership token, as dsagent.execution.run or dsagent.wizard.run returned it (shown once). Pass it when your browser connection was renewed (a restarted Connector): the run, its open repair handoff and its pages follow you to the new connection. Not needed on the connection that started the run."
+        "description": "The run's ownership token, as dsagent.execution.run or dsagent.wizard.run returned it (shown once). Pass it when your browser connection was renewed (a restarted Connector): the run, its open repair handoff and its pages follow you to the new connection."
       }
     },
     "required": [
@@ -52,7 +52,7 @@
       "status": {
         "type": "string",
         "maxLength": 100,
-        "description": "Current execution status: the backend record's word (pending, running, success, completed, failed, cancelled, stopped, restricted, partial). dsagent.execution.get / wait of a run paused in this browser give its pause word instead: paused-agent-repair, paused-auth-interrupt or paused-resource-pressure. Plan on lifecycle and terminal. partial: saved rows without collecting everything (the agent repair handoff ended it, or it finished short of its collection: errorCode COLLECTION_PARTIAL; terminal)."
+        "description": "Current execution status: the backend record's word (pending, running, success, completed, failed, cancelled, stopped, restricted, partial). dsagent.execution.get / wait of a run paused in this browser give its pause word instead: paused-agent-repair, paused-auth-interrupt or paused-resource-pressure, and running while the backend has not heard a run here start. Plan on state and terminal, never on status. partial: saved rows without collecting everything (the agent repair handoff ended it, or it finished short of its collection: errorCode COLLECTION_PARTIAL; terminal)."
       },
       "startedAt": {
         "type": "string",
@@ -333,6 +333,7 @@
               "prerequisite-unavailable",
               "prerequisite-unaddressable",
               "prerequisite-replay-failed",
+              "prerequisite-target-absent",
               "model-request-failed",
               "revision-changed",
               "recovery-unavailable",
@@ -393,6 +394,56 @@
             "type": "integer",
             "minimum": 0,
             "description": "Rows a retry of the buffered writes of the run saved after their first write failed."
+          },
+          "recordCheck": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "enum": [
+                  "complete",
+                  "short",
+                  "unchecked"
+                ],
+                "description": "complete: the run saved or visited all it counted. short: it counted more than it saved or visited (the run ends partial; report saved of expected). unchecked: the run had no count to check its rows against: report the rows saved and that they could not be checked, never that they are all."
+              },
+              "unit": {
+                "type": "string",
+                "enum": [
+                  "records",
+                  "parents"
+                ],
+                "description": "What expected and reached count: list records, or the parent records a detail loop listed to visit."
+              },
+              "expected": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "How many the run counted: the records its list collected (or was asked for, when the list stopped before its end), or the parents its detail loop listed."
+              },
+              "reached": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "How many of them it collected or visited."
+              },
+              "saved": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Rows committed to the local data sheet (rowsSaved)."
+              },
+              "reason": {
+                "type": "string",
+                "enum": [
+                  "no-count",
+                  "evidence-truncated"
+                ],
+                "description": "unchecked: why. no-count: the run had no count of its records (a single-page read, or a run that read no list); evidence-truncated: its count was cut at its bound."
+              }
+            },
+            "required": [
+              "status"
+            ],
+            "additionalProperties": false,
+            "description": "The rows saved held against the count the run had of them, so a row count is never read as all of it. Present when the run collected or saved records."
           },
           "collectionFulfillment": {
             "type": "object",
@@ -707,6 +758,16 @@
               "description": "One detail field and how many records lack it."
             }
           },
+          "fieldsNotFound": {
+            "type": "array",
+            "maxItems": 20,
+            "items": {
+              "type": "string",
+              "maxLength": 100,
+              "description": "One field name."
+            },
+            "description": "Fields the wizard was asked for that the page showed no value source for (a dsagent.wizard.collect field with required false that was not found, or a collectHint field no detected field holds; degraded outcome field-not-found): the run has no column for them. Report them as not collected and never give a value for them; they never change the run status."
+          },
           "chartsIncomplete": {
             "type": "array",
             "maxItems": 20,
@@ -932,9 +993,10 @@
                     "response-differs",
                     "response-records-unchecked",
                     "response-structure-changed",
-                    "response-field-not-read"
+                    "response-field-not-read",
+                    "field-not-found"
                   ],
-                  "description": "kept-unreached (a read kept its empty value), zero-iterations (a list loop ran no item), continued-unverified (a click meant to open a tab opened none), pagination-shortfall (pages ran out before the requested count), rows-not-saved / rows-unverified (the local sheet), detail-field-missing (a detail visit kept its record without this field), item-skipped (a loop item answered skip-item: not collected, no row written), field-empty-all-rows (a field the wizard showed with a value read empty on every row; count is the rows saved without it), field-identity-refused (a list field whose every match in a record was another field, by its stated label or its place in the record; the cell stayed empty; count is the rows), field-read-blanked (list cells left empty although the record shows the field: the recorded field refused the value at its place, or recovery found several candidates; count is the rows; check the page before trusting the column), chart-sweep-incomplete (a chart field whose sweep may have missed records; count is the records it read; see chartsIncomplete), parent-not-accepted (replies the reply loop read under a comment the run could not read as a row: held by no row and not saved; count is the replies), records-read-not-saved (a run that did not succeed read list records it never saved; count is the records read beyond the rows saved), records-not-saved (a run that succeeded collected list records its confirmed saved rows do not hold; count is the records collected beyond the rows saved; the run ends partial), parents-not-visited (a detail loop ended before visiting every parent record it listed; count is the parents never visited; see collectionFulfillment), response-filled-empty / response-filled-truncated (cells the page showed empty or cut short, saved with the value of the data the page itself received; see networkData), response-differs (cells whose page value differs from that data; the page value is saved), response-records-unchecked (records that matched no single record of that data), response-structure-changed (a field that data no longer has), response-field-not-read (a field the page does not show stayed empty: that data was not read in this run)."
+                  "description": "kept-unreached (a read kept its empty value), zero-iterations (a list loop ran no item), continued-unverified (a click meant to open a tab opened none), pagination-shortfall (pages ran out before the requested count), rows-not-saved / rows-unverified (the local sheet), detail-field-missing (a detail visit kept its record without this field), item-skipped (a loop item answered skip-item: not collected, no row written), field-empty-all-rows (a field the wizard showed with a value read empty on every row; count is the rows saved without it), field-identity-refused (a list field whose every match in a record was another field, by its stated label or its place in the record; the cell stayed empty; count is the rows), field-read-blanked (list cells left empty although the record shows the field: the recorded field refused the value at its place, or recovery found several candidates; count is the rows; check the page before trusting the column), chart-sweep-incomplete (a chart field whose sweep may have missed records; count is the records it read; see chartsIncomplete), parent-not-accepted (replies the reply loop read under a comment the run could not read as a row: held by no row and not saved; count is the replies), records-read-not-saved (a run that did not succeed read list records it never saved; count is the records read beyond the rows saved), records-not-saved (a run that succeeded collected list records its confirmed saved rows do not hold; count is the records collected beyond the rows saved; the run ends partial), parents-not-visited (a detail loop ended before visiting every parent record it listed; count is the parents never visited; see collectionFulfillment), response-filled-empty / response-filled-truncated (cells the page showed empty or cut short, saved with the value of the data the page itself received; see networkData), response-differs (cells whose page value differs from that data; the page value is saved), response-records-unchecked (records that matched no single record of that data), response-structure-changed (a field that data no longer has), response-field-not-read (a field the page does not show stayed empty: that data was not read in this run), field-not-found (a field the wizard was asked for that the page showed no value source for; count is the rows saved without it; see fieldsNotFound)."
                 },
                 "count": {
                   "type": "integer",
@@ -1034,9 +1096,10 @@
           "failedRequests",
           "sampledRequests",
           "since",
-          "hint"
+          "hint",
+          "tellThePerson"
         ],
-        "description": "Present only while something is wrong with how websites answer this task's tab; absent when they answer normally. site-slow: the website itself is slow, stalled, failing, rate-limiting or unreachable while other websites in the same tab answer normally, so it is not a browser or Agent fault. local-network-slow: every website is slow alike, so it is the person's network or proxy. Either way: do not switch browsers, reload the extension or repeat actions faster; tell the person once which website is slow, then wait (dsagent_page_wait) and read again. DSphere never changes its own timeouts because of it.",
+        "description": "Present only while something is wrong with how websites answer this task's tab; absent when they answer normally. site-slow: the website itself is slow, stalled, failing, rate-limiting or unreachable while other websites in the same tab answer normally, so it is not a browser or Agent fault. local-network-slow: every website is slow alike, so it is the person's network or proxy. Either way: do not switch browsers, reload the extension or repeat actions faster; tell the person once, in their language, what tellThePerson says (which website, and to check their network and proxy settings), then wait (dsagent_page_wait) and read again. DSphere never changes its own timeouts because of it.",
         "properties": {
           "verdict": {
             "type": "string",
@@ -1095,6 +1158,11 @@
             "type": "string",
             "maxLength": 200,
             "description": "One sentence on what to do."
+          },
+          "tellThePerson": {
+            "type": "string",
+            "maxLength": 320,
+            "description": "One sentence for the person: which website is slow and why it is not DSphere, with the advice to check their network and proxy settings. Relay it once per finding, in their language; do not repeat it on every reply."
           }
         }
       },
@@ -1153,6 +1221,19 @@
           }
         }
       },
+      "state": {
+        "type": "string",
+        "enum": [
+          "pending",
+          "running",
+          "paused",
+          "completed",
+          "partial",
+          "failed",
+          "stopped"
+        ],
+        "description": "The one run state to plan on, with terminal: never key on status. completed, partial, failed and stopped are terminal; pending, running and paused are not (lifecycle says the same words)."
+      },
       "lifecycle": {
         "type": "string",
         "enum": [
@@ -1164,7 +1245,7 @@
           "failed",
           "stopped"
         ],
-        "description": "The lifecycle to plan on, whatever words status (the backend record) uses: completed covers completed and success, partial is a run that saved rows without collecting everything: it ended through the agent repair handoff (you aborted it, its deadline passed, its handoff budget was spent, or the handoff was turned off), or it finished short of its collection (errorCode COLLECTION_PARTIAL: parents it listed and never visited, visits unresolved or failed, fewer records than requested, records skipped; coverage says which; coverage that is only unknown keeps completed) (coverage.rowsSaved; they are kept and listed like any terminal run's, and endpoint names where it stopped), failed covers failed and restricted (refused under the plan limits), stopped covers stopped and cancelled, paused is a run in this browser waiting on a sign-in wall, on host resources, or on your repair of a failed block (pause says which)."
+        "description": "Deprecated, kept for one Skill version: the same value as state. The lifecycle to plan on, whatever words status (the backend record) uses: completed covers completed and success, partial is a run that saved rows without collecting everything: it ended through the agent repair handoff (you aborted it, its deadline passed, its handoff budget was spent, or the handoff was turned off), or it finished short of its collection (errorCode COLLECTION_PARTIAL: parents it listed and never visited, visits unresolved or failed, fewer records than requested, records skipped; coverage says which; coverage that is only unknown keeps completed) (coverage.rowsSaved; they are kept and listed like any terminal run's, and endpoint names where it stopped), failed covers failed and restricted (refused under the plan limits), stopped covers stopped and cancelled, paused is a run in this browser waiting on a sign-in wall, on host resources, or on your repair of a failed block (pause says which)."
       },
       "pause": {
         "type": "object",
@@ -1389,6 +1470,25 @@
         "additionalProperties": false,
         "description": "Present while the run is paused in this browser: what it waits on, who must act, and until when."
       },
+      "situation": {
+        "type": "string",
+        "enum": [
+          "sign-in-wall",
+          "challenge",
+          "dialog-open",
+          "new-tab-opened",
+          "target-stale",
+          "no-effect",
+          "rate-limited",
+          "run-paused",
+          "run-ended-partial",
+          "run-ended",
+          "wizard-waiting",
+          "browser-reloading",
+          "task-ended"
+        ],
+        "description": "What unexpected happened, when something did: handle it first."
+      },
       "terminal": {
         "type": "boolean",
         "description": "true: the run has ended (completed, partial, failed, restricted or stopped) and its artifacts are final; false: wait again or read progress. A failed or partial run names its endpoint, errorNodeId, recovery and coverage."
@@ -1493,7 +1593,37 @@
       "nextActions": {
         "type": "array",
         "maxItems": 3,
-        "description": "What to call next, in order. Terminal: read the result (dsagent.artifact.read, dsagent.execution.data.export, dsagent.artifacts.list; empty when the run left no result); never wait again. An open repair handoff that is yours to answer: dsagent.execution.handoff.get, then resume or abort. A sign-in pause of your run: wait, or dsagent.execution.auth.resume once the person says they signed in; a challenge yours to try (pause.waitingOn agent): read pause.pageContextId, pass it, wait. Otherwise (running, pending, a wall or a handoff the person answers): dsagent.execution.wait.",
+        "description": "What to call next, in order, each a full call with this run's ids filled. Terminal: read the result (dsagent.artifact.read, dsagent.execution.data.export, dsagent.artifacts.list; empty when the run left no result); never wait again. An open repair handoff that is yours to answer: dsagent.execution.handoff.get, then resume or abort. A sign-in pause of your run: wait, or dsagent.execution.auth.resume once the person says they signed in; a challenge yours to try (pause.waitingOn agent): read pause.pageContextId, pass it, wait. Otherwise (running, pending, a wall or a handoff the person answers): dsagent.execution.wait.",
+        "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "tool",
+            "args"
+          ],
+          "description": "One call to make next: send it as it stands; replace a <name> placeholder with that id from your latest results.",
+          "properties": {
+            "tool": {
+              "type": "string",
+              "maxLength": 64,
+              "description": "The MCP tool to call (dsagent_read for reads, dsagent_invoke for effects, or a dsagent_* tool)."
+            },
+            "method": {
+              "type": "string",
+              "maxLength": 96,
+              "description": "The dsagent.* method to pass to that tool, when one applies."
+            },
+            "args": {
+              "type": "object",
+              "description": "The args for that call, already filled with the ids you hold; add an idempotencyKey for an effect."
+            }
+          }
+        }
+      },
+      "nextActionIds": {
+        "type": "array",
+        "maxItems": 3,
+        "description": "Deprecated, kept for one Skill version: the methods of nextActions, in the same order. Follow nextActions.",
         "items": {
           "type": "string",
           "enum": [
@@ -1513,8 +1643,8 @@
       },
       "warnings": {
         "type": "array",
-        "maxItems": 1,
-        "description": "EXECUTION_ALREADY_TERMINAL: you waited on a run you were already told has ended. The reply is the same outcome; stop waiting and follow nextActions. Plan on the code, never on the message.",
+        "maxItems": 2,
+        "description": "EXECUTION_ALREADY_TERMINAL: you waited on a run you were already told has ended. The reply is the same outcome; stop waiting and follow nextActions. Plan on the code, never on the message. NO_PROGRESS: this task repeated itself without progress (the same call at an unchanged revision 3 times, the same refusal 3 times, 5 waits on an unchanged run, or 6 page actions that changed nothing); the call ran: stop repeating it and follow nextActions.",
         "items": {
           "type": "object",
           "additionalProperties": false,
@@ -1528,7 +1658,8 @@
             "code": {
               "type": "string",
               "enum": [
-                "EXECUTION_ALREADY_TERMINAL"
+                "EXECUTION_ALREADY_TERMINAL",
+                "NO_PROGRESS"
               ],
               "description": "Stable warning code to plan on."
             },
@@ -1541,6 +1672,36 @@
               "type": "array",
               "maxItems": 3,
               "description": "What to call instead of waiting again, in order.",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "tool",
+                  "args"
+                ],
+                "description": "One call to make next: send it as it stands; replace a <name> placeholder with that id from your latest results.",
+                "properties": {
+                  "tool": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "description": "The MCP tool to call (dsagent_read for reads, dsagent_invoke for effects, or a dsagent_* tool)."
+                  },
+                  "method": {
+                    "type": "string",
+                    "maxLength": 96,
+                    "description": "The dsagent.* method to pass to that tool, when one applies."
+                  },
+                  "args": {
+                    "type": "object",
+                    "description": "The args for that call, already filled with the ids you hold; add an idempotencyKey for an effect."
+                  }
+                }
+              }
+            },
+            "nextActionIds": {
+              "type": "array",
+              "maxItems": 3,
+              "description": "Deprecated, kept for one Skill version: the methods of nextActions.",
               "items": {
                 "type": "string",
                 "enum": [
@@ -1557,6 +1718,22 @@
                 ],
                 "description": "One capability to call next, as the catalog names it."
               }
+            },
+            "repeated": {
+              "type": "string",
+              "enum": [
+                "same-call",
+                "same-error",
+                "unchanged-run",
+                "effects-without-change"
+              ],
+              "description": "NO_PROGRESS: what repeated."
+            },
+            "count": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000,
+              "description": "NO_PROGRESS: how many times in a row."
             }
           }
         }
@@ -1675,6 +1852,7 @@
       "workflowId",
       "status",
       "hasResult",
+      "state",
       "lifecycle",
       "terminal",
       "timedOut"

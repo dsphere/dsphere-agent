@@ -64,16 +64,18 @@ The wizard state after the answer (with auto, the state where auto ended).
 | `sidePanelStep` | integer (0…5) |  | The scrape wizard s… |
 | `busy` | one of 2: object {activity, sinceMs} / null |  | Present while a ste… |
 | `awaitingPerson` | one of 2: enum (13 values, listed under Constraints) / null |  | Something to do on… |
+| `situation` | enum (13 values, listed under Constraints) |  | What unexpected hap… |
 | `pagePick` | one of 2: object {pageContextId, includeText, includeImages} / null |  | The page on which y… |
 | `pendingChoice` | one of 2: object {choiceId, selection, minSelected, maxSelected, options, values, …} / null |  | The one decision th… |
 | `summary` | object {searchResultState, page, pagination, source, adFilter, repeatActions, …} |  | What the wizard has… |
-| `nextActions` | array of enum (7 values, listed under Constraints) (≤ 7) |  | The dsagent.wizard.… |
+| `nextActions` | array of object {tool, method, args} (≤ 3) |  | The calls that appl… |
+| `nextSteps` | array of enum (7 values, listed under Constraints) (≤ 7) |  | Deprecated, kept fo… |
 | `authentication` | object {status, type, confidence, waitingOn, sinceMs, deadline} |  | Present only while… |
 | `workflowId` | string (0–128 chars) |  | Saved workflow id (… |
 | `executionId` | string (0–128 chars) |  | Execution started b… |
 | `lastError` | object {code, message} |  | The last step that… |
 | `lastEndpoint` | object {endpoint, group, outcome, scope, reason, scrapeErrorCode, …} |  | The typed endpoint… |
-| `warnings` | array of object {code, message, workflows, nextActions} (≤ 8) |  | What the saved work… |
+| `warnings` | array of object {code, message, workflows, nextActions, nextSteps, repeated, …} (≤ 8) |  | What the saved work… |
 | `personTookOver` | boolean |  | True when the perso… |
 | `auto` | object {outcome, stoppedAt, executionId, reason, answered, preview, …} |  | Present when the ca… |
 
@@ -86,13 +88,14 @@ Complete value lists and id patterns for the fields above (the contract file is 
 - `phase`: one of `recording`, `pagination`, `data`, `detail-page`, `naming`, `ready-to-save`, `saved`, `canceled`
 - `busy.activity`: one of `starting`, `detecting-pagination`, `detecting-data`, `reviewing-fields`, `applying-choice`, `opening-detail-page`, `detecting-detail-data`, `detecting-page-inputs`, `collecting-option-combinations`, `returning-to-list`, `stopping-recording`, `handing-over-to-scrape`, `resuming-recording`, `saving`, `starting-run`, `canceling`
 - `awaitingPerson`: one of `click-next-page-control`, `click-one-record`, `click-one-detail-record`, `click-record-to-exclude`, `click-table`, `click-detail-fields`, `click-page-fields`, `click-block-fields`, `click-option-panel`, `click-option-group`, `click-product-image`, `perform-steps-on-page`, `pass-page-check`
+- `situation`: one of `sign-in-wall`, `challenge`, `dialog-open`, `new-tab-opened`, `target-stale`, `no-effect`, `rate-limited`, `run-paused`, `run-ended-partial`, `run-ended`, `wizard-waiting`, `browser-reloading`, `task-ended`
 - `pendingChoice.choiceId`: same values as input `choiceId`
 - `pendingChoice.options[].optionId`: matches `^opt_[a-f0-9]{12}$`
 - `pendingChoice.options[].kind`: one of `pagination-type`, `data-block`, `data-table`, `form-group`, `option-group`, `form-field`, `upload-slot`, `field`, `link-field`, `nested-scope`, `page-content`, `output-destination`, `action`
 - `pendingChoice.options[].labelSource`: one of `page`, `role`, `shape`, `fallback`, `user`, `api`, `ai`
 - `pendingChoice.values[].name`: one of `maxRecords`, `collectHint`, `stopBefore`, `detailUrlSuffix`, `pageQueryParam`, `fieldLabels`, `fieldRules`, `maxChildrenPerParent`, `maxConcurrency`, `maxItems`, `maxPages`, `swapLabelValue`, `sampleUploads`, `pageMarkdown`, `name`, `description`, `stepIds`
 - `pendingChoice.autoAnswer.optionIds[]`: matches `^opt_[a-f0-9]{12}$`
-- `nextActions[]`: one of `choose`, `pick`, `back`, `save`, `run`, `cancel`, `wait`
+- `nextSteps[]`: one of `choose`, `pick`, `back`, `save`, `run`, `cancel`, `wait`
 - `lastEndpoint.endpoint`: one of `page-unreadable`, `content-unavailable`, `wall`, `session-start-refused`, `page-not-scrapable`, `structure-none`, `structure-search-empty`, `structure-detection-failed`, `structure-budget-exhausted`, `form-none`, `form-detection-failed`, `ai-model-unavailable`, `ai-detection-failed`, `ai-found-nothing`, `pagination-inconclusive`, `pagination-unavailable`, `url-query-not-advancing`, `nested-detection-timeout`, `nested-detection-failed`, `field-naming-timeout`, `field-review-model-unavailable`, `field-review-failed`, `field-mapping-model-unavailable`, `field-mapping-failed`, `region-unreadable`, `detail-sample-unavailable`, `sample-not-repeating`, `sample-invisible`, `field-pick-not-landed`, `next-control-not-taken`, `next-control-not-advancing`, `option-pick-not-taken`, `pick-not-dispatched`, `compile-rejected`, `save-duplicate`, `save-failed`, `plan-limit`, `step-rejected`, `step-crashed`
 - `lastEndpoint.group`: one of `readiness`, `structure`, `form`, `ai-detection`, `pagination`, `follow-up`, `detail`, `pick`, `finishing`, `step`
 - `lastEndpoint.reason`: one of `content-unavailable`, `main-frame-timed-out`, `main-frame-failed`, `processing-budget`, `all-frames-failed`, `content-error`, `no-session`, `low-confidence`, `unknown-kind`, `unmappable`, `document-replaced`, `no-model`, `snapshot-unavailable`, `model-failed`, `transport-error`, `invalid-review`, `fields-changed`, `invalid-mapping`, `timed-out`, `detector-error`, `samples-apart`, `exclusion-kept`, `records-dropped`, `no-tighter-record`, `no-looser-record`, `no-table`, `samples-lost`

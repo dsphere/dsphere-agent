@@ -37,7 +37,7 @@ The assist after this call.
 | `pageContextId` | string (0–128 chars) |  | The page. |
 | `state` | enum: assisting, ended |  | assisting: act on the page now; ended: the assist is over. |
 | `expiresAt` | string (0–40 chars) |  | With assisting: when it lapses (ISO 8601). |
-| `attention` | array of object {code, waitingOn, since, detail} (≤ 8) |  | What holds the work up, each with who must act. Empty when nothing does. |
+| `attention` | array of object {code, waitingOn, situation, since, detail} (≤ 8) |  | What holds the work up, each with who must act. Empty when nothing does. |
 | `task` | object {taskRef, kind, mine, ownerName, description, status, …} |  | One task running (or just ended) in the browser. |
 | `wallCleared` | boolean |  | With ended: whether a fresh read found the page without a wall; absent when that read could not check the page (its con… |
 | `ownerResumed` | enum: task, run |  | With ended: the task or run that waited on the wall continues. |
@@ -47,7 +47,9 @@ The assist after this call.
 Complete value lists and id patterns for the fields above (the contract file is authoritative).
 
 - `attention[].code`: one of `sign-in-wall`, `verification-challenge`, `waiting-for-answer`, `paused-for-repair`, `paused-for-resources`, `task-failed`, `task-interrupted`, `run-failed`, `stalled`
+- `attention[].situation`: one of `sign-in-wall`, `challenge`, `dialog-open`, `new-tab-opened`, `target-stale`, `no-effect`, `rate-limited`, `run-paused`, `run-ended-partial`, `run-ended`, `wizard-waiting`, `browser-reloading`, `task-ended`
 - `task.attention[].code`: same values as `attention[].code`
+- `task.attention[].situation`: same values as `attention[].situation`
 
 ## Guidance
 

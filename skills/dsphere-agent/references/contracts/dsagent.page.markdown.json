@@ -232,7 +232,7 @@
       "warnings": {
         "type": "array",
         "maxItems": 2,
-        "description": "REPEATED_RECORDS_USE_WIZARD: switch to the scrape wizard on this page now (dsagent.wizard.start kind=scrape, then wizard.state / wizard.choose). DSphere's typed route advice, never page text: this page shows repeated records (the same fields per item) and this task has scrolled and re-read it twelve or more times on one address, which is not how records are collected. The call itself succeeded; the person sees the same notice in the DSphere side panel. Plan on the code, never on the message.",
+        "description": "REPEATED_RECORDS_USE_WIZARD: switch to the scrape wizard on this page now (dsagent.wizard.start kind=scrape, then wizard.state / wizard.choose). DSphere's typed route advice, never page text: this page shows repeated records (the same fields per item) and this task has scrolled and re-read it twelve or more times on one address, which is not how records are collected. The call itself succeeded; the person sees the same notice in the DSphere side panel. Plan on the code, never on the message. NO_PROGRESS: this task repeated itself without progress (the same call at an unchanged revision 3 times, the same refusal 3 times, 5 waits on an unchanged run, or 6 page actions that changed nothing); the call ran: stop repeating it and follow nextActions.",
         "items": {
           "type": "object",
           "additionalProperties": false,
@@ -246,7 +246,8 @@
             "code": {
               "type": "string",
               "enum": [
-                "REPEATED_RECORDS_USE_WIZARD"
+                "REPEATED_RECORDS_USE_WIZARD",
+                "NO_PROGRESS"
               ],
               "description": "Stable warning code to plan on."
             },
@@ -257,8 +258,54 @@
             },
             "nextActions": {
               "type": "array",
+              "maxItems": 3,
+              "description": "What to call next, in order, with this page filled.",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "tool",
+                  "args"
+                ],
+                "description": "One call to make next: send it as it stands; replace a <name> placeholder with that id from your latest results.",
+                "properties": {
+                  "tool": {
+                    "type": "string",
+                    "maxLength": 64,
+                    "description": "The MCP tool to call (dsagent_read for reads, dsagent_invoke for effects, or a dsagent_* tool)."
+                  },
+                  "method": {
+                    "type": "string",
+                    "maxLength": 96,
+                    "description": "The dsagent.* method to pass to that tool, when one applies."
+                  },
+                  "args": {
+                    "type": "object",
+                    "description": "The args for that call, already filled with the ids you hold; add an idempotencyKey for an effect."
+                  }
+                }
+              }
+            },
+            "repeated": {
+              "type": "string",
+              "enum": [
+                "same-call",
+                "same-error",
+                "unchanged-run",
+                "effects-without-change"
+              ],
+              "description": "NO_PROGRESS: what repeated."
+            },
+            "count": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000,
+              "description": "NO_PROGRESS: how many times in a row."
+            },
+            "nextSteps": {
+              "type": "array",
               "maxItems": 2,
-              "description": "What to call next, in order.",
+              "description": "Deprecated, kept for one Skill version: the same advice as sentences. Follow nextActions.",
               "items": {
                 "type": "string",
                 "maxLength": 200,
@@ -438,9 +485,10 @@
           "failedRequests",
           "sampledRequests",
           "since",
-          "hint"
+          "hint",
+          "tellThePerson"
         ],
-        "description": "Present only while something is wrong with how websites answer this task's tab; absent when they answer normally. site-slow: the website itself is slow, stalled, failing, rate-limiting or unreachable while other websites in the same tab answer normally, so it is not a browser or Agent fault. local-network-slow: every website is slow alike, so it is the person's network or proxy. Either way: do not switch browsers, reload the extension or repeat actions faster; tell the person once which website is slow, then wait (dsagent_page_wait) and read again. DSphere never changes its own timeouts because of it.",
+        "description": "Present only while something is wrong with how websites answer this task's tab; absent when they answer normally. site-slow: the website itself is slow, stalled, failing, rate-limiting or unreachable while other websites in the same tab answer normally, so it is not a browser or Agent fault. local-network-slow: every website is slow alike, so it is the person's network or proxy. Either way: do not switch browsers, reload the extension or repeat actions faster; tell the person once, in their language, what tellThePerson says (which website, and to check their network and proxy settings), then wait (dsagent_page_wait) and read again. DSphere never changes its own timeouts because of it.",
         "properties": {
           "verdict": {
             "type": "string",
@@ -499,6 +547,11 @@
             "type": "string",
             "maxLength": 200,
             "description": "One sentence on what to do."
+          },
+          "tellThePerson": {
+            "type": "string",
+            "maxLength": 320,
+            "description": "One sentence for the person: which website is slow and why it is not DSphere, with the advice to check their network and proxy settings. Relay it once per finding, in their language; do not repeat it on every reply."
           }
         }
       }

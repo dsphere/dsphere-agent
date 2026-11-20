@@ -27,11 +27,11 @@ One page context, the optional revision the sequence starts from, and the ordere
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
-| `taskDescription` | string (1–2000 chars) |  | The person’s request in detail,… |
-| `taskMode` | enum: auto, continue |  | continue for your own skill, wo… |
-| `taskSteps` | array of string (1–160 chars) (≤ 30) |  | With taskMode continue: your st… |
-| `pageContextId` | string (2–128 chars) | yes | Page context from dsagent.page.… |
-| `expectedRevision` | string (1–128 chars) |  | Optional. The revision the firs… |
+| `taskDescription` | string (1–2000 chars) |  | The person’s reques… |
+| `taskMode` | enum: auto, continue |  | continue for your o… |
+| `taskSteps` | array of string (1–160 chars) (≤ 30) |  | With taskMode conti… |
+| `pageContextId` | string (2–128 chars) | yes | Page context from d… |
+| `expectedRevision` | string (1–128 chars) |  | Optional. The revis… |
 | `actions` | array of object {targetId, target, action, clickType, modifiers, offset, …} (≤ 12) | yes | The steps, in order. |
 
 ## Input constraints
@@ -56,6 +56,7 @@ Complete value lists and id patterns for the fields above (the contract file is 
 - `actions[].level`: one of `basic`, `standard`, `aggressive`
 - `actions[].waitFor.until`: one of `revision-changed`, `target-present`, `target-absent`, `target-enabled`, `target-disabled`, `text-present`, `text-absent`, `url-changed`, `settled`, `surface-closed`, `authentication-cleared`, `download`
 - `actions[].waitAfter.until`: same values as `actions[].waitFor.until`
+- `actions[].expect`: one of `navigates`, `opens-panel`, `closes-panel`, `value-set`, `list-grows`, `text-present`, `target-gone`, `download-starts`
 
 ## Result fields (data.data)
 
@@ -63,19 +64,20 @@ Receipts of the executed steps and the compact view of the page the sequence end
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
-| `pageContextId` | string (0–128 chars) |  | The page context the sequence e… |
-| `previousRevision` | string (0–128 chars) |  | The revision the sequence start… |
-| `revision` | string (0–128 chars) |  | The page revision after the las… |
-| `executed` | integer (0…12) |  | How many steps executed (action… |
-| `receipts` | array of object {index, targetId, action, resolved, waitFor, success, …} (≤ 12) |  | One receipt per executed step,… |
-| `stopped` | object {reason, index, targetId, code, businessCode, failureCode, …} |  | Present when the sequence ended… |
-| `uploads` | array of object {index, fileName, success, uploadState, networkUpload, failureCode, …} (≤ 12) |  | Present when an upload-file ste… |
-| `recheck` | object {checked, changed, hint} |  | Present when fields were filled… |
-| `warnings` | array of object {code, message, nextActions} (≤ 2) |  | REPEATED_RECORDS_USE_WIZARD: sw… |
-| `final` | object {pageSurfaces, motion, focusedCaret, framePageSurfaces, pageSurfacesUnchanged, timing, …} |  | Verified action receipt: a delt… |
-| `taskNotice` | object {code, previousTaskId, hint} |  | Present when this call's new ta… |
-| `authentication` | object {status, type, confidence, retryAfterMs, waitingOn, attemptsLeft} |  | The sign-in monitor's verdict o… |
-| `siteResponsiveness` | object {verdict, reason, host, medianWaitMs, stalledRequests, failedRequests, …} |  | Present only while something is… |
+| `pageContextId` | string (0–128 chars) |  | The page context th… |
+| `previousRevision` | string (0–128 chars) |  | The revision the se… |
+| `revision` | string (0–128 chars) |  | The page revision a… |
+| `executed` | integer (0…12) |  | How many steps exec… |
+| `receipts` | array of object {index, targetId, action, resolved, waitFor, success, …} (≤ 12) |  | One receipt per exe… |
+| `stopped` | object {reason, index, targetId, code, businessCode, failureCode, …} |  | Present when the se… |
+| `uploads` | array of object {index, fileName, success, uploadState, networkUpload, failureCode, …} (≤ 12) |  | Present when an upl… |
+| `recheck` | object {checked, changed, hint} |  | Present when fields… |
+| `warnings` | array of object {code, message, nextActions, repeated, count, nextSteps} (≤ 2) |  | REPEATED_RECORDS_US… |
+| `final` | object {pageSurfaces, motion, focusedCaret, framePageSurfaces, pageSurfacesUnchanged, timing, …} |  | Verified action rec… |
+| `taskNotice` | object {code, previousTaskId, hint} |  | Present when this c… |
+| `authentication` | object {status, type, confidence, retryAfterMs, waitingOn, attemptsLeft} |  | The sign-in monitor… |
+| `situation` | enum (13 values, listed under Constraints) |  | What unexpected hap… |
+| `siteResponsiveness` | object {verdict, reason, host, medianWaitMs, stalledRequests, failedRequests, …} |  | Present only while… |
 
 ## Result constraints
 
@@ -83,6 +85,7 @@ Complete value lists and id patterns for the fields above (the contract file is 
 
 - `receipts[].action`: same values as input `actions[].action`
 - `receipts[].waitFor.until`: same values as input `actions[].waitFor.until`
+- `receipts[].situation`: one of `sign-in-wall`, `challenge`, `dialog-open`, `new-tab-opened`, `target-stale`, `no-effect`, `rate-limited`, `run-paused`, `run-ended-partial`, `run-ended`, `wizard-waiting`, `browser-reloading`, `task-ended`
 - `receipts[].effect.kind`: one of `navigated`, `surface-opened`, `surface-closed`, `region-shown`, `region-hidden`, `value-changed`, `state-changed`, `media`, `download`, `message-shown`, `none`
 - `receipts[].waitAfter.until`: same values as input `actions[].waitFor.until`
 - `stopped.reason`: one of `failed`, `navigated`, `target-missing`, `target-unresolved`, `wait-timed-out`, `canceled`, `consumed-by-dismissal`
@@ -91,10 +94,12 @@ Complete value lists and id patterns for the fields above (the contract file is 
 - `final.framePageSurfaces[].observed.surfaces[].broughtBy.eventType`: same values as `final.pageSurfaces.surfaces[].broughtBy.eventType`
 - `final.operationResult.fields[].fieldId`: matches `^fld-[0-9a-f]{12}$`
 - `final.action`: same values as input `actions[].action`
+- `final.situation`: same values as `receipts[].situation`
 - `final.effect.kind`: same values as `receipts[].effect.kind`
 - `final.waitAfter.until`: same values as input `actions[].waitFor.until`
 - `final.targets.added[].capabilities[]`: same values as input `actions[].action`
 - `final.targets.changed[].capabilities[]`: same values as input `actions[].action`
+- `situation`: same values as `receipts[].situation`
 
 ## Guidance
 

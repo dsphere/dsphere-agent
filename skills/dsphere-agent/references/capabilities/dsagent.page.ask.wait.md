@@ -39,6 +39,7 @@ Runtime question state and its answer when settled.
 | `publishedAt` | number (0…∞) |  | Runtime question publication boundary in epoch milliseconds. |
 | `answeredAt` | number (0…∞) |  | Runtime validated response boundary in epoch milliseconds; use with answeredBy to distinguish person response from a sa… |
 | `response` | object {requestId, accepted, answer, optionIndex, answeredBy} |  | The runtime answer, available only after the question settles. |
+| `nextActions` | array of object {tool, method, args} (≤ 1) |  | While the question is pending: the wait to call next, already filled with this page and requestId. |
 
 ## Contract
 

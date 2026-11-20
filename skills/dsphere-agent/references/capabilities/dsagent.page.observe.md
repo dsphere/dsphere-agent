@@ -70,7 +70,7 @@ Bounded live page state and opaque semantic targets.
 | `structure` | object {landmarks, headings, truncated} |  | The page outline (landmarks and headings), valu… |
 | `dom` | object {format, mode, baseRevision, content, truncated, scope, …} |  | Optional bounded sanitized DOM evidence returne… |
 | `region` | object {targetId, targets} |  | Present for a compact read limited to a region… |
-| `warnings` | array of object {code, message, nextActions} (≤ 2) |  | REPEATED_RECORDS_USE_WIZARD: switch to the scra… |
+| `warnings` | array of object {code, message, nextActions, repeated, count, nextSteps} (≤ 2) |  | REPEATED_RECORDS_USE_WIZARD: switch to the scra… |
 | `guidance` | object {evidenceGaps, recommendedObservation} |  | Optional owner-derived read-only evidence escal… |
 | … | 2 more fields in the contract | | |
 

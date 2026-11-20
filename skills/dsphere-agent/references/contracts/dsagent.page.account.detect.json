@@ -91,7 +91,7 @@
           },
           "signals": {
             "type": "array",
-            "maxItems": 6,
+            "maxItems": 7,
             "description": "Why it looks like the account.",
             "items": {
               "type": "string",
@@ -101,9 +101,10 @@
                 "named-account",
                 "menu-trigger",
                 "login-identifier",
-                "account-menu"
+                "account-menu",
+                "account-links"
               ],
-              "description": "beside-avatar: next to a user picture; account-container: inside an element named user/account/profile; named-account: an accessible label names the account; menu-trigger: the control opens a menu; login-identifier: shaped like an email or phone number; account-menu: read from the open account menu."
+              "description": "beside-avatar: next to a user picture; account-container: inside an element named user/account/profile; named-account: an accessible label names the account; menu-trigger: the control opens a menu; login-identifier: shaped like an email or phone number; account-menu: read from the open account menu; account-links: in an account area on a header row with links only an account has (my orders, sign out) and no sign-in control."
             }
           }
         }
@@ -163,7 +164,7 @@
             },
             "signals": {
               "type": "array",
-              "maxItems": 6,
+              "maxItems": 7,
               "description": "Why it looks like the account.",
               "items": {
                 "type": "string",
@@ -173,9 +174,10 @@
                   "named-account",
                   "menu-trigger",
                   "login-identifier",
-                  "account-menu"
+                  "account-menu",
+                  "account-links"
                 ],
-                "description": "beside-avatar: next to a user picture; account-container: inside an element named user/account/profile; named-account: an accessible label names the account; menu-trigger: the control opens a menu; login-identifier: shaped like an email or phone number; account-menu: read from the open account menu."
+                "description": "beside-avatar: next to a user picture; account-container: inside an element named user/account/profile; named-account: an accessible label names the account; menu-trigger: the control opens a menu; login-identifier: shaped like an email or phone number; account-menu: read from the open account menu; account-links: in an account area on a header row with links only an account has (my orders, sign out) and no sign-in control."
               }
             }
           }

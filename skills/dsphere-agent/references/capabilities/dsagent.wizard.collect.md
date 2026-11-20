@@ -30,7 +30,7 @@ What to read, from where, and how long to wait for the run.
 | `fields` | array of object {name, description, required} (≤ 20) | yes | The fields to read, at most 20, in the order the rows should carry them. |
 | `region` | object {pageContextId, targetId, targetRevision} |  | Optional: a target from dsagent.page.observe or page.find around the records (or one record); only sources inside or ar… |
 | `pageContextId` | string (0–128 chars, pattern under Constraints) |  | Optional page; default the region's page, else the active tab. |
-| `maxRecords` | integer (1…500) |  | Records to read, following the list's pagination; default 50. A one-record page reads one. |
+| `maxRecords` | integer (1…500) |  | Records to read, following the list's pagination; default 50. |
 | `waitMs` | integer (0…100000) |  | How long this call waits for the run after it starts; default 45000. The call itself ends 120 s after it started, so a… |
 | `taskDescription` | string (1–2000 chars) |  | The person's request in detail, as you would tell them; DSphere shows it as the task in the SidePanel. When you follow… |
 | `taskMode` | enum: auto, continue |  | continue for your own skill, workflow or plan of several steps; auto (the default) for a request of one step. With cont… |
@@ -67,6 +67,7 @@ The rows read, or why the read stopped or is still running.
 | `reason` | enum (20 values, listed under Constraints) |  | stopped: why (the wizard auto stop reasons; fields-not-found, fields-ambiguous, region-mismatch and choose-source are t… |
 | `stoppedAt` | string (0–64 chars) |  | stopped: the pending wizard choice it stopped at. |
 | `fieldResults` | array of object {name, status, optionId, matchedLabel, sample, source, …} (≤ 20) |  | How each wanted field mapped, once the fields were decided. |
+| `missingFields` | array of string (0–60 chars) (≤ 20) |  | Your fields the page showed no value source for (fieldResults not-found): null on every row. Report them as not collect… |
 | `wizardId` | string (0–36 chars) |  | stopped: the wizard, now yours to continue or cancel. |
 | `wizardToken` | string (0–128 chars) |  | stopped: its ownership token; pass it with every dsagent.wizard.* call. |
 | `wizard` | object |  | stopped: the wizard state as dsagent.wizard.state returns it (pendingChoice, lastEndpoint, authentication, nextActions). |

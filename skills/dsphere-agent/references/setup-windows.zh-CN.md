@@ -86,9 +86,9 @@ DSphere 浏览器自行注册 Native Host；Skill 不再附带 connector.exe。W
 
 1. 公开安装指南第 2 步已安装完整 Skill。验证可信发布源及本平台程序哈希后，用已验证 Native 程序执行 `integrations native-host prepare-connect`。命令不注册任何内容，检查 Windows 版本、系统原生架构以及程序与 `assets/native/manifest.json` 的大小和 SHA-256（程序没有代码签名，不检查签名），在 Skill 旁写入安装请求，并输出 `request`（有效期 24 小时，有效期内再次执行返回同一请求）、`requestPath` 和 `resultPath`。将完整 JSON 保存在包外临时 `prepared.json`，不手工改写或传入沙箱路径。
    只有 Skill 直接位于用户主目录下的标准 Skills 文件夹之一时，浏览器才能自动找到请求：`.agents\skills`、`.codex\skills`、`.claude\skills`、`.cursor\skills`、`.gemini\skills`、`.copilot\skills`、`.codebuddy\skills`、`.workbuddy\skills`、`.qoder\skills`、`.trae\skills`、`.windsurf\skills` 或 `.config\opencode\skills`。安装到所用客户端自己的标准文件夹（或 `.agents\skills`），不得装到其他位置，也不得向用户索要路径。
-2. 用用户的语言在消息末尾说明两点：打开 DSphere 浏览器（未安装时从官方下载页 https://work.dsphereai.com/download/index.html 安装）；侧边栏出现“完成连接 DSphere Agent <版本>”时点击“连接”（“更多 → 安装 MCP → 完成连接”中也是同一提示）。不向用户索要 Skill 文件夹或任何路径，Agent 不启动任何程序，不要求找 PowerShell，不让用户重复下载。
+2. 用用户的语言在消息末尾说明两点：打开 DSphere 浏览器（未安装时从官方下载页 https://work.dsphereai.com/download/index.html 安装）；关闭“安装 MCP”，切换侧边栏到 Chat，打开“完成连接 DSphere Agent <版本>”横幅，再点击“连接”。“安装 MCP”提供已发布 Skill 的安装，不包含这个源码包的连接入口。不向用户索要 Skill 文件夹或任何路径，Agent 不启动任何程序，不要求找 PowerShell，不让用户重复下载。
 3. 不支持的系统、大小或哈希不符、包不完整或请求无法写入时，在第 2 步之前停止。缺少代码签名从来不是停止的理由，Windows 程序本就不签名发布。`HANDOFF_BUSY` 表示另一次准备正在进行，或旧版 Skill 的交接尚未过期：等待即可，不删除其他尝试的请求。
-4. 用户回来后（浏览器已打开时可立即）读取 `resultPath` 处的文件。文件不存在表示尚未完成连接：询问侧边栏是否显示错误。浏览器没有“完成连接”说明版本过旧：请用户从下载页更新浏览器；仅当无法更新时才使用下方 PowerShell 流程。将结果复制为包外 `result.json`，从已安装 Skill 执行 `node scripts/verify-connect-result.mjs <prepared.json> <result.json>`，必须返回 `ok=true`、`configured-awaiting-client-verification`。过期 challenge、错误通道/哈希/路径、注册不完整、重复检查或错误均保持阻塞。口头“完成”不算证据；结果是有界配置证据，不是实时 MCP 已连接的密码学证明。
+4. 用户回来后（浏览器已打开时可立即）读取 `resultPath` 处的文件。文件不存在表示尚未完成连接：检查准备请求是否有效、Skill 是否在标准目录，并询问 Chat 是否显示横幅或错误。“安装 MCP”中没有该入口不能证明浏览器过旧。仅在浏览器能力或版本证据明确不支持该连接功能时建议更新；用户无法更新不支持的浏览器时才使用下方 PowerShell 流程。将结果复制为包外 `result.json`，从已安装 Skill 执行 `node scripts/verify-connect-result.mjs <prepared.json> <result.json>`，必须返回 `ok=true`、`configured-awaiting-client-verification`。过期 challenge、错误通道/哈希/路径、注册不完整、重复检查或错误均保持阻塞。口头“完成”不算证据；结果是有界配置证据，不是实时 MCP 已连接的密码学证明。
 5. 使用校验后的 descriptor 继续第 4 步。必须验证客户端 MCP 已重连、`dsagent_get_runtime_status`、目标在线 DSphere 实例和共享指南的 capability 检查。C4 允许待检查，C5 始终为 `verify-in-codex`，不得只凭结果宣称端到端成功。
 
 #### 其他客户端与旧版支持：保留 PowerShell 流程

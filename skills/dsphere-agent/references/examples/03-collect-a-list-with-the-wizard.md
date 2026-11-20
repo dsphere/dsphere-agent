@@ -20,7 +20,7 @@ Every wizard turn returns `revision`, `phase` and `pendingChoice` (`choiceId`, `
 ```
 
 ```json result
-{"ok":true,"data":{"operationId":"op_e8648188aef5de03fb393c4e6de1f970","status":"succeeded","data":{"wizardId":"wiz_a08355136f71410b95ea818aa0e9c874","wizardToken":"74b0a41cecfa45e0927f70b779d6bdbde72b70cb2deb4dbd9bc1caa9e1ed1ab9","kind":"scrape","revision":"1e2889ca5c6eaecb","phase":"pagination","nextActions":["choose","cancel"],"pendingChoice":{"choiceId":"pagination","selection":"single","minSelected":1,"maxSelected":1,"options":[{"optionId":"opt_9a21a4f34905","kind":"pagination-type","label":"none","detail":"detection inconclusive (confidence 10): no pagination was confirmed and none is only the default","recommended":false,"selected":true},{"optionId":"opt_f58b0f7d1773","kind":"pagination-type","label":"next-button","recommended":false,"selected":false}],"values":[{"name":"maxRecords","required":false,"current":50,"suggested":50}]},"summary":{"page":{"title":"阮一峰的网络日志","url":"https://www.ruanyifeng.com/blog/index.html"},"pagination":{"type":"none","maxRecords":50,"maxRecordsSource":"default","nextControlPicked":false},"fields":[],"detailPages":[]}}}}
+{"ok":true,"data":{"operationId":"op_e8648188aef5de03fb393c4e6de1f970","status":"succeeded","data":{"wizardId":"wiz_a08355136f71410b95ea818aa0e9c874","wizardToken":"74b0a41cecfa45e0927f70b779d6bdbde72b70cb2deb4dbd9bc1caa9e1ed1ab9","kind":"scrape","revision":"1e2889ca5c6eaecb","phase":"pagination","nextActions":[{"tool":"dsagent_invoke","method":"dsagent.wizard.choose","args":{"wizardId":"wiz_a08355136f71410b95ea818aa0e9c874","expectedRevision":"1e2889ca5c6eaecb","choiceId":"pagination"}},{"tool":"dsagent_invoke","method":"dsagent.wizard.cancel","args":{"wizardId":"wiz_a08355136f71410b95ea818aa0e9c874"}}],"pendingChoice":{"choiceId":"pagination","selection":"single","minSelected":1,"maxSelected":1,"options":[{"optionId":"opt_9a21a4f34905","kind":"pagination-type","label":"none","detail":"detection inconclusive (confidence 10): no pagination was confirmed and none is only the default","recommended":false,"selected":true},{"optionId":"opt_f58b0f7d1773","kind":"pagination-type","label":"next-button","recommended":false,"selected":false}],"values":[{"name":"maxRecords","required":false,"current":50,"suggested":50}]},"summary":{"page":{"title":"阮一峰的网络日志","url":"https://www.ruanyifeng.com/blog/index.html"},"pagination":{"type":"none","maxRecords":50,"maxRecordsSource":"default","nextControlPicked":false},"fields":[],"detailPages":[]}}}}
 ```
 
 Notice: `wizardToken` appears only here; keep it. The first decision is pagination; the task says one page, so `none` is right even though detection was inconclusive.
@@ -86,7 +86,7 @@ Notice: the three fields match the task; `Field 1` is the date, renamed through 
 ```
 
 ```json result
-{"ok":true,"data":{"operationId":"op_6e537473dac4f7e65e3e2cd2b08bd6a4","status":"succeeded","data":{"wizardId":"wiz_a08355136f71410b95ea818aa0e9c874","revision":"5ca8f4ea779af57b","phase":"ready-to-save","nextActions":["back","save","cancel"],"pendingChoice":null,"summary":{"page":{"title":"阮一峰的网络日志","url":"https://www.ruanyifeng.com/blog/index.html"},"pagination":{"type":"none","maxRecords":50,"maxRecordsSource":"default","nextControlPicked":false},"fields":["Date","Title","Link"],"detailPages":[],"source":{"kind":"block","label":"Lists: Title, Link","itemCount":7},"workflowName":"阮一峰的网络日志 最新文章"}}}}
+{"ok":true,"data":{"operationId":"op_6e537473dac4f7e65e3e2cd2b08bd6a4","status":"succeeded","data":{"wizardId":"wiz_a08355136f71410b95ea818aa0e9c874","revision":"5ca8f4ea779af57b","phase":"ready-to-save","nextActions":[{"tool":"dsagent_invoke","method":"dsagent.wizard.back","args":{"wizardId":"wiz_a08355136f71410b95ea818aa0e9c874","expectedRevision":"5ca8f4ea779af57b"}},{"tool":"dsagent_invoke","method":"dsagent.wizard.save","args":{"wizardId":"wiz_a08355136f71410b95ea818aa0e9c874","expectedRevision":"5ca8f4ea779af57b"}},{"tool":"dsagent_invoke","method":"dsagent.wizard.cancel","args":{"wizardId":"wiz_a08355136f71410b95ea818aa0e9c874"}}],"pendingChoice":null,"summary":{"page":{"title":"阮一峰的网络日志","url":"https://www.ruanyifeng.com/blog/index.html"},"pagination":{"type":"none","maxRecords":50,"maxRecordsSource":"default","nextControlPicked":false},"fields":["Date","Title","Link"],"detailPages":[],"source":{"kind":"block","label":"Lists: Title, Link","itemCount":7},"workflowName":"阮一峰的网络日志 最新文章"}}}}
 ```
 
 Notice: `phase=ready-to-save`, `pendingChoice` is null and `nextActions` offers `save`. Check `summary` against the task (7 records, three fields, no pagination), then save without asking the user to confirm the name.
@@ -96,7 +96,7 @@ Notice: `phase=ready-to-save`, `pendingChoice` is null and `nextActions` offers 
 ```
 
 ```json result
-{"ok":true,"data":{"operationId":"op_73953f5e675ae9d87368016729a62ef4","status":"succeeded","data":{"wizardId":"wiz_a08355136f71410b95ea818aa0e9c874","revision":"8dabf35f4669c7b8","phase":"saved","nextActions":["run"],"pendingChoice":null,"workflowId":"e3bc31adcbe63f82efc674eb986761e6"}}}
+{"ok":true,"data":{"operationId":"op_73953f5e675ae9d87368016729a62ef4","status":"succeeded","data":{"wizardId":"wiz_a08355136f71410b95ea818aa0e9c874","revision":"8dabf35f4669c7b8","phase":"saved","pendingChoice":null,"workflowId":"e3bc31adcbe63f82efc674eb986761e6"}}}
 ```
 
 ```json request

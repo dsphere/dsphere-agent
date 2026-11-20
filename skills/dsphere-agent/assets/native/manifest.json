@@ -1,46 +1,46 @@
 {
   "schemaVersion": 1,
   "channelSchemaVersion": 1,
-  "skillVersion": "2.0.3",
-  "nativeVersion": "2.0.3",
-  "sourceCommit": "55d778233308dc3febb3bc1a2bf6d558566cf17e",
+  "skillVersion": "2.0.4",
+  "nativeVersion": "2.0.4",
+  "sourceCommit": "7d0a081781ee156f0420799b2fceeab7e5320797",
   "sourceDirty": false,
-  "builtAt": "2026-11-13T13:41:12.616Z",
+  "builtAt": "2026-11-20T13:36:58.349Z",
   "artifacts": [
     {
       "path": "windows-x64/dsphere-native-agent.exe",
       "goos": "windows",
       "goarch": "amd64",
-      "size": 29287400,
-      "sha256": "e9b8f63d60886d708ef4ddc32ed903bd59cff2636a2f93b9254b40ec00823741"
+      "size": 29351912,
+      "sha256": "529ae4ed2cc234429bd54e4986a37208ee422176009d1ffca961ca7d47162238"
     },
     {
       "path": "windows-x86/dsphere-native-agent.exe",
       "goos": "windows",
       "goarch": "386",
-      "size": 28273640,
-      "sha256": "9654db6f819706971fefaa9fdd5e2a3c6f7ca1a2a4aa87379bb8f1764c4202dc"
+      "size": 28335080,
+      "sha256": "1575239ccb73ad2f0a66e1e5f1126034265fe2b9c60519d2e602d8eb13c46c77"
     },
     {
       "path": "windows-arm64/dsphere-native-agent.exe",
       "goos": "windows",
       "goarch": "arm64",
-      "size": 26818024,
-      "sha256": "1cf4d4753ce1843bc56120ef5e65f89c622eb1473390fe54c0b5afdedd85e23f"
+      "size": 26874344,
+      "sha256": "03547f8aef1f86c35e27a063fc66cde9afd3add5c1aeb4545bb85703ef750938"
     },
     {
       "path": "macos-x64/dsphere-native-agent",
       "goos": "darwin",
       "goarch": "amd64",
-      "size": 29158544,
-      "sha256": "05697959197afe073f533c0543ad7046fb3a599f000c00c224040ff8850d9d5c"
+      "size": 29221024,
+      "sha256": "7a0310fbb594b248932e8ecef130ca1180754ccf1717c8919d8cb2ce74e8bffc"
     },
     {
       "path": "macos-arm64/dsphere-native-agent",
       "goos": "darwin",
       "goarch": "arm64",
-      "size": 26835072,
-      "sha256": "159c4d197b05c618d9062124a97e88ebdb895c56038174a03698ae24ebb5720f"
+      "size": 26901232,
+      "sha256": "5fb77460fbf81fab69b4e48736e24c8dddac42b3a7801f57897a87a4d9d71cd9"
     }
   ]
 }

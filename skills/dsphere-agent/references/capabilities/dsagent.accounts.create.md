@@ -2,7 +2,7 @@
 
 **Create Account** · risk `external-effect` · timeout 300000 ms · inline result ≤ 65536 bytes · concurrency `exclusive-target`
 
-Create a DSphere account record. Ordinary requests show a trusted inline chat form. Explicit generateDefaults delegation generates a name, encrypted password and permitted defaults, then saves directly. This never registers a third-party account; never pass passwords in tool input.
+Create a DSphere account record. Ordinary requests show a trusted side panel sheet. Explicit generateDefaults delegation generates a name, encrypted password and permitted defaults, then saves directly. This never registers a third-party account; never pass passwords in tool input.
 
 ## Invocation
 
@@ -18,13 +18,13 @@ Call `dsagent_invoke` with this shape. Replace every placeholder with a value fr
 
 ## Inputs
 
-Create a DSphere account record. Ordinary requests show a trusted inline chat form. Explicit generateDefaults delegatio…
+Create a DSphere account record. Ordinary requests show a trusted side panel sheet. Explicit generateDefaults delegatio…
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
 | `generateDefaults` | boolean |  | True only when the person explicitly delegates generation of the account and all unspecified settings. Generate secrets… |
 | `chooseAnyApplication` | boolean |  | Use true with generateDefaults for explicit requests like “随便挑一个应用创建” / “pick any application and create”. For a named… |
-| `reviewConfiguration` | boolean |  | Show this application configuration as an inline card in the original AI conversation. Work and Sidepanel render every… |
+| `reviewConfiguration` | boolean |  | Show this application configuration in a side panel sheet. Work and Sidepanel render every permission-derived field, ch… |
 | `appId` | string (1–100 chars) |  | Opaque application reference returned by accounts.options.get. |
 | `account` | string (1–320 chars) |  | Existing website account name. |
 | `loginType` | string (1–200 chars) |  | Application-supported login method. |

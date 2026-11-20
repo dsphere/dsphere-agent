@@ -35,7 +35,8 @@ Workflow launch request. Use an idempotency key and inspect workflow inputs befo
 | `accountId` | string (0–128 chars) |  | Opaque account identifier from dsagent.app.accounts.list; required only for specified mode. Ask the person which accoun… |
 | `sessionGroup` | enum: default, new, previous |  | Use the default user session for every agent task, preserving the person's existing website sign-ins. When the task nam… |
 | `sessionName` | string (0–40 chars, pattern under Constraints) |  | The session's name (lowercase letters, digits, dashes): optional with new, required with previous, not allowed with def… |
-| `agentRepairHandoff` | boolean |  | Whether a block that fails after the run's own retries and in-run recovery pauses the run for you to repair (lifecycle… |
+| `agentRepairHandoff` | boolean |  | Whether an unresolved block failure pauses for the calling agent to repair. True by default; false ends the run on that… |
+| `builtInRecovery` | boolean |  | Run built-in recovery before the agent repair handoff, enabled by default. Uses the selected model and canonical recove… |
 | `windowPlacement` | enum: shared-window, new-window |  | Where a named session's tab group goes when it has no open page yet: shared-window (the person's window; the default) o… |
 | `pageContextId` | string (0–128 chars) |  | Optional page of your task (from dsagent.page.open or a run) the run starts beside: its tabs open in that page's window… |
 
