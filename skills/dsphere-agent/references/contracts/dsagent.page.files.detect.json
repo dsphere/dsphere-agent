@@ -3,7 +3,7 @@
   "version": 1,
   "title": "Detect page files and images",
   "description": "Scan a page, its embedded frames included, for the files it links (pdf, excel, csv, zip, video) and the images it shows, as the SidePanel Files panel does. group images or files narrows the list; kind narrows it to one type.",
-  "guidance": "Each entry has a fileId for dsagent.page.files.locate and dsagent.page.files.download, valid until the next detect of the page. Lazy pictures appear once the page loaded them: scroll the page (dsagent.page.action scroll) and detect again. Tiny icons and tracking pixels are left out. Read-only: nothing on the page changes.",
+  "guidance": "For the images of one area of the page, pass region with a target from dsagent.page.find or dsagent.page.observe (includeText or includeImages find a heading, caption or picture there): the list keeps what lies inside it, or in its nearest container that holds any; no wizard or workflow is needed to save images or files. If region.canWiden and the area is larger, call again with region.widen one higher. Each entry has a fileId for dsagent.page.files.locate and dsagent.page.files.download, valid until the next detect of the page. Lazy pictures appear once the page loaded them: scroll the page (dsagent.page.action scroll) and detect again. Tiny icons and tracking pixels are left out. Read-only: nothing on the page changes.",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -49,6 +49,35 @@
         "minimum": 1,
         "maximum": 200,
         "description": "Entries to return; 100 by default."
+      },
+      "region": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "targetId",
+          "targetRevision"
+        ],
+        "description": "Optional: only the files of the page area around this target.",
+        "properties": {
+          "targetId": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_.:-]{1,128}$",
+            "maxLength": 128,
+            "description": "A target id a reply gave you, in or around the area (a heading, caption, card, list or picture)."
+          },
+          "targetRevision": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_.:-]{1,128}$",
+            "maxLength": 128,
+            "description": "The revision of the observe or find result the target came from."
+          },
+          "widen": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 6,
+            "description": "How many times to widen to the next enclosing container that holds more files; 0 by default."
+          }
+        }
       }
     }
   },
@@ -152,6 +181,21 @@
             "inFrame": {
               "type": "boolean",
               "description": "Found inside an embedded frame rather than the page itself."
+            },
+            "alt": {
+              "type": "string",
+              "maxLength": 200,
+              "description": "A picture's alternative text as the page gives it."
+            },
+            "width": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "A picture's rendered width in CSS pixels, when the page lays it out."
+            },
+            "height": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "A picture's rendered height in CSS pixels, when the page lays it out."
             }
           }
         }
@@ -160,6 +204,58 @@
         "type": "integer",
         "minimum": 0,
         "description": "The offset of the next entries when more match."
+      },
+      "region": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "scope",
+          "widened",
+          "canWiden",
+          "counts"
+        ],
+        "description": "Present when the call named a region: how its files were found.",
+        "properties": {
+          "scope": {
+            "type": "string",
+            "enum": [
+              "inside",
+              "nearest-container"
+            ],
+            "description": "inside: within the target. nearest-container: the target holds none, so its nearest container that holds any was used."
+          },
+          "widened": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 6,
+            "description": "The widening steps applied; fewer than asked when no wider container holds more."
+          },
+          "canWiden": {
+            "type": "boolean",
+            "description": "A wider container, below the whole page, holds more files."
+          },
+          "counts": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "images",
+              "files"
+            ],
+            "description": "How many of each group the region has, before group, kind and paging.",
+            "properties": {
+              "images": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Pictures in the region."
+              },
+              "files": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Linked files in the region."
+              }
+            }
+          }
+        }
       }
     }
   },

@@ -7,40 +7,40 @@
   },
   "files": {
     "SKILL.md": {
-      "canonical": "c58e33c89e35018228b009b6afd457e33e5dd9789793efe6fedc3179904dedad",
-      "shipped": "c58e33c89e35018228b009b6afd457e33e5dd9789793efe6fedc3179904dedad"
+      "canonical": "b2ef3d2cafa370ea66abc982d4c701cc1dad7f9d8429f87e31c15602849ef8c9",
+      "shipped": "b2ef3d2cafa370ea66abc982d4c701cc1dad7f9d8429f87e31c15602849ef8c9"
     },
     "agents/openai.yaml": {
       "canonical": "f6fff9c7b537d15e1ee2a39ce3f50e8a4925539f814637bf26d82b532c189cbf",
       "shipped": "f6fff9c7b537d15e1ee2a39ce3f50e8a4925539f814637bf26d82b532c189cbf"
     },
     "assets/capability-build.json": {
-      "canonical": "a5d6f94abe9cb0e183dba4e4f4d8c93089791b4f864f5edf21ce39bc3f7140e9",
-      "shipped": "a5d6f94abe9cb0e183dba4e4f4d8c93089791b4f864f5edf21ce39bc3f7140e9"
+      "canonical": "6c22b349cbe888bac0696f8cae66716492a5b08bef5be43f51368b697aaad22e",
+      "shipped": "6c22b349cbe888bac0696f8cae66716492a5b08bef5be43f51368b697aaad22e"
     },
     "assets/native/macos-arm64/dsphere-native-agent": {
-      "canonical": "5fb77460fbf81fab69b4e48736e24c8dddac42b3a7801f57897a87a4d9d71cd9",
-      "shipped": "5fb77460fbf81fab69b4e48736e24c8dddac42b3a7801f57897a87a4d9d71cd9"
+      "canonical": "344a5a25964c7d7deb534283b9b305a1feed200e3d13fab0d9ff767a54c1930a",
+      "shipped": "344a5a25964c7d7deb534283b9b305a1feed200e3d13fab0d9ff767a54c1930a"
     },
     "assets/native/macos-x64/dsphere-native-agent": {
-      "canonical": "7a0310fbb594b248932e8ecef130ca1180754ccf1717c8919d8cb2ce74e8bffc",
-      "shipped": "7a0310fbb594b248932e8ecef130ca1180754ccf1717c8919d8cb2ce74e8bffc"
+      "canonical": "b5ad0b23b0b92a548dd3efee1d66ae935414d1d8310d0ea21f6dd6c50b3ea0eb",
+      "shipped": "b5ad0b23b0b92a548dd3efee1d66ae935414d1d8310d0ea21f6dd6c50b3ea0eb"
     },
     "assets/native/manifest.json": {
-      "canonical": "0dcedafd3ec3fd94d0fcea9ce04b63206e6ac9fa5e7a5f1b0fde919ab4dbe4b9",
-      "shipped": "0dcedafd3ec3fd94d0fcea9ce04b63206e6ac9fa5e7a5f1b0fde919ab4dbe4b9"
+      "canonical": "ebc5ce5c02e2bfb6aafb3935ac8d98db8ff44366223a30df998322b30d25c269",
+      "shipped": "ebc5ce5c02e2bfb6aafb3935ac8d98db8ff44366223a30df998322b30d25c269"
     },
     "assets/native/windows-arm64/dsphere-native-agent.exe": {
-      "canonical": "03547f8aef1f86c35e27a063fc66cde9afd3add5c1aeb4545bb85703ef750938",
-      "shipped": "03547f8aef1f86c35e27a063fc66cde9afd3add5c1aeb4545bb85703ef750938"
+      "canonical": "308895054b3214f14f96ca552f40dff1c8b1bc4a35cf13d482b6127caf17fdce",
+      "shipped": "308895054b3214f14f96ca552f40dff1c8b1bc4a35cf13d482b6127caf17fdce"
     },
     "assets/native/windows-x64/dsphere-native-agent.exe": {
-      "canonical": "529ae4ed2cc234429bd54e4986a37208ee422176009d1ffca961ca7d47162238",
-      "shipped": "529ae4ed2cc234429bd54e4986a37208ee422176009d1ffca961ca7d47162238"
+      "canonical": "fcf273116034c97c52649f04285e3e0af5b4fa81c5a6fccda1863b997b688b13",
+      "shipped": "fcf273116034c97c52649f04285e3e0af5b4fa81c5a6fccda1863b997b688b13"
     },
     "assets/native/windows-x86/dsphere-native-agent.exe": {
-      "canonical": "1575239ccb73ad2f0a66e1e5f1126034265fe2b9c60519d2e602d8eb13c46c77",
-      "shipped": "1575239ccb73ad2f0a66e1e5f1126034265fe2b9c60519d2e602d8eb13c46c77"
+      "canonical": "4fb7a8ff52ea5b5c3766d231ffcf7e534d2c4f91fe7061dcf1635776208e3504",
+      "shipped": "4fb7a8ff52ea5b5c3766d231ffcf7e534d2c4f91fe7061dcf1635776208e3504"
     },
     "references/account-management.md": {
       "canonical": "5168077f6a44e4eca5fa62417304c08f6b357f9680f1f170049782b3698b7692",
@@ -379,8 +379,8 @@
       "shipped": "96739cc40d2ba80e33ac6a2253d8713cb52c0df439763e0590bd39df7f72aa8c"
     },
     "references/capabilities/dsagent.page.files.detect.md": {
-      "canonical": "52bd0b7da13af8175e9355e65525d7efb08a0cd74bd20424bb233a87ba48a5e0",
-      "shipped": "52bd0b7da13af8175e9355e65525d7efb08a0cd74bd20424bb233a87ba48a5e0"
+      "canonical": "b4e58265f066a392ec66fb73757e0344974ebff88e83ed5a933ee8303b3cfd3e",
+      "shipped": "b4e58265f066a392ec66fb73757e0344974ebff88e83ed5a933ee8303b3cfd3e"
     },
     "references/capabilities/dsagent.page.files.download.md": {
       "canonical": "563a4256b513740cb1678e4a85d24fa04237b8e21be9efa71b99f9c1137603c2",
@@ -447,12 +447,12 @@
       "shipped": "38cfbbf9f74abc1e9d5e9c23ffa1fe544d39c1f830c2f48e7991412581097e02"
     },
     "references/capabilities/dsagent.settings.get.md": {
-      "canonical": "0d64f25cddb40486247226c39ec9eb85fc0ec4586cf2467dd94e769aaf6331df",
-      "shipped": "0d64f25cddb40486247226c39ec9eb85fc0ec4586cf2467dd94e769aaf6331df"
+      "canonical": "70250aa8a09bf9111a61f1fed937a6858166bfb81bbf96b4f0164b96ac84c98f",
+      "shipped": "70250aa8a09bf9111a61f1fed937a6858166bfb81bbf96b4f0164b96ac84c98f"
     },
     "references/capabilities/dsagent.settings.update.md": {
-      "canonical": "ecd50a2cf71893fd70b22cc8c121ddf59baebbf1e436f596e744819697fb2e96",
-      "shipped": "ecd50a2cf71893fd70b22cc8c121ddf59baebbf1e436f596e744819697fb2e96"
+      "canonical": "69ee1f3988b0fc2d4e52d25136156a1bbf5212d2b57b075c68d959a078084177",
+      "shipped": "69ee1f3988b0fc2d4e52d25136156a1bbf5212d2b57b075c68d959a078084177"
     },
     "references/capabilities/dsagent.sign-in.check.md": {
       "canonical": "e8766cedd89e4a5f3bd57f10ec0f75fa311f8c573bcc42d147ad12c0dad385df",
@@ -875,8 +875,8 @@
       "shipped": "7ef93175803867c57b41eb07727622ba88942ad6dfebb01142fca9bd07648d2b"
     },
     "references/contracts/dsagent.page.files.detect.json": {
-      "canonical": "fa4e62b4977e6c7a62b5038f01709dc4a1ffd6aafd99e576b1effcf97d322e28",
-      "shipped": "fa4e62b4977e6c7a62b5038f01709dc4a1ffd6aafd99e576b1effcf97d322e28"
+      "canonical": "33b1a5232950fd775fd4dd765aecca94efa5c24dc5d2dd465ab1d56cda3cb32e",
+      "shipped": "33b1a5232950fd775fd4dd765aecca94efa5c24dc5d2dd465ab1d56cda3cb32e"
     },
     "references/contracts/dsagent.page.files.download.json": {
       "canonical": "fd430192263c89903795f5e8fbf6111c1d5d9f9cdf7d5f6c04f429894178e222",
@@ -943,12 +943,12 @@
       "shipped": "a51bdabbdb58a1d5ab18afbf288e58d241c057b77d92dabf8d9c6e36da6bec39"
     },
     "references/contracts/dsagent.settings.get.json": {
-      "canonical": "660698b4f3af30f63ca6455f24296eb55811a1a8fd5744456dd78516515ea8d7",
-      "shipped": "660698b4f3af30f63ca6455f24296eb55811a1a8fd5744456dd78516515ea8d7"
+      "canonical": "a4d023b0765aec63ba750cdd9a342e62d5e0b4dbda7b4c1cf861495335595e5d",
+      "shipped": "a4d023b0765aec63ba750cdd9a342e62d5e0b4dbda7b4c1cf861495335595e5d"
     },
     "references/contracts/dsagent.settings.update.json": {
-      "canonical": "7e0955c1baa810297e4d73ee2139de6c3ecefb5474f4998f451aab3701494baa",
-      "shipped": "7e0955c1baa810297e4d73ee2139de6c3ecefb5474f4998f451aab3701494baa"
+      "canonical": "da9553aa3307bd146815d76117f709eb9777a5ff123b6d97590843fedee68a22",
+      "shipped": "da9553aa3307bd146815d76117f709eb9777a5ff123b6d97590843fedee68a22"
     },
     "references/contracts/dsagent.sign-in.check.json": {
       "canonical": "53bc445d2763ec776a45b8159e3c95f82565de7beb0fb05b1b2b4898ef55c227",
@@ -1127,12 +1127,12 @@
       "shipped": "245e739056ea926f2074c0de87633bdae84e94afe75551be0f9f2e8e64f45102"
     },
     "references/guidance/dsagent.page.md": {
-      "canonical": "bc2313ff4f817f45556a2b15dd6f1f1530c657063c31c1093dee5ad0315a1e77",
-      "shipped": "bc2313ff4f817f45556a2b15dd6f1f1530c657063c31c1093dee5ad0315a1e77"
+      "canonical": "1c58f2b3788fdff6308292c28b7fea7ec02d9db56cf665f542e169e958e7b59c",
+      "shipped": "1c58f2b3788fdff6308292c28b7fea7ec02d9db56cf665f542e169e958e7b59c"
     },
     "references/guidance/dsagent.settings.md": {
-      "canonical": "50c780f34fc9290cc3d536d35a2ac6b3b47d908133363507ebe2af5f8c54e50c",
-      "shipped": "50c780f34fc9290cc3d536d35a2ac6b3b47d908133363507ebe2af5f8c54e50c"
+      "canonical": "e42c747e121fe60c83050c2c945882c3895a683cfcd0b0d03aa23be601cebac7",
+      "shipped": "e42c747e121fe60c83050c2c945882c3895a683cfcd0b0d03aa23be601cebac7"
     },
     "references/guidance/dsagent.sign-in.md": {
       "canonical": "4ab2c5fccc7f376e44f945cd1b17bc6b861fb570d91220bf4f10d6ff9741f8da",

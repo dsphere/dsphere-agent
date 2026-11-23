@@ -28,6 +28,14 @@ The page to scan and how much of the list to return.
 | `kind` | enum: pdf, excel, csv, zip, video, image |  | Only this file type. |
 | `offset` | integer (0…∞) |  | Entries to skip, for the next page of a long list. |
 | `limit` | integer (1…200) |  | Entries to return; 100 by default. |
+| `region` | object {targetId, targetRevision, widen} |  | Optional: only the files of the page area around this target. |
+
+## Input constraints
+
+Complete value lists and id patterns for the fields above (the contract file is authoritative).
+
+- `region.targetId`: matches `^[A-Za-z0-9_.:-]{1,128}$`
+- `region.targetRevision`: matches `^[A-Za-z0-9_.:-]{1,128}$`
 
 ## Result fields (data.data)
 
@@ -38,8 +46,9 @@ The files and images found.
 | `pageContextId` | string (2–128 chars) |  | Opaque page context from dsagent.pages.list or dsagent.page.open. |
 | `counts` | object {images, files} |  | How many of each group the whole page has, before group, kind and paging. |
 | `total` | integer (0…∞) |  | Entries matching group and kind, before paging. |
-| `files` | array of object {fileId, fileName, kind, source, url, inFrame} (≤ 200) |  | The matching entries in page order, from offset. |
+| `files` | array of object {fileId, fileName, kind, source, url, inFrame, …} (≤ 200) |  | The matching entries in page order, from offset. |
 | `nextOffset` | integer (0…∞) |  | The offset of the next entries when more match. |
+| `region` | object {scope, widened, canWiden, counts} |  | Present when the call named a region: how its files were found. |
 
 ## Guidance
 
