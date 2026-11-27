@@ -2,8 +2,8 @@
   "method": "dsagent.page.window.set-size",
   "version": 1,
   "title": "Set window size",
-  "description": "Set the window size of an agent-owned page using normal browser APIs. Window resizing affects all tabs sharing that window and restores a maximized window to normal; active wizards or workflow runs in that window are refused.",
-  "guidance": "Viewport sizing measures and compensates for browser chrome and the side panel. Browser minimums and screen limits may prevent the requested size: applied is true only when the measured result matches within two pixels. No pixel-ratio, native touch or network user-agent emulation is performed. Observe again after resizing. Requires an idempotency key.",
+  "description": "Set the window size of an agent-owned page using normal browser APIs.",
+  "guidance": "Only a window that holds no page of the person's is resized: a page in the person's window is refused with POLICY_DENIED (open it with dsagent.page.open in a named session with windowPlacement new-window first), and active wizards or workflow runs in the window with TARGET_BUSY. A maximized or full-screen window is restored to normal without taking focus. Viewport sizing measures and compensates for browser chrome and the side panel. Browser minimums and screen limits may prevent the requested size: applied is true only when the measured result matches within two pixels. No pixel-ratio, native touch or network user-agent emulation is performed. Observe again after resizing. Requires an idempotency key.",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,

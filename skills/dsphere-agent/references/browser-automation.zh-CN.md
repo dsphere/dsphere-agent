@@ -103,7 +103,7 @@
 
 ## 安全边界
 
-- 不向 MCP 传递 Backend URL、token、header、cookie、凭据、DOM selector、JavaScript、任意 SQL、物理文件路径、账号标签或 `sessionGroupId`。
+- 不向 MCP 传递 Backend URL、token、header、cookie、凭据、DOM selector、在页面内运行的 JavaScript、任意 SQL、物理文件路径、账号标签或 `sessionGroupId`。
 - 不记录用户请求、工作流参数、账号 ID、artifact 正文或业务数据。
 - 产生外部效果仍需用户明确意图。确认、凭据、登录和同意都由用户本人处理。
 - 用户会在 DSphere 侧边栏的对话中看到你的每次调用（页面主机、动作和控件标签，绝不包含输入的内容），并可在那里停止你的会话。此后进行中的调用以 `CANCELED` 结束，之后的每次调用都返回 `APPROVAL_DENIED` 且 `businessCode=STOPPED-BY-PERSON`：立即停止并告知用户，未经用户同意不要新开控制会话继续。

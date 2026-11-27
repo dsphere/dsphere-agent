@@ -3,7 +3,7 @@
   "version": 1,
   "title": "Read Extension settings",
   "description": "Read the settings a person can change in the SidePanel and Options page, with their current values.",
-  "guidance": "Without workflowId: the Extension settings (export-directory, dom-training-export, trace-logs, intent-interpreter, ad-blocker-default, fallback-model, execution-memory, site-memory, site-notes, resource-pressure, site-knowledge, professional-mode, identity-providers, run-window-focus, agent-challenge-walls, network-data, browser-monitor, sign-in-consent-dialogs, agent-scripts, chat-plan-approval, file-release-consent, chat-memory, failure-diagnostics, notification-channels, schedules, llm-models, chat-model, mail, dashboard-url). With workflowId from dsagent.workflows.list: that workflow's card settings (workflow-favorite, workflow-run-environment, workflow-name, workflow-sheet-binding, workflow-record-limits, workflow-monitors). Each section lists the operations dsagent.settings.update accepts and the parts only the person may change; a section the person lacks the SidePanel permission for, or whose owner is unreachable, reports unavailable instead of a value. API keys, secrets and account tags are never returned.",
+  "guidance": "Without workflowId: the Extension settings (export-directory, dom-training-export, trace-logs, intent-interpreter, ad-blocker-default, fallback-model, execution-memory, site-memory, site-notes, resource-pressure, site-knowledge, professional-mode, identity-providers, background-rendering, agent-challenge-walls, network-data, browser-monitor, sign-in-consent-dialogs, agent-account-confirmations, agent-scripts, chat-plan-approval, file-release-consent, chat-memory, failure-diagnostics, notification-channels, schedules, llm-models, chat-model, mail, dashboard-url). With workflowId from dsagent.workflows.list: that workflow's card settings (workflow-favorite, workflow-run-environment, workflow-name, workflow-sheet-binding, workflow-record-limits, workflow-monitors). Each section lists the operations dsagent.settings.update accepts and the parts only the person may change; a section the person lacks the SidePanel permission for, or whose owner is unreachable, reports unavailable instead of a value. API keys, secrets and account tags are never returned.",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -33,11 +33,12 @@
             "site-knowledge",
             "professional-mode",
             "identity-providers",
-            "run-window-focus",
+            "background-rendering",
             "agent-challenge-walls",
             "network-data",
             "browser-monitor",
             "sign-in-consent-dialogs",
+            "agent-account-confirmations",
             "agent-scripts",
             "chat-plan-approval",
             "file-release-consent",
@@ -59,7 +60,7 @@
           "description": "One section id."
         },
         "minItems": 1,
-        "maxItems": 35,
+        "maxItems": 36,
         "uniqueItems": true,
         "description": "Only these sections, all of the same scope; every section of the scope when absent."
       }
@@ -106,11 +107,12 @@
                 "site-knowledge",
                 "professional-mode",
                 "identity-providers",
-                "run-window-focus",
+                "background-rendering",
                 "agent-challenge-walls",
                 "network-data",
                 "browser-monitor",
                 "sign-in-consent-dialogs",
+                "agent-account-confirmations",
                 "agent-scripts",
                 "chat-plan-approval",
                 "file-release-consent",
@@ -920,20 +922,20 @@
             },
             {
               "type": "object",
-              "description": "Value shape of section run-window-focus.",
+              "description": "Value shape of section background-rendering.",
               "properties": {
                 "section": {
-                  "const": "run-window-focus",
-                  "description": "Section run-window-focus."
+                  "const": "background-rendering",
+                  "description": "Section background-rendering."
                 },
                 "value": {
                   "type": "object",
                   "additionalProperties": false,
-                  "description": "The run window focus switch.",
+                  "description": "The keep-all-tabs-rendering switch.",
                   "properties": {
                     "enabled": {
                       "type": "boolean",
-                      "description": "Whether a workflow run brings its browser window to the front when its page is hidden (window minimized or covered) before it clicks or types on the page; a hidden page does not render and ignores the run's actions (default true)."
+                      "description": "Whether every open tab, and every tab opened later, keeps drawing and running in the background (behind another tab, in a minimized window or behind another application) whether or not a task runs (default false). Off, only the tabs a task works on render in the background; tasks render their pages either way. On uses more memory and power for every background tab. Needs a DSphere browser version with background rendering."
                     }
                   },
                   "required": [
@@ -1051,6 +1053,33 @@
                   },
                   "required": [
                     "choice"
+                  ]
+                }
+              },
+              "required": [
+                "section"
+              ]
+            },
+            {
+              "type": "object",
+              "description": "Value shape of section agent-account-confirmations.",
+              "properties": {
+                "section": {
+                  "const": "agent-account-confirmations",
+                  "description": "Section agent-account-confirmations."
+                },
+                "value": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "description": "The agent account confirmation switch.",
+                  "properties": {
+                    "allowed": {
+                      "type": "boolean",
+                      "description": "Whether the agent that asked for an account change (an MCP client of dsphere-agent, or the SidePanel Chat) may answer that change's own Confirm/Decline sheet with dsagent.accounts.confirmations.answer. Off, the answer is refused with AGENT_ANSWER_OFF and only the person answers in the SidePanel. Password, cookie, proxy-credential and configuration sheets are always the person's (default true)."
+                    }
+                  },
+                  "required": [
+                    "allowed"
                   ]
                 }
               },
@@ -2426,7 +2455,7 @@
             }
           ]
         },
-        "maxItems": 35,
+        "maxItems": 36,
         "description": "Sections in the order the person meets them in the SidePanel."
       }
     },

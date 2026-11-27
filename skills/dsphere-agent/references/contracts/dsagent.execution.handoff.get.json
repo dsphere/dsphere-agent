@@ -104,6 +104,7 @@
               "dataset-save-unconfirmed",
               "plan-restricted",
               "plan-check-unavailable",
+              "browser-upgrade-required",
               "run-ownership-conflict",
               "recovery-replay-forbidden",
               "run-tab-group-closed",
@@ -147,7 +148,7 @@
           "deadline": {
             "type": "string",
             "maxLength": 40,
-            "description": "ISO time after which the run ends failed on the block's endpoint if you have not answered."
+            "description": "ISO time after which the run ends failed on the block's endpoint if you have not answered. Absent while the handoff waits on the person who has not seen it yet: the run stays paused until they do."
           },
           "loopItem": {
             "type": "object",
@@ -220,7 +221,6 @@
           "nodeId",
           "blockType",
           "attempt",
-          "deadline",
           "answers",
           "retargetable"
         ]

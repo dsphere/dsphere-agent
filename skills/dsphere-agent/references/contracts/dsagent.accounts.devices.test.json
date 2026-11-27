@@ -1,0 +1,292 @@
+{
+  "method": "dsagent.accounts.devices.test",
+  "version": 1,
+  "title": "Test Network Device Connection",
+  "description": "Test a saved third-party device through its proxy, as the Work Device page check does, and record the status, exit IP and location in Work. Saved credentials stay in the background and are never returned. Platform devices are not tested here.",
+  "inputSchema": {
+    "type": "object",
+    "description": "Test a saved third-party device through its proxy, as the Work Device page check does, and record the status, exit IP and location in Work. Saved credentials stay in the background and are never returned. Platform devices are not tested here.",
+    "properties": {
+      "deviceId": {
+        "type": "string",
+        "description": "Opaque network device reference returned by accounts.devices.list.",
+        "minLength": 1,
+        "maxLength": 100
+      }
+    },
+    "required": [
+      "deviceId"
+    ],
+    "additionalProperties": false
+  },
+  "outputSchema": {
+    "type": "object",
+    "description": "Account operation result. status/stage are for internal reconciliation, not user-facing open-success/failure badges. Report the separate autofill receipt; a page being open never proves fill or sign-in.",
+    "properties": {
+      "autofill": {
+        "type": "object",
+        "description": "Separate sign-in receipt: the DSphere account manager signs in on the opened page. Query accounts.operations.get with operationId while running; unknown must not be replayed. succeeded: the sign-in form was sent and the page no longer asks to sign in. skipped with already-signed-in, no-sign-in-form or site-unreachable (the tab shows the browser's error page): nothing was typed.",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Observed autofill state.",
+            "maxLength": 40,
+            "enum": [
+              "running",
+              "succeeded",
+              "failed",
+              "skipped",
+              "unknown"
+            ]
+          },
+          "updatedAt": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Receipt observation time in milliseconds."
+          },
+          "reason": {
+            "type": "string",
+            "description": "Safe reason code; never credentials or page field values.",
+            "maxLength": 120
+          }
+        },
+        "required": [
+          "status",
+          "updatedAt"
+        ],
+        "additionalProperties": false
+      },
+      "operationId": {
+        "type": "string",
+        "description": "Local operation reference; not a Pangu request receipt.",
+        "maxLength": 100
+      },
+      "status": {
+        "type": "string",
+        "description": "Observed operation status.",
+        "maxLength": 40,
+        "enum": [
+          "not-dispatched",
+          "waiting-user",
+          "running",
+          "succeeded",
+          "partial",
+          "failed",
+          "cancelled",
+          "outcome-unknown",
+          "record-unavailable",
+          "available"
+        ]
+      },
+      "stage": {
+        "type": "string",
+        "description": "Completed or current account business stage.",
+        "maxLength": 100
+      },
+      "accountId": {
+        "type": "string",
+        "description": "Account reference when known.",
+        "maxLength": 100
+      },
+      "pageContextId": {
+        "type": "string",
+        "description": "Actual opened/focused page reference when known.",
+        "maxLength": 100
+      },
+      "warnings": {
+        "type": "array",
+        "description": "Bounded warnings, including synchronization and unknown outcomes.",
+        "items": {
+          "type": "string",
+          "description": "One safe product warning.",
+          "maxLength": 500
+        },
+        "maxItems": 20
+      },
+      "data": {
+        "type": "object",
+        "description": "Only the selected account operation's public product fields.",
+        "properties": {
+          "device": {
+            "type": "object",
+            "description": "A network device. Never carries a proxy username or password. Purchased platform devices do not show their address.",
+            "properties": {
+              "deviceId": {
+                "type": "string",
+                "description": "Opaque network device reference.",
+                "maxLength": 100
+              },
+              "name": {
+                "type": "string",
+                "description": "Device name.",
+                "maxLength": 200
+              },
+              "source": {
+                "type": "string",
+                "description": "platform is purchased from DSphere; third-party is added by the organization.",
+                "maxLength": 20,
+                "enum": [
+                  "platform",
+                  "third-party"
+                ]
+              },
+              "status": {
+                "type": "string",
+                "description": "Device state: initializing, initialization-timeout, initialization-failed, in-use, expired, expiring, check-failed, disabled or unknown.",
+                "maxLength": 40
+              },
+              "proxyType": {
+                "type": "string",
+                "description": "Proxy protocol of a third-party device.",
+                "maxLength": 20,
+                "enum": [
+                  "HTTP",
+                  "HTTPS",
+                  "SOCKS5"
+                ]
+              },
+              "ipProtocol": {
+                "type": "string",
+                "description": "IP version of a third-party device.",
+                "maxLength": 20,
+                "enum": [
+                  "IPV4",
+                  "IPV6"
+                ]
+              },
+              "host": {
+                "type": "string",
+                "description": "Proxy host of a third-party device.",
+                "maxLength": 253
+              },
+              "port": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Proxy port of a third-party device."
+              },
+              "checkChannel": {
+                "type": "string",
+                "description": "IP check channel.",
+                "maxLength": 100
+              },
+              "remark": {
+                "type": "string",
+                "description": "Device remark.",
+                "maxLength": 200
+              },
+              "hasCredential": {
+                "type": "boolean",
+                "description": "Whether a proxy username or password is saved. The values are never returned."
+              },
+              "exitIp": {
+                "type": "string",
+                "description": "Last observed exit IP.",
+                "maxLength": 64
+              },
+              "location": {
+                "type": "string",
+                "description": "Last observed location.",
+                "maxLength": 200
+              },
+              "checkStatus": {
+                "type": "string",
+                "description": "Last connection check status from Work.",
+                "maxLength": 20
+              },
+              "expiresAt": {
+                "type": "string",
+                "description": "Expiry time of a purchased device.",
+                "maxLength": 40
+              },
+              "boundAccounts": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Number of accounts using this device."
+              },
+              "allowedActions": {
+                "type": "array",
+                "description": "Device operations available now.",
+                "items": {
+                  "type": "string",
+                  "description": "A dsagent.accounts device action name.",
+                  "maxLength": 40
+                },
+                "maxItems": 6
+              }
+            },
+            "required": [
+              "deviceId",
+              "name",
+              "source",
+              "status",
+              "boundAccounts",
+              "allowedActions"
+            ],
+            "additionalProperties": false
+          },
+          "connectionTest": {
+            "type": "object",
+            "description": "Result of a device connection test. Never carries the proxy username or password.",
+            "properties": {
+              "reachable": {
+                "type": "boolean",
+                "description": "Whether the proxy answered the check and an exit IP was read through it."
+              },
+              "checkChannel": {
+                "type": "string",
+                "description": "IP check channel the test used.",
+                "maxLength": 100
+              },
+              "exitIp": {
+                "type": "string",
+                "description": "Exit IP seen through the proxy; present when reachable.",
+                "maxLength": 64
+              },
+              "country": {
+                "type": "string",
+                "description": "Country of the exit IP.",
+                "maxLength": 200
+              },
+              "countryCode": {
+                "type": "string",
+                "description": "Country code of the exit IP.",
+                "maxLength": 8
+              },
+              "reportedToWork": {
+                "type": "boolean",
+                "description": "Whether Work recorded this result on the device."
+              }
+            },
+            "required": [
+              "reachable",
+              "checkChannel",
+              "reportedToWork"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    "required": [
+      "status",
+      "stage",
+      "warnings"
+    ],
+    "additionalProperties": false
+  },
+  "guidance": "Runs the same check as the Work Device page, on a saved third-party device, and records the status, exit IP and location in Work. After changing a device, test it to confirm it works.\n\nA result with reachable false is a finished test, not a tool failure: report it and check the address, port, protocol and credentials. A failed test alerts Work's operators, so test on need, not in a loop; one device can be tested once every 15 seconds.\n\nUNAVAILABLE means the installed business extension does not offer the test yet; tell the user to update it.",
+  "risk": "external-effect",
+  "targetKinds": [
+    "managed-account"
+  ],
+  "requiredPermissions": [
+    "accounts.write"
+  ],
+  "timeoutMs": 300000,
+  "maxInlineResultBytes": 65536,
+  "concurrency": "exclusive-target",
+  "retry": "never",
+  "exposure": "exposed"
+}

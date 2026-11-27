@@ -123,6 +123,7 @@
           "dataset-save-unconfirmed",
           "plan-restricted",
           "plan-check-unavailable",
+          "browser-upgrade-required",
           "run-ownership-conflict",
           "recovery-replay-forbidden",
           "run-tab-group-closed",
@@ -299,7 +300,8 @@
           "timed-out",
           "budget-exhausted",
           "handoff-disabled",
-          "handoff-occupied"
+          "handoff-occupied",
+          "superseded-by-schedule"
         ],
         "description": "How a run that took the agent repair handoff's terminal path ended it: aborted (dsagent.execution.handoff.abort), timed-out (the handoff deadline passed), budget-exhausted (no handoff left), handoff-disabled (the run was started with agentRepairHandoff false). With rows saved the run is partial, without them failed."
       },
@@ -366,7 +368,8 @@
               "semantic-owner-failed",
               "semantic-cleanup-unrecovered",
               "execution-state-not-page",
-              "relayed-item-failure"
+              "relayed-item-failure",
+              "deterministic-unrecovered"
             ],
             "description": "Why the in-run recovery did not repair the failure."
           }
@@ -1052,6 +1055,7 @@
                     "dataset-save-unconfirmed",
                     "plan-restricted",
                     "plan-check-unavailable",
+                    "browser-upgrade-required",
                     "run-ownership-conflict",
                     "recovery-replay-forbidden",
                     "run-tab-group-closed",
@@ -1289,7 +1293,7 @@
           "deadline": {
             "type": "string",
             "maxLength": 40,
-            "description": "ISO time. auth: the run ends failed on auth-required if the person has not passed the wall by then (60 minutes; a restart keeps it). resource: the pause is escalated to the person then (escalated true); the run stays paused. agent-repair: the run ends failed on the block's endpoint if you have not answered; it stands still while a sign-in wall outranks the handoff."
+            "description": "ISO time. auth: the run ends failed on auth-required if the person has not passed the wall by then (60 minutes; a restart keeps it). resource: the pause is escalated to the person then (escalated true); the run stays paused. agent-repair: the run ends failed on the block's endpoint if you have not answered; it stands still while a sign-in wall outranks the handoff, and it is absent while the handoff waits on the person who has not seen it yet (the run stays paused until they do)."
           },
           "wall": {
             "type": "object",

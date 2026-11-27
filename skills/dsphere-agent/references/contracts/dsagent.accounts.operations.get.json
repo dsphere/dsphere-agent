@@ -633,10 +633,26 @@
                       "fingerprint.regenerate",
                       "operations.get",
                       "pages.list",
-                      "application.create"
+                      "application.create",
+                      "application.get",
+                      "application.update",
+                      "application.delete",
+                      "network.get",
+                      "network.set",
+                      "devices.options.get",
+                      "devices.list",
+                      "devices.get",
+                      "devices.create",
+                      "devices.update",
+                      "devices.delete",
+                      "devices.restore",
+                      "fingerprint.options.get",
+                      "devices.test",
+                      "confirmations.list",
+                      "confirmations.answer"
                     ]
                   },
-                  "maxItems": 14
+                  "maxItems": 32
                 },
                 "unavailableReason": {
                   "type": "string",
@@ -713,10 +729,26 @@
                     "fingerprint.regenerate",
                     "operations.get",
                     "pages.list",
-                    "application.create"
+                    "application.create",
+                    "application.get",
+                    "application.update",
+                    "application.delete",
+                    "network.get",
+                    "network.set",
+                    "devices.options.get",
+                    "devices.list",
+                    "devices.get",
+                    "devices.create",
+                    "devices.update",
+                    "devices.delete",
+                    "devices.restore",
+                    "fingerprint.options.get",
+                    "devices.test",
+                    "confirmations.list",
+                    "confirmations.answer"
                   ]
                 },
-                "maxItems": 14
+                "maxItems": 32
               },
               "unavailableReason": {
                 "type": "string",
@@ -1189,6 +1221,154 @@
                       "description": "OS version.",
                       "maxLength": 100
                     },
+                    "userAgentVersion132": {
+                      "type": "string",
+                      "description": "Browser version pool of the 132 kernel; All uses the kernel version.",
+                      "maxLength": 2000
+                    },
+                    "userAgentVersion120": {
+                      "type": "string",
+                      "description": "Browser version pool of the 120 kernel; All uses the kernel version.",
+                      "maxLength": 2000
+                    },
+                    "port_protect": {
+                      "type": "string",
+                      "description": "Port protection: 0 is off; 1-<ports> is on with a comma-separated port list, for example 1-80,81.",
+                      "maxLength": 2000
+                    },
+                    "webrtc": {
+                      "type": "string",
+                      "description": "WebRTC: 1 replaces with the proxy IP and needs a network device on the account (see accounts.network.set), 0 blocks, empty uses the real value.",
+                      "maxLength": 2000
+                    },
+                    "geolocationDisplay": {
+                      "type": "string",
+                      "description": "Geolocation permission: 1 allows, 2 blocks, 3 asks.",
+                      "maxLength": 2000
+                    },
+                    "geolocationIsIp": {
+                      "type": "boolean",
+                      "description": "Whether geolocation follows the IP address. False uses the latitude, longitude and accuracy, unless geolocation is blocked."
+                    },
+                    "geolocationLatitude": {
+                      "type": "string",
+                      "description": "Latitude from 0 to 90, as Work accepts it.",
+                      "maxLength": 2000
+                    },
+                    "geolocationLongitude": {
+                      "type": "string",
+                      "description": "Longitude from 0 to 180, as Work accepts it.",
+                      "maxLength": 2000
+                    },
+                    "geolocationAccuracy": {
+                      "type": "string",
+                      "description": "Accuracy in meters, at least 10.",
+                      "maxLength": 2000
+                    },
+                    "webgl_metadata": {
+                      "type": "string",
+                      "description": "WebGL vendor and renderer together as <manufacturer>;<renderer> from the Work list; empty uses the real value. Do not combine with webManufacturer or webGLRendering.",
+                      "maxLength": 2000
+                    },
+                    "webManufacturer": {
+                      "type": "string",
+                      "description": "WebGL manufacturer from accounts.fingerprint.options.get; empty uses the real value. A new manufacturer picks one of its renderers unless webGLRendering is also set.",
+                      "maxLength": 2000
+                    },
+                    "webGLRendering": {
+                      "type": "string",
+                      "description": "WebGL renderer of the current or given manufacturer, from accounts.fingerprint.options.get.",
+                      "maxLength": 2000
+                    },
+                    "webgpu": {
+                      "type": "string",
+                      "description": "WebGPU: match-webgl follows the WebGL setting, disabled turns it off, real uses the real value.",
+                      "maxLength": 2000
+                    },
+                    "screenDisplay": {
+                      "type": "string",
+                      "description": "Screen mode: 1 predefined, 2 custom size, 3 privacy (a random listed size).",
+                      "maxLength": 2000
+                    },
+                    "screen_auto_left": {
+                      "type": "string",
+                      "description": "Custom screen width from 1 to 9999, for screen mode 2.",
+                      "maxLength": 2000
+                    },
+                    "screen_auto_right": {
+                      "type": "string",
+                      "description": "Custom screen height from 1 to 9999, for screen mode 2.",
+                      "maxLength": 2000
+                    },
+                    "font_mode": {
+                      "type": "string",
+                      "description": "Fonts: privacy generates a value the way Work does and keeps one already set; real uses the real value. Applied once, not stored.",
+                      "maxLength": 2000
+                    },
+                    "battery_mode": {
+                      "type": "string",
+                      "description": "Battery: privacy generates a value the way Work does and keeps one already set; real uses the real value. Applied once, not stored.",
+                      "maxLength": 2000
+                    },
+                    "bluetooth_mode": {
+                      "type": "string",
+                      "description": "Bluetooth: privacy generates a value the way Work does and keeps one already set; real uses the real value. Applied once, not stored.",
+                      "maxLength": 2000
+                    },
+                    "speech_voices_mode": {
+                      "type": "string",
+                      "description": "Speech voices: privacy generates a value the way Work does and keeps one already set; real uses the real value. Applied once, not stored.",
+                      "maxLength": 2000
+                    },
+                    "audio_context_mode": {
+                      "type": "string",
+                      "description": "Audio context: noise generates a value the way Work does and keeps one already set; real uses the real value. Applied once, not stored.",
+                      "maxLength": 2000
+                    },
+                    "client_rects_mode": {
+                      "type": "string",
+                      "description": "Client rectangles: noise generates a value the way Work does and keeps one already set; real uses the real value. Applied once, not stored.",
+                      "maxLength": 2000
+                    },
+                    "media_device_mode": {
+                      "type": "string",
+                      "description": "Media devices: noise generates a value the way Work does and keeps one already set; real uses the real value. Applied once, not stored.",
+                      "maxLength": 2000
+                    },
+                    "canvas_mode": {
+                      "type": "string",
+                      "description": "Canvas: noise generates a value the way Work does and keeps one already set; real uses the real value. Applied once, not stored.",
+                      "maxLength": 2000
+                    },
+                    "webgl_image_mode": {
+                      "type": "string",
+                      "description": "WebGL image: noise generates a value the way Work does and keeps one already set; real uses the real value. Applied once, not stored.",
+                      "maxLength": 2000
+                    },
+                    "hasCookie": {
+                      "type": "boolean",
+                      "description": "Whether a cookie is saved in this fingerprint. The value is never returned."
+                    },
+                    "chrome": {
+                      "type": "string",
+                      "description": "Browser kernel family. Work offers one value, so it cannot be changed.",
+                      "maxLength": 40
+                    },
+                    "page_language": {
+                      "type": "string",
+                      "description": "Interface language. Work offers one value, based on the language, so it cannot be changed.",
+                      "maxLength": 100
+                    },
+                    "device_name": {
+                      "type": "string",
+                      "description": "Device name setting. Work offers one value, the real one, so it cannot be changed.",
+                      "maxLength": 100
+                    },
+                    "mac_address": {
+                      "type": "string",
+                      "description": "MAC address setting. Work offers one value, the real one, so it cannot be changed.",
+                      "maxLength": 100
+                    },
                     "user_agent": {
                       "type": "string",
                       "description": "Kernel user agent.",
@@ -1218,10 +1398,732 @@
             },
             "maxItems": 2
           },
+          "address": {
+            "type": "string",
+            "description": "Application homepage address.",
+            "maxLength": 2048
+          },
+          "template": {
+            "type": "boolean",
+            "description": "Whether this is a platform template application."
+          },
+          "accountCount": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Visible accounts of this application."
+          },
+          "connection": {
+            "type": "string",
+            "description": "The network connection: a device, the local network, or none.",
+            "maxLength": 20,
+            "enum": [
+              "device",
+              "local",
+              "none"
+            ]
+          },
+          "device": {
+            "type": "object",
+            "description": "A network device. Never carries a proxy username or password. Purchased platform devices do not show their address.",
+            "properties": {
+              "deviceId": {
+                "type": "string",
+                "description": "Opaque network device reference.",
+                "maxLength": 100
+              },
+              "name": {
+                "type": "string",
+                "description": "Device name.",
+                "maxLength": 200
+              },
+              "source": {
+                "type": "string",
+                "description": "platform is purchased from DSphere; third-party is added by the organization.",
+                "maxLength": 20,
+                "enum": [
+                  "platform",
+                  "third-party"
+                ]
+              },
+              "status": {
+                "type": "string",
+                "description": "Device state: initializing, initialization-timeout, initialization-failed, in-use, expired, expiring, check-failed, disabled or unknown.",
+                "maxLength": 40
+              },
+              "proxyType": {
+                "type": "string",
+                "description": "Proxy protocol of a third-party device.",
+                "maxLength": 20,
+                "enum": [
+                  "HTTP",
+                  "HTTPS",
+                  "SOCKS5"
+                ]
+              },
+              "ipProtocol": {
+                "type": "string",
+                "description": "IP version of a third-party device.",
+                "maxLength": 20,
+                "enum": [
+                  "IPV4",
+                  "IPV6"
+                ]
+              },
+              "host": {
+                "type": "string",
+                "description": "Proxy host of a third-party device.",
+                "maxLength": 253
+              },
+              "port": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Proxy port of a third-party device."
+              },
+              "checkChannel": {
+                "type": "string",
+                "description": "IP check channel.",
+                "maxLength": 100
+              },
+              "remark": {
+                "type": "string",
+                "description": "Device remark.",
+                "maxLength": 200
+              },
+              "hasCredential": {
+                "type": "boolean",
+                "description": "Whether a proxy username or password is saved. The values are never returned."
+              },
+              "exitIp": {
+                "type": "string",
+                "description": "Last observed exit IP.",
+                "maxLength": 64
+              },
+              "location": {
+                "type": "string",
+                "description": "Last observed location.",
+                "maxLength": 200
+              },
+              "checkStatus": {
+                "type": "string",
+                "description": "Last connection check status from Work.",
+                "maxLength": 20
+              },
+              "expiresAt": {
+                "type": "string",
+                "description": "Expiry time of a purchased device.",
+                "maxLength": 40
+              },
+              "boundAccounts": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Number of accounts using this device."
+              },
+              "allowedActions": {
+                "type": "array",
+                "description": "Device operations available now.",
+                "items": {
+                  "type": "string",
+                  "description": "A dsagent.accounts device action name.",
+                  "maxLength": 40
+                },
+                "maxItems": 6
+              }
+            },
+            "required": [
+              "deviceId",
+              "name",
+              "source",
+              "status",
+              "boundAccounts",
+              "allowedActions"
+            ],
+            "additionalProperties": false
+          },
+          "devices": {
+            "type": "array",
+            "description": "Network devices in this bounded page.",
+            "items": {
+              "type": "object",
+              "description": "A network device. Never carries a proxy username or password. Purchased platform devices do not show their address.",
+              "properties": {
+                "deviceId": {
+                  "type": "string",
+                  "description": "Opaque network device reference.",
+                  "maxLength": 100
+                },
+                "name": {
+                  "type": "string",
+                  "description": "Device name.",
+                  "maxLength": 200
+                },
+                "source": {
+                  "type": "string",
+                  "description": "platform is purchased from DSphere; third-party is added by the organization.",
+                  "maxLength": 20,
+                  "enum": [
+                    "platform",
+                    "third-party"
+                  ]
+                },
+                "status": {
+                  "type": "string",
+                  "description": "Device state: initializing, initialization-timeout, initialization-failed, in-use, expired, expiring, check-failed, disabled or unknown.",
+                  "maxLength": 40
+                },
+                "proxyType": {
+                  "type": "string",
+                  "description": "Proxy protocol of a third-party device.",
+                  "maxLength": 20,
+                  "enum": [
+                    "HTTP",
+                    "HTTPS",
+                    "SOCKS5"
+                  ]
+                },
+                "ipProtocol": {
+                  "type": "string",
+                  "description": "IP version of a third-party device.",
+                  "maxLength": 20,
+                  "enum": [
+                    "IPV4",
+                    "IPV6"
+                  ]
+                },
+                "host": {
+                  "type": "string",
+                  "description": "Proxy host of a third-party device.",
+                  "maxLength": 253
+                },
+                "port": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Proxy port of a third-party device."
+                },
+                "checkChannel": {
+                  "type": "string",
+                  "description": "IP check channel.",
+                  "maxLength": 100
+                },
+                "remark": {
+                  "type": "string",
+                  "description": "Device remark.",
+                  "maxLength": 200
+                },
+                "hasCredential": {
+                  "type": "boolean",
+                  "description": "Whether a proxy username or password is saved. The values are never returned."
+                },
+                "exitIp": {
+                  "type": "string",
+                  "description": "Last observed exit IP.",
+                  "maxLength": 64
+                },
+                "location": {
+                  "type": "string",
+                  "description": "Last observed location.",
+                  "maxLength": 200
+                },
+                "checkStatus": {
+                  "type": "string",
+                  "description": "Last connection check status from Work.",
+                  "maxLength": 20
+                },
+                "expiresAt": {
+                  "type": "string",
+                  "description": "Expiry time of a purchased device.",
+                  "maxLength": 40
+                },
+                "boundAccounts": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Number of accounts using this device."
+                },
+                "allowedActions": {
+                  "type": "array",
+                  "description": "Device operations available now.",
+                  "items": {
+                    "type": "string",
+                    "description": "A dsagent.accounts device action name.",
+                    "maxLength": 40
+                  },
+                  "maxItems": 6
+                }
+              },
+              "required": [
+                "deviceId",
+                "name",
+                "source",
+                "status",
+                "boundAccounts",
+                "allowedActions"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 100
+          },
+          "accounts": {
+            "type": "array",
+            "description": "Visible accounts bound to this device.",
+            "items": {
+              "type": "object",
+              "description": "Bound account.",
+              "properties": {
+                "accountId": {
+                  "type": "string",
+                  "description": "Account reference.",
+                  "maxLength": 100
+                },
+                "accountName": {
+                  "type": "string",
+                  "description": "Account name.",
+                  "maxLength": 200
+                },
+                "appName": {
+                  "type": "string",
+                  "description": "Application name.",
+                  "maxLength": 200
+                }
+              },
+              "required": [
+                "accountId",
+                "accountName",
+                "appName"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 100
+          },
+          "hiddenAccounts": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Bound accounts not visible to the current person."
+          },
+          "proxyTypes": {
+            "type": "array",
+            "description": "Supported proxy protocols.",
+            "items": {
+              "type": "string",
+              "description": "Proxy protocol.",
+              "maxLength": 20
+            },
+            "maxItems": 10
+          },
+          "ipProtocols": {
+            "type": "array",
+            "description": "Supported IP versions.",
+            "items": {
+              "type": "string",
+              "description": "IP version.",
+              "maxLength": 20
+            },
+            "maxItems": 10
+          },
+          "checkChannels": {
+            "type": "array",
+            "description": "IP check channels of this organization.",
+            "items": {
+              "type": "string",
+              "description": "Check channel.",
+              "maxLength": 100
+            },
+            "maxItems": 50
+          },
+          "suggestedName": {
+            "type": "string",
+            "description": "A suggested unique device name.",
+            "maxLength": 200
+          },
+          "capacity": {
+            "type": "object",
+            "description": "Third-party device capacity of the organization.",
+            "properties": {
+              "unlimited": {
+                "type": "boolean",
+                "description": "Whether the capacity is unlimited."
+              },
+              "total": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Total capacity."
+              },
+              "used": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Used capacity."
+              },
+              "restorable": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Devices that can be restored."
+              },
+              "expired": {
+                "type": "boolean",
+                "description": "Whether the capacity has expired."
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          },
+          "connectionTest": {
+            "type": "object",
+            "description": "Result of a device connection test. Never carries the proxy username or password.",
+            "properties": {
+              "reachable": {
+                "type": "boolean",
+                "description": "Whether the proxy answered the check and an exit IP was read through it."
+              },
+              "checkChannel": {
+                "type": "string",
+                "description": "IP check channel the test used.",
+                "maxLength": 100
+              },
+              "exitIp": {
+                "type": "string",
+                "description": "Exit IP seen through the proxy; present when reachable.",
+                "maxLength": 64
+              },
+              "country": {
+                "type": "string",
+                "description": "Country of the exit IP.",
+                "maxLength": 200
+              },
+              "countryCode": {
+                "type": "string",
+                "description": "Country code of the exit IP.",
+                "maxLength": 8
+              },
+              "reportedToWork": {
+                "type": "boolean",
+                "description": "Whether Work recorded this result on the device."
+              }
+            },
+            "required": [
+              "reachable",
+              "checkChannel",
+              "reportedToWork"
+            ],
+            "additionalProperties": false
+          },
+          "fingerprintChoices": {
+            "type": "object",
+            "description": "The values each fingerprint setting accepts in accounts.fingerprint.update.",
+            "properties": {
+              "os": {
+                "type": "array",
+                "description": "Operating systems.",
+                "items": {
+                  "type": "string",
+                  "description": "One accepted value.",
+                  "maxLength": 300
+                },
+                "maxItems": 10
+              },
+              "osVersions": {
+                "type": "object",
+                "description": "Versions of each operating system.",
+                "properties": {
+                  "Windows": {
+                    "type": "array",
+                    "description": "Windows versions.",
+                    "items": {
+                      "type": "string",
+                      "description": "One accepted value.",
+                      "maxLength": 300
+                    },
+                    "maxItems": 50
+                  },
+                  "macOS": {
+                    "type": "array",
+                    "description": "macOS versions.",
+                    "items": {
+                      "type": "string",
+                      "description": "One accepted value.",
+                      "maxLength": 300
+                    },
+                    "maxItems": 50
+                  },
+                  "Linux": {
+                    "type": "array",
+                    "description": "Linux versions.",
+                    "items": {
+                      "type": "string",
+                      "description": "One accepted value.",
+                      "maxLength": 300
+                    },
+                    "maxItems": 50
+                  },
+                  "Android": {
+                    "type": "array",
+                    "description": "Android versions.",
+                    "items": {
+                      "type": "string",
+                      "description": "One accepted value.",
+                      "maxLength": 300
+                    },
+                    "maxItems": 50
+                  },
+                  "iOS": {
+                    "type": "array",
+                    "description": "iOS versions.",
+                    "items": {
+                      "type": "string",
+                      "description": "One accepted value.",
+                      "maxLength": 300
+                    },
+                    "maxItems": 50
+                  }
+                },
+                "required": [],
+                "additionalProperties": false
+              },
+              "userAgentVersion132": {
+                "type": "array",
+                "description": "Browser version pools of the 132 kernel.",
+                "items": {
+                  "type": "string",
+                  "description": "One accepted value.",
+                  "maxLength": 300
+                },
+                "maxItems": 20
+              },
+              "userAgentVersion120": {
+                "type": "array",
+                "description": "Browser version pools of the 120 kernel.",
+                "items": {
+                  "type": "string",
+                  "description": "One accepted value.",
+                  "maxLength": 300
+                },
+                "maxItems": 20
+              },
+              "languages": {
+                "type": "array",
+                "description": "Browser language codes for language.",
+                "items": {
+                  "type": "string",
+                  "description": "One accepted value.",
+                  "maxLength": 300
+                },
+                "maxItems": 1000
+              },
+              "timeZones": {
+                "type": "array",
+                "description": "Values for time_zone: ip, local, or a time zone.",
+                "items": {
+                  "type": "string",
+                  "description": "One accepted value.",
+                  "maxLength": 300
+                },
+                "maxItems": 1000
+              },
+              "screens": {
+                "type": "object",
+                "description": "Values for screen_resolution_input by system family.",
+                "properties": {
+                  "desktop": {
+                    "type": "array",
+                    "description": "Windows, macOS and Linux.",
+                    "items": {
+                      "type": "string",
+                      "description": "One accepted value.",
+                      "maxLength": 300
+                    },
+                    "maxItems": 100
+                  },
+                  "android": {
+                    "type": "array",
+                    "description": "Android.",
+                    "items": {
+                      "type": "string",
+                      "description": "One accepted value.",
+                      "maxLength": 300
+                    },
+                    "maxItems": 100
+                  },
+                  "ios": {
+                    "type": "array",
+                    "description": "iOS.",
+                    "items": {
+                      "type": "string",
+                      "description": "One accepted value.",
+                      "maxLength": 300
+                    },
+                    "maxItems": 100
+                  }
+                },
+                "required": [],
+                "additionalProperties": false
+              },
+              "memory": {
+                "type": "array",
+                "description": "Device memory values; empty follows the computer.",
+                "items": {
+                  "type": "string",
+                  "description": "One accepted value.",
+                  "maxLength": 300
+                },
+                "maxItems": 50
+              },
+              "hardwareConcurrency": {
+                "type": "array",
+                "description": "Logical CPU counts; empty follows the computer.",
+                "items": {
+                  "type": "string",
+                  "description": "One accepted value.",
+                  "maxLength": 300
+                },
+                "maxItems": 50
+              },
+              "webGL": {
+                "type": "array",
+                "description": "WebGL manufacturers with their renderers.",
+                "items": {
+                  "type": "object",
+                  "description": "One manufacturer.",
+                  "properties": {
+                    "manufacturer": {
+                      "type": "string",
+                      "description": "Value for webManufacturer.",
+                      "maxLength": 100
+                    },
+                    "renderers": {
+                      "type": "array",
+                      "description": "Values for webGLRendering.",
+                      "items": {
+                        "type": "string",
+                        "description": "One accepted value.",
+                        "maxLength": 300
+                      },
+                      "maxItems": 100
+                    }
+                  },
+                  "required": [
+                    "manufacturer",
+                    "renderers"
+                  ],
+                  "additionalProperties": false
+                },
+                "maxItems": 50
+              },
+              "fixedSettings": {
+                "type": "object",
+                "description": "Settings with a single value in Work, shown for completeness; they cannot be changed.",
+                "properties": {
+                  "chrome": {
+                    "type": "string",
+                    "description": "Browser kernel family.",
+                    "maxLength": 40
+                  },
+                  "page_language": {
+                    "type": "string",
+                    "description": "Interface language.",
+                    "maxLength": 100
+                  },
+                  "device_name": {
+                    "type": "string",
+                    "description": "Device name.",
+                    "maxLength": 100
+                  },
+                  "mac_address": {
+                    "type": "string",
+                    "description": "MAC address.",
+                    "maxLength": 100
+                  }
+                },
+                "required": [],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "os",
+              "osVersions",
+              "userAgentVersion132",
+              "userAgentVersion120",
+              "languages",
+              "timeZones",
+              "screens",
+              "memory",
+              "hardwareConcurrency",
+              "webGL",
+              "fixedSettings"
+            ],
+            "additionalProperties": false
+          },
           "interactionId": {
             "type": "string",
             "description": "Trusted user interaction reference; never a secret.",
             "maxLength": 100
+          },
+          "agentAnswersAllowed": {
+            "type": "boolean",
+            "description": "Whether the person lets the agent that asked for an account change answer that change's Confirm/Decline sheet (Settings, person-only; default on)."
+          },
+          "confirmations": {
+            "type": "array",
+            "description": "This caller's own Confirm/Decline sheets that wait for an answer now.",
+            "items": {
+              "type": "object",
+              "description": "One waiting sheet; never a secret.",
+              "properties": {
+                "interactionId": {
+                  "type": "string",
+                  "description": "Pass to accounts.confirmations.answer.",
+                  "maxLength": 100
+                },
+                "operationId": {
+                  "type": "string",
+                  "description": "The account write that opened the sheet; absent for an account open's sign-in-site question.",
+                  "maxLength": 100
+                },
+                "operation": {
+                  "type": "string",
+                  "description": "What the sheet asks, in product wording.",
+                  "maxLength": 200
+                },
+                "accountName": {
+                  "type": "string",
+                  "description": "The account, device or application the sheet names.",
+                  "maxLength": 200
+                },
+                "signInSite": {
+                  "type": "object",
+                  "description": "An account open's question whether the application may sign in on a site it does not list.",
+                  "properties": {
+                    "application": {
+                      "type": "string",
+                      "description": "Application name.",
+                      "maxLength": 200
+                    },
+                    "site": {
+                      "type": "string",
+                      "description": "Site host.",
+                      "maxLength": 253
+                    }
+                  },
+                  "required": [
+                    "application",
+                    "site"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "interactionId",
+                "operation",
+                "accountName"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 8
+          },
+          "answer": {
+            "type": "string",
+            "description": "How the sheet was answered.",
+            "maxLength": 20,
+            "enum": [
+              "confirmed",
+              "declined"
+            ]
           },
           "enabled": {
             "type": "boolean",

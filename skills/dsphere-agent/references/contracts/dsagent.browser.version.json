@@ -1,0 +1,73 @@
+{
+  "method": "dsagent.browser.version",
+  "version": 1,
+  "title": "Read the browser version verdict",
+  "description": "Whether this DSphere browser is new enough to run tasks: it must be newer than 6.6.70.284, which is itself too old.",
+  "guidance": "upgrade-required means every call that opens or drives a page, starts a wizard or runs a workflow is refused (UNSUPPORTED_VERSION, BROWSER_UPGRADE_REQUIRED) until the person updates the browser: tell them to choose Check Update at the top right of the Work portal, then restart the browser; do not retry or try another browser. Reads, settings and dsagent.agent.work.finish still work. Ignore fields and status values you do not know. Read-only; nothing is opened.",
+  "inputSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "description": "No arguments.",
+    "properties": {}
+  },
+  "outputSchema": {
+    "type": "object",
+    "additionalProperties": true,
+    "required": [
+      "minimum",
+      "status",
+      "backgroundRendering",
+      "upgradeEntrance",
+      "hint"
+    ],
+    "description": "The browser version verdict.",
+    "properties": {
+      "running": {
+        "type": "string",
+        "maxLength": 32,
+        "description": "The browser's version, left out when it cannot be read."
+      },
+      "minimum": {
+        "type": "string",
+        "maxLength": 32,
+        "description": "The newest version that is still too old: the browser must be newer than this, and this version itself is refused."
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "supported",
+          "upgrade-required"
+        ],
+        "description": "supported: tasks can run; upgrade-required: the person must update the browser first. Later versions may add values."
+      },
+      "backgroundRendering": {
+        "type": "boolean",
+        "description": "Whether the browser can keep task pages drawing in the background."
+      },
+      "upgradeEntrance": {
+        "type": "string",
+        "enum": [
+          "work-portal-check-update"
+        ],
+        "description": "Where the person updates the browser: Check Update at the top right of the Work portal."
+      },
+      "hint": {
+        "type": "string",
+        "maxLength": 128,
+        "description": "What to tell the person, in English."
+      }
+    }
+  },
+  "risk": "read-sensitive",
+  "targetKinds": [
+    "browser"
+  ],
+  "requiredPermissions": [
+    "page.read"
+  ],
+  "timeoutMs": 5000,
+  "maxInlineResultBytes": 4096,
+  "concurrency": "shared-read",
+  "retry": "pre-dispatch-read-only",
+  "exposure": "exposed"
+}

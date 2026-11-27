@@ -1,0 +1,169 @@
+{
+  "method": "dsagent.accounts.application.get",
+  "version": 1,
+  "title": "Get Application",
+  "description": "Read one visible application: name, address, whether it is a platform template, and how many accounts it has.",
+  "inputSchema": {
+    "type": "object",
+    "description": "Read one visible application: name, address, whether it is a platform template, and how many accounts it has.",
+    "properties": {
+      "appId": {
+        "type": "string",
+        "description": "Opaque application reference returned by accounts.options.get.",
+        "minLength": 1,
+        "maxLength": 100
+      }
+    },
+    "required": [
+      "appId"
+    ],
+    "additionalProperties": false
+  },
+  "outputSchema": {
+    "type": "object",
+    "description": "Account operation result. status/stage are for internal reconciliation, not user-facing open-success/failure badges. Report the separate autofill receipt; a page being open never proves fill or sign-in.",
+    "properties": {
+      "autofill": {
+        "type": "object",
+        "description": "Separate sign-in receipt: the DSphere account manager signs in on the opened page. Query accounts.operations.get with operationId while running; unknown must not be replayed. succeeded: the sign-in form was sent and the page no longer asks to sign in. skipped with already-signed-in, no-sign-in-form or site-unreachable (the tab shows the browser's error page): nothing was typed.",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Observed autofill state.",
+            "maxLength": 40,
+            "enum": [
+              "running",
+              "succeeded",
+              "failed",
+              "skipped",
+              "unknown"
+            ]
+          },
+          "updatedAt": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Receipt observation time in milliseconds."
+          },
+          "reason": {
+            "type": "string",
+            "description": "Safe reason code; never credentials or page field values.",
+            "maxLength": 120
+          }
+        },
+        "required": [
+          "status",
+          "updatedAt"
+        ],
+        "additionalProperties": false
+      },
+      "operationId": {
+        "type": "string",
+        "description": "Local operation reference; not a Pangu request receipt.",
+        "maxLength": 100
+      },
+      "status": {
+        "type": "string",
+        "description": "Observed operation status.",
+        "maxLength": 40,
+        "enum": [
+          "not-dispatched",
+          "waiting-user",
+          "running",
+          "succeeded",
+          "partial",
+          "failed",
+          "cancelled",
+          "outcome-unknown",
+          "record-unavailable",
+          "available"
+        ]
+      },
+      "stage": {
+        "type": "string",
+        "description": "Completed or current account business stage.",
+        "maxLength": 100
+      },
+      "accountId": {
+        "type": "string",
+        "description": "Account reference when known.",
+        "maxLength": 100
+      },
+      "pageContextId": {
+        "type": "string",
+        "description": "Actual opened/focused page reference when known.",
+        "maxLength": 100
+      },
+      "warnings": {
+        "type": "array",
+        "description": "Bounded warnings, including synchronization and unknown outcomes.",
+        "items": {
+          "type": "string",
+          "description": "One safe product warning.",
+          "maxLength": 500
+        },
+        "maxItems": 20
+      },
+      "data": {
+        "type": "object",
+        "description": "Only the selected account operation's public product fields.",
+        "properties": {
+          "application": {
+            "type": "object",
+            "description": "Verified custom application. Use appId with options.get and create, including when it has no accounts.",
+            "properties": {
+              "appId": {
+                "type": "string",
+                "description": "Application reference.",
+                "maxLength": 100
+              },
+              "appName": {
+                "type": "string",
+                "description": "Application name.",
+                "maxLength": 200
+              }
+            },
+            "required": [
+              "appId",
+              "appName"
+            ],
+            "additionalProperties": false
+          },
+          "address": {
+            "type": "string",
+            "description": "Application homepage address.",
+            "maxLength": 2048
+          },
+          "template": {
+            "type": "boolean",
+            "description": "Whether this is a platform template application."
+          },
+          "accountCount": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Visible accounts of this application."
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    "required": [
+      "status",
+      "stage",
+      "warnings"
+    ],
+    "additionalProperties": false
+  },
+  "risk": "read-sensitive",
+  "targetKinds": [
+    "managed-account"
+  ],
+  "requiredPermissions": [
+    "accounts.read"
+  ],
+  "timeoutMs": 30000,
+  "maxInlineResultBytes": 65536,
+  "concurrency": "shared-read",
+  "retry": "pre-dispatch-read-only",
+  "exposure": "exposed"
+}

@@ -1,0 +1,217 @@
+{
+  "method": "dsagent.accounts.devices.options.get",
+  "version": 1,
+  "title": "Get Network Device Options",
+  "description": "Read what a new network device can use: proxy types, IP versions, check channels, a suggested unique name, and the third-party device capacity.",
+  "inputSchema": {
+    "type": "object",
+    "description": "Read what a new network device can use: proxy types, IP versions, check channels, a suggested unique name, and the third-party device capacity.",
+    "properties": {},
+    "required": [],
+    "additionalProperties": false
+  },
+  "outputSchema": {
+    "type": "object",
+    "description": "Account operation result. status/stage are for internal reconciliation, not user-facing open-success/failure badges. Report the separate autofill receipt; a page being open never proves fill or sign-in.",
+    "properties": {
+      "autofill": {
+        "type": "object",
+        "description": "Separate sign-in receipt: the DSphere account manager signs in on the opened page. Query accounts.operations.get with operationId while running; unknown must not be replayed. succeeded: the sign-in form was sent and the page no longer asks to sign in. skipped with already-signed-in, no-sign-in-form or site-unreachable (the tab shows the browser's error page): nothing was typed.",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Observed autofill state.",
+            "maxLength": 40,
+            "enum": [
+              "running",
+              "succeeded",
+              "failed",
+              "skipped",
+              "unknown"
+            ]
+          },
+          "updatedAt": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Receipt observation time in milliseconds."
+          },
+          "reason": {
+            "type": "string",
+            "description": "Safe reason code; never credentials or page field values.",
+            "maxLength": 120
+          }
+        },
+        "required": [
+          "status",
+          "updatedAt"
+        ],
+        "additionalProperties": false
+      },
+      "operationId": {
+        "type": "string",
+        "description": "Local operation reference; not a Pangu request receipt.",
+        "maxLength": 100
+      },
+      "status": {
+        "type": "string",
+        "description": "Observed operation status.",
+        "maxLength": 40,
+        "enum": [
+          "not-dispatched",
+          "waiting-user",
+          "running",
+          "succeeded",
+          "partial",
+          "failed",
+          "cancelled",
+          "outcome-unknown",
+          "record-unavailable",
+          "available"
+        ]
+      },
+      "stage": {
+        "type": "string",
+        "description": "Completed or current account business stage.",
+        "maxLength": 100
+      },
+      "accountId": {
+        "type": "string",
+        "description": "Account reference when known.",
+        "maxLength": 100
+      },
+      "pageContextId": {
+        "type": "string",
+        "description": "Actual opened/focused page reference when known.",
+        "maxLength": 100
+      },
+      "warnings": {
+        "type": "array",
+        "description": "Bounded warnings, including synchronization and unknown outcomes.",
+        "items": {
+          "type": "string",
+          "description": "One safe product warning.",
+          "maxLength": 500
+        },
+        "maxItems": 20
+      },
+      "data": {
+        "type": "object",
+        "description": "Only the selected account operation's public product fields.",
+        "properties": {
+          "defaults": {
+            "type": "object",
+            "description": "Recommended defaults; ask the person to accept them before create.",
+            "properties": {
+              "loginType": {
+                "type": "string",
+                "description": "Default login method.",
+                "maxLength": 100
+              },
+              "syncEnabled": {
+                "type": "boolean",
+                "description": "Default synchronization state."
+              },
+              "sessionKeepAlive": {
+                "type": "boolean",
+                "description": "Default session retention state."
+              },
+              "fingerprintPolicy": {
+                "type": "string",
+                "description": "Default fingerprint policy.",
+                "maxLength": 20
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          },
+          "proxyTypes": {
+            "type": "array",
+            "description": "Supported proxy protocols.",
+            "items": {
+              "type": "string",
+              "description": "Proxy protocol.",
+              "maxLength": 20
+            },
+            "maxItems": 10
+          },
+          "ipProtocols": {
+            "type": "array",
+            "description": "Supported IP versions.",
+            "items": {
+              "type": "string",
+              "description": "IP version.",
+              "maxLength": 20
+            },
+            "maxItems": 10
+          },
+          "checkChannels": {
+            "type": "array",
+            "description": "IP check channels of this organization.",
+            "items": {
+              "type": "string",
+              "description": "Check channel.",
+              "maxLength": 100
+            },
+            "maxItems": 50
+          },
+          "suggestedName": {
+            "type": "string",
+            "description": "A suggested unique device name.",
+            "maxLength": 200
+          },
+          "capacity": {
+            "type": "object",
+            "description": "Third-party device capacity of the organization.",
+            "properties": {
+              "unlimited": {
+                "type": "boolean",
+                "description": "Whether the capacity is unlimited."
+              },
+              "total": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Total capacity."
+              },
+              "used": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Used capacity."
+              },
+              "restorable": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Devices that can be restored."
+              },
+              "expired": {
+                "type": "boolean",
+                "description": "Whether the capacity has expired."
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    "required": [
+      "status",
+      "stage",
+      "warnings"
+    ],
+    "additionalProperties": false
+  },
+  "risk": "read-sensitive",
+  "targetKinds": [
+    "managed-account"
+  ],
+  "requiredPermissions": [
+    "accounts.read"
+  ],
+  "timeoutMs": 30000,
+  "maxInlineResultBytes": 65536,
+  "concurrency": "shared-read",
+  "retry": "pre-dispatch-read-only",
+  "exposure": "exposed"
+}

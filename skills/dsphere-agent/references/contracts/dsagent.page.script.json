@@ -4,7 +4,7 @@
   "title": "Run a short script of page actions",
   "pageEvidence": true,
   "description": "Runs a short JavaScript program in a sandbox in the extension on one page you opened. No page DOM, network, cookies, storage or timers: only page.* functions (each with the single call's checks), input, log and sleep. Returns status, value, logs, step receipts and the ended page.",
-  "guidance": "Use it when the next 3 or more page calls can be written now and the choices between them are mechanical (text present, target found, how many results): type, submit, wait, open a result; open each of the first N results and read a title. Stay with single calls on a new page, when the next step needs judgment about the content, for an action that cannot be undone (stop the script before it and do that step as a single call), and to collect data (use the wizard). Await every page call. page.find(query, {role, context, includeText, limit}) returns page.find matches; page.act(target, action, params) takes a match or a targetId and page.action params; page.input(target, value); page.press(key, target?); page.waitFor({until, text, ...}) takes page.wait conditions; page.readText({focus, profile}) returns page markdown; page.observe() returns page.observe. A page error is a catchable Error named PageError with code, businessCode, hint and step. Stop, a sign-in wall, a page dialog and the limits end the script and cannot be caught: status needs-person names what to do. Playwright-style code runs too: page.getByRole(role, { name }), getByText, getByLabel, getByPlaceholder locators with click, fill, press, check, selectOption, hover, waitFor and textContent, page.waitForURL, page.url() and expect(locator).toBeVisible()/toHaveText(); no page.goto, page.locator(css), first()/nth() or evaluate. page.actions(steps) runs a dsagent.page.actions sequence. Script code may compute at most 250 ms between page calls and 2 s in all; it is for orchestrating page calls, not for heavy work. After a navigation, find targets again. On failed, continue from steps rather than rerunning the whole script. Keep scripts short (about 40 lines, 15 page calls) and return a small summary.",
+  "guidance": "Use it when 3 or more page calls can be written now and they need an if, a loop, a retry or a read that decides the next step, with mechanical choices (text present, target found, how many results): act, wait, check and try again; do the same to each of N rows; close a popup only when it is there; repeat with other input what you just did step by step. A straight line of decided steps is dsagent.page.actions. Stay with single calls on a page you have not read yet (the view dsagent.page.open returns is a read), when the next step needs judgment about the content, for an action that cannot be undone (stop the script before it and do that step as a single call), and to collect data (use the wizard). Await every page call. page.find(query, {role, context, includeText, limit}) returns page.find matches; page.act(target, action, params) takes a match or a targetId and page.action params; page.press(key, target?); page.waitFor({until, text, ...}) takes page.wait conditions; page.readText({focus, profile}) returns page markdown; page.observe() returns page.observe. A page error is a catchable Error named PageError with code, businessCode, hint and step. Stop, a sign-in wall, a page dialog and the limits end the script and cannot be caught: status needs-person names what to do. Playwright-style code runs too: page.getByRole(role, { name }), getByText, getByLabel, getByPlaceholder locators with click, fill, press, check, selectOption, hover, waitFor and textContent, page.waitForURL, page.url() and expect(locator).toBeVisible()/toHaveText(); no page.goto, page.locator(css), first()/nth() or evaluate. page.actions(steps) runs a dsagent.page.actions sequence. Script code may compute at most 250 ms between page calls and 2 s in all; it is for orchestrating page calls, not for heavy work. After a navigation, find targets again. On failed, continue from steps rather than rerunning the whole script. Keep scripts short (about 40 lines, 15 page calls) and return a small summary.",
   "inputSchema": {
     "type": "object",
     "properties": {
@@ -44,13 +44,13 @@
         "type": "string",
         "minLength": 1,
         "maxLength": 120,
-        "description": "What the script does, in words the person reads in the activity card and on the page, e.g. \"Search for the keyword and open the first result\"."
+        "description": "What the script does, in words the person reads in the activity card and on the page (\"Search for the keyword, then turn the pager to page 3\")."
       },
       "source": {
         "type": "string",
         "minLength": 1,
         "maxLength": 16384,
-        "description": "The script body (at most 16384 bytes of UTF-8). It runs as the body of an async function: use await and return a JSON value."
+        "description": "An async function body: t = (await page.find(words, {role})).matches[0], then await page.click(t), page.input(t, value) or page.act(t, action, params); page.waitFor({until}) waits; return JSON."
       },
       "input": {
         "type": "object",
@@ -535,7 +535,7 @@
                     "state": {
                       "type": "string",
                       "maxLength": 160,
-                      "description": "Optional bounded state tokens, comma separated, such as checked, selected, expanded=true, pressed or unpressed, mixed, current, disabled, required, invalid, readonly, busy, haspopup=menu, valuenow=<n>, sort=<direction>, submits-form, filled or empty; value=\"<text>\" when the page served it (a filter) or this caller typed it."
+                      "description": "Optional bounded state tokens, comma separated, such as checked, selected, expanded=true, pressed or unpressed, mixed, current, disabled, required, invalid, readonly, busy, haspopup=menu, valuenow=<n>, sort=<direction>, submits-form, filled or empty, draggable (the page declares it a drag item: drag takes it); value=\"<text>\" when the page served it (a filter) or this caller typed it."
                     },
                     "slotEffect": {
                       "type": "string",
@@ -823,7 +823,7 @@
                     "state": {
                       "type": "string",
                       "maxLength": 160,
-                      "description": "Optional bounded state tokens, comma separated, such as checked, selected, expanded=true, pressed or unpressed, mixed, current, disabled, required, invalid, readonly, busy, haspopup=menu, valuenow=<n>, sort=<direction>, submits-form, filled or empty; value=\"<text>\" when the page served it (a filter) or this caller typed it."
+                      "description": "Optional bounded state tokens, comma separated, such as checked, selected, expanded=true, pressed or unpressed, mixed, current, disabled, required, invalid, readonly, busy, haspopup=menu, valuenow=<n>, sort=<direction>, submits-form, filled or empty, draggable (the page declares it a drag item: drag takes it); value=\"<text>\" when the page served it (a filter) or this caller typed it."
                     },
                     "slotEffect": {
                       "type": "string",

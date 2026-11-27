@@ -163,10 +163,26 @@
                     "fingerprint.regenerate",
                     "operations.get",
                     "pages.list",
-                    "application.create"
+                    "application.create",
+                    "application.get",
+                    "application.update",
+                    "application.delete",
+                    "network.get",
+                    "network.set",
+                    "devices.options.get",
+                    "devices.list",
+                    "devices.get",
+                    "devices.create",
+                    "devices.update",
+                    "devices.delete",
+                    "devices.restore",
+                    "fingerprint.options.get",
+                    "devices.test",
+                    "confirmations.list",
+                    "confirmations.answer"
                   ]
                 },
-                "maxItems": 14
+                "maxItems": 32
               },
               "unavailableReason": {
                 "type": "string",

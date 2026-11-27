@@ -222,6 +222,154 @@
                       "description": "OS version.",
                       "maxLength": 100
                     },
+                    "userAgentVersion132": {
+                      "type": "string",
+                      "description": "Browser version pool of the 132 kernel; All uses the kernel version.",
+                      "maxLength": 2000
+                    },
+                    "userAgentVersion120": {
+                      "type": "string",
+                      "description": "Browser version pool of the 120 kernel; All uses the kernel version.",
+                      "maxLength": 2000
+                    },
+                    "port_protect": {
+                      "type": "string",
+                      "description": "Port protection: 0 is off; 1-<ports> is on with a comma-separated port list, for example 1-80,81.",
+                      "maxLength": 2000
+                    },
+                    "webrtc": {
+                      "type": "string",
+                      "description": "WebRTC: 1 replaces with the proxy IP and needs a network device on the account (see accounts.network.set), 0 blocks, empty uses the real value.",
+                      "maxLength": 2000
+                    },
+                    "geolocationDisplay": {
+                      "type": "string",
+                      "description": "Geolocation permission: 1 allows, 2 blocks, 3 asks.",
+                      "maxLength": 2000
+                    },
+                    "geolocationIsIp": {
+                      "type": "boolean",
+                      "description": "Whether geolocation follows the IP address. False uses the latitude, longitude and accuracy, unless geolocation is blocked."
+                    },
+                    "geolocationLatitude": {
+                      "type": "string",
+                      "description": "Latitude from 0 to 90, as Work accepts it.",
+                      "maxLength": 2000
+                    },
+                    "geolocationLongitude": {
+                      "type": "string",
+                      "description": "Longitude from 0 to 180, as Work accepts it.",
+                      "maxLength": 2000
+                    },
+                    "geolocationAccuracy": {
+                      "type": "string",
+                      "description": "Accuracy in meters, at least 10.",
+                      "maxLength": 2000
+                    },
+                    "webgl_metadata": {
+                      "type": "string",
+                      "description": "WebGL vendor and renderer together as <manufacturer>;<renderer> from the Work list; empty uses the real value. Do not combine with webManufacturer or webGLRendering.",
+                      "maxLength": 2000
+                    },
+                    "webManufacturer": {
+                      "type": "string",
+                      "description": "WebGL manufacturer from accounts.fingerprint.options.get; empty uses the real value. A new manufacturer picks one of its renderers unless webGLRendering is also set.",
+                      "maxLength": 2000
+                    },
+                    "webGLRendering": {
+                      "type": "string",
+                      "description": "WebGL renderer of the current or given manufacturer, from accounts.fingerprint.options.get.",
+                      "maxLength": 2000
+                    },
+                    "webgpu": {
+                      "type": "string",
+                      "description": "WebGPU: match-webgl follows the WebGL setting, disabled turns it off, real uses the real value.",
+                      "maxLength": 2000
+                    },
+                    "screenDisplay": {
+                      "type": "string",
+                      "description": "Screen mode: 1 predefined, 2 custom size, 3 privacy (a random listed size).",
+                      "maxLength": 2000
+                    },
+                    "screen_auto_left": {
+                      "type": "string",
+                      "description": "Custom screen width from 1 to 9999, for screen mode 2.",
+                      "maxLength": 2000
+                    },
+                    "screen_auto_right": {
+                      "type": "string",
+                      "description": "Custom screen height from 1 to 9999, for screen mode 2.",
+                      "maxLength": 2000
+                    },
+                    "font_mode": {
+                      "type": "string",
+                      "description": "Fonts: privacy generates a value the way Work does and keeps one already set; real uses the real value. Applied once, not stored.",
+                      "maxLength": 2000
+                    },
+                    "battery_mode": {
+                      "type": "string",
+                      "description": "Battery: privacy generates a value the way Work does and keeps one already set; real uses the real value. Applied once, not stored.",
+                      "maxLength": 2000
+                    },
+                    "bluetooth_mode": {
+                      "type": "string",
+                      "description": "Bluetooth: privacy generates a value the way Work does and keeps one already set; real uses the real value. Applied once, not stored.",
+                      "maxLength": 2000
+                    },
+                    "speech_voices_mode": {
+                      "type": "string",
+                      "description": "Speech voices: privacy generates a value the way Work does and keeps one already set; real uses the real value. Applied once, not stored.",
+                      "maxLength": 2000
+                    },
+                    "audio_context_mode": {
+                      "type": "string",
+                      "description": "Audio context: noise generates a value the way Work does and keeps one already set; real uses the real value. Applied once, not stored.",
+                      "maxLength": 2000
+                    },
+                    "client_rects_mode": {
+                      "type": "string",
+                      "description": "Client rectangles: noise generates a value the way Work does and keeps one already set; real uses the real value. Applied once, not stored.",
+                      "maxLength": 2000
+                    },
+                    "media_device_mode": {
+                      "type": "string",
+                      "description": "Media devices: noise generates a value the way Work does and keeps one already set; real uses the real value. Applied once, not stored.",
+                      "maxLength": 2000
+                    },
+                    "canvas_mode": {
+                      "type": "string",
+                      "description": "Canvas: noise generates a value the way Work does and keeps one already set; real uses the real value. Applied once, not stored.",
+                      "maxLength": 2000
+                    },
+                    "webgl_image_mode": {
+                      "type": "string",
+                      "description": "WebGL image: noise generates a value the way Work does and keeps one already set; real uses the real value. Applied once, not stored.",
+                      "maxLength": 2000
+                    },
+                    "hasCookie": {
+                      "type": "boolean",
+                      "description": "Whether a cookie is saved in this fingerprint. The value is never returned."
+                    },
+                    "chrome": {
+                      "type": "string",
+                      "description": "Browser kernel family. Work offers one value, so it cannot be changed.",
+                      "maxLength": 40
+                    },
+                    "page_language": {
+                      "type": "string",
+                      "description": "Interface language. Work offers one value, based on the language, so it cannot be changed.",
+                      "maxLength": 100
+                    },
+                    "device_name": {
+                      "type": "string",
+                      "description": "Device name setting. Work offers one value, the real one, so it cannot be changed.",
+                      "maxLength": 100
+                    },
+                    "mac_address": {
+                      "type": "string",
+                      "description": "MAC address setting. Work offers one value, the real one, so it cannot be changed.",
+                      "maxLength": 100
+                    },
                     "user_agent": {
                       "type": "string",
                       "description": "Kernel user agent.",

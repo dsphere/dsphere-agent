@@ -82,7 +82,7 @@
       },
       "fingerprintPolicy": {
         "type": "string",
-        "description": "Automatic generation follows the supported Work baseline; require rejects an unsupported app.",
+        "description": "Automatic generation follows the supported Work baseline; require rejects an unsupported app; none only for an app without fingerprint support, because Work saves a fingerprint with every account of a fingerprint-enabled app.",
         "minLength": 1,
         "maxLength": 200,
         "enum": [

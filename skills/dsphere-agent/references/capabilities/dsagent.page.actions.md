@@ -69,7 +69,7 @@ Receipts of the executed steps and the compact view of the page the sequence end
 | `revision` | string (0–128 chars) |  | The page revision a… |
 | `executed` | integer (0…12) |  | How many steps exec… |
 | `receipts` | array of object {index, targetId, action, resolved, waitFor, success, …} (≤ 12) |  | One receipt per exe… |
-| `stopped` | object {reason, index, targetId, code, businessCode, failureCode, …} |  | Present when the se… |
+| `stopped` | object {reason, index, retryAfterMs, targetId, code, businessCode, …} |  | Present when the se… |
 | `uploads` | array of object {index, fileName, success, uploadState, networkUpload, failureCode, …} (≤ 12) |  | Present when an upl… |
 | `recheck` | object {checked, changed, hint} |  | Present when fields… |
 | `warnings` | array of object {code, message, nextActions, repeated, count, nextSteps} (≤ 2) |  | REPEATED_RECORDS_US… |
@@ -88,7 +88,7 @@ Complete value lists and id patterns for the fields above (the contract file is 
 - `receipts[].situation`: one of `sign-in-wall`, `challenge`, `dialog-open`, `new-tab-opened`, `target-stale`, `no-effect`, `rate-limited`, `run-paused`, `run-ended-partial`, `run-ended`, `wizard-waiting`, `browser-reloading`, `task-ended`
 - `receipts[].effect.kind`: one of `navigated`, `surface-opened`, `surface-closed`, `region-shown`, `region-hidden`, `value-changed`, `state-changed`, `media`, `download`, `message-shown`, `none`
 - `receipts[].waitAfter.until`: same values as input `actions[].waitFor.until`
-- `stopped.reason`: one of `failed`, `navigated`, `target-missing`, `target-unresolved`, `wait-timed-out`, `canceled`, `consumed-by-dismissal`
+- `stopped.reason`: one of `failed`, `navigated`, `target-missing`, `target-unresolved`, `wait-timed-out`, `canceled`, `consumed-by-dismissal`, `form-invalid`, `person-active`
 - `final.pageSurfaces.surfaces[].broughtBy.eventType`: one of `press`, `click`, `double-click`, `context-click`, `hover`, `focus`, `key`, `input`, `drag`, `drop`, `wheel`
 - `final.focusedCaret.formatting.block`: one of `p`, `h1`, `h2`, `h3`, `h4`, `h5`, `h6`, `li`, `blockquote`, `pre`, `td`, `th`, `div`, `section`
 - `final.framePageSurfaces[].observed.surfaces[].broughtBy.eventType`: same values as `final.pageSurfaces.surfaces[].broughtBy.eventType`

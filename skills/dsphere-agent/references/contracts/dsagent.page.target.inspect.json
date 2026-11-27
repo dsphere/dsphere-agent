@@ -429,7 +429,7 @@
                   "dom",
                   "bring-forward"
                 ],
-                "description": "Read-only evidence layer most likely to close the technical gap; bring-forward (with PAGE_NOT_RENDERED) means the browser is not rendering the page: dsagent.page.focus brings it forward, then observe again."
+                "description": "Read-only evidence layer most likely to close the technical gap; bring-forward (with PAGE_NOT_RENDERED) means the browser is not rendering the page: tell the person, then observe again once it draws."
               },
               "reason": {
                 "type": "string",

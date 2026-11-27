@@ -2,7 +2,7 @@
 
 **Set viewport size** · risk `reversible-write` · timeout 15000 ms · inline result ≤ 4096 bytes · concurrency `exclusive-browser`
 
-Set the viewport size of an agent-owned page using normal browser APIs. Window resizing affects all tabs sharing that window and restores a maximized window to normal; active wizards or workflow runs in that window are refused.
+Set the viewport size of an agent-owned page using normal browser APIs.
 
 ## Invocation
 

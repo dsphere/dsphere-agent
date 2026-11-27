@@ -4,7 +4,7 @@
   "title": "Act on browser page targets in sequence",
   "pageEvidence": true,
   "description": "Up to 12 planned steps on one page, in order: actions on a targetId or on the control its words name (target), and waits (waitFor), across a same-tab navigation; returns step receipts and final, the ended page's view.",
-  "guidance": "After a same-tab navigation only target, waitFor and page-target steps run. An OUTCOME_UNKNOWN action right before a waitFor is checked by it (outcomeUnknown). Stops: failed, navigated (go on with the returned pageContextId), target-missing, target-unresolved (pick a stopped.candidates targetId), wait-timed-out. Plan the next call from final. Use it for decided steps: fill and submit a form; type, submit, wait, open a result.\n\nUse only normal user-facing page interactions to complete browser tasks. Never inspect or probe network endpoints, replay requests, infer APIs, or reverse-engineer URL changes. Never construct, edit or vary a URL/query/fragment to perform search, sort, filtering, pagination, record navigation or collection. Open only the user-supplied URL or the named website entry page; thereafter use observed links and controls. Returned URLs are outcome evidence, not permission to navigate programmatically. No DevTools, address-bar tricks, scripts or external HTTP tools to bypass this rule. Network quiescence counts may be used only to wait for the UI. Website exploration capture/report capabilities are opt-in: invoke them only when the user explicitly requests website exploration or an exploration report. Never add exploration capture or export to an ordinary atomic execution loop. Exploration itself follows the same normal-interaction and wizard-only collection rules. Plan the same preparation, interaction and goal verification the page action owners of the Extension apply. Each call still executes exactly one requested action; a successful gesture is not proof of the business goal. Panel opening: hover first on the observed opener, even when its metadata lists only click. Compare the returned pageSurfaces (identity, appearance, broughtBy) with the pre-action baseline, even when the revision is unchanged. If a relevant menu, listbox, panel or dialog opened, use its observed options and do not click the opener. A tooltip alone does not establish opening. Click the same opener only after evidence confirms no relevant reveal. One dsagent.page.actions call may hover, waitFor {until: target-present, target: {name}} the option, then act on target {name}: the wait proves the panel opened. Never batch hover and click without that wait. If a click left the pointer on a closed opener, hover a neutral target once, then the opener again; stop if that fails. Search: enter the query, then use the observed submit control or Enter on the focused search field; verify the query and refreshed results, not just the input value. Read pending results before deciding on any alternative submission. Sort/filter: prefer native controls; open panels with the hover-first procedure, choose observed options matching the requested scope, direction or value, apply only when required, and verify selected state plus the settled result list. Move the pointer to an observed neutral target after selection if its hover panel obscures results; do not toggle the opener or reapply an uncertain effect. Reveal: open the observed disclosure, then verify the requested content or region is visible. Opening a comment panel is preparation; collect its records through dsagent.wizard.*. Nested replies belong to the wizard, not repeated ad hoc extraction. Forms: inspect the actual enabled field and its current state; use native input/select/check actions, skip states already satisfied, verify the resulting value and validation, then submit only with the person's authorization. Do not infer form success from filling fields. Navigation: choose a grounded link, verify the destination identity and destinationPageContextId, and keep account/session continuity. Never continue on an authentication or wrong-application page. Downloads are completed effects and must not be clicked again. Scroll/pagination: scroll the region that owns the requested records, consume new revisions, verify new records or the page indicator and loading completion. Use native pagination when present; stop after two batches without progress, and never treat a scroll receipt alone as end-of-data. Overlays: identify the overlay and its own close control, respect consent and sign-in requirements, then verify disappearance and the underlying target's actionability. Do not click through occlusion or choose an unrelated close icon. Sign-in: authentication.status \"sign-in-required\" on a page result means the sign-in monitor found a sign-in or verification wall; waitingOn says whose. \"agent\" (a CAPTCHA or bot check): pass it yourself with page gestures within the reported attempt budget. \"person\": only dismiss, scroll, Escape and a click on activeSurface.closeTargetId run; others get AUTHENTICATION_REQUIRED; ask the person to sign in or pass the check and wait; never sign in or type credentials. Act only once the result carries no authentication. Recovery for every action: use the latest targets, reobserve after a not-dispatched stale refusal, and repair only from new evidence within a bounded attempt budget. After OUTCOME_UNKNOWN verify read-only; never repeat the possibly completed effect. Keep explicit playback/resume commands distinct from automatic incidental-media preparation.",
+  "guidance": "After a same-tab navigation only target, waitFor and page-target steps run. An OUTCOME_UNKNOWN action right before a waitFor is checked by it (outcomeUnknown). Stops: failed, navigated (go on with the returned pageContextId), target-missing, target-unresolved (pick a stopped.candidates targetId), wait-timed-out. Plan the next call from final. Use it for a straight line of decided steps: fill and submit a form; type, submit, wait, open a result. Steps that need an if, a loop, a retry or a read that decides the next one are one dsagent.page.script.\n\nUse only normal user-facing page interactions to complete browser tasks. Never inspect or probe network endpoints, replay requests, infer APIs, or reverse-engineer URL changes. Never construct, edit or vary a URL/query/fragment to perform search, sort, filtering, pagination, record navigation or collection. Open only the user-supplied URL or the named website entry page; thereafter use observed links and controls. Returned URLs are outcome evidence, not permission to navigate programmatically. No DevTools, address-bar tricks, scripts or external HTTP tools to bypass this rule. Network quiescence counts may be used only to wait for the UI. Website exploration capture/report capabilities are opt-in: invoke them only when the user explicitly requests website exploration or an exploration report. Never add exploration capture or export to an ordinary atomic execution loop. Exploration itself follows the same normal-interaction and wizard-only collection rules. Plan the same preparation, interaction and goal verification the page action owners of the Extension apply. Each call still executes exactly one requested action; a successful gesture is not proof of the business goal. Panel opening: hover first on the observed opener, even when its metadata lists only click. Compare the returned pageSurfaces (identity, appearance, broughtBy) with the pre-action baseline, even when the revision is unchanged. If a relevant menu, listbox, panel or dialog opened, use its observed options and do not click the opener. A tooltip alone does not establish opening. Click the same opener only after evidence confirms no relevant reveal. One dsagent.page.actions call may hover, waitFor {until: target-present, target: {name}} the option, then act on target {name}: the wait proves the panel opened. Never batch hover and click without that wait. If a click left the pointer on a closed opener, hover a neutral target once, then the opener again; stop if that fails. Search: enter the query, then use the observed submit control or Enter on the focused search field; verify the query and refreshed results, not just the input value. Read pending results before deciding on any alternative submission. Sort/filter: prefer native controls; open panels with the hover-first procedure, choose observed options matching the requested scope, direction or value, apply only when required, and verify selected state plus the settled result list. Move the pointer to an observed neutral target after selection if its hover panel obscures results; do not toggle the opener or reapply an uncertain effect. Reveal: open the observed disclosure, then verify the requested content or region is visible. Opening a comment panel is preparation; collect its records through dsagent.wizard.*. Nested replies belong to the wizard, not repeated ad hoc extraction. Forms: inspect the actual enabled field and its current state; use native input/select/check actions, skip states already satisfied, verify the resulting value and validation, then submit only with the person's authorization. Do not infer form success from filling fields. Navigation: choose a grounded link, verify the destination identity and destinationPageContextId, and keep account/session continuity. Never continue on an authentication or wrong-application page. Downloads are completed effects and must not be clicked again. Scroll/pagination: scroll the region that owns the requested records, consume new revisions, verify new records or the page indicator and loading completion. Use native pagination when present; stop after two batches without progress, and never treat a scroll receipt alone as end-of-data. Overlays: identify the overlay and its own close control, respect consent and sign-in requirements, then verify disappearance and the underlying target's actionability. Do not click through occlusion or choose an unrelated close icon. Sign-in: authentication.status \"sign-in-required\" on a page result means the sign-in monitor found a sign-in or verification wall; waitingOn says whose. \"agent\" (a CAPTCHA or bot check): pass it yourself with page gestures within the reported attempt budget. \"person\": only dismiss, scroll, Escape and a click on activeSurface.closeTargetId run; others get AUTHENTICATION_REQUIRED; ask the person to sign in or pass the check and wait; never sign in or type credentials. Act only once the result carries no authentication. Recovery for every action: use the latest targets, reobserve after a not-dispatched stale refusal, and repair only from new evidence within a bounded attempt budget. After OUTCOME_UNKNOWN verify read-only; never repeat the possibly completed effect. Keep explicit playback/resume commands distinct from automatic incidental-media preparation.",
   "inputSchema": {
     "type": "object",
     "properties": {
@@ -493,7 +493,7 @@
             "selection": {
               "type": "string",
               "maxLength": 2000,
-              "description": "With select: The option to choose, exactly as selectBy names it: its value attribute (the default), its visible text, or its 0-based index."
+              "description": "With select: The one option to choose, as selectBy names it: its value attribute or, when no option has that value, its visible text (the default); its visible text only; or its 0-based index. For a multiple select send selections instead."
             },
             "selectBy": {
               "type": "string",
@@ -502,7 +502,7 @@
                 "text",
                 "index"
               ],
-              "description": "How selection names the option: value (its value attribute; the default), text (the visible text a person reads in the list) or index (its 0-based position)."
+              "description": "How selection or selections name an option: value (the default: its value attribute, else the visible text a person reads in the list), text (only the visible text) or index (its 0-based position)."
             },
             "selections": {
               "type": "array",
@@ -511,7 +511,7 @@
                 "type": "string",
                 "maxLength": 2000
               },
-              "description": "Optional complete selection for a multiple-select control."
+              "description": "For a multiple select, instead of selection: every option it should end up with, each named as selectBy says; every other option is cleared."
             },
             "checked": {
               "type": "boolean",
@@ -1119,6 +1119,21 @@
               "additionalProperties": false,
               "description": "On a downward scroll (bottom, next-viewport): where it left the scroller it moved, the page or the element. Go on while end is more-below or at-bottom and stop a scroll-to-the-end loop on end-reached; effect none with evidence scrollAlreadyAtEnd says the scroller did not move."
             },
+            "formNotSent": {
+              "type": "object",
+              "properties": {
+                "invalidFields": {
+                  "type": "array",
+                  "maxItems": 3,
+                  "items": {
+                    "type": "string",
+                    "maxLength": 80
+                  },
+                  "description": "Labels of the fields the browser form validation stopped the submit on; \"(not shown)\" marks one on a hidden step or section."
+                }
+              },
+              "description": "Present when the click asked a form to submit and the browser form validation stopped it: the form was not sent. Fix the named fields (show their step first), then submit again."
+            },
             "pageUnchanged": {
               "type": "boolean",
               "enum": [
@@ -1378,14 +1393,22 @@
               "target-unresolved",
               "wait-timed-out",
               "canceled",
-              "consumed-by-dismissal"
+              "consumed-by-dismissal",
+              "form-invalid",
+              "person-active"
             ],
-            "description": "Why the sequence ended before its last step. consumed-by-dismissal: the page took that click to close a surface open outside its target (its receipt carries consumedByDismissal); click the target again, then plan the rest. target-unresolved: the target words named no control (not-found) or more than one (ambiguous); pick one of candidates by targetId at revision. wait-timed-out: the waitFor at index was not met (its receipt is the last; target waits list candidates)."
+            "description": "Why the sequence ended before its last step. person-active: the person is using their page, that step did not run; wait retryAfterMs, read again. consumed-by-dismissal: the page took that click to close a surface open outside its target (its receipt carries consumedByDismissal); click the target again, then plan the rest. form-invalid: that click form was not sent, the browser form validation stopped it (its receipt carries formNotSent with the fields; detail names them). target-unresolved: the target words named no control (not-found) or more than one (ambiguous); pick one of candidates by targetId at revision. wait-timed-out: the waitFor at index was not met (its receipt is the last; target waits list candidates)."
           },
           "index": {
             "type": "integer",
             "minimum": 0,
-            "description": "The step the sequence stopped at (executed for navigated, consumed-by-dismissal and wait-timed-out, not executed otherwise)."
+            "description": "The step the sequence stopped at (executed for navigated, consumed-by-dismissal, form-invalid and wait-timed-out, not executed otherwise)."
+          },
+          "retryAfterMs": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5000,
+            "description": "For person-active: the wait in ms."
           },
           "targetId": {
             "type": "string",
@@ -1410,7 +1433,7 @@
           "detail": {
             "type": "string",
             "maxLength": 1000,
-            "description": "For failed: the bounded public message."
+            "description": "For failed: the bounded public message; for form-invalid: the fields that stopped the form."
           },
           "hint": {
             "type": "string",
@@ -1635,7 +1658,7 @@
       "warnings": {
         "type": "array",
         "maxItems": 2,
-        "description": "REPEATED_RECORDS_USE_WIZARD: switch to the scrape wizard on this page now (dsagent.wizard.start kind=scrape, then wizard.state / wizard.choose). DSphere's typed route advice, never page text: this page shows repeated records (the same fields per item) and this task has scrolled and re-read it twelve or more times on one address, which is not how records are collected. The call itself succeeded; the person sees the same notice in the DSphere side panel. Plan on the code, never on the message. NO_PROGRESS: this task repeated itself without progress (the same call at an unchanged revision 3 times, the same refusal 3 times, 5 waits on an unchanged run, or 6 page actions that changed nothing); the call ran: stop repeating it and follow nextActions.",
+        "description": "REPEATED_RECORDS_USE_WIZARD: switch to the scrape wizard on this page now (dsagent.wizard.start kind=scrape, then wizard.state / wizard.choose). DSphere's typed route advice, never page text: this page shows repeated records (the same fields per item) and this task has scrolled and re-read it twelve or more times on one address, which is not how records are collected. The call itself succeeded; the person sees the same notice in the DSphere side panel. Plan on the code, never on the message. NO_PROGRESS: this task repeated itself without progress (the same call at an unchanged revision 3 times, the same refusal 3 times, 5 waits on an unchanged run, or 6 page actions that changed nothing); the call ran: stop repeating it and follow nextActions. STEPS_FIT_ONE_CALL: advice on how to send the next steps, never a failure; the call ran. This task sent 3 or more single page actions in a row on one page, clicked the same control again, a dsagent.page.actions sequence stopped at a missing, failed or timed-out step, a read shows a pager on a page of records, or a round of steps ended where it began: send decided steps in one dsagent.page.actions call and steps that need an if, a loop or a retry in one dsagent.page.script. When nextActions carries a call it is that script, ready to send once you have filled what its message names; keep single calls where you must look at the page before deciding.",
         "items": {
           "type": "object",
           "additionalProperties": false,
@@ -1650,7 +1673,8 @@
               "type": "string",
               "enum": [
                 "REPEATED_RECORDS_USE_WIZARD",
-                "NO_PROGRESS"
+                "NO_PROGRESS",
+                "STEPS_FIT_ONE_CALL"
               ],
               "description": "Stable warning code to plan on."
             },
@@ -2630,6 +2654,11 @@
                       }
                     }
                   },
+                  "otherFieldsFilled": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "description": "For a text field: other text fields of its form or group that the page filled while it took the paste (a code spread over one-character boxes)."
+                  },
                   "htmlSanitized": {
                     "type": "boolean",
                     "description": "Set when markup or attributes that could run script or load another document were removed from html before the paste."
@@ -3578,6 +3607,21 @@
             "additionalProperties": false,
             "description": "On a downward scroll (bottom, next-viewport): where it left the scroller it moved, the page or the element. Go on while end is more-below or at-bottom and stop a scroll-to-the-end loop on end-reached; effect none with evidence scrollAlreadyAtEnd says the scroller did not move."
           },
+          "formNotSent": {
+            "type": "object",
+            "properties": {
+              "invalidFields": {
+                "type": "array",
+                "maxItems": 3,
+                "items": {
+                  "type": "string",
+                  "maxLength": 80
+                },
+                "description": "Labels of the fields the browser form validation stopped the submit on; \"(not shown)\" marks one on a hidden step or section."
+              }
+            },
+            "description": "Present when the click asked a form to submit and the browser form validation stopped it: the form was not sent. Fix the named fields (show their step first), then submit again."
+          },
           "pageUnchanged": {
             "type": "boolean",
             "enum": [
@@ -3689,7 +3733,7 @@
             "enum": [
               "unavailable"
             ],
-            "description": "Present when the page is in a tab the person does not see and the browser could not be kept painting it during the action: a dialog that fades in or content that loads on scroll may not have appeared. dsagent.page.focus shows the tab (it takes the person’s screen); do not repeat the action."
+            "description": "Present when the page is in a tab the person does not see and the browser could not be kept painting it during the action: a dialog that fades in or content that loads on scroll may not have appeared. Observe again before relying on it; do not repeat the action or call dsagent.page.focus."
           },
           "sourcePageContextId": {
             "type": "string",
@@ -4080,7 +4124,7 @@
                     "state": {
                       "type": "string",
                       "maxLength": 160,
-                      "description": "Optional bounded state tokens, comma separated, such as checked, selected, expanded=true, pressed or unpressed, mixed, current, disabled, required, invalid, readonly, busy, haspopup=menu, valuenow=<n>, sort=<direction>, submits-form, filled or empty; value=\"<text>\" when the page served it (a filter) or this caller typed it."
+                      "description": "Optional bounded state tokens, comma separated, such as checked, selected, expanded=true, pressed or unpressed, mixed, current, disabled, required, invalid, readonly, busy, haspopup=menu, valuenow=<n>, sort=<direction>, submits-form, filled or empty, draggable (the page declares it a drag item: drag takes it); value=\"<text>\" when the page served it (a filter) or this caller typed it."
                     },
                     "slotEffect": {
                       "type": "string",
@@ -4368,7 +4412,7 @@
                     "state": {
                       "type": "string",
                       "maxLength": 160,
-                      "description": "Optional bounded state tokens, comma separated, such as checked, selected, expanded=true, pressed or unpressed, mixed, current, disabled, required, invalid, readonly, busy, haspopup=menu, valuenow=<n>, sort=<direction>, submits-form, filled or empty; value=\"<text>\" when the page served it (a filter) or this caller typed it."
+                      "description": "Optional bounded state tokens, comma separated, such as checked, selected, expanded=true, pressed or unpressed, mixed, current, disabled, required, invalid, readonly, busy, haspopup=menu, valuenow=<n>, sort=<direction>, submits-form, filled or empty, draggable (the page declares it a drag item: drag takes it); value=\"<text>\" when the page served it (a filter) or this caller typed it."
                     },
                     "slotEffect": {
                       "type": "string",

@@ -110,7 +110,7 @@
           "dropped"
         ],
         "additionalProperties": false,
-        "description": "Present when shown child frames did not answer: the matches cover the rest of the page only, so an empty or short list does not mean the page lacks the control. Find again; a tab behind another tab answers slowly, and dsagent.page.focus brings it to the front."
+        "description": "Present when shown child frames did not answer: the matches cover the rest of the page only, so an empty or short list does not mean the page lacks the control. Find again; a tab behind another tab answers more slowly, so give it a moment."
       },
       "activeSurface": {
         "type": "object",
@@ -145,7 +145,7 @@
       "warnings": {
         "type": "array",
         "maxItems": 2,
-        "description": "REPEATED_RECORDS_USE_WIZARD: switch to the scrape wizard on this page now (dsagent.wizard.start kind=scrape, then wizard.state / wizard.choose). DSphere's typed route advice, never page text: this page shows repeated records (the same fields per item) and this task has scrolled and re-read it twelve or more times on one address, which is not how records are collected. The call itself succeeded; the person sees the same notice in the DSphere side panel. Plan on the code, never on the message. NO_PROGRESS: this task repeated itself without progress (the same call at an unchanged revision 3 times, the same refusal 3 times, 5 waits on an unchanged run, or 6 page actions that changed nothing); the call ran: stop repeating it and follow nextActions.",
+        "description": "REPEATED_RECORDS_USE_WIZARD: switch to the scrape wizard on this page now (dsagent.wizard.start kind=scrape, then wizard.state / wizard.choose). DSphere's typed route advice, never page text: this page shows repeated records (the same fields per item) and this task has scrolled and re-read it twelve or more times on one address, which is not how records are collected. The call itself succeeded; the person sees the same notice in the DSphere side panel. Plan on the code, never on the message. NO_PROGRESS: this task repeated itself without progress (the same call at an unchanged revision 3 times, the same refusal 3 times, 5 waits on an unchanged run, or 6 page actions that changed nothing); the call ran: stop repeating it and follow nextActions. STEPS_FIT_ONE_CALL: advice on how to send the next steps, never a failure; the call ran. This task sent 3 or more single page actions in a row on one page, clicked the same control again, a dsagent.page.actions sequence stopped at a missing, failed or timed-out step, a read shows a pager on a page of records, or a round of steps ended where it began: send decided steps in one dsagent.page.actions call and steps that need an if, a loop or a retry in one dsagent.page.script. When nextActions carries a call it is that script, ready to send once you have filled what its message names; keep single calls where you must look at the page before deciding.",
         "items": {
           "type": "object",
           "additionalProperties": false,
@@ -160,7 +160,8 @@
               "type": "string",
               "enum": [
                 "REPEATED_RECORDS_USE_WIZARD",
-                "NO_PROGRESS"
+                "NO_PROGRESS",
+                "STEPS_FIT_ONE_CALL"
               ],
               "description": "Stable warning code to plan on."
             },
@@ -377,7 +378,7 @@
                 "state": {
                   "type": "string",
                   "maxLength": 160,
-                  "description": "Optional bounded state tokens, comma separated, such as checked, selected, expanded=true, pressed or unpressed, mixed, current, disabled, required, invalid, readonly, busy, haspopup=menu, valuenow=<n>, sort=<direction>, submits-form, filled or empty; value=\"<text>\" when the page served it (a filter) or this caller typed it."
+                  "description": "Optional bounded state tokens, comma separated, such as checked, selected, expanded=true, pressed or unpressed, mixed, current, disabled, required, invalid, readonly, busy, haspopup=menu, valuenow=<n>, sort=<direction>, submits-form, filled or empty, draggable (the page declares it a drag item: drag takes it); value=\"<text>\" when the page served it (a filter) or this caller typed it."
                 },
                 "slotEffect": {
                   "type": "string",

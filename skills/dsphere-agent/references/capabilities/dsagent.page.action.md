@@ -112,7 +112,7 @@ Verified action receipt: a delta of the page the action left in place, or the co
 | `contentVerified` | boolean |  | Optional receipt fl… |
 | `effect` | object {kind, confidence, evidence, surfaceId, closeTargetId, message} |  | What the page did a… |
 | `hover` | object {entered, pointerAlreadyInside, cssHoverRulesApplied} |  | What the pointer di… |
-| … | 32 more fields in the contract | | |
+| … | 33 more fields in the contract | | |
 
 ## Result constraints
 

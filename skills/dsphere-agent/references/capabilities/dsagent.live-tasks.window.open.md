@@ -26,7 +26,7 @@ What the open did.
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
-| `window` | enum: opened, focused |  | opened: a new Live Task window was created; focused: the one already open was brought to the front. |
+| `window` | enum: opened, already-open |  | opened: a new Live Task window was created behind the window the person is using; already-open: one was open and was le… |
 
 ## Guidance
 

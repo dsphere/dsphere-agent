@@ -3,21 +3,27 @@
   "version": 1,
   "title": "Finish my browser task",
   "description": "Ends your task with its verified outcome, and with keep closes its pages in the same call: pass keep [] to close every page the task opened, or name the pages to leave open for the person.",
-  "guidance": "Pages the person opened, other tasks' pages and pages a wizard, run, question or a wall the person must pass holds are never closed (heldPages lists them). A wall never blocks the finish: a verification challenge you hold closes with its page, or goes to the person on a page you keep. Without keep, a 60-second countdown the person can stop closes the task's pages. For an ordinary task, dsagent.page.close on its last page also ends it as succeeded; a continue task (taskMode continue or step reports) ends only by this call. Name one page of the task. Open work must be resolved first: another call of the task, its wizard or run, an assist, or a question waiting for the person; the refusal (TARGET_BUSY, TASK_WORK_OPEN) names it and the way out. Without a finish, ten idle minutes end an unattended task as interrupted, never as successful. compileRun true also returns the task's verified steps as replay scripts for dsagent.page.script: keep them beside the person's skill and run them next time.",
+  "guidance": "Pages the person opened, other tasks' pages and pages a wizard, run, question or a wall the person must pass holds are never closed (heldPages lists them). A wall never blocks the finish: a verification challenge you hold closes with its page, or goes to the person on a page you keep. Without keep, a 60-second countdown the person can stop closes the task's pages. For an ordinary task, dsagent.page.close on its last page also ends it as succeeded; a continue task (taskMode continue or step reports) ends only by this call. Name one page of the task; only a task that holds no page (its first open was refused before a page existed) is finished without pageContextId: that call ends your latest task, the one dsagent.agent.work.state reads. Open work must be resolved first: another call of the task, its wizard or run, an assist, or a question waiting for the person; the refusal (TARGET_BUSY, TASK_WORK_OPEN) names it and the way out. Without a finish, ten idle minutes end an unattended task as interrupted, never as successful. compileRun true also returns the task's verified steps as replay scripts for dsagent.page.script: keep them beside the person's skill and run them next time.",
   "inputSchema": {
     "description": "The page identifying your task, its verified terminal outcome, and the pages to keep.",
     "type": "object",
     "additionalProperties": false,
     "required": [
-      "pageContextId",
       "status"
+    ],
+    "examples": [
+      {
+        "pageContextId": "<pageContextId>",
+        "status": "succeeded",
+        "keep": []
+      }
     ],
     "properties": {
       "pageContextId": {
         "type": "string",
         "minLength": 1,
         "maxLength": 128,
-        "description": "A page reference belonging to the task you are finishing."
+        "description": "A page of the task you are finishing. Required whenever the task holds a page; leave it out only when your latest task, the one dsagent.agent.work.state reads, holds none (pages []): the call ends that task."
       },
       "status": {
         "type": "string",

@@ -102,7 +102,7 @@ A page result with `authentication` (`status: sign-in-required`) or an effect re
 
 ## Safety boundaries
 
-- Never pass Backend URLs, tokens, headers, cookies, credentials, DOM selectors, JavaScript, arbitrary SQL, physical file paths, account tags, or `sessionGroupId` through MCP.
+- Never pass Backend URLs, tokens, headers, cookies, credentials, DOM selectors, JavaScript that runs in a page, arbitrary SQL, physical file paths, account tags, or `sessionGroupId` through MCP.
 - Do not log the user's request, workflow arguments, account IDs, artifact contents, or business data.
 - External effects still require explicit user intent. Confirmations, credentials, sign-ins and consents stay with the user.
 - The user watches every call in the DSphere SidePanel Chat (the page host, the action and the control's label; never typed values) and can stop your session there. Calls in flight then end `CANCELED` and every later call fails `APPROVAL_DENIED` with `businessCode=STOPPED-BY-PERSON`: stop, tell the user, and do not open a new control session to continue without their go-ahead.

@@ -120,7 +120,7 @@ Result preview: `pageContextId`, `until`, `outcome`, `waitedMs`; complete result
 Finish my browser task. Gateway: `dsagent_invoke`; risk: `reversible-write`; concurrency: `exclusive-target`.
 
 ```json
-{"method":"dsagent.agent.work.finish","args":{"pageContextId":"<pageContextId>","status":"succeeded"},"idempotencyKey":"<fresh-key>"}
+{"method":"dsagent.agent.work.finish","args":{"pageContextId":"<pageContextId>","status":"succeeded","keep":[]},"idempotencyKey":"<fresh-key>"}
 ```
 
 Result preview: `status`, `closedPages`, `keptPages`, `run`; complete result in the linked contract.

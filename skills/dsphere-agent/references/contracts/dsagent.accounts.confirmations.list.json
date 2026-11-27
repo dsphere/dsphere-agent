@@ -1,0 +1,188 @@
+{
+  "method": "dsagent.accounts.confirmations.list",
+  "version": 1,
+  "title": "List Account Confirmations",
+  "description": "List the Confirm/Decline sheets this caller's own account writes opened in the DSphere SidePanel that wait for an answer now. Empty, with agentAnswersAllowed false, while the person keeps answers to themselves. Never another caller's sheet or a secret-input sheet.",
+  "inputSchema": {
+    "type": "object",
+    "description": "List the Confirm/Decline sheets this caller's own account writes opened in the DSphere SidePanel that wait for an answer now. Empty, with agentAnswersAllowed false, while the person keeps answers to themselves. Never another caller's sheet or a secret-input sheet.",
+    "properties": {},
+    "required": [],
+    "additionalProperties": false
+  },
+  "outputSchema": {
+    "type": "object",
+    "description": "Account operation result. status/stage are for internal reconciliation, not user-facing open-success/failure badges. Report the separate autofill receipt; a page being open never proves fill or sign-in.",
+    "properties": {
+      "autofill": {
+        "type": "object",
+        "description": "Separate sign-in receipt: the DSphere account manager signs in on the opened page. Query accounts.operations.get with operationId while running; unknown must not be replayed. succeeded: the sign-in form was sent and the page no longer asks to sign in. skipped with already-signed-in, no-sign-in-form or site-unreachable (the tab shows the browser's error page): nothing was typed.",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Observed autofill state.",
+            "maxLength": 40,
+            "enum": [
+              "running",
+              "succeeded",
+              "failed",
+              "skipped",
+              "unknown"
+            ]
+          },
+          "updatedAt": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Receipt observation time in milliseconds."
+          },
+          "reason": {
+            "type": "string",
+            "description": "Safe reason code; never credentials or page field values.",
+            "maxLength": 120
+          }
+        },
+        "required": [
+          "status",
+          "updatedAt"
+        ],
+        "additionalProperties": false
+      },
+      "operationId": {
+        "type": "string",
+        "description": "Local operation reference; not a Pangu request receipt.",
+        "maxLength": 100
+      },
+      "status": {
+        "type": "string",
+        "description": "Observed operation status.",
+        "maxLength": 40,
+        "enum": [
+          "not-dispatched",
+          "waiting-user",
+          "running",
+          "succeeded",
+          "partial",
+          "failed",
+          "cancelled",
+          "outcome-unknown",
+          "record-unavailable",
+          "available"
+        ]
+      },
+      "stage": {
+        "type": "string",
+        "description": "Completed or current account business stage.",
+        "maxLength": 100
+      },
+      "accountId": {
+        "type": "string",
+        "description": "Account reference when known.",
+        "maxLength": 100
+      },
+      "pageContextId": {
+        "type": "string",
+        "description": "Actual opened/focused page reference when known.",
+        "maxLength": 100
+      },
+      "warnings": {
+        "type": "array",
+        "description": "Bounded warnings, including synchronization and unknown outcomes.",
+        "items": {
+          "type": "string",
+          "description": "One safe product warning.",
+          "maxLength": 500
+        },
+        "maxItems": 20
+      },
+      "data": {
+        "type": "object",
+        "description": "Only the selected account operation's public product fields.",
+        "properties": {
+          "agentAnswersAllowed": {
+            "type": "boolean",
+            "description": "Whether the person lets the agent that asked for an account change answer that change's Confirm/Decline sheet (Settings, person-only; default on)."
+          },
+          "confirmations": {
+            "type": "array",
+            "description": "This caller's own Confirm/Decline sheets that wait for an answer now.",
+            "items": {
+              "type": "object",
+              "description": "One waiting sheet; never a secret.",
+              "properties": {
+                "interactionId": {
+                  "type": "string",
+                  "description": "Pass to accounts.confirmations.answer.",
+                  "maxLength": 100
+                },
+                "operationId": {
+                  "type": "string",
+                  "description": "The account write that opened the sheet; absent for an account open's sign-in-site question.",
+                  "maxLength": 100
+                },
+                "operation": {
+                  "type": "string",
+                  "description": "What the sheet asks, in product wording.",
+                  "maxLength": 200
+                },
+                "accountName": {
+                  "type": "string",
+                  "description": "The account, device or application the sheet names.",
+                  "maxLength": 200
+                },
+                "signInSite": {
+                  "type": "object",
+                  "description": "An account open's question whether the application may sign in on a site it does not list.",
+                  "properties": {
+                    "application": {
+                      "type": "string",
+                      "description": "Application name.",
+                      "maxLength": 200
+                    },
+                    "site": {
+                      "type": "string",
+                      "description": "Site host.",
+                      "maxLength": 253
+                    }
+                  },
+                  "required": [
+                    "application",
+                    "site"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "required": [
+                "interactionId",
+                "operation",
+                "accountName"
+              ],
+              "additionalProperties": false
+            },
+            "maxItems": 8
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    "required": [
+      "status",
+      "stage",
+      "warnings"
+    ],
+    "additionalProperties": false
+  },
+  "guidance": "An account write that waits on a Confirm/Decline sheet answers waiting-user with an agent-may-answer warning when the person lets the asking agent answer it (a person-only setting, default on). Then read accounts.confirmations.list and answer the sheet whose operationId is that write's.\n\nConfirm only a change the person asked for in their own words, and decline one they did not ask for. When unsure, ask the person instead of answering, and poll accounts.operations.get. The person may answer the sheet first; the first answer stands.\n\nAfter the answer, read the write's result with accounts.operations.get under the same operationId; never resubmit the write. An account open's sign-in-site question has no operationId: its answer shows in the open's autofill receipt.\n\nSheets that take a password, a cookie or proxy credentials, and the account configuration form, stay the person's; they are never listed. AGENT_ANSWER_OFF: the person keeps answers to themselves; tell them the sheet waits in the DSphere SidePanel.",
+  "risk": "read-sensitive",
+  "targetKinds": [
+    "managed-account"
+  ],
+  "requiredPermissions": [
+    "accounts.read"
+  ],
+  "timeoutMs": 30000,
+  "maxInlineResultBytes": 65536,
+  "concurrency": "shared-read",
+  "retry": "pre-dispatch-read-only",
+  "exposure": "exposed"
+}

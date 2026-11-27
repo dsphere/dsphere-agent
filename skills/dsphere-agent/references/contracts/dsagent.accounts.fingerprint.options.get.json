@@ -1,0 +1,370 @@
+{
+  "method": "dsagent.accounts.fingerprint.options.get",
+  "version": 1,
+  "title": "Get Fingerprint Options",
+  "description": "Read the values each fingerprint setting accepts: systems and versions, browser version pools, languages, time zones, screen sizes, memory, logical CPUs and WebGL manufacturers with their renderers.",
+  "inputSchema": {
+    "type": "object",
+    "description": "Read the values each fingerprint setting accepts: systems and versions, browser version pools, languages, time zones, screen sizes, memory, logical CPUs and WebGL manufacturers with their renderers.",
+    "properties": {},
+    "required": [],
+    "additionalProperties": false
+  },
+  "outputSchema": {
+    "type": "object",
+    "description": "Account operation result. status/stage are for internal reconciliation, not user-facing open-success/failure badges. Report the separate autofill receipt; a page being open never proves fill or sign-in.",
+    "properties": {
+      "autofill": {
+        "type": "object",
+        "description": "Separate sign-in receipt: the DSphere account manager signs in on the opened page. Query accounts.operations.get with operationId while running; unknown must not be replayed. succeeded: the sign-in form was sent and the page no longer asks to sign in. skipped with already-signed-in, no-sign-in-form or site-unreachable (the tab shows the browser's error page): nothing was typed.",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Observed autofill state.",
+            "maxLength": 40,
+            "enum": [
+              "running",
+              "succeeded",
+              "failed",
+              "skipped",
+              "unknown"
+            ]
+          },
+          "updatedAt": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Receipt observation time in milliseconds."
+          },
+          "reason": {
+            "type": "string",
+            "description": "Safe reason code; never credentials or page field values.",
+            "maxLength": 120
+          }
+        },
+        "required": [
+          "status",
+          "updatedAt"
+        ],
+        "additionalProperties": false
+      },
+      "operationId": {
+        "type": "string",
+        "description": "Local operation reference; not a Pangu request receipt.",
+        "maxLength": 100
+      },
+      "status": {
+        "type": "string",
+        "description": "Observed operation status.",
+        "maxLength": 40,
+        "enum": [
+          "not-dispatched",
+          "waiting-user",
+          "running",
+          "succeeded",
+          "partial",
+          "failed",
+          "cancelled",
+          "outcome-unknown",
+          "record-unavailable",
+          "available"
+        ]
+      },
+      "stage": {
+        "type": "string",
+        "description": "Completed or current account business stage.",
+        "maxLength": 100
+      },
+      "accountId": {
+        "type": "string",
+        "description": "Account reference when known.",
+        "maxLength": 100
+      },
+      "pageContextId": {
+        "type": "string",
+        "description": "Actual opened/focused page reference when known.",
+        "maxLength": 100
+      },
+      "warnings": {
+        "type": "array",
+        "description": "Bounded warnings, including synchronization and unknown outcomes.",
+        "items": {
+          "type": "string",
+          "description": "One safe product warning.",
+          "maxLength": 500
+        },
+        "maxItems": 20
+      },
+      "data": {
+        "type": "object",
+        "description": "Only the selected account operation's public product fields.",
+        "properties": {
+          "fingerprintChoices": {
+            "type": "object",
+            "description": "The values each fingerprint setting accepts in accounts.fingerprint.update.",
+            "properties": {
+              "os": {
+                "type": "array",
+                "description": "Operating systems.",
+                "items": {
+                  "type": "string",
+                  "description": "One accepted value.",
+                  "maxLength": 300
+                },
+                "maxItems": 10
+              },
+              "osVersions": {
+                "type": "object",
+                "description": "Versions of each operating system.",
+                "properties": {
+                  "Windows": {
+                    "type": "array",
+                    "description": "Windows versions.",
+                    "items": {
+                      "type": "string",
+                      "description": "One accepted value.",
+                      "maxLength": 300
+                    },
+                    "maxItems": 50
+                  },
+                  "macOS": {
+                    "type": "array",
+                    "description": "macOS versions.",
+                    "items": {
+                      "type": "string",
+                      "description": "One accepted value.",
+                      "maxLength": 300
+                    },
+                    "maxItems": 50
+                  },
+                  "Linux": {
+                    "type": "array",
+                    "description": "Linux versions.",
+                    "items": {
+                      "type": "string",
+                      "description": "One accepted value.",
+                      "maxLength": 300
+                    },
+                    "maxItems": 50
+                  },
+                  "Android": {
+                    "type": "array",
+                    "description": "Android versions.",
+                    "items": {
+                      "type": "string",
+                      "description": "One accepted value.",
+                      "maxLength": 300
+                    },
+                    "maxItems": 50
+                  },
+                  "iOS": {
+                    "type": "array",
+                    "description": "iOS versions.",
+                    "items": {
+                      "type": "string",
+                      "description": "One accepted value.",
+                      "maxLength": 300
+                    },
+                    "maxItems": 50
+                  }
+                },
+                "required": [],
+                "additionalProperties": false
+              },
+              "userAgentVersion132": {
+                "type": "array",
+                "description": "Browser version pools of the 132 kernel.",
+                "items": {
+                  "type": "string",
+                  "description": "One accepted value.",
+                  "maxLength": 300
+                },
+                "maxItems": 20
+              },
+              "userAgentVersion120": {
+                "type": "array",
+                "description": "Browser version pools of the 120 kernel.",
+                "items": {
+                  "type": "string",
+                  "description": "One accepted value.",
+                  "maxLength": 300
+                },
+                "maxItems": 20
+              },
+              "languages": {
+                "type": "array",
+                "description": "Browser language codes for language.",
+                "items": {
+                  "type": "string",
+                  "description": "One accepted value.",
+                  "maxLength": 300
+                },
+                "maxItems": 1000
+              },
+              "timeZones": {
+                "type": "array",
+                "description": "Values for time_zone: ip, local, or a time zone.",
+                "items": {
+                  "type": "string",
+                  "description": "One accepted value.",
+                  "maxLength": 300
+                },
+                "maxItems": 1000
+              },
+              "screens": {
+                "type": "object",
+                "description": "Values for screen_resolution_input by system family.",
+                "properties": {
+                  "desktop": {
+                    "type": "array",
+                    "description": "Windows, macOS and Linux.",
+                    "items": {
+                      "type": "string",
+                      "description": "One accepted value.",
+                      "maxLength": 300
+                    },
+                    "maxItems": 100
+                  },
+                  "android": {
+                    "type": "array",
+                    "description": "Android.",
+                    "items": {
+                      "type": "string",
+                      "description": "One accepted value.",
+                      "maxLength": 300
+                    },
+                    "maxItems": 100
+                  },
+                  "ios": {
+                    "type": "array",
+                    "description": "iOS.",
+                    "items": {
+                      "type": "string",
+                      "description": "One accepted value.",
+                      "maxLength": 300
+                    },
+                    "maxItems": 100
+                  }
+                },
+                "required": [],
+                "additionalProperties": false
+              },
+              "memory": {
+                "type": "array",
+                "description": "Device memory values; empty follows the computer.",
+                "items": {
+                  "type": "string",
+                  "description": "One accepted value.",
+                  "maxLength": 300
+                },
+                "maxItems": 50
+              },
+              "hardwareConcurrency": {
+                "type": "array",
+                "description": "Logical CPU counts; empty follows the computer.",
+                "items": {
+                  "type": "string",
+                  "description": "One accepted value.",
+                  "maxLength": 300
+                },
+                "maxItems": 50
+              },
+              "webGL": {
+                "type": "array",
+                "description": "WebGL manufacturers with their renderers.",
+                "items": {
+                  "type": "object",
+                  "description": "One manufacturer.",
+                  "properties": {
+                    "manufacturer": {
+                      "type": "string",
+                      "description": "Value for webManufacturer.",
+                      "maxLength": 100
+                    },
+                    "renderers": {
+                      "type": "array",
+                      "description": "Values for webGLRendering.",
+                      "items": {
+                        "type": "string",
+                        "description": "One accepted value.",
+                        "maxLength": 300
+                      },
+                      "maxItems": 100
+                    }
+                  },
+                  "required": [
+                    "manufacturer",
+                    "renderers"
+                  ],
+                  "additionalProperties": false
+                },
+                "maxItems": 50
+              },
+              "fixedSettings": {
+                "type": "object",
+                "description": "Settings with a single value in Work, shown for completeness; they cannot be changed.",
+                "properties": {
+                  "chrome": {
+                    "type": "string",
+                    "description": "Browser kernel family.",
+                    "maxLength": 40
+                  },
+                  "page_language": {
+                    "type": "string",
+                    "description": "Interface language.",
+                    "maxLength": 100
+                  },
+                  "device_name": {
+                    "type": "string",
+                    "description": "Device name.",
+                    "maxLength": 100
+                  },
+                  "mac_address": {
+                    "type": "string",
+                    "description": "MAC address.",
+                    "maxLength": 100
+                  }
+                },
+                "required": [],
+                "additionalProperties": false
+              }
+            },
+            "required": [
+              "os",
+              "osVersions",
+              "userAgentVersion132",
+              "userAgentVersion120",
+              "languages",
+              "timeZones",
+              "screens",
+              "memory",
+              "hardwareConcurrency",
+              "webGL",
+              "fixedSettings"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    "required": [
+      "status",
+      "stage",
+      "warnings"
+    ],
+    "additionalProperties": false
+  },
+  "risk": "read-sensitive",
+  "targetKinds": [
+    "managed-account"
+  ],
+  "requiredPermissions": [
+    "accounts.read"
+  ],
+  "timeoutMs": 30000,
+  "maxInlineResultBytes": 65536,
+  "concurrency": "shared-read",
+  "retry": "pre-dispatch-read-only",
+  "exposure": "exposed"
+}

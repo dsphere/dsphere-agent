@@ -3,7 +3,7 @@
   "version": 1,
   "title": "Open the Live Task window",
   "description": "Open DSphere's Live Task window for the person: its own browser window with live video of every tab group whose task still runs (your tasks, other agents', the DSphere Chat bot's and workflow runs), the same window as the SidePanel's Live Task Window button.",
-  "guidance": "Use it when the person asks to watch the running tasks. When the window is already open it is brought to the front instead of opening a second one (window focused). It changes no task or page and gives you no video: read tasks with dsagent.monitor.snapshot. Refused POLICY_DENIED NOT_PERMITTED when the person's account may not see the Live Task page (the History permission), BROWSER_UNAVAILABLE when the permissions could not be read or the browser did not open the window.",
+  "guidance": "Use it when the person asks to watch the running tasks. The window opens behind the window the person is using and an open one is never brought to the front: the person switches to it (window already-open when it was open). It changes no task or page and gives you no video: read tasks with dsagent.monitor.snapshot. Refused POLICY_DENIED NOT_PERMITTED when the person's account may not see the Live Task page (the History permission), BROWSER_UNAVAILABLE when the permissions could not be read or the browser did not open the window.",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -23,9 +23,9 @@
         "type": "string",
         "enum": [
           "opened",
-          "focused"
+          "already-open"
         ],
-        "description": "opened: a new Live Task window was created; focused: the one already open was brought to the front."
+        "description": "opened: a new Live Task window was created behind the window the person is using; already-open: one was open and was left where it is."
       }
     }
   },

@@ -2,10 +2,10 @@
   "method": "dsagent.accounts.fingerprint.update",
   "version": 1,
   "title": "Update Account Fingerprint",
-  "description": "Merge the permitted fingerprint changes with the existing saved configuration.",
+  "description": "Change any fingerprint setting on its own and keep every other one. Changing os, os_version or a browser version regenerates the user agents the way Work does. Never pass a cookie value: set replaceCookie and the person enters it in a trusted sheet.",
   "inputSchema": {
     "type": "object",
-    "description": "Merge the permitted fingerprint changes with the existing saved configuration.",
+    "description": "Change any fingerprint setting on its own and keep every other one. Changing os, os_version or a browser version regenerates the user agents the way Work does. Never pass a cookie value: set replaceCookie and the person enters it in a trusted sheet.",
     "properties": {
       "accountId": {
         "type": "string",
@@ -15,22 +15,27 @@
       },
       "patch": {
         "type": "object",
-        "description": "Supported fingerprint fields; omitted fields retain their current value. Cookies and device credentials are never accepted.",
+        "description": "Fingerprint settings to change; omitted fields retain their current value. Cookie values and device credentials are never accepted.",
         "properties": {
           "language": {
             "type": "string",
-            "description": "Browser languages, using the current Work format.",
+            "description": "Browser language code from accounts.fingerprint.options.get; empty follows the IP address.",
             "maxLength": 200
           },
           "time_zone": {
             "type": "string",
-            "description": "Timezone in the current Work format.",
+            "description": "ip follows the IP address, local uses the local time zone, or a time zone from accounts.fingerprint.options.get.",
             "maxLength": 100
           },
           "dnt": {
             "type": "string",
-            "description": "Work Do Not Track setting.",
-            "maxLength": 10
+            "description": "Do Not Track: 1 is on, 0 or empty is off.",
+            "enum": [
+              "1",
+              "0",
+              ""
+            ],
+            "maxLength": 100
           },
           "battery": {
             "type": "string",
@@ -89,17 +94,243 @@
           },
           "screen_resolution_input": {
             "type": "string",
-            "description": "Screen resolution in widthxheight format.",
+            "description": "Predefined screen size for screen mode 1: UA follows the user agent, or a size from accounts.fingerprint.options.get for the account system.",
             "maxLength": 40
+          },
+          "os": {
+            "type": "string",
+            "description": "Operating system. Changing it regenerates the user agents and the screen resolution.",
+            "enum": [
+              "Windows",
+              "macOS",
+              "Linux",
+              "Android",
+              "iOS"
+            ],
+            "maxLength": 100
+          },
+          "os_version": {
+            "type": "string",
+            "description": "Operating system version from accounts.fingerprint.options.get for that system, for example 11 for Windows.",
+            "maxLength": 40
+          },
+          "userAgentVersion132": {
+            "type": "string",
+            "description": "Browser version pool of the 132 kernel; All uses the kernel version.",
+            "enum": [
+              "All",
+              "132",
+              "131",
+              "130"
+            ],
+            "maxLength": 100
+          },
+          "userAgentVersion120": {
+            "type": "string",
+            "description": "Browser version pool of the 120 kernel; All uses the kernel version.",
+            "enum": [
+              "All",
+              "121",
+              "120",
+              "119"
+            ],
+            "maxLength": 100
+          },
+          "randomize_user_agent": {
+            "type": "string",
+            "description": "Generate a new user agent for one kernel or for both. Applied once; not stored.",
+            "enum": [
+              "all",
+              "132",
+              "120"
+            ],
+            "maxLength": 100
+          },
+          "port_protect": {
+            "type": "string",
+            "description": "Port protection: 0 is off; 1-<ports> is on with a comma-separated port list, for example 1-80,81.",
+            "maxLength": 200
+          },
+          "webrtc": {
+            "type": "string",
+            "description": "WebRTC: 1 replaces with the proxy IP and needs a network device on the account (see accounts.network.set), 0 blocks, empty uses the real value.",
+            "enum": [
+              "1",
+              "0",
+              ""
+            ],
+            "maxLength": 100
+          },
+          "geolocationDisplay": {
+            "type": "string",
+            "description": "Geolocation permission: 1 allows, 2 blocks, 3 asks.",
+            "enum": [
+              "1",
+              "2",
+              "3"
+            ],
+            "maxLength": 100
+          },
+          "geolocationIsIp": {
+            "type": "boolean",
+            "description": "Whether geolocation follows the IP address. False uses the latitude, longitude and accuracy, unless geolocation is blocked."
+          },
+          "geolocationLatitude": {
+            "type": "string",
+            "description": "Latitude from 0 to 90, as Work accepts it.",
+            "maxLength": 20
+          },
+          "geolocationLongitude": {
+            "type": "string",
+            "description": "Longitude from 0 to 180, as Work accepts it.",
+            "maxLength": 20
+          },
+          "geolocationAccuracy": {
+            "type": "string",
+            "description": "Accuracy in meters, at least 10.",
+            "maxLength": 20
+          },
+          "webgl_metadata": {
+            "type": "string",
+            "description": "WebGL vendor and renderer together as <manufacturer>;<renderer> from the Work list; empty uses the real value. Do not combine with webManufacturer or webGLRendering.",
+            "maxLength": 300
+          },
+          "webManufacturer": {
+            "type": "string",
+            "description": "WebGL manufacturer from accounts.fingerprint.options.get; empty uses the real value. A new manufacturer picks one of its renderers unless webGLRendering is also set.",
+            "maxLength": 100
+          },
+          "webGLRendering": {
+            "type": "string",
+            "description": "WebGL renderer of the current or given manufacturer, from accounts.fingerprint.options.get.",
+            "maxLength": 300
+          },
+          "webgpu": {
+            "type": "string",
+            "description": "WebGPU: match-webgl follows the WebGL setting, disabled turns it off, real uses the real value.",
+            "enum": [
+              "match-webgl",
+              "disabled",
+              "real"
+            ],
+            "maxLength": 100
+          },
+          "screenDisplay": {
+            "type": "string",
+            "description": "Screen mode: 1 predefined, 2 custom size, 3 privacy (a random listed size).",
+            "enum": [
+              "1",
+              "2",
+              "3"
+            ],
+            "maxLength": 100
+          },
+          "screen_auto_left": {
+            "type": "string",
+            "description": "Custom screen width from 1 to 9999, for screen mode 2.",
+            "maxLength": 4
+          },
+          "screen_auto_right": {
+            "type": "string",
+            "description": "Custom screen height from 1 to 9999, for screen mode 2.",
+            "maxLength": 4
+          },
+          "font_mode": {
+            "type": "string",
+            "description": "Fonts: privacy generates a value the way Work does and keeps one already set; real uses the real value. Applied once, not stored.",
+            "enum": [
+              "privacy",
+              "real"
+            ],
+            "maxLength": 100
+          },
+          "battery_mode": {
+            "type": "string",
+            "description": "Battery: privacy generates a value the way Work does and keeps one already set; real uses the real value. Applied once, not stored.",
+            "enum": [
+              "privacy",
+              "real"
+            ],
+            "maxLength": 100
+          },
+          "bluetooth_mode": {
+            "type": "string",
+            "description": "Bluetooth: privacy generates a value the way Work does and keeps one already set; real uses the real value. Applied once, not stored.",
+            "enum": [
+              "privacy",
+              "real"
+            ],
+            "maxLength": 100
+          },
+          "speech_voices_mode": {
+            "type": "string",
+            "description": "Speech voices: privacy generates a value the way Work does and keeps one already set; real uses the real value. Applied once, not stored.",
+            "enum": [
+              "privacy",
+              "real"
+            ],
+            "maxLength": 100
+          },
+          "audio_context_mode": {
+            "type": "string",
+            "description": "Audio context: noise generates a value the way Work does and keeps one already set; real uses the real value. Applied once, not stored.",
+            "enum": [
+              "noise",
+              "real"
+            ],
+            "maxLength": 100
+          },
+          "client_rects_mode": {
+            "type": "string",
+            "description": "Client rectangles: noise generates a value the way Work does and keeps one already set; real uses the real value. Applied once, not stored.",
+            "enum": [
+              "noise",
+              "real"
+            ],
+            "maxLength": 100
+          },
+          "media_device_mode": {
+            "type": "string",
+            "description": "Media devices: noise generates a value the way Work does and keeps one already set; real uses the real value. Applied once, not stored.",
+            "enum": [
+              "noise",
+              "real"
+            ],
+            "maxLength": 100
+          },
+          "canvas_mode": {
+            "type": "string",
+            "description": "Canvas: noise generates a value the way Work does and keeps one already set; real uses the real value. Applied once, not stored.",
+            "enum": [
+              "noise",
+              "real"
+            ],
+            "maxLength": 100
+          },
+          "webgl_image_mode": {
+            "type": "string",
+            "description": "WebGL image: noise generates a value the way Work does and keeps one already set; real uses the real value. Applied once, not stored.",
+            "enum": [
+              "noise",
+              "real"
+            ],
+            "maxLength": 100
           }
         },
         "required": [],
         "additionalProperties": false
+      },
+      "replaceCookie": {
+        "type": "boolean",
+        "description": "Ask the person to enter this account's fingerprint cookie in a trusted sheet. The value never passes through this tool."
+      },
+      "clearCookie": {
+        "type": "boolean",
+        "description": "Remove the cookie saved in this account's fingerprint."
       }
     },
     "required": [
-      "accountId",
-      "patch"
+      "accountId"
     ],
     "additionalProperties": false
   },
@@ -207,6 +438,7 @@
     ],
     "additionalProperties": false
   },
+  "guidance": "Send only the setting to change; every other one is kept. Read accepted values from accounts.fingerprint.options.get. For an on/off metric use its _mode field (for example canvas_mode: noise), which generates the value the way Work does.\n\nLinked settings follow Work: a new os redraws the user agents and the screen size, a new webManufacturer picks a renderer, and WebGPU follows WebGL. WebRTC replace needs a network device on the account.\n\nNever ask the person to type a cookie into the conversation and never pass one: set replaceCookie and DSphere asks in its own SidePanel sheet, or set clearCookie to remove it. fingerprint.get reports only hasCookie.",
   "risk": "reversible-write",
   "targetKinds": [
     "managed-account"

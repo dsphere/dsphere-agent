@@ -3,7 +3,7 @@
   "version": 1,
   "title": "List my open wizards and runs",
   "description": "What this browser still holds for you between calls (decision F4, failure-endpoint fallback §11): the guided wizards you started that are still open (dsagent.wizard.*), with how long each has waited for you and when it is released unless you address it (idle for 30 minutes of silence from your…",
-  "guidance": "What this browser still holds for you between calls (decision F4, failure-endpoint fallback §11): the guided wizards you started that are still open (dsagent.wizard.*), with how long each has waited for you and when it is released unless you address it (idle for 30 minutes of silence from your connection, or 20 minutes without a call naming it; a sign-in wall ends a wizard after 30 minutes); the runs you started that are still running (each holds its pages: a write there is refused PAGE_IN_USE_BY_RUN; wait with dsagent.execution.wait or stop it with dsagent.execution.stop); and the runs you started that wait on something in this browser (a sign-in wall the person must pass, host resource pressure, or your repair of a failed block), with the same pause dsagent.execution.get reports. Also how close the 8-wizard limit is and when the next slot frees by itself. Use it after a restart of your Connector (pass the runToken or wizardToken you kept to the run or wizard you take back), when dsagent.wizard.start answers WIZARD_LIMIT_REACHED or WIZARD_ALREADY_ACTIVE, when a page is refused PAGE_IN_USE_BY_RUN or PAGE_IN_USE_BY_WIZARD, or after the person changed your instructions mid-task (cancel the wizards and stop the runs the new instruction made obsolete; cancel a wizard of yours by its wizardId). Read-only; your own work only, other agents' wizards are counted, never named.",
+  "guidance": "What this browser still holds for you between calls (decision F4, failure-endpoint fallback §11): the guided wizards you started that are still open (dsagent.wizard.*), with how long each has waited for you and when it is released unless you address it (idle for 30 minutes of silence from your connection, or 20 minutes without a call naming it; a sign-in wall keeps a wizard waiting for the person until they pass it or you cancel it); the runs you started that are still running (each holds its pages: a write there is refused PAGE_IN_USE_BY_RUN; wait with dsagent.execution.wait or stop it with dsagent.execution.stop); and the runs you started that wait on something in this browser (a sign-in wall the person must pass, host resource pressure, or your repair of a failed block), with the same pause dsagent.execution.get reports. Also how close the 8-wizard limit is and when the next slot frees by itself. Use it after a restart of your Connector (pass the runToken or wizardToken you kept to the run or wizard you take back), when dsagent.wizard.start answers WIZARD_LIMIT_REACHED or WIZARD_ALREADY_ACTIVE, when a page is refused PAGE_IN_USE_BY_RUN or PAGE_IN_USE_BY_WIZARD, or after the person changed your instructions mid-task (cancel the wizards and stop the runs the new instruction made obsolete; cancel a wizard of yours by its wizardId). Read-only; your own work only, other agents' wizards are counted, never named.",
   "inputSchema": {
     "type": "object",
     "additionalProperties": false,
@@ -67,11 +67,6 @@
               "type": "integer",
               "minimum": 0,
               "description": "Seconds until the wizard is released on its own unless you address it (its session stays with the person; start again with adoptActive to continue)."
-            },
-            "wallEndsInSeconds": {
-              "type": "integer",
-              "minimum": 0,
-              "description": "Present while a sign-in or verification wall stands on its page: seconds until the wizard ends on that wall unless the person passes it."
             }
           },
           "required": [

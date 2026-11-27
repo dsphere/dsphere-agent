@@ -1,0 +1,328 @@
+{
+  "method": "dsagent.accounts.devices.update",
+  "version": 1,
+  "title": "Update Network Device",
+  "description": "Update any one setting of a third-party device; omitted fields, bindings and saved credentials are kept. The username and password change independently, through a trusted sheet. Moving a device with saved credentials requires replacing or clearing them.",
+  "inputSchema": {
+    "type": "object",
+    "description": "Update any one setting of a third-party device; omitted fields, bindings and saved credentials are kept. The username and password change independently, through a trusted sheet. Moving a device with saved credentials requires replacing or clearing them.",
+    "properties": {
+      "deviceId": {
+        "type": "string",
+        "description": "Opaque network device reference returned by accounts.devices.list.",
+        "minLength": 1,
+        "maxLength": 100
+      },
+      "patch": {
+        "type": "object",
+        "description": "Device changes; omitted fields retain their values.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Device name, unique in the organization, 1 to 200 characters.",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "proxyType": {
+            "type": "string",
+            "description": "Proxy protocol.",
+            "enum": [
+              "HTTP",
+              "HTTPS",
+              "SOCKS5"
+            ],
+            "maxLength": 100
+          },
+          "ipProtocol": {
+            "type": "string",
+            "description": "IP version of the proxy.",
+            "enum": [
+              "IPV4",
+              "IPV6"
+            ],
+            "maxLength": 100
+          },
+          "host": {
+            "type": "string",
+            "description": "Proxy host only: an IPv4 address, an IPv6 address or a domain name. No scheme, port, path or credentials.",
+            "minLength": 1,
+            "maxLength": 253
+          },
+          "port": {
+            "type": "integer",
+            "description": "Proxy port.",
+            "minimum": 1,
+            "maximum": 65535
+          },
+          "checkChannel": {
+            "type": "string",
+            "description": "IP check channel from accounts.devices.options.get.",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "remark": {
+            "type": "string",
+            "description": "Device remark, at most 200 characters.",
+            "maxLength": 200
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      },
+      "replaceUsername": {
+        "type": "boolean",
+        "description": "Ask the person to enter a new proxy username in a trusted sheet; the saved password is kept unless also changed."
+      },
+      "replacePassword": {
+        "type": "boolean",
+        "description": "Ask the person to enter a new proxy password in a trusted sheet; the saved username is kept unless also changed."
+      },
+      "clearUsername": {
+        "type": "boolean",
+        "description": "Remove the saved proxy username; the saved password is kept unless also changed."
+      },
+      "clearPassword": {
+        "type": "boolean",
+        "description": "Remove the saved proxy password; the saved username is kept unless also changed."
+      }
+    },
+    "required": [
+      "deviceId"
+    ],
+    "additionalProperties": false
+  },
+  "outputSchema": {
+    "type": "object",
+    "description": "Account operation result. status/stage are for internal reconciliation, not user-facing open-success/failure badges. Report the separate autofill receipt; a page being open never proves fill or sign-in.",
+    "properties": {
+      "autofill": {
+        "type": "object",
+        "description": "Separate sign-in receipt: the DSphere account manager signs in on the opened page. Query accounts.operations.get with operationId while running; unknown must not be replayed. succeeded: the sign-in form was sent and the page no longer asks to sign in. skipped with already-signed-in, no-sign-in-form or site-unreachable (the tab shows the browser's error page): nothing was typed.",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Observed autofill state.",
+            "maxLength": 40,
+            "enum": [
+              "running",
+              "succeeded",
+              "failed",
+              "skipped",
+              "unknown"
+            ]
+          },
+          "updatedAt": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Receipt observation time in milliseconds."
+          },
+          "reason": {
+            "type": "string",
+            "description": "Safe reason code; never credentials or page field values.",
+            "maxLength": 120
+          }
+        },
+        "required": [
+          "status",
+          "updatedAt"
+        ],
+        "additionalProperties": false
+      },
+      "operationId": {
+        "type": "string",
+        "description": "Local operation reference; not a Pangu request receipt.",
+        "maxLength": 100
+      },
+      "status": {
+        "type": "string",
+        "description": "Observed operation status.",
+        "maxLength": 40,
+        "enum": [
+          "not-dispatched",
+          "waiting-user",
+          "running",
+          "succeeded",
+          "partial",
+          "failed",
+          "cancelled",
+          "outcome-unknown",
+          "record-unavailable",
+          "available"
+        ]
+      },
+      "stage": {
+        "type": "string",
+        "description": "Completed or current account business stage.",
+        "maxLength": 100
+      },
+      "accountId": {
+        "type": "string",
+        "description": "Account reference when known.",
+        "maxLength": 100
+      },
+      "pageContextId": {
+        "type": "string",
+        "description": "Actual opened/focused page reference when known.",
+        "maxLength": 100
+      },
+      "warnings": {
+        "type": "array",
+        "description": "Bounded warnings, including synchronization and unknown outcomes.",
+        "items": {
+          "type": "string",
+          "description": "One safe product warning.",
+          "maxLength": 500
+        },
+        "maxItems": 20
+      },
+      "data": {
+        "type": "object",
+        "description": "Only the selected account operation's public product fields.",
+        "properties": {
+          "device": {
+            "type": "object",
+            "description": "A network device. Never carries a proxy username or password. Purchased platform devices do not show their address.",
+            "properties": {
+              "deviceId": {
+                "type": "string",
+                "description": "Opaque network device reference.",
+                "maxLength": 100
+              },
+              "name": {
+                "type": "string",
+                "description": "Device name.",
+                "maxLength": 200
+              },
+              "source": {
+                "type": "string",
+                "description": "platform is purchased from DSphere; third-party is added by the organization.",
+                "maxLength": 20,
+                "enum": [
+                  "platform",
+                  "third-party"
+                ]
+              },
+              "status": {
+                "type": "string",
+                "description": "Device state: initializing, initialization-timeout, initialization-failed, in-use, expired, expiring, check-failed, disabled or unknown.",
+                "maxLength": 40
+              },
+              "proxyType": {
+                "type": "string",
+                "description": "Proxy protocol of a third-party device.",
+                "maxLength": 20,
+                "enum": [
+                  "HTTP",
+                  "HTTPS",
+                  "SOCKS5"
+                ]
+              },
+              "ipProtocol": {
+                "type": "string",
+                "description": "IP version of a third-party device.",
+                "maxLength": 20,
+                "enum": [
+                  "IPV4",
+                  "IPV6"
+                ]
+              },
+              "host": {
+                "type": "string",
+                "description": "Proxy host of a third-party device.",
+                "maxLength": 253
+              },
+              "port": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Proxy port of a third-party device."
+              },
+              "checkChannel": {
+                "type": "string",
+                "description": "IP check channel.",
+                "maxLength": 100
+              },
+              "remark": {
+                "type": "string",
+                "description": "Device remark.",
+                "maxLength": 200
+              },
+              "hasCredential": {
+                "type": "boolean",
+                "description": "Whether a proxy username or password is saved. The values are never returned."
+              },
+              "exitIp": {
+                "type": "string",
+                "description": "Last observed exit IP.",
+                "maxLength": 64
+              },
+              "location": {
+                "type": "string",
+                "description": "Last observed location.",
+                "maxLength": 200
+              },
+              "checkStatus": {
+                "type": "string",
+                "description": "Last connection check status from Work.",
+                "maxLength": 20
+              },
+              "expiresAt": {
+                "type": "string",
+                "description": "Expiry time of a purchased device.",
+                "maxLength": 40
+              },
+              "boundAccounts": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Number of accounts using this device."
+              },
+              "allowedActions": {
+                "type": "array",
+                "description": "Device operations available now.",
+                "items": {
+                  "type": "string",
+                  "description": "A dsagent.accounts device action name.",
+                  "maxLength": 40
+                },
+                "maxItems": 6
+              }
+            },
+            "required": [
+              "deviceId",
+              "name",
+              "source",
+              "status",
+              "boundAccounts",
+              "allowedActions"
+            ],
+            "additionalProperties": false
+          },
+          "saved": {
+            "type": "boolean",
+            "description": "Whether configuration was confirmed saved."
+          }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    },
+    "required": [
+      "status",
+      "stage",
+      "warnings"
+    ],
+    "additionalProperties": false
+  },
+  "guidance": "Send only the setting to change: name, proxyType, ipProtocol, host, port, checkChannel and remark each change alone, and every other value is kept. Use accounts.network.set to change which accounts use the device.\n\nThe username and password are independent. replaceUsername or replacePassword asks the person for that one value in a DSphere SidePanel sheet, and clearUsername or clearPassword removes it. Never ask the user to type them into the conversation and never pass them.\n\nTo change the host, port or type of a device with saved credentials, also replace or clear each saved value: saved credentials are never sent to a new address unseen.\n\nIf accounts use the device, moving its address opens a confirmation in the DSphere SidePanel unless the person already entered new credentials there. After partial or unknown, read accounts.devices.get; never replay.",
+  "risk": "external-effect",
+  "targetKinds": [
+    "managed-account"
+  ],
+  "requiredPermissions": [
+    "accounts.write"
+  ],
+  "timeoutMs": 300000,
+  "maxInlineResultBytes": 65536,
+  "concurrency": "exclusive-target",
+  "retry": "never",
+  "exposure": "exposed"
+}

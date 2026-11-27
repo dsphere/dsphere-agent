@@ -35,7 +35,7 @@ Create a DSphere account record. Ordinary requests show a trusted side panel she
 | `deviceRef` | string (1–100 chars) |  | Available device reference. |
 | `syncEnabled` | boolean |  | Whether to enable existing account synchronization when supported. |
 | `sessionKeepAlive` | boolean |  | Whether to retain the existing account session. |
-| `fingerprintPolicy` | enum: auto, require, none |  | Automatic generation follows the supported Work baseline; require rejects an unsupported app. |
+| `fingerprintPolicy` | enum: auto, require, none |  | Automatic generation follows the supported Work baseline; require rejects an unsupported app; none only for an app with… |
 | `fingerprintOverrides` | object {language, time_zone, dnt, battery, font, bluetooth, …} |  | Supported fingerprint fields; omitted fields retain their current value. Cookies and device credentials are never accep… |
 
 ## Result fields (data.data)

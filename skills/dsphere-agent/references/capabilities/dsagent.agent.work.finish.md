@@ -12,8 +12,9 @@ Call `dsagent_invoke` with this shape. Replace every placeholder with a value fr
 {
   "method": "dsagent.agent.work.finish",
   "args": {
-    "pageContextId": "<pageContextId: supply a value matching the schema>",
-    "status": "succeeded"
+    "pageContextId": "<pageContextId>",
+    "status": "succeeded",
+    "keep": []
   },
   "idempotencyKey": "<fresh 8-128 character key you choose; reuse it only for an identical retry>"
 }
@@ -25,7 +26,7 @@ The page identifying your task, its verified terminal outcome, and the pages to 
 
 | Field | Type | Required | Meaning |
 |---|---|---|---|
-| `pageContextId` | string (1–128 chars) | yes | A page reference belonging to the task you are finishing. |
+| `pageContextId` | string (1–128 chars) |  | A page of the task you are finishing. Required whenever the task holds a page; leave it out only when your latest task,… |
 | `status` | enum: succeeded, failed, cancelled, completed | yes | The outcome you verified for this task: succeeded, failed or cancelled (completed is accepted as succeeded). |
 | `keep` | array of string (1–128 chars) (≤ 32) |  | Close the task's other pages now: [] closes them all, listed pages stay open for the person. Omit for the 60-second cou… |
 | `compileRun` | boolean |  | Return run: this task's verified page steps compiled into Playwright-style scripts for dsagent.page.script, one per pag… |

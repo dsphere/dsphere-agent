@@ -6,16 +6,13 @@ Runs a short JavaScript program in a sandbox in the extension on one page you op
 
 ## Invocation
 
-Call `dsagent_invoke` with this shape. Replace every placeholder with a value from the user or a preceding result; add `instanceId` when more than one browser is online. Opaque ids and revisions come only from results.
+Call `dsagent_page_script` with this shape: the arguments flat, no method/args wrapper. Replace every placeholder with a value from the user or a preceding result; add `instanceId` when more than one browser is online. Opaque ids and revisions come only from results.
 
 ```json
 {
-  "method": "dsagent.page.script",
-  "args": {
-    "pageContextId": "<pageContextId: supply a value matching the schema>",
-    "description": "<description: supply a value matching the schema>",
-    "source": "<source: supply a value matching the schema>"
-  },
+  "pageContextId": "<pageContextId: supply a value matching the schema>",
+  "description": "<description: supply a value matching the schema>",
+  "source": "<source: supply a value matching the schema>",
   "idempotencyKey": "<fresh 8-128 character key you choose; reuse it only for an identical retry>"
 }
 ```
@@ -30,8 +27,8 @@ The page, what the script does in words, its source and optional input and limit
 | `taskMode` | enum: auto, continue |  | continue for your own skill, workflow or plan of several steps; auto (the default) for a request of one step. With cont… |
 | `taskSteps` | array of string (1–160 chars) (≤ 30) |  | With taskMode continue: your steps in order. Name them as your skill lists them; DSphere shows them as the task checkli… |
 | `pageContextId` | string (2–128 chars) | yes | Opaque page context from dsagent.pages.list or dsagent.page.open. The script works on this page only; it cannot open pa… |
-| `description` | string (1–120 chars) | yes | What the script does, in words the person reads in the activity card and on the page, e.g. "Search for the keyword and… |
-| `source` | string (1–16384 chars) | yes | The script body (at most 16384 bytes of UTF-8). It runs as the body of an async function: use await and return a JSON v… |
+| `description` | string (1–120 chars) | yes | What the script does, in words the person reads in the activity card and on the page ("Search for the keyword, then tur… |
+| `source` | string (1–16384 chars) | yes | An async function body: t = (await page.find(words, {role})).matches[0], then await page.click(t), page.input(t, value)… |
 | `input` | object |  | Optional JSON object (at most 8192 bytes), available read-only as the global input. |
 | `maxSteps` | integer (1…60) |  | Most page calls the script may make; default 30. One more ends it with step-limit. |
 | `timeoutMs` | integer (1000…120000) |  | Time for the whole script; default 60000. A page call already sent finishes first. |

@@ -2,7 +2,7 @@
 
 **Bring a page forward** · risk `reversible-write` · timeout 15000 ms · inline result ≤ 1024 bytes · concurrency `exclusive-target`
 
-Bring a page's tab forward in its window and focus that window, for the rare step that needs the page on screen (a visual read that reports TAB_NOT_ACTIVE or WINDOW_NOT_FOCUSED, a control that only paints while visible).
+Bring a page's tab forward in its window and focus that window.
 
 ## Invocation
 

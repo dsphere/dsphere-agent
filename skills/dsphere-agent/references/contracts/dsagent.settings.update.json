@@ -25,11 +25,12 @@
           "site-knowledge",
           "professional-mode",
           "identity-providers",
-          "run-window-focus",
+          "background-rendering",
           "agent-challenge-walls",
           "network-data",
           "browser-monitor",
           "sign-in-consent-dialogs",
+          "agent-account-confirmations",
           "agent-scripts",
           "chat-plan-approval",
           "file-release-consent",
@@ -533,15 +534,15 @@
       {
         "type": "object",
         "additionalProperties": false,
-        "description": "run-window-focus set: Turn bringing the run window to the front on or off; the next action of a running workflow follows it.",
+        "description": "background-rendering set: Turn keeping all tabs rendering in the background on or off; it applies at once to every open tab. Refused with UNSUPPORTED (not retryable) in a browser without background rendering.",
         "properties": {
           "section": {
-            "const": "run-window-focus",
-            "description": "Section run-window-focus: Run Window Focus."
+            "const": "background-rendering",
+            "description": "Section background-rendering: Background Rendering."
           },
           "operation": {
             "const": "set",
-            "description": "Turn bringing the run window to the front on or off; the next action of a running workflow follows it."
+            "description": "Turn keeping all tabs rendering in the background on or off; it applies at once to every open tab. Refused with UNSUPPORTED (not retryable) in a browser without background rendering."
           },
           "value": {
             "type": "object",
@@ -550,7 +551,7 @@
             "properties": {
               "enabled": {
                 "type": "boolean",
-                "description": "Whether a workflow run brings its browser window to the front when its page is hidden (window minimized or covered) before it clicks or types on the page; a hidden page does not render and ignores the run's actions (default true)."
+                "description": "Whether every open tab, and every tab opened later, keeps drawing and running in the background (behind another tab, in a minimized window or behind another application) whether or not a task runs (default false). Off, only the tabs a task works on render in the background; tasks render their pages either way. On uses more memory and power for every background tab. Needs a DSphere browser version with background rendering."
               }
             },
             "required": [
@@ -1806,11 +1807,12 @@
           "site-knowledge",
           "professional-mode",
           "identity-providers",
-          "run-window-focus",
+          "background-rendering",
           "agent-challenge-walls",
           "network-data",
           "browser-monitor",
           "sign-in-consent-dialogs",
+          "agent-account-confirmations",
           "agent-scripts",
           "chat-plan-approval",
           "file-release-consent",

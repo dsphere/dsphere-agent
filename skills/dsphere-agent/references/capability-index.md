@@ -9,15 +9,31 @@ Known methods are invoked directly. Look a contract up with `dsagent_list_capabi
 | Method | Purpose | Risk | Key |
 |---|---|---|---|
 | `dsagent.accounts.application.create` | Create a custom web application by name and HTTP(S) address, including before i… | external-effect | yes |
+| `dsagent.accounts.application.delete` | Delete a custom application that has no accounts, on explicit user request. | external-effect | yes |
+| `dsagent.accounts.application.get` | Read one visible application: name, address, whether it is a platform template,… | read-sensitive |  |
+| `dsagent.accounts.application.update` | Rename a custom application or change its address. | external-effect | yes |
 | `dsagent.accounts.close` | Synchronize and close only the selected account environment. | reversible-write | yes |
+| `dsagent.accounts.confirmations.answer` | Confirm or decline one of this caller's own waiting Confirm/Decline sheets, the… | external-effect | yes |
+| `dsagent.accounts.confirmations.list` | List the Confirm/Decline sheets this caller's own account writes opened in the… | read-sensitive |  |
 | `dsagent.accounts.create` | Create a DSphere account record. | external-effect | yes |
 | `dsagent.accounts.delete` | Delete the selected account and clear its environment directly on explicit user… | external-effect | yes |
+| `dsagent.accounts.devices.create` | Add a third-party proxy device. | external-effect | yes |
+| `dsagent.accounts.devices.delete` | Delete a third-party device on explicit user request. | external-effect | yes |
+| `dsagent.accounts.devices.get` | Read one network device and the visible accounts bound to it. | read-sensitive |  |
+| `dsagent.accounts.devices.list` | List the network devices of the current organization, without any proxy usernam… | read-sensitive |  |
+| `dsagent.accounts.devices.options.get` | Read what a new network device can use: proxy types, IP versions, check channel… | read-sensitive |  |
+| `dsagent.accounts.devices.restore` | Restore a disabled third-party device. | external-effect | yes |
+| `dsagent.accounts.devices.test` | Test a saved third-party device through its proxy, as the Work Device page chec… | external-effect | yes |
+| `dsagent.accounts.devices.update` | Update any one setting of a third-party device; omitted fields, bindings and sa… | external-effect | yes |
 | `dsagent.accounts.fingerprint.get` | Read the permitted fingerprint configuration without cookie or secret fields. | read-sensitive |  |
+| `dsagent.accounts.fingerprint.options.get` | Read the values each fingerprint setting accepts: systems and versions, browser… | read-sensitive |  |
 | `dsagent.accounts.fingerprint.regenerate` | Regenerate the currently enabled fingerprint items using Work rules and save th… | reversible-write | yes |
-| `dsagent.accounts.fingerprint.update` | Merge the permitted fingerprint changes with the existing saved configuration. | reversible-write | yes |
+| `dsagent.accounts.fingerprint.update` | Change any fingerprint setting on its own and keep every other one. | reversible-write | yes |
 | `dsagent.accounts.focus` | Focus an existing page of the account without opening a new environment. | reversible-write | yes |
 | `dsagent.accounts.get` | Read a currently visible account without its password or cookies. | read-sensitive |  |
 | `dsagent.accounts.list` | Search the current Work-visible account snapshot. | read-sensitive |  |
+| `dsagent.accounts.network.get` | Read which network connection an account uses: a network device, the local netw… | read-sensitive |  |
+| `dsagent.accounts.network.set` | Set the network connection of up to 100 accounts: a network device, the local n… | external-effect | yes |
 | `dsagent.accounts.open` | Open the account using its existing browser environment and fill owner. | reversible-write | yes |
 | `dsagent.accounts.operations.get` | Read this caller's local operation record; never dispatch or retry it. | read-sensitive |  |
 | `dsagent.accounts.options.get` | Read visible applications; select appId to read permission-derived creationFiel… | read-sensitive |  |
@@ -38,6 +54,7 @@ Known methods are invoked directly. Look a contract up with `dsagent_list_capabi
 | `dsagent.bookmarks.import` | Import the bookmarks of the chosen profiles into the DSphere browser, exactly a… | reversible-write | yes |
 | `dsagent.bookmarks.sources` | List the Google Chrome, Microsoft Edge and Safari profiles on this computer who… | read-sensitive |  |
 | `dsagent.browser.sessions.list` | List the browser sessions a task can open pages in, each with the websites it h… | read-sensitive |  |
+| `dsagent.browser.version` | Whether this DSphere browser is new enough to run tasks: it must be newer than… | read-sensitive |  |
 | `dsagent.dataset.save-agent-read` | The last detection tier (failure-endpoint fallback D4): save records you read y… | reversible-write | yes |
 | `dsagent.development.chat.arm` | Development only, for a benchmark of the Chat the person asked you to run: the… | external-effect | yes |
 | `dsagent.development.chat.new` | Development only: press New conversation in the Chat of the person's focused wi… | external-effect | yes |
@@ -90,7 +107,7 @@ Known methods are invoked directly. Look a contract up with `dsagent_list_capabi
 | `dsagent.page.files.download` | Save detected files or images through the DSphere file API to the user export f… | external-effect | yes |
 | `dsagent.page.files.locate` | Scroll the page (or its embedded frame) so a detected file's link or picture is… | reversible-write | yes |
 | `dsagent.page.find` | Find the current page targets that read as a short query (a visible label, a pl… | read-sensitive |  |
-| `dsagent.page.focus` | Bring a page's tab forward in its window and focus that window, for the rare st… | reversible-write | yes |
+| `dsagent.page.focus` | Bring a page's tab forward in its window and focus that window. | reversible-write | yes |
 | `dsagent.page.markdown` | Read the current document of a page context as clean Markdown for reading, summ… | read-sensitive |  |
 | `dsagent.page.notify` | Show the person a desktop notification asking them to come to this page, also w… | reversible-write | yes |
 | `dsagent.page.observe` | Read bounded live evidence for the browser steps you plan. | read-sensitive |  |
